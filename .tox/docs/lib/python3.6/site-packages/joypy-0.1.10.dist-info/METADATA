@@ -1,0 +1,24 @@
+Metadata-Version: 2.0
+Name: joypy
+Version: 0.1.10
+Summary: Joyplots in python
+Home-page: http://github.com/sbebo/joypy
+Author: Leonardo Taccari
+Author-email: leonardo.taccari@gmail.com
+License: MIT
+Description-Content-Type: UNKNOWN
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Topic :: Scientific/Engineering :: Visualization
+Requires-Dist: matplotlib
+Requires-Dist: numpy
+Requires-Dist: scipy (>=0.11.0)
+Requires-Dist: pandas (>=0.20.0)
+
+Joyplots in python.
+
+

@@ -1,0 +1,12 @@
+Building DAG of jobs...
+IncompleteFilesException:
+The files below seem to be incomplete. If you are sure that certain files are not incomplete, mark them as complete with
+
+    snakemake --cleanup-metadata <filenames>
+
+To re-generate the files rerun your command with the --rerun-incomplete flag.
+Incomplete files:
+results/2019_08_08/factor_analysis_from_iris.tsv
+results/2019_08_08/factor_analysis_from_iris-loadings.tsv
+results/2019_08_08/factor_analysis_from_iris-loglik.tsv
+results/2019_08_08/factor_analysis_from_iris-plot

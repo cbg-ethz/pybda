@@ -1,0 +1,686 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Regression</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/css/custom.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput,
+div.nbinput div.prompt,
+div.nbinput div.input_area,
+div.nbinput div[class*=highlight],
+div.nbinput div[class*=highlight] pre,
+div.nboutput,
+div.nbinput div.prompt,
+div.nbinput div.output_area,
+div.nboutput div[class*=highlight],
+div.nboutput div[class*=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* avoid gaps between output lines */
+div.nboutput div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput,
+div.nboutput {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput,
+    div.nboutput {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput div.prompt,
+div.nboutput div.prompt {
+    min-width: 5ex;
+    padding-top: 0.4em;
+    padding-right: 0.4em;
+    text-align: right;
+    flex: 0;
+}
+@media (max-width: 540px) {
+    div.nbinput div.prompt,
+    div.nboutput div.prompt {
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput div.prompt.empty {
+        padding: 0;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput div.prompt pre,
+div.nboutput div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput div.input_area,
+div.nboutput div.output_area {
+    padding: 0.4em;
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput div.input_area,
+    div.nboutput div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    background: #f5f5f5;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<div class="section" id="Regression">
+<h1>Regression<a class="headerlink" href="#Regression" title="Permalink to this headline">¶</a></h1>
+<p>PyBDA supports several methods for regression. Here, we show how random forests and gradient boosting can be used to predict a response variable from a set of covariables. We use a single-cell imaging data set to predict whether a cell is infected by a pathogen or not.</p>
+<p>We start by activating our environment:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-bash notranslate"><div class="highlight"><pre>
+<span></span><span class="nb">source</span> ~/miniconda3/bin/activate pybda
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(pybda)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+<p>To fit the two models, we can make use of a file we already provided in <code class="docutils literal notranslate"><span class="pre">data</span></code>. This should do the trick:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-bash notranslate"><div class="highlight"><pre>
+<span></span><span class="nb">cd</span> data
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(pybda)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-bash notranslate"><div class="highlight"><pre>
+<span></span>cat pybda-usecase-regression.config
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+spark: spark-submit
+infile: single_cell_imaging_data.tsv
+predict: single_cell_imaging_data.tsv
+outfolder: results
+meta: meta_columns.tsv
+features: feature_columns.tsv
+regression: forest, gbm
+family: binomial
+response: is_infected
+sparkparams:
+  - &#34;--driver-memory=1G&#34;
+  - &#34;--executor-memory=1G&#34;
+debug: true
+(pybda)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+<p>The config file above we will do the following:</p>
+<ul class="simple">
+<li><p>fit a random forest and gradient boosting models,</p></li>
+<li><p>regress the <code class="docutils literal notranslate"><span class="pre">response</span></code> column on the features in <code class="docutils literal notranslate"><span class="pre">feature_columns.tsv</span></code>,</p></li>
+<li><p>use a <code class="docutils literal notranslate"><span class="pre">binomial</span></code> family variable,</p></li>
+<li><p>predict the response using the fitted models using the data set in <code class="docutils literal notranslate"><span class="pre">predict</span></code>,</p></li>
+<li><p>give the Spark driver 1G of memory and the executor 1G of memory,</p></li>
+<li><p>write the results to <code class="docutils literal notranslate"><span class="pre">results</span></code>,</p></li>
+<li><p>print debug information.</p></li>
+</ul>
+<p>So, a brief file like this is enough!</p>
+<p>We then call PyBDA like this:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-bash notranslate"><div class="highlight"><pre>
+<span></span>pybda regression pybda-usecase-regression.config <span class="nb">local</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Checking command line arguments for method: regression
+<span class="ansi-yellow-intense-fg ansi-bold"> Printing rule tree:
+ -&gt; _ (, single_cell_imaging_data.tsv)
+         -&gt; regression (single_cell_imaging_data.tsv, results/2019_08_09/gbm_from_single_cell_imaging_data.tsv)
+         -&gt; regression (single_cell_imaging_data.tsv, results/2019_08_09/forest_from_single_cell_imaging_data.tsv)
+</span>
+<span class="ansi-yellow-fg">Building DAG of jobs...</span>
+[2019-08-09 00:15:53,204 - WARNING - snakemake.logging]: Building DAG of jobs...
+<span class="ansi-yellow-fg">Using shell: /bin/bash</span>
+[2019-08-09 00:15:53,219 - WARNING - snakemake.logging]: Using shell: /bin/bash
+<span class="ansi-yellow-fg">Provided cores: 1</span>
+[2019-08-09 00:15:53,219 - WARNING - snakemake.logging]: Provided cores: 1
+<span class="ansi-yellow-fg">Rules claiming more threads will be scaled down.</span>
+[2019-08-09 00:15:53,219 - WARNING - snakemake.logging]: Rules claiming more threads will be scaled down.
+<span class="ansi-yellow-fg">Job counts:
+        count   jobs
+        1       forest
+        1       gbm
+        2</span>
+[2019-08-09 00:15:53,220 - WARNING - snakemake.logging]: Job counts:
+        count   jobs
+        1       forest
+        1       gbm
+        2
+
+[2019-08-09 00:15:53,221 - INFO - snakemake.logging]:
+<span class="ansi-green-fg">[Fri Aug  9 00:15:53 2019]</span>
+[2019-08-09 00:15:53,222 - INFO - snakemake.logging]: [Fri Aug  9 00:15:53 2019]
+<span class="ansi-green-fg">rule gbm:
+    input: single_cell_imaging_data.tsv
+    output: results/2019_08_09/gbm_from_single_cell_imaging_data-statistics.tsv
+    jobid: 0</span>
+[2019-08-09 00:15:53,222 - INFO - snakemake.logging]: rule gbm:
+    input: single_cell_imaging_data.tsv
+    output: results/2019_08_09/gbm_from_single_cell_imaging_data-statistics.tsv
+    jobid: 0
+
+[2019-08-09 00:15:53,222 - INFO - snakemake.logging]:
+<span class="ansi-yellow-intense-fg ansi-bold"> Printing rule tree:
+ -&gt; _ (, single_cell_imaging_data.tsv)
+         -&gt; regression (single_cell_imaging_data.tsv, results/2019_08_09/gbm_from_single_cell_imaging_data.tsv)
+         -&gt; regression (single_cell_imaging_data.tsv, results/2019_08_09/forest_from_single_cell_imaging_data.tsv)
+</span>
+<span class="ansi-yellow-fg">Job counts:
+        count   jobs
+        1       gbm
+        1</span>
+<span class="ansi-yellow-intense-fg ansi-bold"> Submitting job spark-submit --master local --driver-memory=1G --executor-memory=1G /home/simon/PROJECTS/pybda/pybda/gbm.py --predict single_cell_imaging_data.tsv single_cell_imaging_data.tsv meta_columns.tsv feature_columns.tsv is_infected binomial results/2019_08_09/gbm_from_single_cell_imaging_data &gt; results/2019_08_09/gbm_from_single_cell_imaging_data-spark.log </span><span class="ansi-yellow-intense-fg ansi-bold">0m
+</span><span class="ansi-green-intense-fg ansi-bold">[Fri Aug  9 00:17:17 2019]</span>
+[2019-08-09 00:17:17,838 - INFO - snakemake.logging]: [Fri Aug  9 00:17:17 2019]
+<span class="ansi-green-fg">Finished job 0.</span>
+[2019-08-09 00:17:17,838 - INFO - snakemake.logging]: Finished job 0.
+<span class="ansi-green-fg">1 of 2 steps (50%) done</span>
+[2019-08-09 00:17:17,838 - INFO - snakemake.logging]: 1 of 2 steps (50%) done
+
+[2019-08-09 00:17:17,839 - INFO - snakemake.logging]:
+<span class="ansi-green-fg">[Fri Aug  9 00:17:17 2019]</span>
+[2019-08-09 00:17:17,839 - INFO - snakemake.logging]: [Fri Aug  9 00:17:17 2019]
+<span class="ansi-green-fg">rule forest:
+    input: single_cell_imaging_data.tsv
+    output: results/2019_08_09/forest_from_single_cell_imaging_data-statistics.tsv
+    jobid: 1</span>
+[2019-08-09 00:17:17,839 - INFO - snakemake.logging]: rule forest:
+    input: single_cell_imaging_data.tsv
+    output: results/2019_08_09/forest_from_single_cell_imaging_data-statistics.tsv
+    jobid: 1
+
+[2019-08-09 00:17:17,839 - INFO - snakemake.logging]:
+<span class="ansi-yellow-intense-fg ansi-bold"> Printing rule tree:
+ -&gt; _ (, single_cell_imaging_data.tsv)
+         -&gt; regression (single_cell_imaging_data.tsv, results/2019_08_09/gbm_from_single_cell_imaging_data.tsv)
+         -&gt; regression (single_cell_imaging_data.tsv, results/2019_08_09/forest_from_single_cell_imaging_data.tsv)
+</span>
+<span class="ansi-yellow-fg">Job counts:
+        count   jobs
+        1       forest
+        1</span>
+<span class="ansi-yellow-intense-fg ansi-bold"> Submitting job spark-submit --master local --driver-memory=1G --executor-memory=1G /home/simon/PROJECTS/pybda/pybda/forest.py --predict single_cell_imaging_data.tsv single_cell_imaging_data.tsv meta_columns.tsv feature_columns.tsv is_infected binomial results/2019_08_09/forest_from_single_cell_imaging_data &gt; results/2019_08_09/forest_from_single_cell_imaging_data-spark.log </span><span class="ansi-yellow-intense-fg ansi-bold">0m
+</span><span class="ansi-green-intense-fg ansi-bold">[Fri Aug  9 00:17:58 2019]</span>
+[2019-08-09 00:17:58,124 - INFO - snakemake.logging]: [Fri Aug  9 00:17:58 2019]
+<span class="ansi-green-fg">Finished job 1.</span>
+[2019-08-09 00:17:58,124 - INFO - snakemake.logging]: Finished job 1.
+<span class="ansi-green-fg">2 of 2 steps (100%) done</span>
+[2019-08-09 00:17:58,124 - INFO - snakemake.logging]: 2 of 2 steps (100%) done
+<span class="ansi-yellow-fg">Complete log: /home/simon/PROJECTS/pybda/data/.snakemake/log/2019-08-09T001553.143310.snakemake.log</span>
+[2019-08-09 00:17:58,125 - WARNING - snakemake.logging]: Complete log: /home/simon/PROJECTS/pybda/data/.snakemake/log/2019-08-09T001553.143310.snakemake.log
+(pybda)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+<p>That’s it! The call automatically executes the jobs defined in the config. After both ran, we should check the plots and statistics. Let’s see what we got:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-bash notranslate"><div class="highlight"><pre>
+<span></span><span class="nb">cd</span> results
+ls -lgG *
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(pybda) total 13832
+-rw-rw-r-- 1    2909 Aug  9 00:17 forest_from_single_cell_imaging_data.log
+-rw-r--r-- 1 5320871 Aug  9 00:17 forest_from_single_cell_imaging_data-predicted.tsv
+-rw-rw-r-- 1  406579 Aug  9 00:17 forest_from_single_cell_imaging_data-spark.log
+-rw-rw-r-- 1     118 Aug  9 00:17 forest_from_single_cell_imaging_data-statistics.tsv
+-rw-rw-r-- 1    2903 Aug  9 00:17 gbm_from_single_cell_imaging_data.log
+-rw-r--r-- 1 5323224 Aug  9 00:17 gbm_from_single_cell_imaging_data-predicted.tsv
+-rw-rw-r-- 1 3084636 Aug  9 00:17 gbm_from_single_cell_imaging_data-spark.log
+-rw-rw-r-- 1     130 Aug  9 00:17 gbm_from_single_cell_imaging_data-statistics.tsv
+(pybda)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+<p>Let’s check how good the two methods compare:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-bash notranslate"><div class="highlight"><pre>
+<span></span>cat */gbm_from_single_cell_imaging_data-statistics.tsv
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+family  response        accuracy        f1      precision       recall
+binomial        is_infected     0.9349  0.9348907798833392      0.9351464843746091      0.9349000000000001
+(pybda)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-bash notranslate"><div class="highlight"><pre>
+<span></span>cat */forest_from_single_cell_imaging_data-statistics.tsv
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+family  response        accuracy        f1      precision       recall
+binomial        is_infected     0.8236  0.8231143143597965      0.8271935801788475      0.8236
+(pybda)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+<p>The GBM performed way better than the random forest. That is hardly surprising, because the data set is very noisy, thus recursively training on the errors of a learner should be advantageous.</p>
+<p>PyBDA creates plenty of other files to check out! For instance, we should always look at the log files we created:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-bash notranslate"><div class="highlight"><pre>
+<span></span>cat */gbm_from_single_cell_imaging_data.log
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[2019-08-09 00:15:55,705 - INFO - pybda.spark_session]: Initializing pyspark session
+[2019-08-09 00:15:57,046 - INFO - pybda.spark_session]: Config: spark.master, value: local
+[2019-08-09 00:15:57,046 - INFO - pybda.spark_session]: Config: spark.driver.memory, value: 1G
+[2019-08-09 00:15:57,047 - INFO - pybda.spark_session]: Config: spark.app.name, value: gbm.py
+[2019-08-09 00:15:57,047 - INFO - pybda.spark_session]: Config: spark.driver.port, value: 39021
+[2019-08-09 00:15:57,047 - INFO - pybda.spark_session]: Config: spark.rdd.compress, value: True
+[2019-08-09 00:15:57,047 - INFO - pybda.spark_session]: Config: spark.app.id, value: local-1565302556519
+[2019-08-09 00:15:57,047 - INFO - pybda.spark_session]: Config: spark.serializer.objectStreamReset, value: 100
+[2019-08-09 00:15:57,047 - INFO - pybda.spark_session]: Config: spark.driver.host, value: 192.168.1.33
+[2019-08-09 00:15:57,047 - INFO - pybda.spark_session]: Config: spark.executor.id, value: driver
+[2019-08-09 00:15:57,047 - INFO - pybda.spark_session]: Config: spark.submit.deployMode, value: client
+[2019-08-09 00:15:57,047 - INFO - pybda.spark_session]: Openened spark context at: Fri Aug  9 00:15:57 2019
+[2019-08-09 00:15:57,066 - INFO - pybda.io.io]: Reading tsv: single_cell_imaging_data.tsv
+[2019-08-09 00:16:01,018 - INFO - pybda.spark.features]: Casting columns to double.
+[2019-08-09 00:16:02,010 - INFO - pybda.spark.features]: Assembling column to feature vector
+[2019-08-09 00:16:02,183 - INFO - pybda.spark.features]: Dropping redundant columns
+[2019-08-09 00:16:02,203 - INFO - pybda.ensemble]: Fitting forest with family=&#39;binomial&#39;
+[2019-08-09 00:16:05,686 - INFO - pybda.decorators]: function: &#39;_balance&#39; took: 3.4832 sec
+[2019-08-09 00:17:03,806 - INFO - pybda.decorators]: function: &#39;_fit&#39; took: 61.6037 sec
+[2019-08-09 00:17:12,037 - INFO - pybda.fit.ensemble_fit]: Writing regression statistics
+[2019-08-09 00:17:12,038 - INFO - pybda.io.io]: Reading tsv: single_cell_imaging_data.tsv
+[2019-08-09 00:17:12,286 - INFO - pybda.spark.features]: Casting columns to double.
+[2019-08-09 00:17:12,866 - INFO - pybda.spark.features]: Assembling column to feature vector
+[2019-08-09 00:17:12,975 - INFO - pybda.decorators]: function: &#39;predict&#39; took: 0.0645 sec
+[2019-08-09 00:17:12,988 - INFO - pybda.spark.features]: Dropping column &#39;features&#39;
+[2019-08-09 00:17:12,994 - INFO - pybda.spark.features]: Dropping column &#39;rawPrediction&#39;
+[2019-08-09 00:17:13,002 - INFO - pybda.spark.features]: Splitting vector columns: probability
+[2019-08-09 00:17:13,531 - INFO - pybda.io.io]: Writing tsv: results/2019_08_09/gbm_from_single_cell_imaging_data-predicted
+[2019-08-09 00:17:16,616 - INFO - pybda.spark_session]: Stopping Spark context
+[2019-08-09 00:17:16,616 - INFO - pybda.spark_session]: Closed spark context at: Fri Aug  9 00:17:16 2019
+[2019-08-09 00:17:16,616 - INFO - pybda.spark_session]: Computation took: 79
+(pybda)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+<p>Furthermore, the Spark <code class="docutils literal notranslate"><span class="pre">log</span></code> file is sometimes important to look at when the methods failed:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-bash notranslate"><div class="highlight"><pre>
+<span></span>head */gbm_from_single_cell_imaging_data-spark.log
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2019-08-09 00:15:54 WARN  Utils:66 - Your hostname, hoto resolves to a loopback address: 127.0.1.1; using 192.168.1.33 instead (on interface wlp2s0)
+2019-08-09 00:15:54 WARN  Utils:66 - Set SPARK_LOCAL_IP if you need to bind to another address
+2019-08-09 00:15:54 WARN  NativeCodeLoader:62 - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2019-08-09 00:15:55 INFO  SparkContext:54 - Running Spark version 2.4.0
+2019-08-09 00:15:55 INFO  SparkContext:54 - Submitted application: gbm.py
+2019-08-09 00:15:55 INFO  SecurityManager:54 - Changing view acls to: simon
+2019-08-09 00:15:55 INFO  SecurityManager:54 - Changing modify acls to: simon
+2019-08-09 00:15:55 INFO  SecurityManager:54 - Changing view acls groups to:
+2019-08-09 00:15:55 INFO  SecurityManager:54 - Changing modify acls groups to:
+2019-08-09 00:15:55 INFO  SecurityManager:54 - SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(simon); groups with view permissions: Set(); users  with modify permissions: Set(simon); groups with modify permissions: Set()
+(pybda)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><p class="logo">
+    <a href="index.html">
+        <img src="_static/sticker_pybda.png"
+             title="PyBDA"/>
+    </a>
+</p><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+      rel="stylesheet"
+      integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
+      crossorigin="anonymous">
+
+<h3>Contents</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+</ul>
+
+<hr>
+<ul>
+    <li>
+        <a href="https://github.com/cbg-ethz/pybda" style="text-decoration : none">
+            <i class="fa fa-github-square fa-3x" aria-hidden="true" style="vertical-align :middle;"></i>
+            <span style="vertical-align: middle; font-size: 1.3rem">GitHub</span>
+        </a>
+    </li>
+</ul>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018-2019, Simon Dirmeier.
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,18 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	factor_analysis
+	1	kmeans
+	2
+
+[Fri Mar 29 14:33:42 2019]
+rule factor_analysis:
+    input: single_cell_imaging_data.tsv
+    output: results/factor_analysis.tsv, results/factor_analysis-loadings.tsv, results/factor_analysis-loglik.tsv, results/factor_analysis-plot
+    jobid: 1
+
+Terminating processes on user request, this might take some time.
+Cancelling snakemake on user request.

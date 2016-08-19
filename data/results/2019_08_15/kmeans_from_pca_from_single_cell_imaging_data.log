@@ -1,0 +1,55 @@
+[2019-08-15 20:41:42,813 - INFO - pybda.spark_session]: Initializing pyspark session
+[2019-08-15 20:41:43,784 - INFO - pybda.spark_session]: Config: spark.master, value: local
+[2019-08-15 20:41:43,784 - INFO - pybda.spark_session]: Config: spark.driver.memory, value: 1G
+[2019-08-15 20:41:43,784 - INFO - pybda.spark_session]: Config: spark.rdd.compress, value: True
+[2019-08-15 20:41:43,784 - INFO - pybda.spark_session]: Config: spark.app.id, value: local-1565894503411
+[2019-08-15 20:41:43,784 - INFO - pybda.spark_session]: Config: spark.serializer.objectStreamReset, value: 100
+[2019-08-15 20:41:43,784 - INFO - pybda.spark_session]: Config: spark.driver.host, value: 192.168.1.33
+[2019-08-15 20:41:43,784 - INFO - pybda.spark_session]: Config: spark.executor.id, value: driver
+[2019-08-15 20:41:43,784 - INFO - pybda.spark_session]: Config: spark.submit.deployMode, value: client
+[2019-08-15 20:41:43,784 - INFO - pybda.spark_session]: Config: spark.driver.port, value: 35777
+[2019-08-15 20:41:43,784 - INFO - pybda.spark_session]: Config: spark.app.name, value: kmeans.py
+[2019-08-15 20:41:43,784 - INFO - pybda.spark_session]: Openened spark context at: Thu Aug 15 20:41:43 2019
+[2019-08-15 20:41:43,791 - INFO - pybda.io.io]: Reading tsv: results/2019_08_15/pca_from_single_cell_imaging_data.tsv
+[2019-08-15 20:41:47,067 - INFO - pybda.spark.features]: Found columns with prefix f_ from previous computation: f_0	f_1	f_2	f_3	f_4.
+Preferring these columns as features/
+[2019-08-15 20:41:47,068 - INFO - pybda.spark.features]: Casting columns to double.
+[2019-08-15 20:41:47,343 - INFO - pybda.spark.features]: Assembling column to feature vector
+[2019-08-15 20:41:47,343 - INFO - pybda.spark.features]: Found columns with prefix f_ from previous computation: f_0	f_1	f_2	f_3	f_4. Preferring these columns as features
+[2019-08-15 20:41:47,453 - INFO - pybda.spark.features]: Dropping redundant columns
+[2019-08-15 20:41:48,183 - INFO - pybda.spark.dataframe]: Using data with n=10000 and p=5
+[2019-08-15 20:41:48,191 - INFO - pybda.spark.features]: Splitting vector columns: features
+[2019-08-15 20:41:48,472 - INFO - pybda.clustering]: Computing variance
+[2019-08-15 20:41:48,472 - INFO - pybda.stats.stats]: Computing SSE
+[2019-08-15 20:41:48,665 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:41:50,711 - INFO - pybda.clustering]: 	total_variance: 247598
+[2019-08-15 20:41:50,711 - INFO - __main__]: Clustering with K: 50
+[2019-08-15 20:41:55,064 - INFO - pybda.decorators]: function: '_fit_one' took: 4.3532 sec
+[2019-08-15 20:41:55,064 - INFO - pybda.fit.clustering_fit]: Writing cluster fit to: results/2019_08_15/kmeans_from_pca_from_single_cell_imaging_data/kmeans-fit-K50
+[2019-08-15 20:41:55,734 - INFO - pybda.fit.clustering_fit]: Writing cluster size file to: results/2019_08_15/kmeans_from_pca_from_single_cell_imaging_data/kmeans-fit-K50_cluster_sizes.tsv
+[2019-08-15 20:41:55,740 - INFO - pybda.fit.kmeans_fit]: Writing cluster centers to: results/2019_08_15/kmeans_from_pca_from_single_cell_imaging_data/kmeans-fit-K50_cluster_centers.tsv
+[2019-08-15 20:41:55,749 - INFO - pybda.fit.kmeans_fit]: Writing SSE and BIC to: results/2019_08_15/kmeans_from_pca_from_single_cell_imaging_data/kmeans-fit-K50_statistics.tsv
+[2019-08-15 20:41:55,750 - INFO - __main__]: Clustering with K: 100
+[2019-08-15 20:41:59,033 - INFO - pybda.decorators]: function: '_fit_one' took: 3.2834 sec
+[2019-08-15 20:41:59,033 - INFO - pybda.fit.clustering_fit]: Writing cluster fit to: results/2019_08_15/kmeans_from_pca_from_single_cell_imaging_data/kmeans-fit-K100
+[2019-08-15 20:41:59,222 - INFO - pybda.fit.clustering_fit]: Writing cluster size file to: results/2019_08_15/kmeans_from_pca_from_single_cell_imaging_data/kmeans-fit-K100_cluster_sizes.tsv
+[2019-08-15 20:41:59,225 - INFO - pybda.fit.kmeans_fit]: Writing cluster centers to: results/2019_08_15/kmeans_from_pca_from_single_cell_imaging_data/kmeans-fit-K100_cluster_centers.tsv
+[2019-08-15 20:41:59,233 - INFO - pybda.fit.kmeans_fit]: Writing SSE and BIC to: results/2019_08_15/kmeans_from_pca_from_single_cell_imaging_data/kmeans-fit-K100_statistics.tsv
+[2019-08-15 20:41:59,233 - INFO - pybda.fit.clustering_fit_profile]: Writing fit profile to results/2019_08_15/kmeans_from_pca_from_single_cell_imaging_data-profile.tsv
+[2019-08-15 20:41:59,235 - INFO - pybda.fit.clustering_fit_profile]: 2
+[2019-08-15 20:41:59,241 - INFO - pybda.fit.kmeans_fit_profile]: Plotting profile to: results/2019_08_15/kmeans_from_pca_from_single_cell_imaging_data-profile.png
+[2019-08-15 20:42:02,478 - INFO - pybda.fit.clustering_fit_profile]: Plotting cluster sizes to: results/2019_08_15/kmeans_from_pca_from_single_cell_imaging_data-cluster_sizes-histogram.png
+[2019-08-15 20:42:04,039 - INFO - pybda.fit.kmeans_fit_profile]: Plotting profile to: results/2019_08_15/kmeans_from_pca_from_single_cell_imaging_data-profile.pdf
+[2019-08-15 20:42:04,302 - INFO - pybda.fit.clustering_fit_profile]: Plotting cluster sizes to: results/2019_08_15/kmeans_from_pca_from_single_cell_imaging_data-cluster_sizes-histogram.pdf
+[2019-08-15 20:42:04,572 - INFO - pybda.fit.kmeans_fit_profile]: Plotting profile to: results/2019_08_15/kmeans_from_pca_from_single_cell_imaging_data-profile.svg
+[2019-08-15 20:42:04,821 - INFO - pybda.fit.clustering_fit_profile]: Plotting cluster sizes to: results/2019_08_15/kmeans_from_pca_from_single_cell_imaging_data-cluster_sizes-histogram.svg
+[2019-08-15 20:42:05,130 - INFO - pybda.fit.kmeans_fit_profile]: Plotting profile to: results/2019_08_15/kmeans_from_pca_from_single_cell_imaging_data-profile.eps
+[2019-08-15 20:42:05,373 - INFO - pybda.fit.clustering_fit_profile]: Plotting cluster sizes to: results/2019_08_15/kmeans_from_pca_from_single_cell_imaging_data-cluster_sizes-histogram.eps
+[2019-08-15 20:42:05,623 - INFO - pybda.decorators]: function: 'fit' took: 18.1561 sec
+[2019-08-15 20:42:05,638 - INFO - pybda.fit.kmeans_transformed]: Writing clusters to: results/2019_08_15/kmeans_from_pca_from_single_cell_imaging_data-transformed-K50-clusters
+[2019-08-15 20:42:05,641 - INFO - pybda.spark.features]: Splitting vector columns: features
+[2019-08-15 20:42:07,758 - INFO - pybda.fit.kmeans_transformed]: Writing clusters to: results/2019_08_15/kmeans_from_pca_from_single_cell_imaging_data-transformed-K100-clusters
+[2019-08-15 20:42:07,760 - INFO - pybda.spark.features]: Splitting vector columns: features
+[2019-08-15 20:42:09,617 - INFO - pybda.spark_session]: Stopping Spark context
+[2019-08-15 20:42:09,617 - INFO - pybda.spark_session]: Closed spark context at: Thu Aug 15 20:42:09 2019
+[2019-08-15 20:42:09,617 - INFO - pybda.spark_session]: Computation took: 25

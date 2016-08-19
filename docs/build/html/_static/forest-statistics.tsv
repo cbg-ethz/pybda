@@ -1,0 +1,2 @@
+family	response	accuracy	f1	precision	recall
+binomial	is_infected	0.8236	0.8231143143597965	0.8271935801788475	0.8236

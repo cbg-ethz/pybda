@@ -1,0 +1,1 @@
+{"class":"org.apache.spark.ml.clustering.KMeansModel","timestamp":1565894515089,"sparkVersion":"2.4.0","uid":"KMeans_82b7028a85d7","paramMap":{"seed":23,"k":50},"defaultParamMap":{"featuresCol":"features","distanceMeasure":"euclidean","maxIter":20,"seed":7969353092125344463,"initMode":"k-means||","k":2,"predictionCol":"prediction","tol":1.0E-4,"initSteps":2}}

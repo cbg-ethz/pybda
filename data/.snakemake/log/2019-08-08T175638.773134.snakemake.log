@@ -1,0 +1,5 @@
+AttributeError in line 94 of /home/simon/PROJECTS/pybda/pybda/pybda.snake:
+'NoneType' object has no attribute 'group'
+  File "/home/simon/PROJECTS/pybda/pybda/pybda.snake", line 94, in <module>
+  File "/home/simon/PROJECTS/pybda/pybda/pybda_config.py", line 94, in outfiles_basename
+  File "/home/simon/PROJECTS/pybda/pybda/pybda_config.py", line 94, in <listcomp>

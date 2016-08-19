@@ -1,0 +1,5 @@
+TypeError in line 141 of /home/simon/PROJECTS/pybda/pybda/pybda.snake:
+join() argument must be str or bytes, not 'list'
+  File "/home/simon/PROJECTS/pybda/pybda/pybda.snake", line 141, in <module>
+  File "/home/simon/miniconda3/envs/tix/lib/python3.6/posixpath.py", line 94, in join
+  File "/home/simon/miniconda3/envs/tix/lib/python3.6/genericpath.py", line 149, in _check_arg_types

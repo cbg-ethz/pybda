@@ -1,0 +1,2 @@
+k	within_cluster_variance	explained_variance	total_variance	BIC	n	p	path
+100	41820.15249934833	0.8310971225342032	247598.81611736896	46434.5330257084	10000	5	results/2019_08_15/kmeans_from_pca_from_single_cell_imaging_data/kmeans-fit-K100

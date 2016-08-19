@@ -1,0 +1,29 @@
+actionid: lint
+msg: getenv
+cmdargs: '/home/simon/PROJECTS/pybda/.tox/lint/bin/python -m pip install pylint flake8'
+
+Collecting pylint
+  Using cached https://files.pythonhosted.org/packages/a5/06/ecef826f319055e6b231716730d7f9047dd7524ffda224b521d989f085b6/pylint-2.2.2-py3-none-any.whl
+Collecting flake8
+  Using cached https://files.pythonhosted.org/packages/5a/d8/1377549a9b77ad6d3c8161c741e2186bc698150f639fe08123bfe53e7a27/flake8-3.7.5-py2.py3-none-any.whl
+Collecting mccabe (from pylint)
+  Using cached https://files.pythonhosted.org/packages/87/89/479dc97e18549e21354893e4ee4ef36db1d237534982482c3681ee6e7b57/mccabe-0.6.1-py2.py3-none-any.whl
+Collecting isort>=4.2.5 (from pylint)
+  Using cached https://files.pythonhosted.org/packages/1f/2c/22eee714d7199ae0464beda6ad5fedec8fee6a2f7ffd1e8f1840928fe318/isort-4.3.4-py3-none-any.whl
+Collecting astroid>=2.0.0 (from pylint)
+  Using cached https://files.pythonhosted.org/packages/fc/53/8809bc008bad0300897281a7b320b286dc0e84e836396c0cff6279841e8a/astroid-2.1.0-py3-none-any.whl
+Collecting pycodestyle<2.6.0,>=2.5.0 (from flake8)
+  Using cached https://files.pythonhosted.org/packages/0e/0c/04a353e104d2f324f8ee5f4b32012618c1c86dd79e52a433b64fceed511b/pycodestyle-2.5.0-py2.py3-none-any.whl
+Collecting pyflakes<2.2.0,>=2.1.0 (from flake8)
+  Using cached https://files.pythonhosted.org/packages/16/3b/b6a508ad148ce1ef50bd7a9a783afbb8d775616fc4ae5e3007c8815a3c85/pyflakes-2.1.0-py2.py3-none-any.whl
+Collecting entrypoints<0.4.0,>=0.3.0 (from flake8)
+  Using cached https://files.pythonhosted.org/packages/ac/c6/44694103f8c221443ee6b0041f69e2740d89a25641e62fb4f2ee568f2f9c/entrypoints-0.3-py2.py3-none-any.whl
+Collecting lazy-object-proxy (from astroid>=2.0.0->pylint)
+  Using cached https://files.pythonhosted.org/packages/65/1f/2043ec33066e779905ed7e6580384425fdc7dc2ac64d6931060c75b0c5a3/lazy_object_proxy-1.3.1-cp36-cp36m-manylinux1_x86_64.whl
+Collecting six (from astroid>=2.0.0->pylint)
+  Using cached https://files.pythonhosted.org/packages/73/fb/00a976f728d0d1fecfe898238ce23f502a721c0ac0ecfedb80e0d88c64e9/six-1.12.0-py2.py3-none-any.whl
+Collecting typed-ast; python_version < "3.7" and implementation_name == "cpython" (from astroid>=2.0.0->pylint)
+  Using cached https://files.pythonhosted.org/packages/15/d6/a7ce9cd898c218ee79352f7636991868d4165f881621d8c48df886fa5865/typed_ast-1.3.1-cp36-cp36m-manylinux1_x86_64.whl
+Collecting wrapt (from astroid>=2.0.0->pylint)
+Installing collected packages: mccabe, isort, lazy-object-proxy, six, typed-ast, wrapt, astroid, pylint, pycodestyle, pyflakes, entrypoints, flake8
+Successfully installed astroid-2.1.0 entrypoints-0.3 flake8-3.7.5 isort-4.3.4 lazy-object-proxy-1.3.1 mccabe-0.6.1 pycodestyle-2.5.0 pyflakes-2.1.0 pylint-2.2.2 six-1.12.0 typed-ast-1.3.1 wrapt-1.11.1

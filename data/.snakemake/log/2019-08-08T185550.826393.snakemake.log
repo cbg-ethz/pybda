@@ -1,0 +1,9 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	factor_analysis
+	1	kmeans
+	2

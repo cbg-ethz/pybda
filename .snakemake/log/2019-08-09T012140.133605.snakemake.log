@@ -1,0 +1,41 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	forest
+	1	kmeans
+	1	pca
+	3
+
+[Fri Aug  9 01:21:40 2019]
+rule forest:
+    input: data/single_cell_imaging_data.tsv
+    output: data/results/2019_08_09/forest_from_single_cell_imaging_data-statistics.tsv
+    jobid: 0
+
+[Fri Aug  9 01:22:17 2019]
+Finished job 0.
+1 of 3 steps (33%) done
+
+[Fri Aug  9 01:22:17 2019]
+rule pca:
+    input: data/single_cell_imaging_data.tsv
+    output: data/results/2019_08_09/pca_from_single_cell_imaging_data.tsv, data/results/2019_08_09/pca_from_single_cell_imaging_data-loadings.tsv, data/results/2019_08_09/pca_from_single_cell_imaging_data-plot
+    jobid: 1
+
+[Fri Aug  9 01:23:29 2019]
+Finished job 1.
+2 of 3 steps (67%) done
+
+[Fri Aug  9 01:23:29 2019]
+rule kmeans:
+    input: data/results/2019_08_09/pca_from_single_cell_imaging_data.tsv
+    output: data/results/2019_08_09/kmeans_from_pca_from_single_cell_imaging_data, data/results/2019_08_09/kmeans_from_pca_from_single_cell_imaging_data-profile.png, data/results/2019_08_09/kmeans_from_pca_from_single_cell_imaging_data-profile.pdf, data/results/2019_08_09/kmeans_from_pca_from_single_cell_imaging_data-profile.eps, data/results/2019_08_09/kmeans_from_pca_from_single_cell_imaging_data-profile.svg, data/results/2019_08_09/kmeans_from_pca_from_single_cell_imaging_data-profile.tsv, data/results/2019_08_09/kmeans_from_pca_from_single_cell_imaging_data-transformed-K50-clusters, data/results/2019_08_09/kmeans_from_pca_from_single_cell_imaging_data-transformed-K100-clusters, data/results/2019_08_09/kmeans_from_pca_from_single_cell_imaging_data-transformed-K110-clusters, data/results/2019_08_09/kmeans_from_pca_from_single_cell_imaging_data-transformed-K120-clusters, data/results/2019_08_09/kmeans_from_pca_from_single_cell_imaging_data-transformed-K130-clusters, data/results/2019_08_09/kmeans_from_pca_from_single_cell_imaging_data-transformed-K140-clusters, data/results/2019_08_09/kmeans_from_pca_from_single_cell_imaging_data-transformed-K150-clusters, data/results/2019_08_09/kmeans_from_pca_from_single_cell_imaging_data-transformed-K160-clusters, data/results/2019_08_09/kmeans_from_pca_from_single_cell_imaging_data-transformed-K170-clusters, data/results/2019_08_09/kmeans_from_pca_from_single_cell_imaging_data-transformed-K180-clusters, data/results/2019_08_09/kmeans_from_pca_from_single_cell_imaging_data-transformed-K190-clusters, data/results/2019_08_09/kmeans_from_pca_from_single_cell_imaging_data-transformed-K200-clusters
+    jobid: 2
+
+[Fri Aug  9 01:25:02 2019]
+Finished job 2.
+3 of 3 steps (100%) done
+Complete log: /home/simon/PROJECTS/pybda/.snakemake/log/2019-08-09T012140.133605.snakemake.log

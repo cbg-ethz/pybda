@@ -1,0 +1,19 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	gmm
+	1
+
+[Thu Aug  8 19:20:14 2019]
+rule gmm:
+    input: iris.tsv
+    output: results/2019_08_08/gmm_from_iris, results/2019_08_08/gmm_from_iris-profile.png, results/2019_08_08/gmm_from_iris-profile.pdf, results/2019_08_08/gmm_from_iris-profile.eps, results/2019_08_08/gmm_from_iris-profile.svg, results/2019_08_08/gmm_from_iris-profile.tsv, results/2019_08_08/gmm_from_iris-transformed-K2-components, results/2019_08_08/gmm_from_iris-transformed-K3-components, results/2019_08_08/gmm_from_iris-transformed-K5-components
+    jobid: 0
+
+[Thu Aug  8 19:20:43 2019]
+Finished job 0.
+1 of 1 steps (100%) done
+Complete log: /home/simon/PROJECTS/pybda/data/.snakemake/log/2019-08-08T192014.058916.snakemake.log

@@ -1,0 +1,19 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	glm
+	1
+
+[Fri Aug  9 00:51:05 2019]
+rule glm:
+    input: data/single_cell_imaging_data.tsv
+    output: data/results/2019_08_09/glm_from_single_cell_imaging_data-table.tsv, data/results/2019_08_09/glm_from_single_cell_imaging_data-statistics.tsv
+    jobid: 0
+
+[Fri Aug  9 00:51:38 2019]
+Finished job 0.
+1 of 1 steps (100%) done
+Complete log: /home/simon/PROJECTS/pybda/.snakemake/log/2019-08-09T005105.494051.snakemake.log

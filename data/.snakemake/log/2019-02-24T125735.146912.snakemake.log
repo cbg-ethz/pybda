@@ -1,0 +1,19 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	kmeans
+	1
+
+[Sun Feb 24 12:57:35 2019]
+rule kmeans:
+    input: results/factor_analysis.tsv
+    output: results/kmeans, results/kmeans-profile.png, results/kmeans-profile.pdf, results/kmeans-profile.eps, results/kmeans-profile.svg, results/kmeans-profile.tsv, results/kmeans-transformed-K2-clusters, results/kmeans-transformed-K3-clusters, results/kmeans-transformed-K5-clusters
+    jobid: 0
+
+[Sun Feb 24 12:58:12 2019]
+Finished job 0.
+1 of 1 steps (100%) done
+Complete log: /home/simon/PROJECTS/pybda/data/.snakemake/log/2019-02-24T125735.146912.snakemake.log

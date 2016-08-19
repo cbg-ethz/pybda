@@ -1,0 +1,115 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Dimension reduction</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Clustering" href="usecase_clustering.html" />
+    <link rel="prev" title="Getting started" href="usage.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="dimension-reduction">
+<h1>Dimension reduction<a class="headerlink" href="#dimension-reduction" title="Permalink to this headline">¶</a></h1>
+<p>Here we show a small use case of how to do a dimension reduction on a small sample data set
+(<code class="docutils literal notranslate"><span class="pre">data/iris.tsv</span></code>). We assume you
+already set up the cluster for Spark (other check <a class="reference external" href="./usage.html#spark">here</a>) with
+an <code class="docutils literal notranslate"><span class="pre">IP</span></code> address.</p>
+<div class="section" id="analysis">
+<h2>Analysis<a class="headerlink" href="#analysis" title="Permalink to this headline">¶</a></h2>
+<p>For analysis we decide use a linear discriminant analysis to map data into a lower dimensional space.
+PyBDA offers the following methods to do dimension reduction:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">pca</span></code> for <a class="reference external" href="https://en.wikipedia.org/wiki/Principal_component_analysis">principal component analysis</a>,</li>
+<li><code class="docutils literal notranslate"><span class="pre">factor_analysis</span></code> <a class="reference external" href="https://en.wikipedia.org/wiki/Factor_analysis">for factor analysis</a>,</li>
+<li><code class="docutils literal notranslate"><span class="pre">kpca</span></code> for <a class="reference external" href="https://en.wikipedia.org/wiki/Kernel_principal_component_analysis">kernel principal component analysis</a> using Fourier features to approximate the kernel,</li>
+<li><code class="docutils literal notranslate"><span class="pre">lda</span></code> for <a class="reference external" href="https://en.wikipedia.org/wiki/Linear_discriminant_analysis">linear discriminant analysis</a>,</li>
+<li><code class="docutils literal notranslate"><span class="pre">ica</span></code> for <a class="reference external" href="https://en.wikipedia.org/wiki/Independent_component_analysis">independent component analysis</a>.</li>
+</ul>
+<p>The config file we need to specify is in this case rather concise:</p>
+<div class="literal-block-wrapper docutils container" id="pybda-usecase-dimred-config">
+<div class="code-block-caption"><span class="caption-text">Contents of <code class="docutils literal notranslate"><span class="pre">data/pybda-usecase-dimred.config</span></code> file</span><a class="headerlink" href="#pybda-usecase-dimred-config" title="Permalink to this code">¶</a></div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">spark</span><span class="p">:</span> <span class="n">spark</span><span class="o">-</span><span class="n">submit</span>
+<span class="n">infile</span><span class="p">:</span> <span class="n">data</span><span class="o">/</span><span class="n">iris</span><span class="o">.</span><span class="n">tsv</span>
+<span class="n">outfolder</span><span class="p">:</span> <span class="n">data</span>
+<span class="n">features</span><span class="p">:</span> <span class="n">data</span><span class="o">/</span><span class="n">iris_feature_columns</span><span class="o">.</span><span class="n">tsv</span>
+<span class="n">dimension_reduction</span><span class="p">:</span> <span class="n">lda</span>
+<span class="n">n_components</span><span class="p">:</span> <span class="mi">2</span>
+<span class="n">response</span><span class="p">:</span> <span class="n">Species</span>
+<span class="n">sparkparams</span><span class="p">:</span>
+  <span class="o">-</span> <span class="s2">&quot;--driver-memory=1G&quot;</span>
+  <span class="o">-</span> <span class="s2">&quot;--executor-memory=1G&quot;</span>
+</pre></div>
+</div>
+</div>
+<p>In the config above we will do the following:</p>
+<ul class="simple">
+<li>Use a linear discriminant analysis to map the data set into a two-dimensional space using <code class="docutils literal notranslate"><span class="pre">Species</span></code> as a response.</li>
+<li>give the Spark driver 1G of memory and the executor 1G of memory.</li>
+</ul>
+<p>Having the parameters set, we call PyBDA</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pybda dimension-reduction pybda-usecase-dimred.config IP
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><p class="logo">
+    <a href="index.html">
+        <img src="_static/sticker_pybda.png"
+             title="koios"/>
+    </a>
+</p><h3>Contents</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Getting started</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Dimension reduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usecase_clustering.html">Clustering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usecase_regression.html">Regression</a></li>
+</ul>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018-2019, Simon Dirmeier.
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

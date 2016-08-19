@@ -1,0 +1,74 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	forest
+	1	glm
+	1	gmm
+	1	ica
+	1	kmeans
+	1	pca
+	6
+
+[Thu Aug 15 18:06:41 2019]
+rule glm:
+    input: single_cell_imaging_data.tsv
+    output: results/2019_08_15/glm_from_single_cell_imaging_data-table.tsv, results/2019_08_15/glm_from_single_cell_imaging_data-statistics.tsv
+    jobid: 1
+
+[Thu Aug 15 18:07:14 2019]
+Finished job 1.
+1 of 6 steps (17%) done
+
+[Thu Aug 15 18:07:14 2019]
+rule ica:
+    input: single_cell_imaging_data.tsv
+    output: results/2019_08_15/ica_from_single_cell_imaging_data.tsv, results/2019_08_15/ica_from_single_cell_imaging_data-loadings.tsv, results/2019_08_15/ica_from_single_cell_imaging_data-plot
+    jobid: 0
+
+[Thu Aug 15 18:12:38 2019]
+Finished job 0.
+2 of 6 steps (33%) done
+
+[Thu Aug 15 18:12:38 2019]
+rule pca:
+    input: single_cell_imaging_data.tsv
+    output: results/2019_08_15/pca_from_single_cell_imaging_data.tsv, results/2019_08_15/pca_from_single_cell_imaging_data-loadings.tsv, results/2019_08_15/pca_from_single_cell_imaging_data-plot
+    jobid: 5
+
+[Thu Aug 15 18:13:52 2019]
+Finished job 5.
+3 of 6 steps (50%) done
+
+[Thu Aug 15 18:13:52 2019]
+rule kmeans:
+    input: results/2019_08_15/ica_from_single_cell_imaging_data.tsv, results/2019_08_15/pca_from_single_cell_imaging_data.tsv
+    output: results/2019_08_15/kmeans_from_ica_from_single_cell_imaging_data, results/2019_08_15/kmeans_from_pca_from_single_cell_imaging_data, results/2019_08_15/kmeans_from_ica_from_single_cell_imaging_data-profile.png, results/2019_08_15/kmeans_from_ica_from_single_cell_imaging_data-profile.pdf, results/2019_08_15/kmeans_from_ica_from_single_cell_imaging_data-profile.eps, results/2019_08_15/kmeans_from_ica_from_single_cell_imaging_data-profile.svg, results/2019_08_15/kmeans_from_ica_from_single_cell_imaging_data-profile.tsv, results/2019_08_15/kmeans_from_pca_from_single_cell_imaging_data-profile.png, results/2019_08_15/kmeans_from_pca_from_single_cell_imaging_data-profile.pdf, results/2019_08_15/kmeans_from_pca_from_single_cell_imaging_data-profile.eps, results/2019_08_15/kmeans_from_pca_from_single_cell_imaging_data-profile.svg, results/2019_08_15/kmeans_from_pca_from_single_cell_imaging_data-profile.tsv, results/2019_08_15/kmeans_from_ica_from_single_cell_imaging_data-transformed-K50-clusters, results/2019_08_15/kmeans_from_ica_from_single_cell_imaging_data-transformed-K100-clusters, results/2019_08_15/kmeans_from_pca_from_single_cell_imaging_data-transformed-K50-clusters, results/2019_08_15/kmeans_from_pca_from_single_cell_imaging_data-transformed-K100-clusters
+    jobid: 4
+
+[Thu Aug 15 18:15:06 2019]
+Finished job 4.
+4 of 6 steps (67%) done
+
+[Thu Aug 15 18:15:06 2019]
+rule gmm:
+    input: results/2019_08_15/ica_from_single_cell_imaging_data.tsv, results/2019_08_15/pca_from_single_cell_imaging_data.tsv
+    output: results/2019_08_15/gmm_from_ica_from_single_cell_imaging_data, results/2019_08_15/gmm_from_pca_from_single_cell_imaging_data, results/2019_08_15/gmm_from_ica_from_single_cell_imaging_data-profile.png, results/2019_08_15/gmm_from_ica_from_single_cell_imaging_data-profile.pdf, results/2019_08_15/gmm_from_ica_from_single_cell_imaging_data-profile.eps, results/2019_08_15/gmm_from_ica_from_single_cell_imaging_data-profile.svg, results/2019_08_15/gmm_from_ica_from_single_cell_imaging_data-profile.tsv, results/2019_08_15/gmm_from_pca_from_single_cell_imaging_data-profile.png, results/2019_08_15/gmm_from_pca_from_single_cell_imaging_data-profile.pdf, results/2019_08_15/gmm_from_pca_from_single_cell_imaging_data-profile.eps, results/2019_08_15/gmm_from_pca_from_single_cell_imaging_data-profile.svg, results/2019_08_15/gmm_from_pca_from_single_cell_imaging_data-profile.tsv, results/2019_08_15/gmm_from_ica_from_single_cell_imaging_data-transformed-K50-components, results/2019_08_15/gmm_from_ica_from_single_cell_imaging_data-transformed-K100-components, results/2019_08_15/gmm_from_pca_from_single_cell_imaging_data-transformed-K50-components, results/2019_08_15/gmm_from_pca_from_single_cell_imaging_data-transformed-K100-components
+    jobid: 2
+
+[Thu Aug 15 18:19:10 2019]
+Finished job 2.
+5 of 6 steps (83%) done
+
+[Thu Aug 15 18:19:10 2019]
+rule forest:
+    input: single_cell_imaging_data.tsv
+    output: results/2019_08_15/forest_from_single_cell_imaging_data-statistics.tsv
+    jobid: 3
+
+[Thu Aug 15 18:19:40 2019]
+Finished job 3.
+6 of 6 steps (100%) done
+Complete log: /home/simon/PROJECTS/pybda/data/.snakemake/log/2019-08-15T180641.173393.snakemake.log

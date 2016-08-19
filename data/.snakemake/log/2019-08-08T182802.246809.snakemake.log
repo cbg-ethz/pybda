@@ -1,0 +1,33 @@
+Building DAG of jobs...
+Relative file path './results/2019_08_08/factor_analysis_from_iris.tsv' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Relative file path './results/2019_08_08/kmeans_from_factor_analysis_from_iris' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Relative file path './results/2019_08_08/kmeans_from_factor_analysis_from_iris-profile.png' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Relative file path './results/2019_08_08/kmeans_from_factor_analysis_from_iris-profile.pdf' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Relative file path './results/2019_08_08/kmeans_from_factor_analysis_from_iris-profile.eps' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Relative file path './results/2019_08_08/kmeans_from_factor_analysis_from_iris-profile.svg' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Relative file path './results/2019_08_08/kmeans_from_factor_analysis_from_iris-profile.tsv' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Relative file path './results/2019_08_08/kmeans_from_factor_analysis_from_iris-transformed-K2-clusters' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Relative file path './results/2019_08_08/kmeans_from_factor_analysis_from_iris-transformed-K3-clusters' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Relative file path './results/2019_08_08/kmeans_from_factor_analysis_from_iris-transformed-K5-clusters' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Relative file path './iris.tsv' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Relative file path './results/2019_08_08/factor_analysis_from_iris.tsv' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Relative file path './results/2019_08_08/factor_analysis_from_iris-loadings.tsv' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Relative file path './results/2019_08_08/factor_analysis_from_iris-loglik.tsv' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Relative file path './results/2019_08_08/factor_analysis_from_iris-plot' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	factor_analysis
+	1	kmeans
+	2
+
+[Thu Aug  8 18:28:02 2019]
+rule factor_analysis:
+    input: ./iris.tsv
+    output: ./results/2019_08_08/factor_analysis_from_iris.tsv, ./results/2019_08_08/factor_analysis_from_iris-loadings.tsv, ./results/2019_08_08/factor_analysis_from_iris-loglik.tsv, ./results/2019_08_08/factor_analysis_from_iris-plot
+    jobid: 1
+
+Terminating processes on user request, this might take some time.
+Complete log: /home/simon/PROJECTS/pybda/data/.snakemake/log/2019-08-08T182802.246809.snakemake.log

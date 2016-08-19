@@ -1,0 +1,124 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Contributing</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/css/custom.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="FAQ" href="faq.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="contributing">
+<h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h1>
+<p>We welcome pull requests and contributions to make PyBDA a community driven tool
+for big data analytics.</p>
+<p>You can contribute in the following ways:</p>
+<ul class="simple">
+<li><p>improve the documentation,</p></li>
+<li><p>add custom methods or algorithms,</p></li>
+<li><p>report bugs,</p></li>
+<li><p>improve general usability or speed up code,</p></li>
+<li><p>write unit tests.</p></li>
+</ul>
+<div class="section" id="how-to-contribute">
+<h2>How to contribute<a class="headerlink" href="#how-to-contribute" title="Permalink to this headline">¶</a></h2>
+<p>In order to make a contribution best follow these steps:</p>
+<ul>
+<li><p>Create a fork of the repository on <a class="reference external" href="https://github.com/cbg-ethz/pybda">GitHub</a>.</p></li>
+<li><p>Checkout the <code class="docutils literal notranslate"><span class="pre">develop</span></code> branch and create your own branch using</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git checkout develop
+git checkout -b myfeature
+</pre></div>
+</div>
+</li>
+<li><p>Install all dependencies using <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">'.[dev]'</span></code>.</p></li>
+<li><p>Add your feature and submit a pull request.</p></li>
+</ul>
+</div>
+<div class="section" id="coding-standards">
+<h2>Coding standards<a class="headerlink" href="#coding-standards" title="Permalink to this headline">¶</a></h2>
+<p>Please format your code using <code class="docutils literal notranslate"><span class="pre">yapf</span></code> and <code class="docutils literal notranslate"><span class="pre">flake8</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> pybda
+yapf --style ../.styles.yapf -i my_file.py
+tox -e lint
+</pre></div>
+</div>
+<p>Furthermore, please don’t duplicate code and try to use type annotations where you
+find them necessary or useful.</p>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><p class="logo">
+    <a href="index.html">
+        <img src="_static/sticker_pybda.png"
+             title="PyBDA"/>
+    </a>
+</p><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+      rel="stylesheet"
+      integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
+      crossorigin="anonymous">
+
+<h3>Contents</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Contributing</a></li>
+</ul>
+
+<hr>
+<ul>
+    <li>
+        <a href="https://github.com/cbg-ethz/pybda" style="text-decoration : none">
+            <i class="fa fa-github-square fa-3x" aria-hidden="true" style="vertical-align :middle;"></i>
+            <span style="vertical-align: middle; font-size: 1.3rem">GitHub</span>
+        </a>
+    </li>
+</ul>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018-2019, Simon Dirmeier.
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

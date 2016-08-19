@@ -1,0 +1,15 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	factor_analysis
+	1	kmeans
+	2
+
+[Thu Aug  8 18:56:17 2019]
+rule factor_analysis:
+    input: iris.tsv
+    output: results/2019_08_08/factor_analysis_from_iris.tsv, results/2019_08_08/factor_analysis_from_iris-loadings.tsv, results/2019_08_08/factor_analysis_from_iris-loglik.tsv, results/2019_08_08/factor_analysis_from_iris-plot
+    jobid: 1

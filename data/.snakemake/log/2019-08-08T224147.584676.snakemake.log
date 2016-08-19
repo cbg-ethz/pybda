@@ -1,0 +1,22 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	factor_analysis
+	1	lda
+	1	pca
+	3
+
+[Thu Aug  8 22:41:47 2019]
+rule lda:
+    input: iris.tsv
+    output: results/2019_08_08/lda.tsv, results/2019_08_08/lda-projection.tsv, results/2019_08_08/lda-plot
+    jobid: 0
+
+Removing output files of failed job lda since they might be corrupted:
+results/2019_08_08/lda.tsv, results/2019_08_08/lda-projection.tsv, results/2019_08_08/lda-plot
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: /home/simon/PROJECTS/pybda/data/.snakemake/log/2019-08-08T224147.584676.snakemake.log

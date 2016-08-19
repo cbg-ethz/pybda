@@ -1,0 +1,68 @@
+[2019-08-15 20:36:12,125 - INFO - pybda.spark_session]: Initializing pyspark session
+[2019-08-15 20:36:13,110 - INFO - pybda.spark_session]: Config: spark.master, value: local
+[2019-08-15 20:36:13,110 - INFO - pybda.spark_session]: Config: spark.driver.memory, value: 1G
+[2019-08-15 20:36:13,110 - INFO - pybda.spark_session]: Config: spark.driver.port, value: 38131
+[2019-08-15 20:36:13,110 - INFO - pybda.spark_session]: Config: spark.rdd.compress, value: True
+[2019-08-15 20:36:13,110 - INFO - pybda.spark_session]: Config: spark.serializer.objectStreamReset, value: 100
+[2019-08-15 20:36:13,110 - INFO - pybda.spark_session]: Config: spark.app.id, value: local-1565894172724
+[2019-08-15 20:36:13,110 - INFO - pybda.spark_session]: Config: spark.driver.host, value: 192.168.1.33
+[2019-08-15 20:36:13,110 - INFO - pybda.spark_session]: Config: spark.executor.id, value: driver
+[2019-08-15 20:36:13,110 - INFO - pybda.spark_session]: Config: spark.submit.deployMode, value: client
+[2019-08-15 20:36:13,110 - INFO - pybda.spark_session]: Config: spark.app.name, value: ica.py
+[2019-08-15 20:36:13,110 - INFO - pybda.spark_session]: Openened spark context at: Thu Aug 15 20:36:13 2019
+[2019-08-15 20:36:13,118 - INFO - pybda.io.io]: Reading tsv: single_cell_imaging_data.tsv
+[2019-08-15 20:36:16,400 - INFO - pybda.spark.features]: Casting columns to double.
+[2019-08-15 20:36:17,113 - INFO - __main__]: Fitting ICA..
+[2019-08-15 20:36:17,545 - INFO - pybda.decorators]: function: '_feature_matrix' took: 0.4328 sec
+[2019-08-15 20:36:17,546 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:36:18,770 - INFO - pybda.stats.stats]: Centering data
+[2019-08-15 20:36:18,866 - INFO - pybda.stats.linalg]: Computing SVD
+[2019-08-15 20:36:20,630 - INFO - __main__]: Computing independent component analysis
+[2019-08-15 20:36:20,659 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:36:23,349 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:36:36,308 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:36:38,590 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:36:50,498 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:36:52,665 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:37:04,335 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:37:06,489 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:37:18,153 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:37:20,313 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:37:31,893 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:37:34,039 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:37:45,661 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:37:47,809 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:37:59,297 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:38:01,442 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:38:12,895 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:38:15,037 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:38:26,527 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:38:28,657 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:38:40,119 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:38:42,264 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:38:53,794 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:38:55,905 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:39:07,320 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:39:09,450 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:39:20,916 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:39:23,027 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:39:34,469 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:39:36,593 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:39:48,018 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:39:50,140 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:40:01,522 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:40:03,636 - INFO - pybda.stats.stats]: Computing data means
+[2019-08-15 20:40:15,059 - INFO - pybda.decorators]: function: '_estimate' took: 236.2728 sec
+[2019-08-15 20:40:15,079 - INFO - pybda.decorators]: function: '_fit' took: 237.9660 sec
+[2019-08-15 20:40:15,079 - INFO - __main__]: Transforming data
+[2019-08-15 20:40:15,322 - INFO - pybda.fit.ica_transform]: Writing transform
+[2019-08-15 20:40:15,322 - INFO - pybda.fit.dimension_reduction_fit]: Writing loadings to file
+[2019-08-15 20:40:15,324 - INFO - pybda.fit.ica_fit]: Plotting
+[2019-08-15 20:40:28,807 - INFO - pybda.spark.features]: Splitting vector columns: features
+[2019-08-15 20:40:30,144 - INFO - pybda.io.io]: Writing tsv: results/2019_08_15/ica_from_single_cell_imaging_data
+[2019-08-15 20:40:32,778 - INFO - pybda.fit.ica_transform]: Plotting
+[2019-08-15 20:40:33,783 - INFO - pybda.decorators]: function: 'sample' took: 1.0050 sec
+[2019-08-15 20:40:33,784 - INFO - pybda.spark.features]: Splitting vector columns: features
+[2019-08-15 20:41:09,375 - INFO - pybda.spark_session]: Stopping Spark context
+[2019-08-15 20:41:09,375 - INFO - pybda.spark_session]: Closed spark context at: Thu Aug 15 20:41:09 2019
+[2019-08-15 20:41:09,375 - INFO - pybda.spark_session]: Computation took: 296

@@ -1,0 +1,469 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Regression\n",
+    "\n",
+    "PyBDA supports several methods for regression. Here, we show how random forests and gradient boosting can be used to predict a response variable from a set of covariables. We use a single-cell imaging data set to predict whether a cell is infected by a pathogen or not."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We start by activating our environment:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "(pybda) "
+     ]
+    },
+    {
+     "ename": "",
+     "evalue": "1",
+     "output_type": "error",
+     "traceback": []
+    }
+   ],
+   "source": [
+    "source ~/miniconda3/bin/activate pybda"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "To fit the two models, we can make use of a file we already provided in `data`. This should do the trick:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "(pybda) "
+     ]
+    },
+    {
+     "ename": "",
+     "evalue": "1",
+     "output_type": "error",
+     "traceback": []
+    }
+   ],
+   "source": [
+    "cd data"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "spark: spark-submit\n",
+      "infile: single_cell_imaging_data.tsv\n",
+      "predict: single_cell_imaging_data.tsv\n",
+      "outfolder: results\n",
+      "meta: meta_columns.tsv\n",
+      "features: feature_columns.tsv\n",
+      "regression: forest, gbm\n",
+      "family: binomial\n",
+      "response: is_infected\n",
+      "sparkparams:\n",
+      "  - \"--driver-memory=1G\"\n",
+      "  - \"--executor-memory=1G\"\n",
+      "debug: true\n",
+      "(pybda) "
+     ]
+    },
+    {
+     "ename": "",
+     "evalue": "1",
+     "output_type": "error",
+     "traceback": []
+    }
+   ],
+   "source": [
+    "cat pybda-usecase-regression.config"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The config file above we will do the following:\n",
+    "\n",
+    "* fit a random forest and gradient boosting models,\n",
+    "* regress the `response` column on the features in `feature_columns.tsv`,\n",
+    "* use a `binomial` family variable,\n",
+    "* predict the response using the fitted models using the data set in `predict`,\n",
+    "* give the Spark driver 1G of memory and the executor 1G of memory,\n",
+    "* write the results to `results`,\n",
+    "* print debug information.\n",
+    "\n",
+    "So, a brief file like this is enough!"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We then call PyBDA like this:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Checking command line arguments for method: regression\n",
+      "\u001b[1;33m Printing rule tree:\n",
+      " -> _ (, single_cell_imaging_data.tsv)\n",
+      "\t -> regression (single_cell_imaging_data.tsv, results/2019_08_09/gbm_from_single_cell_imaging_data.tsv)\n",
+      "\t -> regression (single_cell_imaging_data.tsv, results/2019_08_09/forest_from_single_cell_imaging_data.tsv)\n",
+      "\u001b[0m\n",
+      "\u001b[33mBuilding DAG of jobs...\u001b[0m\n",
+      "[2019-08-09 00:15:53,204 - WARNING - snakemake.logging]: Building DAG of jobs...\n",
+      "\u001b[33mUsing shell: /bin/bash\u001b[0m\n",
+      "[2019-08-09 00:15:53,219 - WARNING - snakemake.logging]: Using shell: /bin/bash\n",
+      "\u001b[33mProvided cores: 1\u001b[0m\n",
+      "[2019-08-09 00:15:53,219 - WARNING - snakemake.logging]: Provided cores: 1\n",
+      "\u001b[33mRules claiming more threads will be scaled down.\u001b[0m\n",
+      "[2019-08-09 00:15:53,219 - WARNING - snakemake.logging]: Rules claiming more threads will be scaled down.\n",
+      "\u001b[33mJob counts:\n",
+      "\tcount\tjobs\n",
+      "\t1\tforest\n",
+      "\t1\tgbm\n",
+      "\t2\u001b[0m\n",
+      "[2019-08-09 00:15:53,220 - WARNING - snakemake.logging]: Job counts:\n",
+      "\tcount\tjobs\n",
+      "\t1\tforest\n",
+      "\t1\tgbm\n",
+      "\t2\n",
+      "\u001b[32m\u001b[0m\n",
+      "[2019-08-09 00:15:53,221 - INFO - snakemake.logging]: \n",
+      "\u001b[32m[Fri Aug  9 00:15:53 2019]\u001b[0m\n",
+      "[2019-08-09 00:15:53,222 - INFO - snakemake.logging]: [Fri Aug  9 00:15:53 2019]\n",
+      "\u001b[32mrule gbm:\n",
+      "    input: single_cell_imaging_data.tsv\n",
+      "    output: results/2019_08_09/gbm_from_single_cell_imaging_data-statistics.tsv\n",
+      "    jobid: 0\u001b[0m\n",
+      "[2019-08-09 00:15:53,222 - INFO - snakemake.logging]: rule gbm:\n",
+      "    input: single_cell_imaging_data.tsv\n",
+      "    output: results/2019_08_09/gbm_from_single_cell_imaging_data-statistics.tsv\n",
+      "    jobid: 0\n",
+      "\u001b[32m\u001b[0m\n",
+      "[2019-08-09 00:15:53,222 - INFO - snakemake.logging]: \n",
+      "\u001b[1;33m Printing rule tree:\n",
+      " -> _ (, single_cell_imaging_data.tsv)\n",
+      "\t -> regression (single_cell_imaging_data.tsv, results/2019_08_09/gbm_from_single_cell_imaging_data.tsv)\n",
+      "\t -> regression (single_cell_imaging_data.tsv, results/2019_08_09/forest_from_single_cell_imaging_data.tsv)\n",
+      "\u001b[0m\n",
+      "\u001b[33mJob counts:\n",
+      "\tcount\tjobs\n",
+      "\t1\tgbm\n",
+      "\t1\u001b[0m\n",
+      "\u001b[1;33m Submitting job spark-submit --master local --driver-memory=1G --executor-memory=1G /home/simon/PROJECTS/pybda/pybda/gbm.py --predict single_cell_imaging_data.tsv single_cell_imaging_data.tsv meta_columns.tsv feature_columns.tsv is_infected binomial results/2019_08_09/gbm_from_single_cell_imaging_data > results/2019_08_09/gbm_from_single_cell_imaging_data-spark.log \u001b[\u001b[0m\n",
+      "\u001b[32m[Fri Aug  9 00:17:17 2019]\u001b[0m\n",
+      "[2019-08-09 00:17:17,838 - INFO - snakemake.logging]: [Fri Aug  9 00:17:17 2019]\n",
+      "\u001b[32mFinished job 0.\u001b[0m\n",
+      "[2019-08-09 00:17:17,838 - INFO - snakemake.logging]: Finished job 0.\n",
+      "\u001b[32m1 of 2 steps (50%) done\u001b[0m\n",
+      "[2019-08-09 00:17:17,838 - INFO - snakemake.logging]: 1 of 2 steps (50%) done\n",
+      "\u001b[32m\u001b[0m\n",
+      "[2019-08-09 00:17:17,839 - INFO - snakemake.logging]: \n",
+      "\u001b[32m[Fri Aug  9 00:17:17 2019]\u001b[0m\n",
+      "[2019-08-09 00:17:17,839 - INFO - snakemake.logging]: [Fri Aug  9 00:17:17 2019]\n",
+      "\u001b[32mrule forest:\n",
+      "    input: single_cell_imaging_data.tsv\n",
+      "    output: results/2019_08_09/forest_from_single_cell_imaging_data-statistics.tsv\n",
+      "    jobid: 1\u001b[0m\n",
+      "[2019-08-09 00:17:17,839 - INFO - snakemake.logging]: rule forest:\n",
+      "    input: single_cell_imaging_data.tsv\n",
+      "    output: results/2019_08_09/forest_from_single_cell_imaging_data-statistics.tsv\n",
+      "    jobid: 1\n",
+      "\u001b[32m\u001b[0m\n",
+      "[2019-08-09 00:17:17,839 - INFO - snakemake.logging]: \n",
+      "\u001b[1;33m Printing rule tree:\n",
+      " -> _ (, single_cell_imaging_data.tsv)\n",
+      "\t -> regression (single_cell_imaging_data.tsv, results/2019_08_09/gbm_from_single_cell_imaging_data.tsv)\n",
+      "\t -> regression (single_cell_imaging_data.tsv, results/2019_08_09/forest_from_single_cell_imaging_data.tsv)\n",
+      "\u001b[0m\n",
+      "\u001b[33mJob counts:\n",
+      "\tcount\tjobs\n",
+      "\t1\tforest\n",
+      "\t1\u001b[0m\n",
+      "\u001b[1;33m Submitting job spark-submit --master local --driver-memory=1G --executor-memory=1G /home/simon/PROJECTS/pybda/pybda/forest.py --predict single_cell_imaging_data.tsv single_cell_imaging_data.tsv meta_columns.tsv feature_columns.tsv is_infected binomial results/2019_08_09/forest_from_single_cell_imaging_data > results/2019_08_09/forest_from_single_cell_imaging_data-spark.log \u001b[\u001b[0m\n",
+      "\u001b[32m[Fri Aug  9 00:17:58 2019]\u001b[0m\n",
+      "[2019-08-09 00:17:58,124 - INFO - snakemake.logging]: [Fri Aug  9 00:17:58 2019]\n",
+      "\u001b[32mFinished job 1.\u001b[0m\n",
+      "[2019-08-09 00:17:58,124 - INFO - snakemake.logging]: Finished job 1.\n",
+      "\u001b[32m2 of 2 steps (100%) done\u001b[0m\n",
+      "[2019-08-09 00:17:58,124 - INFO - snakemake.logging]: 2 of 2 steps (100%) done\n",
+      "\u001b[33mComplete log: /home/simon/PROJECTS/pybda/data/.snakemake/log/2019-08-09T001553.143310.snakemake.log\u001b[0m\n",
+      "[2019-08-09 00:17:58,125 - WARNING - snakemake.logging]: Complete log: /home/simon/PROJECTS/pybda/data/.snakemake/log/2019-08-09T001553.143310.snakemake.log\n",
+      "(pybda) "
+     ]
+    },
+    {
+     "ename": "",
+     "evalue": "1",
+     "output_type": "error",
+     "traceback": []
+    }
+   ],
+   "source": [
+    "pybda regression pybda-usecase-regression.config local"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "That's it! The call automatically executes the jobs defined in the config. After both ran, we should check the plots and statistics. Let's see what we got:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "(pybda) total 13832\n",
+      "-rw-rw-r-- 1    2909 Aug  9 00:17 forest_from_single_cell_imaging_data.log\n",
+      "-rw-r--r-- 1 5320871 Aug  9 00:17 forest_from_single_cell_imaging_data-predicted.tsv\n",
+      "-rw-rw-r-- 1  406579 Aug  9 00:17 forest_from_single_cell_imaging_data-spark.log\n",
+      "-rw-rw-r-- 1     118 Aug  9 00:17 forest_from_single_cell_imaging_data-statistics.tsv\n",
+      "-rw-rw-r-- 1    2903 Aug  9 00:17 gbm_from_single_cell_imaging_data.log\n",
+      "-rw-r--r-- 1 5323224 Aug  9 00:17 gbm_from_single_cell_imaging_data-predicted.tsv\n",
+      "-rw-rw-r-- 1 3084636 Aug  9 00:17 gbm_from_single_cell_imaging_data-spark.log\n",
+      "-rw-rw-r-- 1     130 Aug  9 00:17 gbm_from_single_cell_imaging_data-statistics.tsv\n",
+      "(pybda) "
+     ]
+    },
+    {
+     "ename": "",
+     "evalue": "1",
+     "output_type": "error",
+     "traceback": []
+    }
+   ],
+   "source": [
+    "cd results\n",
+    "ls -lgG *"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Let's check how good the two methods compare:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "family\tresponse\taccuracy\tf1\tprecision\trecall\n",
+      "binomial\tis_infected\t0.9349\t0.9348907798833392\t0.9351464843746091\t0.9349000000000001\n",
+      "(pybda) "
+     ]
+    },
+    {
+     "ename": "",
+     "evalue": "1",
+     "output_type": "error",
+     "traceback": []
+    }
+   ],
+   "source": [
+    "cat */gbm_from_single_cell_imaging_data-statistics.tsv"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "family\tresponse\taccuracy\tf1\tprecision\trecall\n",
+      "binomial\tis_infected\t0.8236\t0.8231143143597965\t0.8271935801788475\t0.8236\n",
+      "(pybda) "
+     ]
+    },
+    {
+     "ename": "",
+     "evalue": "1",
+     "output_type": "error",
+     "traceback": []
+    }
+   ],
+   "source": [
+    "cat */forest_from_single_cell_imaging_data-statistics.tsv"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The GBM performed way better than the random forest. That is hardly surprising, because the data set is very noisy, thus recursively training on the errors of a learner should be advantageous."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "PyBDA creates plenty of other files to check out! For instance, we should always look at the log files we created:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[2019-08-09 00:15:55,705 - INFO - pybda.spark_session]: Initializing pyspark session\n",
+      "[2019-08-09 00:15:57,046 - INFO - pybda.spark_session]: Config: spark.master, value: local\n",
+      "[2019-08-09 00:15:57,046 - INFO - pybda.spark_session]: Config: spark.driver.memory, value: 1G\n",
+      "[2019-08-09 00:15:57,047 - INFO - pybda.spark_session]: Config: spark.app.name, value: gbm.py\n",
+      "[2019-08-09 00:15:57,047 - INFO - pybda.spark_session]: Config: spark.driver.port, value: 39021\n",
+      "[2019-08-09 00:15:57,047 - INFO - pybda.spark_session]: Config: spark.rdd.compress, value: True\n",
+      "[2019-08-09 00:15:57,047 - INFO - pybda.spark_session]: Config: spark.app.id, value: local-1565302556519\n",
+      "[2019-08-09 00:15:57,047 - INFO - pybda.spark_session]: Config: spark.serializer.objectStreamReset, value: 100\n",
+      "[2019-08-09 00:15:57,047 - INFO - pybda.spark_session]: Config: spark.driver.host, value: 192.168.1.33\n",
+      "[2019-08-09 00:15:57,047 - INFO - pybda.spark_session]: Config: spark.executor.id, value: driver\n",
+      "[2019-08-09 00:15:57,047 - INFO - pybda.spark_session]: Config: spark.submit.deployMode, value: client\n",
+      "[2019-08-09 00:15:57,047 - INFO - pybda.spark_session]: Openened spark context at: Fri Aug  9 00:15:57 2019\n",
+      "[2019-08-09 00:15:57,066 - INFO - pybda.io.io]: Reading tsv: single_cell_imaging_data.tsv\n",
+      "[2019-08-09 00:16:01,018 - INFO - pybda.spark.features]: Casting columns to double.\n",
+      "[2019-08-09 00:16:02,010 - INFO - pybda.spark.features]: Assembling column to feature vector\n",
+      "[2019-08-09 00:16:02,183 - INFO - pybda.spark.features]: Dropping redundant columns\n",
+      "[2019-08-09 00:16:02,203 - INFO - pybda.ensemble]: Fitting forest with family='binomial'\n",
+      "[2019-08-09 00:16:05,686 - INFO - pybda.decorators]: function: '_balance' took: 3.4832 sec\n",
+      "[2019-08-09 00:17:03,806 - INFO - pybda.decorators]: function: '_fit' took: 61.6037 sec\n",
+      "[2019-08-09 00:17:12,037 - INFO - pybda.fit.ensemble_fit]: Writing regression statistics\n",
+      "[2019-08-09 00:17:12,038 - INFO - pybda.io.io]: Reading tsv: single_cell_imaging_data.tsv\n",
+      "[2019-08-09 00:17:12,286 - INFO - pybda.spark.features]: Casting columns to double.\n",
+      "[2019-08-09 00:17:12,866 - INFO - pybda.spark.features]: Assembling column to feature vector\n",
+      "[2019-08-09 00:17:12,975 - INFO - pybda.decorators]: function: 'predict' took: 0.0645 sec\n",
+      "[2019-08-09 00:17:12,988 - INFO - pybda.spark.features]: Dropping column 'features'\n",
+      "[2019-08-09 00:17:12,994 - INFO - pybda.spark.features]: Dropping column 'rawPrediction'\n",
+      "[2019-08-09 00:17:13,002 - INFO - pybda.spark.features]: Splitting vector columns: probability\n",
+      "[2019-08-09 00:17:13,531 - INFO - pybda.io.io]: Writing tsv: results/2019_08_09/gbm_from_single_cell_imaging_data-predicted\n",
+      "[2019-08-09 00:17:16,616 - INFO - pybda.spark_session]: Stopping Spark context\n",
+      "[2019-08-09 00:17:16,616 - INFO - pybda.spark_session]: Closed spark context at: Fri Aug  9 00:17:16 2019\n",
+      "[2019-08-09 00:17:16,616 - INFO - pybda.spark_session]: Computation took: 79\n",
+      "(pybda) "
+     ]
+    },
+    {
+     "ename": "",
+     "evalue": "1",
+     "output_type": "error",
+     "traceback": []
+    }
+   ],
+   "source": [
+    "cat */gbm_from_single_cell_imaging_data.log"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Furthermore, the Spark `log` file is sometimes important to look at when the methods failed:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "2019-08-09 00:15:54 WARN  Utils:66 - Your hostname, hoto resolves to a loopback address: 127.0.1.1; using 192.168.1.33 instead (on interface wlp2s0)\n",
+      "2019-08-09 00:15:54 WARN  Utils:66 - Set SPARK_LOCAL_IP if you need to bind to another address\n",
+      "2019-08-09 00:15:54 WARN  NativeCodeLoader:62 - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable\n",
+      "2019-08-09 00:15:55 INFO  SparkContext:54 - Running Spark version 2.4.0\n",
+      "2019-08-09 00:15:55 INFO  SparkContext:54 - Submitted application: gbm.py\n",
+      "2019-08-09 00:15:55 INFO  SecurityManager:54 - Changing view acls to: simon\n",
+      "2019-08-09 00:15:55 INFO  SecurityManager:54 - Changing modify acls to: simon\n",
+      "2019-08-09 00:15:55 INFO  SecurityManager:54 - Changing view acls groups to: \n",
+      "2019-08-09 00:15:55 INFO  SecurityManager:54 - Changing modify acls groups to: \n",
+      "2019-08-09 00:15:55 INFO  SecurityManager:54 - SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(simon); groups with view permissions: Set(); users  with modify permissions: Set(simon); groups with modify permissions: Set()\n",
+      "(pybda) "
+     ]
+    },
+    {
+     "ename": "",
+     "evalue": "1",
+     "output_type": "error",
+     "traceback": []
+    }
+   ],
+   "source": [
+    "head */gbm_from_single_cell_imaging_data-spark.log"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Bash",
+   "language": "bash",
+   "name": "bash"
+  },
+  "language_info": {
+   "codemirror_mode": "shell",
+   "file_extension": ".sh",
+   "mimetype": "text/x-sh",
+   "name": "bash"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}

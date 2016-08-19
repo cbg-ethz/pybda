@@ -1,0 +1,243 @@
+actionid: tox
+msg: packaging
+cmdargs: '/home/simon/miniconda3/envs/tix/bin/python /home/simon/PROJECTS/pybda/setup.py sdist --formats=zip --dist-dir /home/simon/PROJECTS/pybda/.tox/dist'
+
+running sdist
+running egg_info
+writing pybda.egg-info/PKG-INFO
+writing dependency_links to pybda.egg-info/dependency_links.txt
+writing requirements to pybda.egg-info/requires.txt
+writing top-level names to pybda.egg-info/top_level.txt
+reading manifest file 'pybda.egg-info/SOURCES.txt'
+reading manifest template 'MANIFEST.in'
+writing manifest file 'pybda.egg-info/SOURCES.txt'
+running check
+creating pybda-0.0.6
+creating pybda-0.0.6/pybda
+creating pybda-0.0.6/pybda.egg-info
+creating pybda-0.0.6/pybda/config
+creating pybda-0.0.6/pybda/fit
+creating pybda-0.0.6/pybda/io
+creating pybda-0.0.6/pybda/plot
+creating pybda-0.0.6/pybda/spark
+creating pybda-0.0.6/pybda/stats
+creating pybda-0.0.6/pybda/util
+creating pybda-0.0.6/scripts
+creating pybda-0.0.6/tests
+copying files to pybda-0.0.6...
+copying LICENSE -> pybda-0.0.6
+copying MANIFEST.in -> pybda-0.0.6
+copying README.rst -> pybda-0.0.6
+copying setup.cfg -> pybda-0.0.6
+copying setup.py -> pybda-0.0.6
+copying pybda/__init__.py -> pybda-0.0.6/pybda
+copying pybda/clustering.py -> pybda-0.0.6/pybda
+copying pybda/dimension_reduction.py -> pybda-0.0.6/pybda
+copying pybda/ensemble.py -> pybda-0.0.6/pybda
+copying pybda/factor_analysis.py -> pybda-0.0.6/pybda
+copying pybda/forest.py -> pybda-0.0.6/pybda
+copying pybda/gbm.py -> pybda-0.0.6/pybda
+copying pybda/glm.py -> pybda-0.0.6/pybda
+copying pybda/globals.py -> pybda-0.0.6/pybda
+copying pybda/gmm.py -> pybda-0.0.6/pybda
+copying pybda/ica.py -> pybda-0.0.6/pybda
+copying pybda/kmeans.py -> pybda-0.0.6/pybda
+copying pybda/kpca.py -> pybda-0.0.6/pybda
+copying pybda/lda.py -> pybda-0.0.6/pybda
+copying pybda/logger.py -> pybda-0.0.6/pybda
+copying pybda/outliers.py -> pybda-0.0.6/pybda
+copying pybda/pca.py -> pybda-0.0.6/pybda
+copying pybda/pybda.snake -> pybda-0.0.6/pybda
+copying pybda/pybda_config.py -> pybda-0.0.6/pybda
+copying pybda/regression.py -> pybda-0.0.6/pybda
+copying pybda/sampler.py -> pybda-0.0.6/pybda
+copying pybda/spark_model.py -> pybda-0.0.6/pybda
+copying pybda/spark_session.py -> pybda-0.0.6/pybda
+copying pybda.egg-info/PKG-INFO -> pybda-0.0.6/pybda.egg-info
+copying pybda.egg-info/SOURCES.txt -> pybda-0.0.6/pybda.egg-info
+copying pybda.egg-info/dependency_links.txt -> pybda-0.0.6/pybda.egg-info
+copying pybda.egg-info/requires.txt -> pybda-0.0.6/pybda.egg-info
+copying pybda.egg-info/top_level.txt -> pybda-0.0.6/pybda.egg-info
+copying pybda/config/__init__.py -> pybda-0.0.6/pybda/config
+copying pybda/config/config_checks.py -> pybda-0.0.6/pybda/config
+copying pybda/config/rule_node.py -> pybda-0.0.6/pybda/config
+copying pybda/config/rule_tree.py -> pybda-0.0.6/pybda/config
+copying pybda/fit/__init__.py -> pybda-0.0.6/pybda/fit
+copying pybda/fit/clustering_fit.py -> pybda-0.0.6/pybda/fit
+copying pybda/fit/clustering_fit_profile.py -> pybda-0.0.6/pybda/fit
+copying pybda/fit/clustering_transformed.py -> pybda-0.0.6/pybda/fit
+copying pybda/fit/dimension_reduction_fit.py -> pybda-0.0.6/pybda/fit
+copying pybda/fit/dimension_reduction_transform.py -> pybda-0.0.6/pybda/fit
+copying pybda/fit/ensemble_fit.py -> pybda-0.0.6/pybda/fit
+copying pybda/fit/factor_analysis_fit.py -> pybda-0.0.6/pybda/fit
+copying pybda/fit/factor_analysis_transform.py -> pybda-0.0.6/pybda/fit
+copying pybda/fit/glm_fit.py -> pybda-0.0.6/pybda/fit
+copying pybda/fit/gmm_fit.py -> pybda-0.0.6/pybda/fit
+copying pybda/fit/gmm_fit_profile.py -> pybda-0.0.6/pybda/fit
+copying pybda/fit/gmm_transformed.py -> pybda-0.0.6/pybda/fit
+copying pybda/fit/ica_fit.py -> pybda-0.0.6/pybda/fit
+copying pybda/fit/ica_transform.py -> pybda-0.0.6/pybda/fit
+copying pybda/fit/kmeans_fit.py -> pybda-0.0.6/pybda/fit
+copying pybda/fit/kmeans_fit_profile.py -> pybda-0.0.6/pybda/fit
+copying pybda/fit/kmeans_transformed.py -> pybda-0.0.6/pybda/fit
+copying pybda/fit/kpca_fit.py -> pybda-0.0.6/pybda/fit
+copying pybda/fit/kpca_transform.py -> pybda-0.0.6/pybda/fit
+copying pybda/fit/lda_fit.py -> pybda-0.0.6/pybda/fit
+copying pybda/fit/lda_transform.py -> pybda-0.0.6/pybda/fit
+copying pybda/fit/pca_fit.py -> pybda-0.0.6/pybda/fit
+copying pybda/fit/pca_transform.py -> pybda-0.0.6/pybda/fit
+copying pybda/fit/predicted_data.py -> pybda-0.0.6/pybda/fit
+copying pybda/fit/regression_fit.py -> pybda-0.0.6/pybda/fit
+copying pybda/io/__init__.py -> pybda-0.0.6/pybda/io
+copying pybda/io/as_filename.py -> pybda-0.0.6/pybda/io
+copying pybda/io/file.py -> pybda-0.0.6/pybda/io
+copying pybda/io/io.py -> pybda-0.0.6/pybda/io
+copying pybda/plot/__init__.py -> pybda-0.0.6/pybda/plot
+copying pybda/plot/descriptive.py -> pybda-0.0.6/pybda/plot
+copying pybda/plot/dimension_reduction_plot.py -> pybda-0.0.6/pybda/plot
+copying pybda/plot/regression_plot.py -> pybda-0.0.6/pybda/plot
+copying pybda/spark/__init__.py -> pybda-0.0.6/pybda/spark
+copying pybda/spark/dataframe.py -> pybda-0.0.6/pybda/spark
+copying pybda/spark/features.py -> pybda-0.0.6/pybda/spark
+copying pybda/stats/__init__.py -> pybda-0.0.6/pybda/stats
+copying pybda/stats/linalg.py -> pybda-0.0.6/pybda/stats
+copying pybda/stats/random.py -> pybda-0.0.6/pybda/stats
+copying pybda/stats/stats.py -> pybda-0.0.6/pybda/stats
+copying pybda/util/__init__.py -> pybda-0.0.6/pybda/util
+copying pybda/util/cast_as.py -> pybda-0.0.6/pybda/util
+copying pybda/util/string.py -> pybda-0.0.6/pybda/util
+copying scripts/pybda -> pybda-0.0.6/scripts
+copying tests/__init__.py -> pybda-0.0.6/tests
+copying tests/test_api.py -> pybda-0.0.6/tests
+copying tests/test_clustering_api.py -> pybda-0.0.6/tests
+copying tests/test_dimred_api.py -> pybda-0.0.6/tests
+copying tests/test_fa.py -> pybda-0.0.6/tests
+copying tests/test_forest.py -> pybda-0.0.6/tests
+copying tests/test_gbm.py -> pybda-0.0.6/tests
+copying tests/test_glm.py -> pybda-0.0.6/tests
+copying tests/test_gmm.py -> pybda-0.0.6/tests
+copying tests/test_ica.py -> pybda-0.0.6/tests
+copying tests/test_kmeans.py -> pybda-0.0.6/tests
+copying tests/test_kpca.py -> pybda-0.0.6/tests
+copying tests/test_lda.py -> pybda-0.0.6/tests
+copying tests/test_pca.py -> pybda-0.0.6/tests
+copying tests/test_pybda.py -> pybda-0.0.6/tests
+copying tests/test_regression_api.py -> pybda-0.0.6/tests
+copying tests/test_stats.py -> pybda-0.0.6/tests
+Writing pybda-0.0.6/setup.cfg
+creating '.tox/dist/pybda-0.0.6.zip' and adding 'pybda-0.0.6' to it
+adding 'pybda-0.0.6'
+adding 'pybda-0.0.6/tests'
+adding 'pybda-0.0.6/pybda.egg-info'
+adding 'pybda-0.0.6/scripts'
+adding 'pybda-0.0.6/pybda'
+adding 'pybda-0.0.6/setup.cfg'
+adding 'pybda-0.0.6/PKG-INFO'
+adding 'pybda-0.0.6/MANIFEST.in'
+adding 'pybda-0.0.6/LICENSE'
+adding 'pybda-0.0.6/README.rst'
+adding 'pybda-0.0.6/setup.py'
+adding 'pybda-0.0.6/tests/test_clustering_api.py'
+adding 'pybda-0.0.6/tests/test_lda.py'
+adding 'pybda-0.0.6/tests/test_regression_api.py'
+adding 'pybda-0.0.6/tests/test_dimred_api.py'
+adding 'pybda-0.0.6/tests/__init__.py'
+adding 'pybda-0.0.6/tests/test_kpca.py'
+adding 'pybda-0.0.6/tests/test_forest.py'
+adding 'pybda-0.0.6/tests/test_fa.py'
+adding 'pybda-0.0.6/tests/test_api.py'
+adding 'pybda-0.0.6/tests/test_gmm.py'
+adding 'pybda-0.0.6/tests/test_stats.py'
+adding 'pybda-0.0.6/tests/test_gbm.py'
+adding 'pybda-0.0.6/tests/test_pybda.py'
+adding 'pybda-0.0.6/tests/test_glm.py'
+adding 'pybda-0.0.6/tests/test_kmeans.py'
+adding 'pybda-0.0.6/tests/test_ica.py'
+adding 'pybda-0.0.6/tests/test_pca.py'
+adding 'pybda-0.0.6/pybda.egg-info/PKG-INFO'
+adding 'pybda-0.0.6/pybda.egg-info/top_level.txt'
+adding 'pybda-0.0.6/pybda.egg-info/SOURCES.txt'
+adding 'pybda-0.0.6/pybda.egg-info/requires.txt'
+adding 'pybda-0.0.6/pybda.egg-info/dependency_links.txt'
+adding 'pybda-0.0.6/scripts/pybda'
+adding 'pybda-0.0.6/pybda/io'
+adding 'pybda-0.0.6/pybda/stats'
+adding 'pybda-0.0.6/pybda/fit'
+adding 'pybda-0.0.6/pybda/plot'
+adding 'pybda-0.0.6/pybda/spark'
+adding 'pybda-0.0.6/pybda/config'
+adding 'pybda-0.0.6/pybda/util'
+adding 'pybda-0.0.6/pybda/pybda_config.py'
+adding 'pybda-0.0.6/pybda/outliers.py'
+adding 'pybda-0.0.6/pybda/kmeans.py'
+adding 'pybda-0.0.6/pybda/globals.py'
+adding 'pybda-0.0.6/pybda/ensemble.py'
+adding 'pybda-0.0.6/pybda/spark_session.py'
+adding 'pybda-0.0.6/pybda/kpca.py'
+adding 'pybda-0.0.6/pybda/dimension_reduction.py'
+adding 'pybda-0.0.6/pybda/spark_model.py'
+adding 'pybda-0.0.6/pybda/__init__.py'
+adding 'pybda-0.0.6/pybda/ica.py'
+adding 'pybda-0.0.6/pybda/clustering.py'
+adding 'pybda-0.0.6/pybda/gmm.py'
+adding 'pybda-0.0.6/pybda/pybda.snake'
+adding 'pybda-0.0.6/pybda/glm.py'
+adding 'pybda-0.0.6/pybda/lda.py'
+adding 'pybda-0.0.6/pybda/logger.py'
+adding 'pybda-0.0.6/pybda/forest.py'
+adding 'pybda-0.0.6/pybda/sampler.py'
+adding 'pybda-0.0.6/pybda/gbm.py'
+adding 'pybda-0.0.6/pybda/factor_analysis.py'
+adding 'pybda-0.0.6/pybda/regression.py'
+adding 'pybda-0.0.6/pybda/pca.py'
+adding 'pybda-0.0.6/pybda/io/file.py'
+adding 'pybda-0.0.6/pybda/io/__init__.py'
+adding 'pybda-0.0.6/pybda/io/as_filename.py'
+adding 'pybda-0.0.6/pybda/io/io.py'
+adding 'pybda-0.0.6/pybda/stats/stats.py'
+adding 'pybda-0.0.6/pybda/stats/random.py'
+adding 'pybda-0.0.6/pybda/stats/__init__.py'
+adding 'pybda-0.0.6/pybda/stats/linalg.py'
+adding 'pybda-0.0.6/pybda/fit/regression_fit.py'
+adding 'pybda-0.0.6/pybda/fit/kpca_fit.py'
+adding 'pybda-0.0.6/pybda/fit/clustering_fit.py'
+adding 'pybda-0.0.6/pybda/fit/pca_fit.py'
+adding 'pybda-0.0.6/pybda/fit/kmeans_fit.py'
+adding 'pybda-0.0.6/pybda/fit/gmm_transformed.py'
+adding 'pybda-0.0.6/pybda/fit/pca_transform.py'
+adding 'pybda-0.0.6/pybda/fit/ica_transform.py'
+adding 'pybda-0.0.6/pybda/fit/lda_fit.py'
+adding 'pybda-0.0.6/pybda/fit/dimension_reduction_fit.py'
+adding 'pybda-0.0.6/pybda/fit/__init__.py'
+adding 'pybda-0.0.6/pybda/fit/kpca_transform.py'
+adding 'pybda-0.0.6/pybda/fit/glm_fit.py'
+adding 'pybda-0.0.6/pybda/fit/clustering_transformed.py'
+adding 'pybda-0.0.6/pybda/fit/ensemble_fit.py'
+adding 'pybda-0.0.6/pybda/fit/kmeans_fit_profile.py'
+adding 'pybda-0.0.6/pybda/fit/factor_analysis_fit.py'
+adding 'pybda-0.0.6/pybda/fit/factor_analysis_transform.py'
+adding 'pybda-0.0.6/pybda/fit/kmeans_transformed.py'
+adding 'pybda-0.0.6/pybda/fit/dimension_reduction_transform.py'
+adding 'pybda-0.0.6/pybda/fit/ica_fit.py'
+adding 'pybda-0.0.6/pybda/fit/gmm_fit_profile.py'
+adding 'pybda-0.0.6/pybda/fit/clustering_fit_profile.py'
+adding 'pybda-0.0.6/pybda/fit/lda_transform.py'
+adding 'pybda-0.0.6/pybda/fit/gmm_fit.py'
+adding 'pybda-0.0.6/pybda/fit/predicted_data.py'
+adding 'pybda-0.0.6/pybda/plot/descriptive.py'
+adding 'pybda-0.0.6/pybda/plot/dimension_reduction_plot.py'
+adding 'pybda-0.0.6/pybda/plot/__init__.py'
+adding 'pybda-0.0.6/pybda/plot/regression_plot.py'
+adding 'pybda-0.0.6/pybda/spark/__init__.py'
+adding 'pybda-0.0.6/pybda/spark/features.py'
+adding 'pybda-0.0.6/pybda/spark/dataframe.py'
+adding 'pybda-0.0.6/pybda/config/rule_node.py'
+adding 'pybda-0.0.6/pybda/config/__init__.py'
+adding 'pybda-0.0.6/pybda/config/config_checks.py'
+adding 'pybda-0.0.6/pybda/config/rule_tree.py'
+adding 'pybda-0.0.6/pybda/util/string.py'
+adding 'pybda-0.0.6/pybda/util/__init__.py'
+adding 'pybda-0.0.6/pybda/util/cast_as.py'
+removing 'pybda-0.0.6' (and everything under it)
+/home/simon/miniconda3/envs/tix/lib/python3.6/distutils/dist.py:261: UserWarning: Unknown distribution option: 'test_requires'
+  warnings.warn(msg)

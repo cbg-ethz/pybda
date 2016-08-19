@@ -1,0 +1,2 @@
+k	loglik	BIC	n	p	path
+100	165100.53701336804	-310868.5695859581	10000	5	results/2019_08_15/gmm_from_ica_from_single_cell_imaging_data/gmm-fit-K100

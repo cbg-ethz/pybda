@@ -1,0 +1,30 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	kmeans
+	1	pca
+	2
+
+[Fri Mar 29 13:24:16 2019]
+rule pca:
+    input: single_cell_imaging_data.tsv
+    output: results/pca.tsv, results/pca-loadings.tsv, results/pca-plot
+    jobid: 1
+
+[Fri Mar 29 13:25:23 2019]
+Finished job 1.
+1 of 2 steps (50%) done
+
+[Fri Mar 29 13:25:23 2019]
+rule kmeans:
+    input: results/pca.tsv
+    output: results/kmeans, results/kmeans-profile.png, results/kmeans-profile.pdf, results/kmeans-profile.eps, results/kmeans-profile.svg, results/kmeans-profile.tsv, results/kmeans-transformed-K3-clusters
+    jobid: 0
+
+[Fri Mar 29 13:25:46 2019]
+Finished job 0.
+2 of 2 steps (100%) done
+Complete log: /home/simon/PROJECTS/pybda/data/.snakemake/log/2019-03-29T132416.221992.snakemake.log

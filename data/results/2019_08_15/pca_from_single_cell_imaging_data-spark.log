@@ -1,0 +1,1042 @@
+2019-08-15 20:35:01 WARN  Utils:66 - Your hostname, hoto resolves to a loopback address: 127.0.1.1; using 192.168.1.33 instead (on interface wlp2s0)
+2019-08-15 20:35:01 WARN  Utils:66 - Set SPARK_LOCAL_IP if you need to bind to another address
+2019-08-15 20:35:01 WARN  NativeCodeLoader:62 - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2019-08-15 20:35:03 INFO  SparkContext:54 - Running Spark version 2.4.0
+2019-08-15 20:35:03 INFO  SparkContext:54 - Submitted application: pca.py
+2019-08-15 20:35:03 INFO  SecurityManager:54 - Changing view acls to: simon
+2019-08-15 20:35:03 INFO  SecurityManager:54 - Changing modify acls to: simon
+2019-08-15 20:35:03 INFO  SecurityManager:54 - Changing view acls groups to: 
+2019-08-15 20:35:03 INFO  SecurityManager:54 - Changing modify acls groups to: 
+2019-08-15 20:35:03 INFO  SecurityManager:54 - SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(simon); groups with view permissions: Set(); users  with modify permissions: Set(simon); groups with modify permissions: Set()
+2019-08-15 20:35:03 INFO  Utils:54 - Successfully started service 'sparkDriver' on port 41577.
+2019-08-15 20:35:03 INFO  SparkEnv:54 - Registering MapOutputTracker
+2019-08-15 20:35:03 INFO  SparkEnv:54 - Registering BlockManagerMaster
+2019-08-15 20:35:03 INFO  BlockManagerMasterEndpoint:54 - Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information
+2019-08-15 20:35:03 INFO  BlockManagerMasterEndpoint:54 - BlockManagerMasterEndpoint up
+2019-08-15 20:35:03 INFO  DiskBlockManager:54 - Created local directory at /tmp/blockmgr-9b022afe-8873-47f9-a87c-2fa20757caeb
+2019-08-15 20:35:03 INFO  MemoryStore:54 - MemoryStore started with capacity 366.3 MB
+2019-08-15 20:35:03 INFO  SparkEnv:54 - Registering OutputCommitCoordinator
+2019-08-15 20:35:03 INFO  log:192 - Logging initialized @3145ms
+2019-08-15 20:35:03 INFO  Server:351 - jetty-9.3.z-SNAPSHOT, build timestamp: unknown, git hash: unknown
+2019-08-15 20:35:03 INFO  Server:419 - Started @3269ms
+2019-08-15 20:35:03 INFO  AbstractConnector:278 - Started ServerConnector@48f5e68a{HTTP/1.1,[http/1.1]}{0.0.0.0:4040}
+2019-08-15 20:35:03 INFO  Utils:54 - Successfully started service 'SparkUI' on port 4040.
+2019-08-15 20:35:03 INFO  ContextHandler:781 - Started o.s.j.s.ServletContextHandler@18851d5a{/jobs,null,AVAILABLE,@Spark}
+2019-08-15 20:35:03 INFO  ContextHandler:781 - Started o.s.j.s.ServletContextHandler@791930a{/jobs/json,null,AVAILABLE,@Spark}
+2019-08-15 20:35:03 INFO  ContextHandler:781 - Started o.s.j.s.ServletContextHandler@496ca24a{/jobs/job,null,AVAILABLE,@Spark}
+2019-08-15 20:35:03 INFO  ContextHandler:781 - Started o.s.j.s.ServletContextHandler@6938c1e9{/jobs/job/json,null,AVAILABLE,@Spark}
+2019-08-15 20:35:03 INFO  ContextHandler:781 - Started o.s.j.s.ServletContextHandler@62ba1607{/stages,null,AVAILABLE,@Spark}
+2019-08-15 20:35:04 INFO  ContextHandler:781 - Started o.s.j.s.ServletContextHandler@4e6896e8{/stages/json,null,AVAILABLE,@Spark}
+2019-08-15 20:35:04 INFO  ContextHandler:781 - Started o.s.j.s.ServletContextHandler@5e7e7f56{/stages/stage,null,AVAILABLE,@Spark}
+2019-08-15 20:35:04 INFO  ContextHandler:781 - Started o.s.j.s.ServletContextHandler@498be1b9{/stages/stage/json,null,AVAILABLE,@Spark}
+2019-08-15 20:35:04 INFO  ContextHandler:781 - Started o.s.j.s.ServletContextHandler@6422b311{/stages/pool,null,AVAILABLE,@Spark}
+2019-08-15 20:35:04 INFO  ContextHandler:781 - Started o.s.j.s.ServletContextHandler@23540c7e{/stages/pool/json,null,AVAILABLE,@Spark}
+2019-08-15 20:35:04 INFO  ContextHandler:781 - Started o.s.j.s.ServletContextHandler@1739d1e8{/storage,null,AVAILABLE,@Spark}
+2019-08-15 20:35:04 INFO  ContextHandler:781 - Started o.s.j.s.ServletContextHandler@1296c9f{/storage/json,null,AVAILABLE,@Spark}
+2019-08-15 20:35:04 INFO  ContextHandler:781 - Started o.s.j.s.ServletContextHandler@7062ed90{/storage/rdd,null,AVAILABLE,@Spark}
+2019-08-15 20:35:04 INFO  ContextHandler:781 - Started o.s.j.s.ServletContextHandler@73d6381e{/storage/rdd/json,null,AVAILABLE,@Spark}
+2019-08-15 20:35:04 INFO  ContextHandler:781 - Started o.s.j.s.ServletContextHandler@2a39111d{/environment,null,AVAILABLE,@Spark}
+2019-08-15 20:35:04 INFO  ContextHandler:781 - Started o.s.j.s.ServletContextHandler@603ecd51{/environment/json,null,AVAILABLE,@Spark}
+2019-08-15 20:35:04 INFO  ContextHandler:781 - Started o.s.j.s.ServletContextHandler@7d7a2ab{/executors,null,AVAILABLE,@Spark}
+2019-08-15 20:35:04 INFO  ContextHandler:781 - Started o.s.j.s.ServletContextHandler@45036c87{/executors/json,null,AVAILABLE,@Spark}
+2019-08-15 20:35:04 INFO  ContextHandler:781 - Started o.s.j.s.ServletContextHandler@27502cc3{/executors/threadDump,null,AVAILABLE,@Spark}
+2019-08-15 20:35:04 INFO  ContextHandler:781 - Started o.s.j.s.ServletContextHandler@3192293d{/executors/threadDump/json,null,AVAILABLE,@Spark}
+2019-08-15 20:35:04 INFO  ContextHandler:781 - Started o.s.j.s.ServletContextHandler@b6a175e{/static,null,AVAILABLE,@Spark}
+2019-08-15 20:35:04 INFO  ContextHandler:781 - Started o.s.j.s.ServletContextHandler@30aa07c6{/,null,AVAILABLE,@Spark}
+2019-08-15 20:35:04 INFO  ContextHandler:781 - Started o.s.j.s.ServletContextHandler@65236fd0{/api,null,AVAILABLE,@Spark}
+2019-08-15 20:35:04 INFO  ContextHandler:781 - Started o.s.j.s.ServletContextHandler@960ed50{/jobs/job/kill,null,AVAILABLE,@Spark}
+2019-08-15 20:35:04 INFO  ContextHandler:781 - Started o.s.j.s.ServletContextHandler@130734c9{/stages/stage/kill,null,AVAILABLE,@Spark}
+2019-08-15 20:35:04 INFO  SparkUI:54 - Bound SparkUI to 0.0.0.0, and started at http://192.168.1.33:4040
+2019-08-15 20:35:04 INFO  Executor:54 - Starting executor ID driver on host localhost
+2019-08-15 20:35:04 INFO  Utils:54 - Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 45555.
+2019-08-15 20:35:04 INFO  NettyBlockTransferService:54 - Server created on 192.168.1.33:45555
+2019-08-15 20:35:04 INFO  BlockManager:54 - Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy
+2019-08-15 20:35:04 INFO  BlockManagerMaster:54 - Registering BlockManager BlockManagerId(driver, 192.168.1.33, 45555, None)
+2019-08-15 20:35:04 INFO  BlockManagerMasterEndpoint:54 - Registering block manager 192.168.1.33:45555 with 366.3 MB RAM, BlockManagerId(driver, 192.168.1.33, 45555, None)
+2019-08-15 20:35:04 INFO  BlockManagerMaster:54 - Registered BlockManager BlockManagerId(driver, 192.168.1.33, 45555, None)
+2019-08-15 20:35:04 INFO  BlockManager:54 - Initialized BlockManager: BlockManagerId(driver, 192.168.1.33, 45555, None)
+2019-08-15 20:35:04 INFO  ContextHandler:781 - Started o.s.j.s.ServletContextHandler@5dc8ee19{/metrics/json,null,AVAILABLE,@Spark}
+2019-08-15 20:35:04 INFO  SharedState:54 - Setting hive.metastore.warehouse.dir ('null') to the value of spark.sql.warehouse.dir ('file:/home/simon/PROJECTS/pybda/data/spark-warehouse').
+2019-08-15 20:35:04 INFO  SharedState:54 - Warehouse path is 'file:/home/simon/PROJECTS/pybda/data/spark-warehouse'.
+2019-08-15 20:35:04 INFO  ContextHandler:781 - Started o.s.j.s.ServletContextHandler@613a2fa1{/SQL,null,AVAILABLE,@Spark}
+2019-08-15 20:35:04 INFO  ContextHandler:781 - Started o.s.j.s.ServletContextHandler@42542a9e{/SQL/json,null,AVAILABLE,@Spark}
+2019-08-15 20:35:04 INFO  ContextHandler:781 - Started o.s.j.s.ServletContextHandler@43fa2819{/SQL/execution,null,AVAILABLE,@Spark}
+2019-08-15 20:35:04 INFO  ContextHandler:781 - Started o.s.j.s.ServletContextHandler@28716deb{/SQL/execution/json,null,AVAILABLE,@Spark}
+2019-08-15 20:35:04 INFO  ContextHandler:781 - Started o.s.j.s.ServletContextHandler@3211880c{/static/sql,null,AVAILABLE,@Spark}
+2019-08-15 20:35:05 INFO  StateStoreCoordinatorRef:54 - Registered StateStoreCoordinator endpoint
+2019-08-15 20:35:07 INFO  FileSourceStrategy:54 - Pruning directories with: 
+2019-08-15 20:35:07 INFO  FileSourceStrategy:54 - Post-Scan Filters: (length(trim(value#0, None)) > 0)
+2019-08-15 20:35:07 INFO  FileSourceStrategy:54 - Output Data Schema: struct<value: string>
+2019-08-15 20:35:07 INFO  FileSourceScanExec:54 - Pushed Filters: 
+2019-08-15 20:35:07 INFO  CodeGenerator:54 - Code generated in 198.450641 ms
+2019-08-15 20:35:08 INFO  CodeGenerator:54 - Code generated in 16.072446 ms
+2019-08-15 20:35:08 INFO  MemoryStore:54 - Block broadcast_0 stored as values in memory (estimated size 285.0 KB, free 366.0 MB)
+2019-08-15 20:35:08 INFO  MemoryStore:54 - Block broadcast_0_piece0 stored as bytes in memory (estimated size 23.4 KB, free 366.0 MB)
+2019-08-15 20:35:08 INFO  BlockManagerInfo:54 - Added broadcast_0_piece0 in memory on 192.168.1.33:45555 (size: 23.4 KB, free: 366.3 MB)
+2019-08-15 20:35:08 INFO  SparkContext:54 - Created broadcast 0 from csv at NativeMethodAccessorImpl.java:0
+2019-08-15 20:35:08 INFO  FileSourceScanExec:54 - Planning scan with bin packing, max size: 11992819 bytes, open cost is considered as scanning 4194304 bytes.
+2019-08-15 20:35:08 INFO  SparkContext:54 - Starting job: csv at NativeMethodAccessorImpl.java:0
+2019-08-15 20:35:08 INFO  DAGScheduler:54 - Got job 0 (csv at NativeMethodAccessorImpl.java:0) with 1 output partitions
+2019-08-15 20:35:08 INFO  DAGScheduler:54 - Final stage: ResultStage 0 (csv at NativeMethodAccessorImpl.java:0)
+2019-08-15 20:35:08 INFO  DAGScheduler:54 - Parents of final stage: List()
+2019-08-15 20:35:08 INFO  DAGScheduler:54 - Missing parents: List()
+2019-08-15 20:35:08 INFO  DAGScheduler:54 - Submitting ResultStage 0 (MapPartitionsRDD[3] at csv at NativeMethodAccessorImpl.java:0), which has no missing parents
+2019-08-15 20:35:08 INFO  MemoryStore:54 - Block broadcast_1 stored as values in memory (estimated size 8.8 KB, free 366.0 MB)
+2019-08-15 20:35:08 INFO  MemoryStore:54 - Block broadcast_1_piece0 stored as bytes in memory (estimated size 4.5 KB, free 366.0 MB)
+2019-08-15 20:35:08 INFO  BlockManagerInfo:54 - Added broadcast_1_piece0 in memory on 192.168.1.33:45555 (size: 4.5 KB, free: 366.3 MB)
+2019-08-15 20:35:08 INFO  SparkContext:54 - Created broadcast 1 from broadcast at DAGScheduler.scala:1161
+2019-08-15 20:35:08 INFO  DAGScheduler:54 - Submitting 1 missing tasks from ResultStage 0 (MapPartitionsRDD[3] at csv at NativeMethodAccessorImpl.java:0) (first 15 tasks are for partitions Vector(0))
+2019-08-15 20:35:08 INFO  TaskSchedulerImpl:54 - Adding task set 0.0 with 1 tasks
+2019-08-15 20:35:08 INFO  TaskSetManager:54 - Starting task 0.0 in stage 0.0 (TID 0, localhost, executor driver, partition 0, PROCESS_LOCAL, 8345 bytes)
+2019-08-15 20:35:08 INFO  Executor:54 - Running task 0.0 in stage 0.0 (TID 0)
+2019-08-15 20:35:08 INFO  FileScanRDD:54 - Reading File path: file:///home/simon/PROJECTS/pybda/data/single_cell_imaging_data.tsv, range: 0-7798515, partition values: [empty row]
+2019-08-15 20:35:08 INFO  CodeGenerator:54 - Code generated in 12.832726 ms
+2019-08-15 20:35:08 INFO  Executor:54 - Finished task 0.0 in stage 0.0 (TID 0). 1800 bytes result sent to driver
+2019-08-15 20:35:08 INFO  TaskSetManager:54 - Finished task 0.0 in stage 0.0 (TID 0) in 160 ms on localhost (executor driver) (1/1)
+2019-08-15 20:35:08 INFO  TaskSchedulerImpl:54 - Removed TaskSet 0.0, whose tasks have all completed, from pool 
+2019-08-15 20:35:08 INFO  DAGScheduler:54 - ResultStage 0 (csv at NativeMethodAccessorImpl.java:0) finished in 0.260 s
+2019-08-15 20:35:08 INFO  DAGScheduler:54 - Job 0 finished: csv at NativeMethodAccessorImpl.java:0, took 0.334641 s
+2019-08-15 20:35:08 INFO  FileSourceStrategy:54 - Pruning directories with: 
+2019-08-15 20:35:08 INFO  FileSourceStrategy:54 - Post-Scan Filters: 
+2019-08-15 20:35:08 INFO  FileSourceStrategy:54 - Output Data Schema: struct<value: string>
+2019-08-15 20:35:08 INFO  FileSourceScanExec:54 - Pushed Filters: 
+2019-08-15 20:35:08 INFO  CodeGenerator:54 - Code generated in 8.83641 ms
+2019-08-15 20:35:08 INFO  MemoryStore:54 - Block broadcast_2 stored as values in memory (estimated size 285.0 KB, free 365.7 MB)
+2019-08-15 20:35:08 INFO  MemoryStore:54 - Block broadcast_2_piece0 stored as bytes in memory (estimated size 23.4 KB, free 365.7 MB)
+2019-08-15 20:35:08 INFO  BlockManagerInfo:54 - Added broadcast_2_piece0 in memory on 192.168.1.33:45555 (size: 23.4 KB, free: 366.2 MB)
+2019-08-15 20:35:08 INFO  SparkContext:54 - Created broadcast 2 from csv at NativeMethodAccessorImpl.java:0
+2019-08-15 20:35:08 INFO  FileSourceScanExec:54 - Planning scan with bin packing, max size: 11992819 bytes, open cost is considered as scanning 4194304 bytes.
+2019-08-15 20:35:09 INFO  ContextCleaner:54 - Cleaned accumulator 29
+2019-08-15 20:35:09 INFO  ContextCleaner:54 - Cleaned accumulator 13
+2019-08-15 20:35:09 INFO  ContextCleaner:54 - Cleaned accumulator 22
+2019-08-15 20:35:09 INFO  ContextCleaner:54 - Cleaned accumulator 24
+2019-08-15 20:35:09 INFO  ContextCleaner:54 - Cleaned accumulator 11
+2019-08-15 20:35:09 INFO  ContextCleaner:54 - Cleaned accumulator 17
+2019-08-15 20:35:09 INFO  BlockManagerInfo:54 - Removed broadcast_1_piece0 on 192.168.1.33:45555 in memory (size: 4.5 KB, free: 366.3 MB)
+2019-08-15 20:35:09 INFO  ContextCleaner:54 - Cleaned accumulator 15
+2019-08-15 20:35:09 INFO  ContextCleaner:54 - Cleaned accumulator 14
+2019-08-15 20:35:09 INFO  ContextCleaner:54 - Cleaned accumulator 19
+2019-08-15 20:35:09 INFO  ContextCleaner:54 - Cleaned accumulator 18
+2019-08-15 20:35:09 INFO  ContextCleaner:54 - Cleaned accumulator 20
+2019-08-15 20:35:09 INFO  ContextCleaner:54 - Cleaned accumulator 23
+2019-08-15 20:35:09 INFO  ContextCleaner:54 - Cleaned accumulator 28
+2019-08-15 20:35:09 INFO  ContextCleaner:54 - Cleaned accumulator 30
+2019-08-15 20:35:09 INFO  ContextCleaner:54 - Cleaned accumulator 31
+2019-08-15 20:35:09 INFO  ContextCleaner:54 - Cleaned accumulator 7
+2019-08-15 20:35:09 INFO  ContextCleaner:54 - Cleaned accumulator 25
+2019-08-15 20:35:09 INFO  ContextCleaner:54 - Cleaned accumulator 10
+2019-08-15 20:35:09 INFO  ContextCleaner:54 - Cleaned accumulator 8
+2019-08-15 20:35:09 INFO  ContextCleaner:54 - Cleaned accumulator 9
+2019-08-15 20:35:09 INFO  ContextCleaner:54 - Cleaned accumulator 12
+2019-08-15 20:35:09 INFO  ContextCleaner:54 - Cleaned accumulator 16
+2019-08-15 20:35:09 INFO  ContextCleaner:54 - Cleaned accumulator 26
+2019-08-15 20:35:09 INFO  ContextCleaner:54 - Cleaned accumulator 27
+2019-08-15 20:35:09 INFO  ContextCleaner:54 - Cleaned accumulator 21
+2019-08-15 20:35:10 INFO  FileSourceStrategy:54 - Pruning directories with: 
+2019-08-15 20:35:10 INFO  FileSourceStrategy:54 - Post-Scan Filters: 
+2019-08-15 20:35:10 INFO  FileSourceStrategy:54 - Output Data Schema: struct<cells_areashape_area: string, cells_areashape_eccentricity: string, cells_areashape_extent: string, cells_areashape_formfactor: string, cells_areashape_majoraxislength: string ... 38 more fields>
+2019-08-15 20:35:10 INFO  FileSourceScanExec:54 - Pushed Filters: 
+2019-08-15 20:35:10 INFO  CodeGenerator:54 - Code generated in 147.84019 ms
+2019-08-15 20:35:10 INFO  MemoryStore:54 - Block broadcast_3 stored as values in memory (estimated size 285.0 KB, free 365.4 MB)
+2019-08-15 20:35:10 INFO  MemoryStore:54 - Block broadcast_3_piece0 stored as bytes in memory (estimated size 23.4 KB, free 365.4 MB)
+2019-08-15 20:35:10 INFO  BlockManagerInfo:54 - Added broadcast_3_piece0 in memory on 192.168.1.33:45555 (size: 23.4 KB, free: 366.2 MB)
+2019-08-15 20:35:10 INFO  SparkContext:54 - Created broadcast 3 from javaToPython at NativeMethodAccessorImpl.java:0
+2019-08-15 20:35:10 INFO  FileSourceScanExec:54 - Planning scan with bin packing, max size: 11992819 bytes, open cost is considered as scanning 4194304 bytes.
+2019-08-15 20:35:10 INFO  SparkContext:54 - Starting job: treeAggregate at RowMatrix.scala:419
+2019-08-15 20:35:10 INFO  DAGScheduler:54 - Got job 1 (treeAggregate at RowMatrix.scala:419) with 1 output partitions
+2019-08-15 20:35:10 INFO  DAGScheduler:54 - Final stage: ResultStage 1 (treeAggregate at RowMatrix.scala:419)
+2019-08-15 20:35:10 INFO  DAGScheduler:54 - Parents of final stage: List()
+2019-08-15 20:35:10 INFO  DAGScheduler:54 - Missing parents: List()
+2019-08-15 20:35:10 INFO  DAGScheduler:54 - Submitting ResultStage 1 (MapPartitionsRDD[15] at treeAggregate at RowMatrix.scala:419), which has no missing parents
+2019-08-15 20:35:10 INFO  MemoryStore:54 - Block broadcast_4 stored as values in memory (estimated size 65.0 KB, free 365.3 MB)
+2019-08-15 20:35:10 INFO  MemoryStore:54 - Block broadcast_4_piece0 stored as bytes in memory (estimated size 21.3 KB, free 365.3 MB)
+2019-08-15 20:35:10 INFO  BlockManagerInfo:54 - Added broadcast_4_piece0 in memory on 192.168.1.33:45555 (size: 21.3 KB, free: 366.2 MB)
+2019-08-15 20:35:10 INFO  SparkContext:54 - Created broadcast 4 from broadcast at DAGScheduler.scala:1161
+2019-08-15 20:35:10 INFO  DAGScheduler:54 - Submitting 1 missing tasks from ResultStage 1 (MapPartitionsRDD[15] at treeAggregate at RowMatrix.scala:419) (first 15 tasks are for partitions Vector(0))
+2019-08-15 20:35:10 INFO  TaskSchedulerImpl:54 - Adding task set 1.0 with 1 tasks
+2019-08-15 20:35:10 INFO  TaskSetManager:54 - Starting task 0.0 in stage 1.0 (TID 1, localhost, executor driver, partition 0, PROCESS_LOCAL, 8345 bytes)
+2019-08-15 20:35:10 INFO  Executor:54 - Running task 0.0 in stage 1.0 (TID 1)
+2019-08-15 20:35:11 INFO  FileScanRDD:54 - Reading File path: file:///home/simon/PROJECTS/pybda/data/single_cell_imaging_data.tsv, range: 0-7798515, partition values: [empty row]
+2019-08-15 20:35:11 INFO  CodeGenerator:54 - Code generated in 41.202421 ms
+2019-08-15 20:35:12 INFO  PythonRunner:54 - Times: total = 1376, boot = 430, init = 523, finish = 423
+2019-08-15 20:35:12 INFO  Executor:54 - Finished task 0.0 in stage 1.0 (TID 1). 4820 bytes result sent to driver
+2019-08-15 20:35:12 INFO  TaskSetManager:54 - Finished task 0.0 in stage 1.0 (TID 1) in 1456 ms on localhost (executor driver) (1/1)
+2019-08-15 20:35:12 INFO  TaskSchedulerImpl:54 - Removed TaskSet 1.0, whose tasks have all completed, from pool 
+2019-08-15 20:35:12 INFO  PythonAccumulatorV2:54 - Connected to AccumulatorServer at host: 127.0.0.1 port: 45109
+2019-08-15 20:35:12 INFO  DAGScheduler:54 - ResultStage 1 (treeAggregate at RowMatrix.scala:419) finished in 1.481 s
+2019-08-15 20:35:12 INFO  DAGScheduler:54 - Job 1 finished: treeAggregate at RowMatrix.scala:419, took 1.486355 s
+2019-08-15 20:35:12 INFO  SparkContext:54 - Starting job: count at /home/simon/PROJECTS/pybda/pybda/stats/stats.py:134
+2019-08-15 20:35:12 INFO  DAGScheduler:54 - Got job 2 (count at /home/simon/PROJECTS/pybda/pybda/stats/stats.py:134) with 1 output partitions
+2019-08-15 20:35:12 INFO  DAGScheduler:54 - Final stage: ResultStage 2 (count at /home/simon/PROJECTS/pybda/pybda/stats/stats.py:134)
+2019-08-15 20:35:12 INFO  DAGScheduler:54 - Parents of final stage: List()
+2019-08-15 20:35:12 INFO  DAGScheduler:54 - Missing parents: List()
+2019-08-15 20:35:12 INFO  DAGScheduler:54 - Submitting ResultStage 2 (PythonRDD[16] at count at /home/simon/PROJECTS/pybda/pybda/stats/stats.py:134), which has no missing parents
+2019-08-15 20:35:12 INFO  MemoryStore:54 - Block broadcast_5 stored as values in memory (estimated size 65.1 KB, free 365.2 MB)
+2019-08-15 20:35:12 INFO  MemoryStore:54 - Block broadcast_5_piece0 stored as bytes in memory (estimated size 21.8 KB, free 365.2 MB)
+2019-08-15 20:35:12 INFO  BlockManagerInfo:54 - Added broadcast_5_piece0 in memory on 192.168.1.33:45555 (size: 21.8 KB, free: 366.2 MB)
+2019-08-15 20:35:12 INFO  SparkContext:54 - Created broadcast 5 from broadcast at DAGScheduler.scala:1161
+2019-08-15 20:35:12 INFO  DAGScheduler:54 - Submitting 1 missing tasks from ResultStage 2 (PythonRDD[16] at count at /home/simon/PROJECTS/pybda/pybda/stats/stats.py:134) (first 15 tasks are for partitions Vector(0))
+2019-08-15 20:35:12 INFO  TaskSchedulerImpl:54 - Adding task set 2.0 with 1 tasks
+2019-08-15 20:35:12 INFO  TaskSetManager:54 - Starting task 0.0 in stage 2.0 (TID 2, localhost, executor driver, partition 0, PROCESS_LOCAL, 8345 bytes)
+2019-08-15 20:35:12 INFO  Executor:54 - Running task 0.0 in stage 2.0 (TID 2)
+2019-08-15 20:35:12 INFO  FileScanRDD:54 - Reading File path: file:///home/simon/PROJECTS/pybda/data/single_cell_imaging_data.tsv, range: 0-7798515, partition values: [empty row]
+2019-08-15 20:35:12 INFO  ContextCleaner:54 - Cleaned accumulator 38
+2019-08-15 20:35:12 INFO  ContextCleaner:54 - Cleaned accumulator 61
+2019-08-15 20:35:12 INFO  ContextCleaner:54 - Cleaned accumulator 59
+2019-08-15 20:35:12 INFO  ContextCleaner:54 - Cleaned accumulator 45
+2019-08-15 20:35:12 INFO  ContextCleaner:54 - Cleaned accumulator 49
+2019-08-15 20:35:12 INFO  ContextCleaner:54 - Cleaned accumulator 43
+2019-08-15 20:35:12 INFO  ContextCleaner:54 - Cleaned accumulator 50
+2019-08-15 20:35:12 INFO  ContextCleaner:54 - Cleaned accumulator 60
+2019-08-15 20:35:12 INFO  ContextCleaner:54 - Cleaned accumulator 57
+2019-08-15 20:35:12 INFO  ContextCleaner:54 - Cleaned accumulator 47
+2019-08-15 20:35:12 INFO  ContextCleaner:54 - Cleaned accumulator 64
+2019-08-15 20:35:12 INFO  ContextCleaner:54 - Cleaned accumulator 40
+2019-08-15 20:35:12 INFO  ContextCleaner:54 - Cleaned accumulator 46
+2019-08-15 20:35:12 INFO  BlockManagerInfo:54 - Removed broadcast_4_piece0 on 192.168.1.33:45555 in memory (size: 21.3 KB, free: 366.2 MB)
+2019-08-15 20:35:12 INFO  ContextCleaner:54 - Cleaned accumulator 54
+2019-08-15 20:35:12 INFO  ContextCleaner:54 - Cleaned accumulator 39
+2019-08-15 20:35:12 INFO  ContextCleaner:54 - Cleaned accumulator 48
+2019-08-15 20:35:12 INFO  ContextCleaner:54 - Cleaned accumulator 51
+2019-08-15 20:35:12 INFO  ContextCleaner:54 - Cleaned accumulator 52
+2019-08-15 20:35:12 INFO  ContextCleaner:54 - Cleaned accumulator 53
+2019-08-15 20:35:12 INFO  ContextCleaner:54 - Cleaned accumulator 58
+2019-08-15 20:35:12 INFO  ContextCleaner:54 - Cleaned accumulator 62
+2019-08-15 20:35:12 INFO  ContextCleaner:54 - Cleaned accumulator 55
+2019-08-15 20:35:12 INFO  ContextCleaner:54 - Cleaned accumulator 56
+2019-08-15 20:35:12 INFO  ContextCleaner:54 - Cleaned accumulator 44
+2019-08-15 20:35:12 INFO  ContextCleaner:54 - Cleaned accumulator 66
+2019-08-15 20:35:12 INFO  ContextCleaner:54 - Cleaned accumulator 42
+2019-08-15 20:35:12 INFO  ContextCleaner:54 - Cleaned accumulator 65
+2019-08-15 20:35:12 INFO  ContextCleaner:54 - Cleaned accumulator 63
+2019-08-15 20:35:12 INFO  PythonRunner:54 - Times: total = 565, boot = -96, init = 135, finish = 526
+2019-08-15 20:35:12 INFO  Executor:54 - Finished task 0.0 in stage 2.0 (TID 2). 1915 bytes result sent to driver
+2019-08-15 20:35:12 INFO  TaskSetManager:54 - Finished task 0.0 in stage 2.0 (TID 2) in 586 ms on localhost (executor driver) (1/1)
+2019-08-15 20:35:12 INFO  TaskSchedulerImpl:54 - Removed TaskSet 2.0, whose tasks have all completed, from pool 
+2019-08-15 20:35:12 INFO  DAGScheduler:54 - ResultStage 2 (count at /home/simon/PROJECTS/pybda/pybda/stats/stats.py:134) finished in 0.593 s
+2019-08-15 20:35:12 INFO  DAGScheduler:54 - Job 2 finished: count at /home/simon/PROJECTS/pybda/pybda/stats/stats.py:134, took 0.597047 s
+2019-08-15 20:35:12 INFO  SparkContext:54 - Starting job: first at RowMatrix.scala:61
+2019-08-15 20:35:12 INFO  DAGScheduler:54 - Got job 3 (first at RowMatrix.scala:61) with 1 output partitions
+2019-08-15 20:35:12 INFO  DAGScheduler:54 - Final stage: ResultStage 3 (first at RowMatrix.scala:61)
+2019-08-15 20:35:12 INFO  DAGScheduler:54 - Parents of final stage: List()
+2019-08-15 20:35:12 INFO  DAGScheduler:54 - Missing parents: List()
+2019-08-15 20:35:12 INFO  DAGScheduler:54 - Submitting ResultStage 3 (MapPartitionsRDD[18] at mapPartitions at PythonMLLibAPI.scala:1346), which has no missing parents
+2019-08-15 20:35:12 INFO  MemoryStore:54 - Block broadcast_6 stored as values in memory (estimated size 65.4 KB, free 365.2 MB)
+2019-08-15 20:35:12 INFO  MemoryStore:54 - Block broadcast_6_piece0 stored as bytes in memory (estimated size 22.4 KB, free 365.2 MB)
+2019-08-15 20:35:12 INFO  BlockManagerInfo:54 - Added broadcast_6_piece0 in memory on 192.168.1.33:45555 (size: 22.4 KB, free: 366.2 MB)
+2019-08-15 20:35:12 INFO  SparkContext:54 - Created broadcast 6 from broadcast at DAGScheduler.scala:1161
+2019-08-15 20:35:12 INFO  DAGScheduler:54 - Submitting 1 missing tasks from ResultStage 3 (MapPartitionsRDD[18] at mapPartitions at PythonMLLibAPI.scala:1346) (first 15 tasks are for partitions Vector(0))
+2019-08-15 20:35:12 INFO  TaskSchedulerImpl:54 - Adding task set 3.0 with 1 tasks
+2019-08-15 20:35:12 INFO  TaskSetManager:54 - Starting task 0.0 in stage 3.0 (TID 3, localhost, executor driver, partition 0, PROCESS_LOCAL, 8345 bytes)
+2019-08-15 20:35:12 INFO  Executor:54 - Running task 0.0 in stage 3.0 (TID 3)
+2019-08-15 20:35:12 INFO  FileScanRDD:54 - Reading File path: file:///home/simon/PROJECTS/pybda/data/single_cell_imaging_data.tsv, range: 0-7798515, partition values: [empty row]
+2019-08-15 20:35:12 INFO  Executor:54 - Finished task 0.0 in stage 3.0 (TID 3). 2187 bytes result sent to driver
+2019-08-15 20:35:12 INFO  TaskSetManager:54 - Finished task 0.0 in stage 3.0 (TID 3) in 61 ms on localhost (executor driver) (1/1)
+2019-08-15 20:35:12 INFO  TaskSchedulerImpl:54 - Removed TaskSet 3.0, whose tasks have all completed, from pool 
+2019-08-15 20:35:12 INFO  DAGScheduler:54 - ResultStage 3 (first at RowMatrix.scala:61) finished in 0.068 s
+2019-08-15 20:35:12 INFO  DAGScheduler:54 - Job 3 finished: first at RowMatrix.scala:61, took 0.074556 s
+2019-08-15 20:35:13 INFO  SparkContext:54 - Starting job: treeAggregate at RowMatrix.scala:122
+2019-08-15 20:35:13 INFO  DAGScheduler:54 - Got job 4 (treeAggregate at RowMatrix.scala:122) with 1 output partitions
+2019-08-15 20:35:13 INFO  DAGScheduler:54 - Final stage: ResultStage 4 (treeAggregate at RowMatrix.scala:122)
+2019-08-15 20:35:13 INFO  DAGScheduler:54 - Parents of final stage: List()
+2019-08-15 20:35:13 INFO  DAGScheduler:54 - Missing parents: List()
+2019-08-15 20:35:13 INFO  DAGScheduler:54 - Submitting ResultStage 4 (MapPartitionsRDD[19] at treeAggregate at RowMatrix.scala:122), which has no missing parents
+2019-08-15 20:35:13 INFO  MemoryStore:54 - Block broadcast_7 stored as values in memory (estimated size 79.2 KB, free 365.1 MB)
+2019-08-15 20:35:13 INFO  MemoryStore:54 - Block broadcast_7_piece0 stored as bytes in memory (estimated size 22.9 KB, free 365.1 MB)
+2019-08-15 20:35:13 INFO  BlockManagerInfo:54 - Added broadcast_7_piece0 in memory on 192.168.1.33:45555 (size: 22.9 KB, free: 366.2 MB)
+2019-08-15 20:35:13 INFO  SparkContext:54 - Created broadcast 7 from broadcast at DAGScheduler.scala:1161
+2019-08-15 20:35:13 INFO  DAGScheduler:54 - Submitting 1 missing tasks from ResultStage 4 (MapPartitionsRDD[19] at treeAggregate at RowMatrix.scala:122) (first 15 tasks are for partitions Vector(0))
+2019-08-15 20:35:13 INFO  TaskSchedulerImpl:54 - Adding task set 4.0 with 1 tasks
+2019-08-15 20:35:13 INFO  TaskSetManager:54 - Starting task 0.0 in stage 4.0 (TID 4, localhost, executor driver, partition 0, PROCESS_LOCAL, 8345 bytes)
+2019-08-15 20:35:13 INFO  Executor:54 - Running task 0.0 in stage 4.0 (TID 4)
+2019-08-15 20:35:13 INFO  FileScanRDD:54 - Reading File path: file:///home/simon/PROJECTS/pybda/data/single_cell_imaging_data.tsv, range: 0-7798515, partition values: [empty row]
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 67
+2019-08-15 20:35:13 INFO  BlockManagerInfo:54 - Removed broadcast_5_piece0 on 192.168.1.33:45555 in memory (size: 21.8 KB, free: 366.2 MB)
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 68
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 69
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 90
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 97
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 100
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 112
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 107
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 77
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 110
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 115
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 85
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 72
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 105
+2019-08-15 20:35:13 INFO  BlockManagerInfo:54 - Removed broadcast_6_piece0 on 192.168.1.33:45555 in memory (size: 22.4 KB, free: 366.2 MB)
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 82
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 99
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 80
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 103
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 95
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 114
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 91
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 101
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 106
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 109
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 111
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 98
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 84
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 75
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 74
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 108
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 78
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 104
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 93
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 96
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 83
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 86
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 89
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 102
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 79
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 113
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 88
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 81
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 71
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 76
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 87
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 94
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 116
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 70
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 73
+2019-08-15 20:35:13 INFO  ContextCleaner:54 - Cleaned accumulator 92
+2019-08-15 20:35:13 WARN  BLAS:61 - Failed to load implementation from: com.github.fommil.netlib.NativeSystemBLAS
+2019-08-15 20:35:13 WARN  BLAS:61 - Failed to load implementation from: com.github.fommil.netlib.NativeRefBLAS
+2019-08-15 20:35:13 INFO  PythonRunner:54 - Times: total = 594, boot = 5, init = 279, finish = 310
+2019-08-15 20:35:13 INFO  Executor:54 - Finished task 0.0 in stage 4.0 (TID 4). 8555 bytes result sent to driver
+2019-08-15 20:35:13 INFO  TaskSetManager:54 - Finished task 0.0 in stage 4.0 (TID 4) in 645 ms on localhost (executor driver) (1/1)
+2019-08-15 20:35:13 INFO  TaskSchedulerImpl:54 - Removed TaskSet 4.0, whose tasks have all completed, from pool 
+2019-08-15 20:35:13 INFO  DAGScheduler:54 - ResultStage 4 (treeAggregate at RowMatrix.scala:122) finished in 0.652 s
+2019-08-15 20:35:13 INFO  DAGScheduler:54 - Job 4 finished: treeAggregate at RowMatrix.scala:122, took 0.654839 s
+2019-08-15 20:35:14 WARN  LAPACK:61 - Failed to load implementation from: com.github.fommil.netlib.NativeSystemLAPACK
+2019-08-15 20:35:14 WARN  LAPACK:61 - Failed to load implementation from: com.github.fommil.netlib.NativeRefLAPACK
+2019-08-15 20:35:14 INFO  SparkContext:54 - Starting job: count at RowMatrix.scala:75
+2019-08-15 20:35:14 INFO  DAGScheduler:54 - Got job 5 (count at RowMatrix.scala:75) with 1 output partitions
+2019-08-15 20:35:14 INFO  DAGScheduler:54 - Final stage: ResultStage 5 (count at RowMatrix.scala:75)
+2019-08-15 20:35:14 INFO  DAGScheduler:54 - Parents of final stage: List()
+2019-08-15 20:35:14 INFO  DAGScheduler:54 - Missing parents: List()
+2019-08-15 20:35:14 INFO  DAGScheduler:54 - Submitting ResultStage 5 (MapPartitionsRDD[18] at mapPartitions at PythonMLLibAPI.scala:1346), which has no missing parents
+2019-08-15 20:35:14 INFO  MemoryStore:54 - Block broadcast_8 stored as values in memory (estimated size 65.3 KB, free 365.2 MB)
+2019-08-15 20:35:14 INFO  MemoryStore:54 - Block broadcast_8_piece0 stored as bytes in memory (estimated size 22.3 KB, free 365.2 MB)
+2019-08-15 20:35:14 INFO  BlockManagerInfo:54 - Added broadcast_8_piece0 in memory on 192.168.1.33:45555 (size: 22.3 KB, free: 366.2 MB)
+2019-08-15 20:35:14 INFO  SparkContext:54 - Created broadcast 8 from broadcast at DAGScheduler.scala:1161
+2019-08-15 20:35:14 INFO  DAGScheduler:54 - Submitting 1 missing tasks from ResultStage 5 (MapPartitionsRDD[18] at mapPartitions at PythonMLLibAPI.scala:1346) (first 15 tasks are for partitions Vector(0))
+2019-08-15 20:35:14 INFO  TaskSchedulerImpl:54 - Adding task set 5.0 with 1 tasks
+2019-08-15 20:35:14 INFO  TaskSetManager:54 - Starting task 0.0 in stage 5.0 (TID 5, localhost, executor driver, partition 0, PROCESS_LOCAL, 8345 bytes)
+2019-08-15 20:35:14 INFO  Executor:54 - Running task 0.0 in stage 5.0 (TID 5)
+2019-08-15 20:35:14 INFO  FileScanRDD:54 - Reading File path: file:///home/simon/PROJECTS/pybda/data/single_cell_imaging_data.tsv, range: 0-7798515, partition values: [empty row]
+2019-08-15 20:35:14 INFO  ContextCleaner:54 - Cleaned accumulator 120
+2019-08-15 20:35:14 INFO  ContextCleaner:54 - Cleaned accumulator 117
+2019-08-15 20:35:14 INFO  ContextCleaner:54 - Cleaned accumulator 129
+2019-08-15 20:35:14 INFO  ContextCleaner:54 - Cleaned accumulator 133
+2019-08-15 20:35:14 INFO  ContextCleaner:54 - Cleaned accumulator 134
+2019-08-15 20:35:14 INFO  ContextCleaner:54 - Cleaned accumulator 137
+2019-08-15 20:35:14 INFO  ContextCleaner:54 - Cleaned accumulator 136
+2019-08-15 20:35:14 INFO  ContextCleaner:54 - Cleaned accumulator 122
+2019-08-15 20:35:14 INFO  ContextCleaner:54 - Cleaned accumulator 126
+2019-08-15 20:35:14 INFO  ContextCleaner:54 - Cleaned accumulator 139
+2019-08-15 20:35:14 INFO  ContextCleaner:54 - Cleaned accumulator 140
+2019-08-15 20:35:14 INFO  ContextCleaner:54 - Cleaned accumulator 119
+2019-08-15 20:35:14 INFO  ContextCleaner:54 - Cleaned accumulator 124
+2019-08-15 20:35:14 INFO  ContextCleaner:54 - Cleaned accumulator 125
+2019-08-15 20:35:14 INFO  ContextCleaner:54 - Cleaned accumulator 127
+2019-08-15 20:35:14 INFO  ContextCleaner:54 - Cleaned accumulator 121
+2019-08-15 20:35:14 INFO  BlockManagerInfo:54 - Removed broadcast_7_piece0 on 192.168.1.33:45555 in memory (size: 22.9 KB, free: 366.2 MB)
+2019-08-15 20:35:14 INFO  ContextCleaner:54 - Cleaned accumulator 138
+2019-08-15 20:35:14 INFO  ContextCleaner:54 - Cleaned accumulator 128
+2019-08-15 20:35:14 INFO  ContextCleaner:54 - Cleaned accumulator 130
+2019-08-15 20:35:14 INFO  ContextCleaner:54 - Cleaned accumulator 118
+2019-08-15 20:35:14 INFO  ContextCleaner:54 - Cleaned accumulator 131
+2019-08-15 20:35:14 INFO  ContextCleaner:54 - Cleaned accumulator 141
+2019-08-15 20:35:14 INFO  ContextCleaner:54 - Cleaned accumulator 123
+2019-08-15 20:35:14 INFO  ContextCleaner:54 - Cleaned accumulator 132
+2019-08-15 20:35:14 INFO  ContextCleaner:54 - Cleaned accumulator 135
+2019-08-15 20:35:14 INFO  PythonRunner:54 - Times: total = 535, boot = -421, init = 451, finish = 505
+2019-08-15 20:35:14 INFO  Executor:54 - Finished task 0.0 in stage 5.0 (TID 5). 1936 bytes result sent to driver
+2019-08-15 20:35:14 INFO  TaskSetManager:54 - Finished task 0.0 in stage 5.0 (TID 5) in 585 ms on localhost (executor driver) (1/1)
+2019-08-15 20:35:14 INFO  TaskSchedulerImpl:54 - Removed TaskSet 5.0, whose tasks have all completed, from pool 
+2019-08-15 20:35:14 INFO  DAGScheduler:54 - ResultStage 5 (count at RowMatrix.scala:75) finished in 0.594 s
+2019-08-15 20:35:14 INFO  DAGScheduler:54 - Job 5 finished: count at RowMatrix.scala:75, took 0.598443 s
+2019-08-15 20:35:14 INFO  MemoryStore:54 - Block broadcast_9 stored as values in memory (estimated size 1640.0 B, free 365.3 MB)
+2019-08-15 20:35:14 INFO  MemoryStore:54 - Block broadcast_9_piece0 stored as bytes in memory (estimated size 1669.0 B, free 365.3 MB)
+2019-08-15 20:35:14 INFO  BlockManagerInfo:54 - Added broadcast_9_piece0 in memory on 192.168.1.33:45555 (size: 1669.0 B, free: 366.2 MB)
+2019-08-15 20:35:14 INFO  SparkContext:54 - Created broadcast 9 from broadcast at RowMatrix.scala:442
+2019-08-15 20:35:14 INFO  SparkContext:54 - Starting job: runJob at PythonRDD.scala:153
+2019-08-15 20:35:14 INFO  DAGScheduler:54 - Got job 6 (runJob at PythonRDD.scala:153) with 1 output partitions
+2019-08-15 20:35:14 INFO  DAGScheduler:54 - Final stage: ResultStage 6 (runJob at PythonRDD.scala:153)
+2019-08-15 20:35:14 INFO  DAGScheduler:54 - Parents of final stage: List()
+2019-08-15 20:35:14 INFO  DAGScheduler:54 - Missing parents: List()
+2019-08-15 20:35:14 INFO  DAGScheduler:54 - Submitting ResultStage 6 (PythonRDD[22] at RDD at PythonRDD.scala:53), which has no missing parents
+2019-08-15 20:35:14 INFO  MemoryStore:54 - Block broadcast_10 stored as values in memory (estimated size 68.2 KB, free 365.2 MB)
+2019-08-15 20:35:14 INFO  MemoryStore:54 - Block broadcast_10_piece0 stored as bytes in memory (estimated size 24.1 KB, free 365.2 MB)
+2019-08-15 20:35:14 INFO  BlockManagerInfo:54 - Added broadcast_10_piece0 in memory on 192.168.1.33:45555 (size: 24.1 KB, free: 366.2 MB)
+2019-08-15 20:35:14 INFO  SparkContext:54 - Created broadcast 10 from broadcast at DAGScheduler.scala:1161
+2019-08-15 20:35:14 INFO  DAGScheduler:54 - Submitting 1 missing tasks from ResultStage 6 (PythonRDD[22] at RDD at PythonRDD.scala:53) (first 15 tasks are for partitions Vector(0))
+2019-08-15 20:35:14 INFO  TaskSchedulerImpl:54 - Adding task set 6.0 with 1 tasks
+2019-08-15 20:35:14 INFO  TaskSetManager:54 - Starting task 0.0 in stage 6.0 (TID 6, localhost, executor driver, partition 0, PROCESS_LOCAL, 8345 bytes)
+2019-08-15 20:35:14 INFO  Executor:54 - Running task 0.0 in stage 6.0 (TID 6)
+2019-08-15 20:35:14 INFO  FileScanRDD:54 - Reading File path: file:///home/simon/PROJECTS/pybda/data/single_cell_imaging_data.tsv, range: 0-7798515, partition values: [empty row]
+2019-08-15 20:35:15 INFO  ContextCleaner:54 - Cleaned accumulator 150
+2019-08-15 20:35:15 INFO  ContextCleaner:54 - Cleaned accumulator 161
+2019-08-15 20:35:15 INFO  ContextCleaner:54 - Cleaned accumulator 165
+2019-08-15 20:35:15 INFO  ContextCleaner:54 - Cleaned accumulator 145
+2019-08-15 20:35:15 INFO  ContextCleaner:54 - Cleaned accumulator 153
+2019-08-15 20:35:15 INFO  ContextCleaner:54 - Cleaned accumulator 144
+2019-08-15 20:35:15 INFO  ContextCleaner:54 - Cleaned accumulator 154
+2019-08-15 20:35:15 INFO  ContextCleaner:54 - Cleaned accumulator 147
+2019-08-15 20:35:15 INFO  ContextCleaner:54 - Cleaned accumulator 158
+2019-08-15 20:35:15 INFO  ContextCleaner:54 - Cleaned accumulator 149
+2019-08-15 20:35:15 INFO  ContextCleaner:54 - Cleaned accumulator 156
+2019-08-15 20:35:15 INFO  ContextCleaner:54 - Cleaned accumulator 160
+2019-08-15 20:35:15 INFO  ContextCleaner:54 - Cleaned accumulator 152
+2019-08-15 20:35:15 INFO  ContextCleaner:54 - Cleaned accumulator 159
+2019-08-15 20:35:15 INFO  ContextCleaner:54 - Cleaned accumulator 157
+2019-08-15 20:35:15 INFO  ContextCleaner:54 - Cleaned accumulator 162
+2019-08-15 20:35:15 INFO  ContextCleaner:54 - Cleaned accumulator 146
+2019-08-15 20:35:15 INFO  ContextCleaner:54 - Cleaned accumulator 163
+2019-08-15 20:35:15 INFO  ContextCleaner:54 - Cleaned accumulator 143
+2019-08-15 20:35:15 INFO  ContextCleaner:54 - Cleaned accumulator 166
+2019-08-15 20:35:15 INFO  BlockManagerInfo:54 - Removed broadcast_8_piece0 on 192.168.1.33:45555 in memory (size: 22.3 KB, free: 366.2 MB)
+2019-08-15 20:35:15 INFO  ContextCleaner:54 - Cleaned accumulator 151
+2019-08-15 20:35:15 INFO  ContextCleaner:54 - Cleaned accumulator 148
+2019-08-15 20:35:15 INFO  ContextCleaner:54 - Cleaned accumulator 155
+2019-08-15 20:35:15 INFO  ContextCleaner:54 - Cleaned accumulator 164
+2019-08-15 20:35:15 INFO  ContextCleaner:54 - Cleaned accumulator 142
+2019-08-15 20:35:15 INFO  PythonRunner:54 - Times: total = 551, boot = 15, init = 280, finish = 256
+2019-08-15 20:35:15 INFO  Executor:54 - Finished task 0.0 in stage 6.0 (TID 6). 1958 bytes result sent to driver
+2019-08-15 20:35:15 INFO  TaskSetManager:54 - Finished task 0.0 in stage 6.0 (TID 6) in 566 ms on localhost (executor driver) (1/1)
+2019-08-15 20:35:15 INFO  TaskSchedulerImpl:54 - Removed TaskSet 6.0, whose tasks have all completed, from pool 
+2019-08-15 20:35:15 INFO  DAGScheduler:54 - ResultStage 6 (runJob at PythonRDD.scala:153) finished in 0.575 s
+2019-08-15 20:35:15 INFO  DAGScheduler:54 - Job 6 finished: runJob at PythonRDD.scala:153, took 0.587753 s
+2019-08-15 20:35:26 INFO  ContextCleaner:54 - Cleaned accumulator 174
+2019-08-15 20:35:26 INFO  ContextCleaner:54 - Cleaned accumulator 185
+2019-08-15 20:35:26 INFO  ContextCleaner:54 - Cleaned accumulator 186
+2019-08-15 20:35:26 INFO  ContextCleaner:54 - Cleaned accumulator 187
+2019-08-15 20:35:26 INFO  ContextCleaner:54 - Cleaned accumulator 182
+2019-08-15 20:35:26 INFO  ContextCleaner:54 - Cleaned accumulator 183
+2019-08-15 20:35:26 INFO  ContextCleaner:54 - Cleaned accumulator 177
+2019-08-15 20:35:26 INFO  ContextCleaner:54 - Cleaned accumulator 175
+2019-08-15 20:35:26 INFO  ContextCleaner:54 - Cleaned accumulator 176
+2019-08-15 20:35:26 INFO  ContextCleaner:54 - Cleaned accumulator 184
+2019-08-15 20:35:26 INFO  ContextCleaner:54 - Cleaned accumulator 171
+2019-08-15 20:35:26 INFO  ContextCleaner:54 - Cleaned accumulator 179
+2019-08-15 20:35:26 INFO  ContextCleaner:54 - Cleaned accumulator 190
+2019-08-15 20:35:26 INFO  ContextCleaner:54 - Cleaned accumulator 170
+2019-08-15 20:35:26 INFO  ContextCleaner:54 - Cleaned accumulator 181
+2019-08-15 20:35:26 INFO  ContextCleaner:54 - Cleaned accumulator 173
+2019-08-15 20:35:26 INFO  ContextCleaner:54 - Cleaned accumulator 189
+2019-08-15 20:35:26 INFO  ContextCleaner:54 - Cleaned accumulator 180
+2019-08-15 20:35:26 INFO  ContextCleaner:54 - Cleaned accumulator 168
+2019-08-15 20:35:26 INFO  ContextCleaner:54 - Cleaned accumulator 167
+2019-08-15 20:35:26 INFO  ContextCleaner:54 - Cleaned accumulator 191
+2019-08-15 20:35:26 INFO  BlockManagerInfo:54 - Removed broadcast_10_piece0 on 192.168.1.33:45555 in memory (size: 24.1 KB, free: 366.2 MB)
+2019-08-15 20:35:26 INFO  ContextCleaner:54 - Cleaned accumulator 169
+2019-08-15 20:35:26 INFO  ContextCleaner:54 - Cleaned accumulator 172
+2019-08-15 20:35:26 INFO  ContextCleaner:54 - Cleaned accumulator 178
+2019-08-15 20:35:26 INFO  ContextCleaner:54 - Cleaned accumulator 188
+2019-08-15 20:35:26 INFO  FileSourceStrategy:54 - Pruning directories with: 
+2019-08-15 20:35:26 INFO  FileSourceStrategy:54 - Post-Scan Filters: 
+2019-08-15 20:35:26 INFO  FileSourceStrategy:54 - Output Data Schema: struct<well: string, gene: string, sirna: string, image_idx: string, object_idx: string ... 49 more fields>
+2019-08-15 20:35:26 INFO  FileSourceScanExec:54 - Pushed Filters: 
+2019-08-15 20:35:26 WARN  Utils:66 - Truncated the string representation of a plan since it was too large. This behavior can be adjusted by setting 'spark.debug.maxToStringFields' in SparkEnv.conf.
+2019-08-15 20:35:26 INFO  CodeGenerator:54 - Code generated in 11.713191 ms
+2019-08-15 20:35:26 INFO  MemoryStore:54 - Block broadcast_11 stored as values in memory (estimated size 285.0 KB, free 365.1 MB)
+2019-08-15 20:35:26 INFO  MemoryStore:54 - Block broadcast_11_piece0 stored as bytes in memory (estimated size 23.4 KB, free 365.1 MB)
+2019-08-15 20:35:26 INFO  BlockManagerInfo:54 - Added broadcast_11_piece0 in memory on 192.168.1.33:45555 (size: 23.4 KB, free: 366.2 MB)
+2019-08-15 20:35:26 INFO  SparkContext:54 - Created broadcast 11 from take at /home/simon/PROJECTS/pybda/pybda/spark/features.py:181
+2019-08-15 20:35:26 INFO  FileSourceScanExec:54 - Planning scan with bin packing, max size: 11992819 bytes, open cost is considered as scanning 4194304 bytes.
+2019-08-15 20:35:26 INFO  SparkContext:54 - Starting job: take at /home/simon/PROJECTS/pybda/pybda/spark/features.py:181
+2019-08-15 20:35:26 INFO  DAGScheduler:54 - Got job 7 (take at /home/simon/PROJECTS/pybda/pybda/spark/features.py:181) with 1 output partitions
+2019-08-15 20:35:26 INFO  DAGScheduler:54 - Final stage: ResultStage 7 (take at /home/simon/PROJECTS/pybda/pybda/spark/features.py:181)
+2019-08-15 20:35:26 INFO  DAGScheduler:54 - Parents of final stage: List()
+2019-08-15 20:35:26 INFO  DAGScheduler:54 - Missing parents: List()
+2019-08-15 20:35:26 INFO  DAGScheduler:54 - Submitting ResultStage 7 (MapPartitionsRDD[29] at take at /home/simon/PROJECTS/pybda/pybda/spark/features.py:181), which has no missing parents
+2019-08-15 20:35:26 INFO  MemoryStore:54 - Block broadcast_12 stored as values in memory (estimated size 17.6 KB, free 365.1 MB)
+2019-08-15 20:35:26 INFO  MemoryStore:54 - Block broadcast_12_piece0 stored as bytes in memory (estimated size 8.3 KB, free 365.1 MB)
+2019-08-15 20:35:26 INFO  BlockManagerInfo:54 - Added broadcast_12_piece0 in memory on 192.168.1.33:45555 (size: 8.3 KB, free: 366.2 MB)
+2019-08-15 20:35:26 INFO  SparkContext:54 - Created broadcast 12 from broadcast at DAGScheduler.scala:1161
+2019-08-15 20:35:26 INFO  DAGScheduler:54 - Submitting 1 missing tasks from ResultStage 7 (MapPartitionsRDD[29] at take at /home/simon/PROJECTS/pybda/pybda/spark/features.py:181) (first 15 tasks are for partitions Vector(0))
+2019-08-15 20:35:26 INFO  TaskSchedulerImpl:54 - Adding task set 7.0 with 1 tasks
+2019-08-15 20:35:26 INFO  TaskSetManager:54 - Starting task 0.0 in stage 7.0 (TID 7, localhost, executor driver, partition 0, PROCESS_LOCAL, 8345 bytes)
+2019-08-15 20:35:26 INFO  Executor:54 - Running task 0.0 in stage 7.0 (TID 7)
+2019-08-15 20:35:26 INFO  FileScanRDD:54 - Reading File path: file:///home/simon/PROJECTS/pybda/data/single_cell_imaging_data.tsv, range: 0-7798515, partition values: [empty row]
+2019-08-15 20:35:26 INFO  CodeGenerator:54 - Code generated in 26.954531 ms
+2019-08-15 20:35:27 INFO  Executor:54 - Finished task 0.0 in stage 7.0 (TID 7). 53217 bytes result sent to driver
+2019-08-15 20:35:27 INFO  TaskSetManager:54 - Finished task 0.0 in stage 7.0 (TID 7) in 204 ms on localhost (executor driver) (1/1)
+2019-08-15 20:35:27 INFO  TaskSchedulerImpl:54 - Removed TaskSet 7.0, whose tasks have all completed, from pool 
+2019-08-15 20:35:27 INFO  DAGScheduler:54 - ResultStage 7 (take at /home/simon/PROJECTS/pybda/pybda/spark/features.py:181) finished in 0.211 s
+2019-08-15 20:35:27 INFO  DAGScheduler:54 - Job 7 finished: take at /home/simon/PROJECTS/pybda/pybda/spark/features.py:181, took 0.212945 s
+2019-08-15 20:35:27 INFO  CodeGenerator:54 - Code generated in 5.558836 ms
+2019-08-15 20:35:27 INFO  MemoryStore:54 - Block broadcast_13 stored as values in memory (estimated size 1102.1 KB, free 364.0 MB)
+2019-08-15 20:35:27 INFO  MemoryStore:54 - Block broadcast_13_piece0 stored as bytes in memory (estimated size 100.0 KB, free 363.9 MB)
+2019-08-15 20:35:27 INFO  BlockManagerInfo:54 - Added broadcast_13_piece0 in memory on 192.168.1.33:45555 (size: 100.0 KB, free: 366.1 MB)
+2019-08-15 20:35:27 INFO  SparkContext:54 - Created broadcast 13 from take at /home/simon/PROJECTS/pybda/pybda/spark/features.py:181
+2019-08-15 20:35:27 INFO  CodeGenerator:54 - Code generated in 26.725095 ms
+2019-08-15 20:35:27 INFO  SparkContext:54 - Starting job: take at /home/simon/PROJECTS/pybda/pybda/spark/features.py:181
+2019-08-15 20:35:27 INFO  DAGScheduler:54 - Got job 8 (take at /home/simon/PROJECTS/pybda/pybda/spark/features.py:181) with 1 output partitions
+2019-08-15 20:35:27 INFO  DAGScheduler:54 - Final stage: ResultStage 8 (take at /home/simon/PROJECTS/pybda/pybda/spark/features.py:181)
+2019-08-15 20:35:27 INFO  DAGScheduler:54 - Parents of final stage: List()
+2019-08-15 20:35:27 INFO  DAGScheduler:54 - Missing parents: List()
+2019-08-15 20:35:27 INFO  DAGScheduler:54 - Submitting ResultStage 8 (MapPartitionsRDD[35] at take at /home/simon/PROJECTS/pybda/pybda/spark/features.py:181), which has no missing parents
+2019-08-15 20:35:27 INFO  MemoryStore:54 - Block broadcast_14 stored as values in memory (estimated size 91.1 KB, free 363.8 MB)
+2019-08-15 20:35:27 INFO  MemoryStore:54 - Block broadcast_14_piece0 stored as bytes in memory (estimated size 32.2 KB, free 363.8 MB)
+2019-08-15 20:35:27 INFO  BlockManagerInfo:54 - Added broadcast_14_piece0 in memory on 192.168.1.33:45555 (size: 32.2 KB, free: 366.1 MB)
+2019-08-15 20:35:27 INFO  SparkContext:54 - Created broadcast 14 from broadcast at DAGScheduler.scala:1161
+2019-08-15 20:35:27 INFO  DAGScheduler:54 - Submitting 1 missing tasks from ResultStage 8 (MapPartitionsRDD[35] at take at /home/simon/PROJECTS/pybda/pybda/spark/features.py:181) (first 15 tasks are for partitions Vector(0))
+2019-08-15 20:35:27 INFO  TaskSchedulerImpl:54 - Adding task set 8.0 with 1 tasks
+2019-08-15 20:35:27 INFO  TaskSetManager:54 - Starting task 0.0 in stage 8.0 (TID 8, localhost, executor driver, partition 0, PROCESS_LOCAL, 8345 bytes)
+2019-08-15 20:35:27 INFO  Executor:54 - Running task 0.0 in stage 8.0 (TID 8)
+2019-08-15 20:35:27 INFO  FileScanRDD:54 - Reading File path: file:///home/simon/PROJECTS/pybda/data/single_cell_imaging_data.tsv, range: 0-7798515, partition values: [empty row]
+2019-08-15 20:35:27 INFO  CodeGenerator:54 - Code generated in 9.887623 ms
+2019-08-15 20:35:27 INFO  CodeGenerator:54 - Code generated in 20.514069 ms
+2019-08-15 20:35:27 INFO  CodeGenerator:54 - Code generated in 24.668414 ms
+2019-08-15 20:35:27 INFO  ContextCleaner:54 - Cleaned accumulator 222
+2019-08-15 20:35:27 INFO  ContextCleaner:54 - Cleaned accumulator 206
+2019-08-15 20:35:27 INFO  ContextCleaner:54 - Cleaned accumulator 218
+2019-08-15 20:35:27 INFO  ContextCleaner:54 - Cleaned accumulator 223
+2019-08-15 20:35:27 INFO  ContextCleaner:54 - Cleaned accumulator 211
+2019-08-15 20:35:27 INFO  ContextCleaner:54 - Cleaned accumulator 212
+2019-08-15 20:35:27 INFO  ContextCleaner:54 - Cleaned accumulator 217
+2019-08-15 20:35:27 INFO  ContextCleaner:54 - Cleaned accumulator 229
+2019-08-15 20:35:27 INFO  ContextCleaner:54 - Cleaned accumulator 220
+2019-08-15 20:35:27 INFO  ContextCleaner:54 - Cleaned accumulator 213
+2019-08-15 20:35:27 INFO  ContextCleaner:54 - Cleaned accumulator 214
+2019-08-15 20:35:27 INFO  ContextCleaner:54 - Cleaned accumulator 215
+2019-08-15 20:35:27 INFO  ContextCleaner:54 - Cleaned accumulator 210
+2019-08-15 20:35:27 INFO  ContextCleaner:54 - Cleaned accumulator 227
+2019-08-15 20:35:27 INFO  ContextCleaner:54 - Cleaned accumulator 205
+2019-08-15 20:35:27 INFO  ContextCleaner:54 - Cleaned accumulator 228
+2019-08-15 20:35:27 INFO  ContextCleaner:54 - Cleaned accumulator 209
+2019-08-15 20:35:27 INFO  ContextCleaner:54 - Cleaned accumulator 208
+2019-08-15 20:35:27 INFO  ContextCleaner:54 - Cleaned accumulator 225
+2019-08-15 20:35:27 INFO  ContextCleaner:54 - Cleaned accumulator 216
+2019-08-15 20:35:27 INFO  ContextCleaner:54 - Cleaned accumulator 219
+2019-08-15 20:35:27 INFO  ContextCleaner:54 - Cleaned accumulator 221
+2019-08-15 20:35:27 INFO  BlockManagerInfo:54 - Removed broadcast_12_piece0 on 192.168.1.33:45555 in memory (size: 8.3 KB, free: 366.1 MB)
+2019-08-15 20:35:27 INFO  ContextCleaner:54 - Cleaned accumulator 224
+2019-08-15 20:35:27 INFO  ContextCleaner:54 - Cleaned accumulator 207
+2019-08-15 20:35:27 INFO  ContextCleaner:54 - Cleaned accumulator 226
+2019-08-15 20:35:27 INFO  PythonRunner:54 - Times: total = 606, boot = 2, init = 270, finish = 334
+2019-08-15 20:35:28 INFO  Executor:54 - Finished task 0.0 in stage 8.0 (TID 8). 2317 bytes result sent to driver
+2019-08-15 20:35:28 INFO  TaskSetManager:54 - Finished task 0.0 in stage 8.0 (TID 8) in 1050 ms on localhost (executor driver) (1/1)
+2019-08-15 20:35:28 INFO  TaskSchedulerImpl:54 - Removed TaskSet 8.0, whose tasks have all completed, from pool 
+2019-08-15 20:35:28 INFO  DAGScheduler:54 - ResultStage 8 (take at /home/simon/PROJECTS/pybda/pybda/spark/features.py:181) finished in 1.058 s
+2019-08-15 20:35:28 INFO  DAGScheduler:54 - Job 8 finished: take at /home/simon/PROJECTS/pybda/pybda/spark/features.py:181, took 1.063228 s
+2019-08-15 20:35:28 INFO  FileSourceStrategy:54 - Pruning directories with: 
+2019-08-15 20:35:28 INFO  FileSourceStrategy:54 - Post-Scan Filters: 
+2019-08-15 20:35:28 INFO  FileSourceStrategy:54 - Output Data Schema: struct<well: string, gene: string, sirna: string, image_idx: string, object_idx: string ... 49 more fields>
+2019-08-15 20:35:28 INFO  FileSourceScanExec:54 - Pushed Filters: 
+2019-08-15 20:35:28 INFO  FileOutputCommitter:108 - File Output Committer Algorithm version is 1
+2019-08-15 20:35:28 INFO  SQLHadoopMapReduceCommitProtocol:54 - Using output committer class org.apache.hadoop.mapreduce.lib.output.FileOutputCommitter
+2019-08-15 20:35:28 INFO  CodeGenerator:54 - Code generated in 14.652898 ms
+2019-08-15 20:35:28 INFO  CodeGenerator:54 - Code generated in 63.337601 ms
+2019-08-15 20:35:28 INFO  ContextCleaner:54 - Cleaned accumulator 230
+2019-08-15 20:35:28 INFO  ContextCleaner:54 - Cleaned accumulator 250
+2019-08-15 20:35:28 INFO  ContextCleaner:54 - Cleaned accumulator 240
+2019-08-15 20:35:28 INFO  ContextCleaner:54 - Cleaned accumulator 198
+2019-08-15 20:35:28 INFO  ContextCleaner:54 - Cleaned accumulator 246
+2019-08-15 20:35:28 INFO  ContextCleaner:54 - Cleaned accumulator 248
+2019-08-15 20:35:28 INFO  ContextCleaner:54 - Cleaned accumulator 244
+2019-08-15 20:35:28 INFO  ContextCleaner:54 - Cleaned accumulator 249
+2019-08-15 20:35:28 INFO  ContextCleaner:54 - Cleaned accumulator 233
+2019-08-15 20:35:28 INFO  ContextCleaner:54 - Cleaned accumulator 232
+2019-08-15 20:35:28 INFO  ContextCleaner:54 - Cleaned accumulator 245
+2019-08-15 20:35:28 INFO  ContextCleaner:54 - Cleaned accumulator 238
+2019-08-15 20:35:28 INFO  ContextCleaner:54 - Cleaned accumulator 199
+2019-08-15 20:35:28 INFO  ContextCleaner:54 - Cleaned accumulator 251
+2019-08-15 20:35:28 INFO  ContextCleaner:54 - Cleaned accumulator 234
+2019-08-15 20:35:28 INFO  ContextCleaner:54 - Cleaned accumulator 195
+2019-08-15 20:35:28 INFO  ContextCleaner:54 - Cleaned accumulator 196
+2019-08-15 20:35:28 INFO  MemoryStore:54 - Block broadcast_15 stored as values in memory (estimated size 285.0 KB, free 363.5 MB)
+2019-08-15 20:35:28 INFO  BlockManagerInfo:54 - Removed broadcast_14_piece0 on 192.168.1.33:45555 in memory (size: 32.2 KB, free: 366.1 MB)
+2019-08-15 20:35:28 INFO  MemoryStore:54 - Block broadcast_15_piece0 stored as bytes in memory (estimated size 23.4 KB, free 363.6 MB)
+2019-08-15 20:35:28 INFO  ContextCleaner:54 - Cleaned accumulator 194
+2019-08-15 20:35:28 INFO  ContextCleaner:54 - Cleaned accumulator 242
+2019-08-15 20:35:28 INFO  ContextCleaner:54 - Cleaned accumulator 197
+2019-08-15 20:35:28 INFO  BlockManagerInfo:54 - Added broadcast_15_piece0 in memory on 192.168.1.33:45555 (size: 23.4 KB, free: 366.1 MB)
+2019-08-15 20:35:28 INFO  SparkContext:54 - Created broadcast 15 from run at ThreadPoolExecutor.java:1149
+2019-08-15 20:35:28 INFO  BlockManagerInfo:54 - Removed broadcast_13_piece0 on 192.168.1.33:45555 in memory (size: 100.0 KB, free: 366.2 MB)
+2019-08-15 20:35:28 INFO  FileSourceScanExec:54 - Planning scan with bin packing, max size: 11992819 bytes, open cost is considered as scanning 4194304 bytes.
+2019-08-15 20:35:28 INFO  SparkContext:54 - Starting job: run at ThreadPoolExecutor.java:1149
+2019-08-15 20:35:28 INFO  DAGScheduler:54 - Got job 9 (run at ThreadPoolExecutor.java:1149) with 1 output partitions
+2019-08-15 20:35:28 INFO  DAGScheduler:54 - Final stage: ResultStage 9 (run at ThreadPoolExecutor.java:1149)
+2019-08-15 20:35:28 INFO  DAGScheduler:54 - Parents of final stage: List()
+2019-08-15 20:35:28 INFO  DAGScheduler:54 - Missing parents: List()
+2019-08-15 20:35:28 INFO  DAGScheduler:54 - Submitting ResultStage 9 (MapPartitionsRDD[38] at run at ThreadPoolExecutor.java:1149), which has no missing parents
+2019-08-15 20:35:28 INFO  MemoryStore:54 - Block broadcast_16 stored as values in memory (estimated size 62.5 KB, free 364.7 MB)
+2019-08-15 20:35:28 INFO  ContextCleaner:54 - Cleaned accumulator 201
+2019-08-15 20:35:28 INFO  ContextCleaner:54 - Cleaned accumulator 236
+2019-08-15 20:35:28 INFO  ContextCleaner:54 - Cleaned accumulator 254
+2019-08-15 20:35:28 INFO  ContextCleaner:54 - Cleaned accumulator 204
+2019-08-15 20:35:28 INFO  ContextCleaner:54 - Cleaned accumulator 192
+2019-08-15 20:35:28 INFO  ContextCleaner:54 - Cleaned accumulator 241
+2019-08-15 20:35:28 INFO  ContextCleaner:54 - Cleaned accumulator 253
+2019-08-15 20:35:28 INFO  ContextCleaner:54 - Cleaned accumulator 237
+2019-08-15 20:35:28 INFO  ContextCleaner:54 - Cleaned accumulator 202
+2019-08-15 20:35:28 INFO  ContextCleaner:54 - Cleaned accumulator 235
+2019-08-15 20:35:28 INFO  ContextCleaner:54 - Cleaned accumulator 247
+2019-08-15 20:35:28 INFO  ContextCleaner:54 - Cleaned accumulator 203
+2019-08-15 20:35:28 INFO  MemoryStore:54 - Block broadcast_16_piece0 stored as bytes in memory (estimated size 18.9 KB, free 364.7 MB)
+2019-08-15 20:35:28 INFO  BlockManagerInfo:54 - Added broadcast_16_piece0 in memory on 192.168.1.33:45555 (size: 18.9 KB, free: 366.2 MB)
+2019-08-15 20:35:28 INFO  SparkContext:54 - Created broadcast 16 from broadcast at DAGScheduler.scala:1161
+2019-08-15 20:35:28 INFO  DAGScheduler:54 - Submitting 1 missing tasks from ResultStage 9 (MapPartitionsRDD[38] at run at ThreadPoolExecutor.java:1149) (first 15 tasks are for partitions Vector(0))
+2019-08-15 20:35:28 INFO  TaskSchedulerImpl:54 - Adding task set 9.0 with 1 tasks
+2019-08-15 20:35:28 INFO  TaskSetManager:54 - Starting task 0.0 in stage 9.0 (TID 9, localhost, executor driver, partition 0, PROCESS_LOCAL, 8345 bytes)
+2019-08-15 20:35:28 INFO  Executor:54 - Running task 0.0 in stage 9.0 (TID 9)
+2019-08-15 20:35:28 INFO  BlockManagerInfo:54 - Removed broadcast_11_piece0 on 192.168.1.33:45555 in memory (size: 23.4 KB, free: 366.2 MB)
+2019-08-15 20:35:28 INFO  FileScanRDD:54 - Reading File path: file:///home/simon/PROJECTS/pybda/data/single_cell_imaging_data.tsv, range: 0-7798515, partition values: [empty row]
+2019-08-15 20:35:29 INFO  ContextCleaner:54 - Cleaned accumulator 239
+2019-08-15 20:35:29 INFO  ContextCleaner:54 - Cleaned accumulator 193
+2019-08-15 20:35:29 INFO  ContextCleaner:54 - Cleaned accumulator 243
+2019-08-15 20:35:29 INFO  ContextCleaner:54 - Cleaned accumulator 252
+2019-08-15 20:35:29 INFO  ContextCleaner:54 - Cleaned accumulator 231
+2019-08-15 20:35:29 INFO  ContextCleaner:54 - Cleaned accumulator 200
+2019-08-15 20:35:29 INFO  MemoryStore:54 - Block taskresult_9 stored as bytes in memory (estimated size 2.9 MB, free 362.1 MB)
+2019-08-15 20:35:29 INFO  BlockManagerInfo:54 - Added taskresult_9 in memory on 192.168.1.33:45555 (size: 2.9 MB, free: 363.3 MB)
+2019-08-15 20:35:29 INFO  Executor:54 - Finished task 0.0 in stage 9.0 (TID 9). 3001903 bytes result sent via BlockManager)
+2019-08-15 20:35:29 INFO  TransportClientFactory:267 - Successfully created connection to /192.168.1.33:45555 after 33 ms (0 ms spent in bootstraps)
+2019-08-15 20:35:29 INFO  TaskSetManager:54 - Finished task 0.0 in stage 9.0 (TID 9) in 593 ms on localhost (executor driver) (1/1)
+2019-08-15 20:35:29 INFO  DAGScheduler:54 - ResultStage 9 (run at ThreadPoolExecutor.java:1149) finished in 0.598 s
+2019-08-15 20:35:29 INFO  DAGScheduler:54 - Job 9 finished: run at ThreadPoolExecutor.java:1149, took 0.601113 s
+2019-08-15 20:35:29 INFO  TaskSchedulerImpl:54 - Removed TaskSet 9.0, whose tasks have all completed, from pool 
+2019-08-15 20:35:29 INFO  BlockManagerInfo:54 - Removed taskresult_9 on 192.168.1.33:45555 in memory (size: 2.9 MB, free: 366.2 MB)
+2019-08-15 20:35:29 INFO  CodeGenerator:54 - Code generated in 5.523112 ms
+2019-08-15 20:35:29 INFO  MemoryStore:54 - Block broadcast_17 stored as values in memory (estimated size 8.1 MB, free 356.9 MB)
+2019-08-15 20:35:29 INFO  MemoryStore:54 - Block broadcast_17_piece0 stored as bytes in memory (estimated size 2.9 MB, free 354.0 MB)
+2019-08-15 20:35:29 INFO  BlockManagerInfo:54 - Added broadcast_17_piece0 in memory on 192.168.1.33:45555 (size: 2.9 MB, free: 363.3 MB)
+2019-08-15 20:35:29 INFO  SparkContext:54 - Created broadcast 17 from run at ThreadPoolExecutor.java:1149
+2019-08-15 20:35:29 INFO  CodeGenerator:54 - Code generated in 22.0958 ms
+2019-08-15 20:35:29 INFO  SparkContext:54 - Starting job: csv at NativeMethodAccessorImpl.java:0
+2019-08-15 20:35:29 INFO  DAGScheduler:54 - Got job 10 (csv at NativeMethodAccessorImpl.java:0) with 1 output partitions
+2019-08-15 20:35:29 INFO  DAGScheduler:54 - Final stage: ResultStage 10 (csv at NativeMethodAccessorImpl.java:0)
+2019-08-15 20:35:29 INFO  DAGScheduler:54 - Parents of final stage: List()
+2019-08-15 20:35:29 INFO  DAGScheduler:54 - Missing parents: List()
+2019-08-15 20:35:29 INFO  DAGScheduler:54 - Submitting ResultStage 10 (CoalescedRDD[53] at csv at NativeMethodAccessorImpl.java:0), which has no missing parents
+2019-08-15 20:35:29 INFO  MemoryStore:54 - Block broadcast_18 stored as values in memory (estimated size 271.3 KB, free 353.7 MB)
+2019-08-15 20:35:29 INFO  MemoryStore:54 - Block broadcast_18_piece0 stored as bytes in memory (estimated size 92.7 KB, free 353.7 MB)
+2019-08-15 20:35:29 INFO  BlockManagerInfo:54 - Added broadcast_18_piece0 in memory on 192.168.1.33:45555 (size: 92.7 KB, free: 363.2 MB)
+2019-08-15 20:35:29 INFO  SparkContext:54 - Created broadcast 18 from broadcast at DAGScheduler.scala:1161
+2019-08-15 20:35:29 INFO  DAGScheduler:54 - Submitting 1 missing tasks from ResultStage 10 (CoalescedRDD[53] at csv at NativeMethodAccessorImpl.java:0) (first 15 tasks are for partitions Vector(0))
+2019-08-15 20:35:29 INFO  TaskSchedulerImpl:54 - Adding task set 10.0 with 1 tasks
+2019-08-15 20:35:29 INFO  TaskSetManager:54 - Starting task 0.0 in stage 10.0 (TID 10, localhost, executor driver, partition 0, PROCESS_LOCAL, 8554 bytes)
+2019-08-15 20:35:29 INFO  Executor:54 - Running task 0.0 in stage 10.0 (TID 10)
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 36
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 4
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 6
+2019-08-15 20:35:30 INFO  BlockManagerInfo:54 - Removed broadcast_0_piece0 on 192.168.1.33:45555 in memory (size: 23.4 KB, free: 363.2 MB)
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 286
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 292
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 280
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 274
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 281
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 279
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 282
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 297
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 283
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 273
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 276
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 290
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 278
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 291
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 275
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 287
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 294
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 296
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 289
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 288
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 277
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 284
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 293
+2019-08-15 20:35:30 INFO  BlockManagerInfo:54 - Removed broadcast_16_piece0 on 192.168.1.33:45555 in memory (size: 18.9 KB, free: 363.2 MB)
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 295
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 285
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 5
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 1
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 2
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 32
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 34
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 35
+2019-08-15 20:35:30 INFO  FileOutputCommitter:108 - File Output Committer Algorithm version is 1
+2019-08-15 20:35:30 INFO  BlockManagerInfo:54 - Removed broadcast_2_piece0 on 192.168.1.33:45555 in memory (size: 23.4 KB, free: 363.2 MB)
+2019-08-15 20:35:30 INFO  SQLHadoopMapReduceCommitProtocol:54 - Using output committer class org.apache.hadoop.mapreduce.lib.output.FileOutputCommitter
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 33
+2019-08-15 20:35:30 INFO  ContextCleaner:54 - Cleaned accumulator 3
+2019-08-15 20:35:30 INFO  FileScanRDD:54 - Reading File path: file:///home/simon/PROJECTS/pybda/data/single_cell_imaging_data.tsv, range: 0-7798515, partition values: [empty row]
+2019-08-15 20:35:30 INFO  CodeGenerator:54 - Code generated in 5.789237 ms
+2019-08-15 20:35:30 INFO  CodeGenerator:54 - Code generated in 24.220051 ms
+2019-08-15 20:35:30 INFO  PythonRunner:54 - Times: total = 545, boot = -2238, init = 2266, finish = 517
+2019-08-15 20:35:30 INFO  PythonRunner:54 - Times: total = 621, boot = 14, init = 468, finish = 139
+2019-08-15 20:35:31 INFO  PythonUDFRunner:54 - Times: total = 1375, boot = 9, init = 693, finish = 673
+2019-08-15 20:35:31 INFO  PythonUDFRunner:54 - Times: total = 1387, boot = 7, init = 813, finish = 567
+2019-08-15 20:35:31 INFO  FileOutputCommitter:535 - Saved output of task 'attempt_20190815203530_0010_m_000000_0' to file:/home/simon/PROJECTS/pybda/data/results/2019_08_15/pca_from_single_cell_imaging_data/_temporary/0/task_20190815203530_0010_m_000000
+2019-08-15 20:35:31 INFO  SparkHadoopMapRedUtil:54 - attempt_20190815203530_0010_m_000000_0: Committed
+2019-08-15 20:35:31 INFO  Executor:54 - Finished task 0.0 in stage 10.0 (TID 10). 4062 bytes result sent to driver
+2019-08-15 20:35:31 INFO  TaskSetManager:54 - Finished task 0.0 in stage 10.0 (TID 10) in 1827 ms on localhost (executor driver) (1/1)
+2019-08-15 20:35:31 INFO  TaskSchedulerImpl:54 - Removed TaskSet 10.0, whose tasks have all completed, from pool 
+2019-08-15 20:35:31 INFO  DAGScheduler:54 - ResultStage 10 (csv at NativeMethodAccessorImpl.java:0) finished in 1.850 s
+2019-08-15 20:35:31 INFO  DAGScheduler:54 - Job 10 finished: csv at NativeMethodAccessorImpl.java:0, took 1.855437 s
+2019-08-15 20:35:31 INFO  FileFormatWriter:54 - Write Job b0b067f4-98a1-4d7c-aac6-ac71183b7e5d committed.
+2019-08-15 20:35:31 INFO  FileFormatWriter:54 - Finished processing stats for write job b0b067f4-98a1-4d7c-aac6-ac71183b7e5d.
+2019-08-15 20:35:31 INFO  FileSourceStrategy:54 - Pruning directories with: 
+2019-08-15 20:35:31 INFO  FileSourceStrategy:54 - Post-Scan Filters: 
+2019-08-15 20:35:31 INFO  FileSourceStrategy:54 - Output Data Schema: struct<well: string, gene: string, sirna: string, image_idx: string, object_idx: string ... 49 more fields>
+2019-08-15 20:35:31 INFO  FileSourceScanExec:54 - Pushed Filters: 
+2019-08-15 20:35:31 INFO  MemoryStore:54 - Block broadcast_19 stored as values in memory (estimated size 285.0 KB, free 354.1 MB)
+2019-08-15 20:35:31 INFO  MemoryStore:54 - Block broadcast_19_piece0 stored as bytes in memory (estimated size 23.4 KB, free 354.0 MB)
+2019-08-15 20:35:31 INFO  BlockManagerInfo:54 - Added broadcast_19_piece0 in memory on 192.168.1.33:45555 (size: 23.4 KB, free: 363.2 MB)
+2019-08-15 20:35:31 INFO  SparkContext:54 - Created broadcast 19 from run at ThreadPoolExecutor.java:1149
+2019-08-15 20:35:31 INFO  FileSourceScanExec:54 - Planning scan with bin packing, max size: 11992819 bytes, open cost is considered as scanning 4194304 bytes.
+2019-08-15 20:35:31 INFO  SparkContext:54 - Starting job: run at ThreadPoolExecutor.java:1149
+2019-08-15 20:35:31 INFO  DAGScheduler:54 - Got job 11 (run at ThreadPoolExecutor.java:1149) with 1 output partitions
+2019-08-15 20:35:31 INFO  DAGScheduler:54 - Final stage: ResultStage 11 (run at ThreadPoolExecutor.java:1149)
+2019-08-15 20:35:31 INFO  DAGScheduler:54 - Parents of final stage: List()
+2019-08-15 20:35:31 INFO  DAGScheduler:54 - Missing parents: List()
+2019-08-15 20:35:31 INFO  DAGScheduler:54 - Submitting ResultStage 11 (MapPartitionsRDD[57] at run at ThreadPoolExecutor.java:1149), which has no missing parents
+2019-08-15 20:35:31 INFO  MemoryStore:54 - Block broadcast_20 stored as values in memory (estimated size 17.6 KB, free 354.0 MB)
+2019-08-15 20:35:31 INFO  MemoryStore:54 - Block broadcast_20_piece0 stored as bytes in memory (estimated size 8.3 KB, free 354.0 MB)
+2019-08-15 20:35:31 INFO  BlockManagerInfo:54 - Added broadcast_20_piece0 in memory on 192.168.1.33:45555 (size: 8.3 KB, free: 363.2 MB)
+2019-08-15 20:35:31 INFO  SparkContext:54 - Created broadcast 20 from broadcast at DAGScheduler.scala:1161
+2019-08-15 20:35:31 INFO  DAGScheduler:54 - Submitting 1 missing tasks from ResultStage 11 (MapPartitionsRDD[57] at run at ThreadPoolExecutor.java:1149) (first 15 tasks are for partitions Vector(0))
+2019-08-15 20:35:31 INFO  TaskSchedulerImpl:54 - Adding task set 11.0 with 1 tasks
+2019-08-15 20:35:31 INFO  TaskSetManager:54 - Starting task 0.0 in stage 11.0 (TID 11, localhost, executor driver, partition 0, PROCESS_LOCAL, 8345 bytes)
+2019-08-15 20:35:31 INFO  Executor:54 - Running task 0.0 in stage 11.0 (TID 11)
+2019-08-15 20:35:31 INFO  FileScanRDD:54 - Reading File path: file:///home/simon/PROJECTS/pybda/data/single_cell_imaging_data.tsv, range: 0-7798515, partition values: [empty row]
+2019-08-15 20:35:31 INFO  CodeGenerator:54 - Code generated in 12.67415 ms
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 323
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 265
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 262
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 266
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 271
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 313
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 301
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 257
+2019-08-15 20:35:32 INFO  BlockManagerInfo:54 - Removed broadcast_17_piece0 on 192.168.1.33:45555 in memory (size: 2.9 MB, free: 366.1 MB)
+2019-08-15 20:35:32 INFO  Executor:54 - Finished task 0.0 in stage 11.0 (TID 11). 53217 bytes result sent to driver
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 267
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 255
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 299
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 268
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 264
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 306
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 272
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 318
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 308
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 260
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 258
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 261
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 259
+2019-08-15 20:35:32 INFO  TaskSetManager:54 - Finished task 0.0 in stage 11.0 (TID 11) in 277 ms on localhost (executor driver) (1/1)
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 320
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 310
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 300
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 263
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 316
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 304
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 305
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 307
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 303
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 302
+2019-08-15 20:35:32 INFO  DAGScheduler:54 - ResultStage 11 (run at ThreadPoolExecutor.java:1149) finished in 0.283 s
+2019-08-15 20:35:32 INFO  DAGScheduler:54 - Job 11 finished: run at ThreadPoolExecutor.java:1149, took 0.285610 s
+2019-08-15 20:35:32 INFO  TaskSchedulerImpl:54 - Removed TaskSet 11.0, whose tasks have all completed, from pool 
+2019-08-15 20:35:32 INFO  MemoryStore:54 - Block broadcast_21 stored as values in memory (estimated size 1102.1 KB, free 363.9 MB)
+2019-08-15 20:35:32 INFO  MemoryStore:54 - Block broadcast_21_piece0 stored as bytes in memory (estimated size 100.0 KB, free 363.8 MB)
+2019-08-15 20:35:32 INFO  BlockManagerInfo:54 - Added broadcast_21_piece0 in memory on 192.168.1.33:45555 (size: 100.0 KB, free: 366.0 MB)
+2019-08-15 20:35:32 INFO  SparkContext:54 - Created broadcast 21 from run at ThreadPoolExecutor.java:1149
+2019-08-15 20:35:32 INFO  BlockManagerInfo:54 - Removed broadcast_15_piece0 on 192.168.1.33:45555 in memory (size: 23.4 KB, free: 366.1 MB)
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 315
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 312
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 270
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 319
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 269
+2019-08-15 20:35:32 INFO  BlockManagerInfo:54 - Removed broadcast_18_piece0 on 192.168.1.33:45555 in memory (size: 92.7 KB, free: 366.1 MB)
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 311
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 256
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 321
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 317
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 314
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 298
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 309
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 322
+2019-08-15 20:35:32 INFO  CodeGenerator:54 - Code generated in 12.06286 ms
+2019-08-15 20:35:32 INFO  SparkContext:54 - Starting job: count at NativeMethodAccessorImpl.java:0
+2019-08-15 20:35:32 INFO  DAGScheduler:54 - Registering RDD 60 (count at NativeMethodAccessorImpl.java:0)
+2019-08-15 20:35:32 INFO  DAGScheduler:54 - Got job 12 (count at NativeMethodAccessorImpl.java:0) with 1 output partitions
+2019-08-15 20:35:32 INFO  DAGScheduler:54 - Final stage: ResultStage 13 (count at NativeMethodAccessorImpl.java:0)
+2019-08-15 20:35:32 INFO  DAGScheduler:54 - Parents of final stage: List(ShuffleMapStage 12)
+2019-08-15 20:35:32 INFO  DAGScheduler:54 - Missing parents: List(ShuffleMapStage 12)
+2019-08-15 20:35:32 INFO  DAGScheduler:54 - Submitting ShuffleMapStage 12 (MapPartitionsRDD[60] at count at NativeMethodAccessorImpl.java:0), which has no missing parents
+2019-08-15 20:35:32 INFO  MemoryStore:54 - Block broadcast_22 stored as values in memory (estimated size 79.2 KB, free 364.4 MB)
+2019-08-15 20:35:32 INFO  MemoryStore:54 - Block broadcast_22_piece0 stored as bytes in memory (estimated size 29.7 KB, free 364.4 MB)
+2019-08-15 20:35:32 INFO  BlockManagerInfo:54 - Added broadcast_22_piece0 in memory on 192.168.1.33:45555 (size: 29.7 KB, free: 366.1 MB)
+2019-08-15 20:35:32 INFO  SparkContext:54 - Created broadcast 22 from broadcast at DAGScheduler.scala:1161
+2019-08-15 20:35:32 INFO  DAGScheduler:54 - Submitting 1 missing tasks from ShuffleMapStage 12 (MapPartitionsRDD[60] at count at NativeMethodAccessorImpl.java:0) (first 15 tasks are for partitions Vector(0))
+2019-08-15 20:35:32 INFO  TaskSchedulerImpl:54 - Adding task set 12.0 with 1 tasks
+2019-08-15 20:35:32 INFO  TaskSetManager:54 - Starting task 0.0 in stage 12.0 (TID 12, localhost, executor driver, partition 0, PROCESS_LOCAL, 8334 bytes)
+2019-08-15 20:35:32 INFO  Executor:54 - Running task 0.0 in stage 12.0 (TID 12)
+2019-08-15 20:35:32 INFO  FileScanRDD:54 - Reading File path: file:///home/simon/PROJECTS/pybda/data/single_cell_imaging_data.tsv, range: 0-7798515, partition values: [empty row]
+2019-08-15 20:35:32 INFO  PythonRunner:54 - Times: total = 447, boot = -1644, init = 1674, finish = 417
+2019-08-15 20:35:32 INFO  PythonRunner:54 - Times: total = 497, boot = -1578, init = 1745, finish = 330
+2019-08-15 20:35:32 INFO  Executor:54 - Finished task 0.0 in stage 12.0 (TID 12). 2688 bytes result sent to driver
+2019-08-15 20:35:32 INFO  TaskSetManager:54 - Finished task 0.0 in stage 12.0 (TID 12) in 535 ms on localhost (executor driver) (1/1)
+2019-08-15 20:35:32 INFO  TaskSchedulerImpl:54 - Removed TaskSet 12.0, whose tasks have all completed, from pool 
+2019-08-15 20:35:32 INFO  DAGScheduler:54 - ShuffleMapStage 12 (count at NativeMethodAccessorImpl.java:0) finished in 0.547 s
+2019-08-15 20:35:32 INFO  DAGScheduler:54 - looking for newly runnable stages
+2019-08-15 20:35:32 INFO  DAGScheduler:54 - running: Set()
+2019-08-15 20:35:32 INFO  DAGScheduler:54 - waiting: Set(ResultStage 13)
+2019-08-15 20:35:32 INFO  DAGScheduler:54 - failed: Set()
+2019-08-15 20:35:32 INFO  DAGScheduler:54 - Submitting ResultStage 13 (MapPartitionsRDD[63] at count at NativeMethodAccessorImpl.java:0), which has no missing parents
+2019-08-15 20:35:32 INFO  MemoryStore:54 - Block broadcast_23 stored as values in memory (estimated size 7.1 KB, free 364.4 MB)
+2019-08-15 20:35:32 INFO  MemoryStore:54 - Block broadcast_23_piece0 stored as bytes in memory (estimated size 3.8 KB, free 364.4 MB)
+2019-08-15 20:35:32 INFO  BlockManagerInfo:54 - Added broadcast_23_piece0 in memory on 192.168.1.33:45555 (size: 3.8 KB, free: 366.1 MB)
+2019-08-15 20:35:32 INFO  SparkContext:54 - Created broadcast 23 from broadcast at DAGScheduler.scala:1161
+2019-08-15 20:35:32 INFO  DAGScheduler:54 - Submitting 1 missing tasks from ResultStage 13 (MapPartitionsRDD[63] at count at NativeMethodAccessorImpl.java:0) (first 15 tasks are for partitions Vector(0))
+2019-08-15 20:35:32 INFO  TaskSchedulerImpl:54 - Adding task set 13.0 with 1 tasks
+2019-08-15 20:35:32 INFO  TaskSetManager:54 - Starting task 0.0 in stage 13.0 (TID 13, localhost, executor driver, partition 0, ANY, 7767 bytes)
+2019-08-15 20:35:32 INFO  Executor:54 - Running task 0.0 in stage 13.0 (TID 13)
+2019-08-15 20:35:32 INFO  ShuffleBlockFetcherIterator:54 - Getting 1 non-empty blocks including 1 local blocks and 0 remote blocks
+2019-08-15 20:35:32 INFO  ShuffleBlockFetcherIterator:54 - Started 0 remote fetches in 4 ms
+2019-08-15 20:35:32 INFO  Executor:54 - Finished task 0.0 in stage 13.0 (TID 13). 1739 bytes result sent to driver
+2019-08-15 20:35:32 INFO  TaskSetManager:54 - Finished task 0.0 in stage 13.0 (TID 13) in 33 ms on localhost (executor driver) (1/1)
+2019-08-15 20:35:32 INFO  TaskSchedulerImpl:54 - Removed TaskSet 13.0, whose tasks have all completed, from pool 
+2019-08-15 20:35:32 INFO  DAGScheduler:54 - ResultStage 13 (count at NativeMethodAccessorImpl.java:0) finished in 0.040 s
+2019-08-15 20:35:32 INFO  DAGScheduler:54 - Job 12 finished: count at NativeMethodAccessorImpl.java:0, took 0.604776 s
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 419
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 409
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 416
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 420
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 403
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 401
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 408
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 423
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 399
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 415
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 421
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 413
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 406
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 418
+2019-08-15 20:35:32 INFO  ContextCleaner:54 - Cleaned accumulator 417
+2019-08-15 20:35:32 INFO  BlockManagerInfo:54 - Removed broadcast_23_piece0 on 192.168.1.33:45555 in memory (size: 3.8 KB, free: 366.1 MB)
+2019-08-15 20:35:33 INFO  FileSourceStrategy:54 - Pruning directories with: 
+2019-08-15 20:35:33 INFO  FileSourceStrategy:54 - Post-Scan Filters: 
+2019-08-15 20:35:33 INFO  FileSourceStrategy:54 - Output Data Schema: struct<well: string, gene: string, sirna: string, image_idx: string, object_idx: string ... 49 more fields>
+2019-08-15 20:35:33 INFO  FileSourceScanExec:54 - Pushed Filters: 
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 410
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 402
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 412
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 411
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 414
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 404
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 405
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 400
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 422
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 407
+2019-08-15 20:35:33 INFO  MemoryStore:54 - Block broadcast_24 stored as values in memory (estimated size 285.0 KB, free 364.1 MB)
+2019-08-15 20:35:33 INFO  MemoryStore:54 - Block broadcast_24_piece0 stored as bytes in memory (estimated size 23.4 KB, free 364.1 MB)
+2019-08-15 20:35:33 INFO  BlockManagerInfo:54 - Added broadcast_24_piece0 in memory on 192.168.1.33:45555 (size: 23.4 KB, free: 366.1 MB)
+2019-08-15 20:35:33 INFO  SparkContext:54 - Created broadcast 24 from take at /home/simon/PROJECTS/pybda/pybda/spark/features.py:181
+2019-08-15 20:35:33 INFO  FileSourceScanExec:54 - Planning scan with bin packing, max size: 11992819 bytes, open cost is considered as scanning 4194304 bytes.
+2019-08-15 20:35:33 INFO  SparkContext:54 - Starting job: take at /home/simon/PROJECTS/pybda/pybda/spark/features.py:181
+2019-08-15 20:35:33 INFO  DAGScheduler:54 - Got job 13 (take at /home/simon/PROJECTS/pybda/pybda/spark/features.py:181) with 1 output partitions
+2019-08-15 20:35:33 INFO  DAGScheduler:54 - Final stage: ResultStage 14 (take at /home/simon/PROJECTS/pybda/pybda/spark/features.py:181)
+2019-08-15 20:35:33 INFO  DAGScheduler:54 - Parents of final stage: List()
+2019-08-15 20:35:33 INFO  DAGScheduler:54 - Missing parents: List()
+2019-08-15 20:35:33 INFO  DAGScheduler:54 - Submitting ResultStage 14 (MapPartitionsRDD[66] at take at /home/simon/PROJECTS/pybda/pybda/spark/features.py:181), which has no missing parents
+2019-08-15 20:35:33 INFO  MemoryStore:54 - Block broadcast_25 stored as values in memory (estimated size 17.6 KB, free 364.1 MB)
+2019-08-15 20:35:33 INFO  MemoryStore:54 - Block broadcast_25_piece0 stored as bytes in memory (estimated size 8.2 KB, free 364.1 MB)
+2019-08-15 20:35:33 INFO  BlockManagerInfo:54 - Added broadcast_25_piece0 in memory on 192.168.1.33:45555 (size: 8.2 KB, free: 366.1 MB)
+2019-08-15 20:35:33 INFO  SparkContext:54 - Created broadcast 25 from broadcast at DAGScheduler.scala:1161
+2019-08-15 20:35:33 INFO  DAGScheduler:54 - Submitting 1 missing tasks from ResultStage 14 (MapPartitionsRDD[66] at take at /home/simon/PROJECTS/pybda/pybda/spark/features.py:181) (first 15 tasks are for partitions Vector(0))
+2019-08-15 20:35:33 INFO  TaskSchedulerImpl:54 - Adding task set 14.0 with 1 tasks
+2019-08-15 20:35:33 INFO  TaskSetManager:54 - Starting task 0.0 in stage 14.0 (TID 14, localhost, executor driver, partition 0, PROCESS_LOCAL, 8345 bytes)
+2019-08-15 20:35:33 INFO  Executor:54 - Running task 0.0 in stage 14.0 (TID 14)
+2019-08-15 20:35:33 INFO  FileScanRDD:54 - Reading File path: file:///home/simon/PROJECTS/pybda/data/single_cell_imaging_data.tsv, range: 0-7798515, partition values: [empty row]
+2019-08-15 20:35:33 INFO  Executor:54 - Finished task 0.0 in stage 14.0 (TID 14). 53174 bytes result sent to driver
+2019-08-15 20:35:33 INFO  TaskSetManager:54 - Finished task 0.0 in stage 14.0 (TID 14) in 133 ms on localhost (executor driver) (1/1)
+2019-08-15 20:35:33 INFO  TaskSchedulerImpl:54 - Removed TaskSet 14.0, whose tasks have all completed, from pool 
+2019-08-15 20:35:33 INFO  DAGScheduler:54 - ResultStage 14 (take at /home/simon/PROJECTS/pybda/pybda/spark/features.py:181) finished in 0.140 s
+2019-08-15 20:35:33 INFO  DAGScheduler:54 - Job 13 finished: take at /home/simon/PROJECTS/pybda/pybda/spark/features.py:181, took 0.142882 s
+2019-08-15 20:35:33 INFO  MemoryStore:54 - Block broadcast_26 stored as values in memory (estimated size 1102.1 KB, free 363.0 MB)
+2019-08-15 20:35:33 INFO  MemoryStore:54 - Block broadcast_26_piece0 stored as bytes in memory (estimated size 100.0 KB, free 362.9 MB)
+2019-08-15 20:35:33 INFO  BlockManagerInfo:54 - Added broadcast_26_piece0 in memory on 192.168.1.33:45555 (size: 100.0 KB, free: 366.0 MB)
+2019-08-15 20:35:33 INFO  SparkContext:54 - Created broadcast 26 from take at /home/simon/PROJECTS/pybda/pybda/spark/features.py:181
+2019-08-15 20:35:33 INFO  CodeGenerator:54 - Code generated in 18.429606 ms
+2019-08-15 20:35:33 INFO  SparkContext:54 - Starting job: take at /home/simon/PROJECTS/pybda/pybda/spark/features.py:181
+2019-08-15 20:35:33 INFO  DAGScheduler:54 - Got job 14 (take at /home/simon/PROJECTS/pybda/pybda/spark/features.py:181) with 1 output partitions
+2019-08-15 20:35:33 INFO  DAGScheduler:54 - Final stage: ResultStage 15 (take at /home/simon/PROJECTS/pybda/pybda/spark/features.py:181)
+2019-08-15 20:35:33 INFO  DAGScheduler:54 - Parents of final stage: List()
+2019-08-15 20:35:33 INFO  DAGScheduler:54 - Missing parents: List()
+2019-08-15 20:35:33 INFO  DAGScheduler:54 - Submitting ResultStage 15 (MapPartitionsRDD[72] at take at /home/simon/PROJECTS/pybda/pybda/spark/features.py:181), which has no missing parents
+2019-08-15 20:35:33 INFO  MemoryStore:54 - Block broadcast_27 stored as values in memory (estimated size 94.4 KB, free 362.8 MB)
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 442
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 456
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 449
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 462
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 448
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 445
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 440
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 441
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 455
+2019-08-15 20:35:33 INFO  MemoryStore:54 - Block broadcast_27_piece0 stored as bytes in memory (estimated size 32.9 KB, free 362.8 MB)
+2019-08-15 20:35:33 INFO  BlockManagerInfo:54 - Added broadcast_27_piece0 in memory on 192.168.1.33:45555 (size: 32.9 KB, free: 366.0 MB)
+2019-08-15 20:35:33 INFO  SparkContext:54 - Created broadcast 27 from broadcast at DAGScheduler.scala:1161
+2019-08-15 20:35:33 INFO  DAGScheduler:54 - Submitting 1 missing tasks from ResultStage 15 (MapPartitionsRDD[72] at take at /home/simon/PROJECTS/pybda/pybda/spark/features.py:181) (first 15 tasks are for partitions Vector(0))
+2019-08-15 20:35:33 INFO  TaskSchedulerImpl:54 - Adding task set 15.0 with 1 tasks
+2019-08-15 20:35:33 INFO  TaskSetManager:54 - Starting task 0.0 in stage 15.0 (TID 15, localhost, executor driver, partition 0, PROCESS_LOCAL, 8345 bytes)
+2019-08-15 20:35:33 INFO  Executor:54 - Running task 0.0 in stage 15.0 (TID 15)
+2019-08-15 20:35:33 INFO  BlockManagerInfo:54 - Removed broadcast_25_piece0 on 192.168.1.33:45555 in memory (size: 8.2 KB, free: 366.0 MB)
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 444
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 460
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 450
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 439
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 459
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 452
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 461
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 446
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 457
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 443
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 447
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 438
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 453
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 454
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 458
+2019-08-15 20:35:33 INFO  ContextCleaner:54 - Cleaned accumulator 451
+2019-08-15 20:35:33 INFO  FileScanRDD:54 - Reading File path: file:///home/simon/PROJECTS/pybda/data/single_cell_imaging_data.tsv, range: 0-7798515, partition values: [empty row]
+2019-08-15 20:35:33 INFO  Executor:54 - Finished task 0.0 in stage 15.0 (TID 15). 2293 bytes result sent to driver
+2019-08-15 20:35:33 INFO  TaskSetManager:54 - Finished task 0.0 in stage 15.0 (TID 15) in 470 ms on localhost (executor driver) (1/1)
+2019-08-15 20:35:33 INFO  TaskSchedulerImpl:54 - Removed TaskSet 15.0, whose tasks have all completed, from pool 
+2019-08-15 20:35:33 INFO  DAGScheduler:54 - ResultStage 15 (take at /home/simon/PROJECTS/pybda/pybda/spark/features.py:181) finished in 0.490 s
+2019-08-15 20:35:33 INFO  DAGScheduler:54 - Job 14 finished: take at /home/simon/PROJECTS/pybda/pybda/spark/features.py:181, took 0.493764 s
+2019-08-15 20:35:34 INFO  FileSourceStrategy:54 - Pruning directories with: 
+2019-08-15 20:35:34 INFO  FileSourceStrategy:54 - Post-Scan Filters: 
+2019-08-15 20:35:34 INFO  FileSourceStrategy:54 - Output Data Schema: struct<well: string, gene: string, sirna: string, image_idx: string, object_idx: string ... 49 more fields>
+2019-08-15 20:35:34 INFO  FileSourceScanExec:54 - Pushed Filters: 
+2019-08-15 20:35:34 INFO  CodeGenerator:54 - Code generated in 14.982173 ms
+2019-08-15 20:35:34 INFO  MemoryStore:54 - Block broadcast_28 stored as values in memory (estimated size 285.0 KB, free 362.5 MB)
+2019-08-15 20:35:34 INFO  MemoryStore:54 - Block broadcast_28_piece0 stored as bytes in memory (estimated size 23.4 KB, free 362.5 MB)
+2019-08-15 20:35:34 INFO  BlockManagerInfo:54 - Added broadcast_28_piece0 in memory on 192.168.1.33:45555 (size: 23.4 KB, free: 365.9 MB)
+2019-08-15 20:35:34 INFO  SparkContext:54 - Created broadcast 28 from toPandas at /home/simon/PROJECTS/pybda/pybda/util/cast_as.py:50
+2019-08-15 20:35:34 INFO  FileSourceScanExec:54 - Planning scan with bin packing, max size: 11992819 bytes, open cost is considered as scanning 4194304 bytes.
+2019-08-15 20:35:34 INFO  SparkContext:54 - Starting job: toPandas at /home/simon/PROJECTS/pybda/pybda/util/cast_as.py:50
+2019-08-15 20:35:34 INFO  DAGScheduler:54 - Got job 15 (toPandas at /home/simon/PROJECTS/pybda/pybda/util/cast_as.py:50) with 1 output partitions
+2019-08-15 20:35:34 INFO  DAGScheduler:54 - Final stage: ResultStage 16 (toPandas at /home/simon/PROJECTS/pybda/pybda/util/cast_as.py:50)
+2019-08-15 20:35:34 INFO  DAGScheduler:54 - Parents of final stage: List()
+2019-08-15 20:35:34 INFO  DAGScheduler:54 - Missing parents: List()
+2019-08-15 20:35:34 INFO  DAGScheduler:54 - Submitting ResultStage 16 (MapPartitionsRDD[75] at toPandas at /home/simon/PROJECTS/pybda/pybda/util/cast_as.py:50), which has no missing parents
+2019-08-15 20:35:34 INFO  MemoryStore:54 - Block broadcast_29 stored as values in memory (estimated size 62.5 KB, free 362.4 MB)
+2019-08-15 20:35:34 INFO  MemoryStore:54 - Block broadcast_29_piece0 stored as bytes in memory (estimated size 18.9 KB, free 362.4 MB)
+2019-08-15 20:35:34 INFO  BlockManagerInfo:54 - Added broadcast_29_piece0 in memory on 192.168.1.33:45555 (size: 18.9 KB, free: 365.9 MB)
+2019-08-15 20:35:34 INFO  SparkContext:54 - Created broadcast 29 from broadcast at DAGScheduler.scala:1161
+2019-08-15 20:35:34 INFO  DAGScheduler:54 - Submitting 1 missing tasks from ResultStage 16 (MapPartitionsRDD[75] at toPandas at /home/simon/PROJECTS/pybda/pybda/util/cast_as.py:50) (first 15 tasks are for partitions Vector(0))
+2019-08-15 20:35:34 INFO  TaskSchedulerImpl:54 - Adding task set 16.0 with 1 tasks
+2019-08-15 20:35:34 INFO  TaskSetManager:54 - Starting task 0.0 in stage 16.0 (TID 16, localhost, executor driver, partition 0, PROCESS_LOCAL, 8345 bytes)
+2019-08-15 20:35:34 INFO  Executor:54 - Running task 0.0 in stage 16.0 (TID 16)
+2019-08-15 20:35:34 INFO  FileScanRDD:54 - Reading File path: file:///home/simon/PROJECTS/pybda/data/single_cell_imaging_data.tsv, range: 0-7798515, partition values: [empty row]
+2019-08-15 20:35:34 INFO  MemoryStore:54 - Block taskresult_16 stored as bytes in memory (estimated size 2.9 MB, free 359.5 MB)
+2019-08-15 20:35:34 INFO  BlockManagerInfo:54 - Added taskresult_16 in memory on 192.168.1.33:45555 (size: 2.9 MB, free: 363.1 MB)
+2019-08-15 20:35:34 INFO  Executor:54 - Finished task 0.0 in stage 16.0 (TID 16). 3001903 bytes result sent via BlockManager)
+2019-08-15 20:35:34 INFO  TaskSetManager:54 - Finished task 0.0 in stage 16.0 (TID 16) in 440 ms on localhost (executor driver) (1/1)
+2019-08-15 20:35:34 INFO  TaskSchedulerImpl:54 - Removed TaskSet 16.0, whose tasks have all completed, from pool 
+2019-08-15 20:35:34 INFO  BlockManagerInfo:54 - Removed taskresult_16 on 192.168.1.33:45555 in memory (size: 2.9 MB, free: 365.9 MB)
+2019-08-15 20:35:34 INFO  DAGScheduler:54 - ResultStage 16 (toPandas at /home/simon/PROJECTS/pybda/pybda/util/cast_as.py:50) finished in 0.446 s
+2019-08-15 20:35:34 INFO  DAGScheduler:54 - Job 15 finished: toPandas at /home/simon/PROJECTS/pybda/pybda/util/cast_as.py:50, took 0.448297 s
+2019-08-15 20:35:34 INFO  MemoryStore:54 - Block broadcast_30 stored as values in memory (estimated size 8.1 MB, free 354.3 MB)
+2019-08-15 20:35:34 INFO  MemoryStore:54 - Block broadcast_30_piece0 stored as bytes in memory (estimated size 2.9 MB, free 351.4 MB)
+2019-08-15 20:35:34 INFO  BlockManagerInfo:54 - Added broadcast_30_piece0 in memory on 192.168.1.33:45555 (size: 2.9 MB, free: 363.0 MB)
+2019-08-15 20:35:34 INFO  SparkContext:54 - Created broadcast 30 from toPandas at /home/simon/PROJECTS/pybda/pybda/util/cast_as.py:50
+2019-08-15 20:35:34 INFO  CodeGenerator:54 - Code generated in 22.063717 ms
+2019-08-15 20:35:34 INFO  SparkContext:54 - Starting job: toPandas at /home/simon/PROJECTS/pybda/pybda/util/cast_as.py:50
+2019-08-15 20:35:34 INFO  DAGScheduler:54 - Got job 16 (toPandas at /home/simon/PROJECTS/pybda/pybda/util/cast_as.py:50) with 1 output partitions
+2019-08-15 20:35:34 INFO  DAGScheduler:54 - Final stage: ResultStage 17 (toPandas at /home/simon/PROJECTS/pybda/pybda/util/cast_as.py:50)
+2019-08-15 20:35:34 INFO  DAGScheduler:54 - Parents of final stage: List()
+2019-08-15 20:35:34 INFO  DAGScheduler:54 - Missing parents: List()
+2019-08-15 20:35:34 INFO  DAGScheduler:54 - Submitting ResultStage 17 (MapPartitionsRDD[83] at toPandas at /home/simon/PROJECTS/pybda/pybda/util/cast_as.py:50), which has no missing parents
+2019-08-15 20:35:34 INFO  MemoryStore:54 - Block broadcast_31 stored as values in memory (estimated size 136.0 KB, free 351.3 MB)
+2019-08-15 20:35:34 INFO  MemoryStore:54 - Block broadcast_31_piece0 stored as bytes in memory (estimated size 45.3 KB, free 351.2 MB)
+2019-08-15 20:35:34 INFO  BlockManagerInfo:54 - Added broadcast_31_piece0 in memory on 192.168.1.33:45555 (size: 45.3 KB, free: 363.0 MB)
+2019-08-15 20:35:34 INFO  SparkContext:54 - Created broadcast 31 from broadcast at DAGScheduler.scala:1161
+2019-08-15 20:35:34 INFO  DAGScheduler:54 - Submitting 1 missing tasks from ResultStage 17 (MapPartitionsRDD[83] at toPandas at /home/simon/PROJECTS/pybda/pybda/util/cast_as.py:50) (first 15 tasks are for partitions Vector(0))
+2019-08-15 20:35:34 INFO  TaskSchedulerImpl:54 - Adding task set 17.0 with 1 tasks
+2019-08-15 20:35:34 INFO  TaskSetManager:54 - Starting task 0.0 in stage 17.0 (TID 17, localhost, executor driver, partition 0, PROCESS_LOCAL, 8345 bytes)
+2019-08-15 20:35:34 INFO  Executor:54 - Running task 0.0 in stage 17.0 (TID 17)
+2019-08-15 20:35:34 INFO  FileScanRDD:54 - Reading File path: file:///home/simon/PROJECTS/pybda/data/single_cell_imaging_data.tsv, range: 0-7798515, partition values: [empty row]
+2019-08-15 20:35:34 INFO  CodeGenerator:54 - Code generated in 4.831963 ms
+2019-08-15 20:35:34 INFO  CodeGenerator:54 - Code generated in 20.197569 ms
+2019-08-15 20:35:35 INFO  ContextCleaner:54 - Cleaned accumulator 521
+2019-08-15 20:35:35 INFO  ContextCleaner:54 - Cleaned accumulator 523
+2019-08-15 20:35:35 INFO  ContextCleaner:54 - Cleaned accumulator 522
+2019-08-15 20:35:35 INFO  ContextCleaner:54 - Cleaned accumulator 510
+2019-08-15 20:35:35 INFO  ContextCleaner:54 - Cleaned accumulator 526
+2019-08-15 20:35:35 INFO  ContextCleaner:54 - Cleaned accumulator 503
+2019-08-15 20:35:35 INFO  ContextCleaner:54 - Cleaned accumulator 517
+2019-08-15 20:35:35 INFO  ContextCleaner:54 - Cleaned accumulator 518
+2019-08-15 20:35:35 INFO  ContextCleaner:54 - Cleaned accumulator 515
+2019-08-15 20:35:35 INFO  BlockManagerInfo:54 - Removed broadcast_29_piece0 on 192.168.1.33:45555 in memory (size: 18.9 KB, free: 363.0 MB)
+2019-08-15 20:35:35 INFO  ContextCleaner:54 - Cleaned accumulator 513
+2019-08-15 20:35:35 INFO  ContextCleaner:54 - Cleaned accumulator 512
+2019-08-15 20:35:35 INFO  ContextCleaner:54 - Cleaned accumulator 509
+2019-08-15 20:35:35 INFO  ContextCleaner:54 - Cleaned accumulator 516
+2019-08-15 20:35:35 INFO  ContextCleaner:54 - Cleaned accumulator 504
+2019-08-15 20:35:35 INFO  ContextCleaner:54 - Cleaned accumulator 514
+2019-08-15 20:35:35 INFO  ContextCleaner:54 - Cleaned accumulator 525
+2019-08-15 20:35:35 INFO  ContextCleaner:54 - Cleaned accumulator 527
+2019-08-15 20:35:35 INFO  ContextCleaner:54 - Cleaned accumulator 524
+2019-08-15 20:35:35 INFO  ContextCleaner:54 - Cleaned accumulator 508
+2019-08-15 20:35:35 INFO  ContextCleaner:54 - Cleaned accumulator 507
+2019-08-15 20:35:35 INFO  ContextCleaner:54 - Cleaned accumulator 519
+2019-08-15 20:35:35 INFO  ContextCleaner:54 - Cleaned accumulator 506
+2019-08-15 20:35:35 INFO  ContextCleaner:54 - Cleaned accumulator 511
+2019-08-15 20:35:35 INFO  ContextCleaner:54 - Cleaned accumulator 505
+2019-08-15 20:35:35 INFO  ContextCleaner:54 - Cleaned accumulator 520
+2019-08-15 20:35:35 INFO  PythonRunner:54 - Times: total = 499, boot = -2022, init = 2041, finish = 480
+2019-08-15 20:35:35 INFO  PythonRunner:54 - Times: total = 618, boot = 3, init = 447, finish = 168
+2019-08-15 20:35:36 INFO  PythonUDFRunner:54 - Times: total = 1300, boot = 10, init = 666, finish = 624
+2019-08-15 20:35:36 INFO  PythonUDFRunner:54 - Times: total = 1322, boot = 4, init = 744, finish = 574
+2019-08-15 20:35:36 INFO  MemoryStore:54 - Block taskresult_17 stored as bytes in memory (estimated size 3.2 MB, free 348.1 MB)
+2019-08-15 20:35:36 INFO  BlockManagerInfo:54 - Added taskresult_17 in memory on 192.168.1.33:45555 (size: 3.2 MB, free: 359.7 MB)
+2019-08-15 20:35:36 INFO  Executor:54 - Finished task 0.0 in stage 17.0 (TID 17). 3378547 bytes result sent via BlockManager)
+2019-08-15 20:35:36 INFO  TaskSetManager:54 - Finished task 0.0 in stage 17.0 (TID 17) in 1414 ms on localhost (executor driver) (1/1)
+2019-08-15 20:35:36 INFO  TaskSchedulerImpl:54 - Removed TaskSet 17.0, whose tasks have all completed, from pool 
+2019-08-15 20:35:36 INFO  DAGScheduler:54 - ResultStage 17 (toPandas at /home/simon/PROJECTS/pybda/pybda/util/cast_as.py:50) finished in 1.423 s
+2019-08-15 20:35:36 INFO  DAGScheduler:54 - Job 16 finished: toPandas at /home/simon/PROJECTS/pybda/pybda/util/cast_as.py:50, took 1.424770 s
+2019-08-15 20:35:36 INFO  BlockManagerInfo:54 - Removed taskresult_17 on 192.168.1.33:45555 in memory (size: 3.2 MB, free: 363.0 MB)
+2019-08-15 20:35:36 INFO  ContextCleaner:54 - Cleaned accumulator 535
+2019-08-15 20:35:36 INFO  ContextCleaner:54 - Cleaned accumulator 547
+2019-08-15 20:35:36 INFO  ContextCleaner:54 - Cleaned accumulator 550
+2019-08-15 20:35:36 INFO  ContextCleaner:54 - Cleaned accumulator 528
+2019-08-15 20:35:36 INFO  ContextCleaner:54 - Cleaned accumulator 529
+2019-08-15 20:35:36 INFO  ContextCleaner:54 - Cleaned accumulator 534
+2019-08-15 20:35:36 INFO  ContextCleaner:54 - Cleaned accumulator 540
+2019-08-15 20:35:36 INFO  ContextCleaner:54 - Cleaned accumulator 551
+2019-08-15 20:35:36 INFO  ContextCleaner:54 - Cleaned accumulator 533
+2019-08-15 20:35:36 INFO  ContextCleaner:54 - Cleaned accumulator 552
+2019-08-15 20:35:36 INFO  ContextCleaner:54 - Cleaned accumulator 545
+2019-08-15 20:35:36 INFO  ContextCleaner:54 - Cleaned accumulator 538
+2019-08-15 20:35:36 INFO  ContextCleaner:54 - Cleaned accumulator 543
+2019-08-15 20:35:36 INFO  ContextCleaner:54 - Cleaned accumulator 531
+2019-08-15 20:35:36 INFO  BlockManagerInfo:54 - Removed broadcast_31_piece0 on 192.168.1.33:45555 in memory (size: 45.3 KB, free: 363.0 MB)
+2019-08-15 20:35:36 INFO  ContextCleaner:54 - Cleaned accumulator 537
+2019-08-15 20:35:36 INFO  ContextCleaner:54 - Cleaned accumulator 546
+2019-08-15 20:35:36 INFO  ContextCleaner:54 - Cleaned accumulator 542
+2019-08-15 20:35:36 INFO  ContextCleaner:54 - Cleaned accumulator 530
+2019-08-15 20:35:36 INFO  ContextCleaner:54 - Cleaned accumulator 532
+2019-08-15 20:35:36 INFO  ContextCleaner:54 - Cleaned accumulator 536
+2019-08-15 20:35:36 INFO  ContextCleaner:54 - Cleaned accumulator 548
+2019-08-15 20:35:36 INFO  ContextCleaner:54 - Cleaned accumulator 541
+2019-08-15 20:35:36 INFO  ContextCleaner:54 - Cleaned accumulator 544
+2019-08-15 20:35:36 INFO  ContextCleaner:54 - Cleaned accumulator 539
+2019-08-15 20:35:36 INFO  ContextCleaner:54 - Cleaned accumulator 549
+2019-08-15 20:36:08 INFO  AbstractConnector:318 - Stopped Spark@48f5e68a{HTTP/1.1,[http/1.1]}{0.0.0.0:4040}
+2019-08-15 20:36:08 INFO  SparkUI:54 - Stopped Spark web UI at http://192.168.1.33:4040
+2019-08-15 20:36:08 INFO  MapOutputTrackerMasterEndpoint:54 - MapOutputTrackerMasterEndpoint stopped!
+2019-08-15 20:36:08 INFO  MemoryStore:54 - MemoryStore cleared
+2019-08-15 20:36:08 INFO  BlockManager:54 - BlockManager stopped
+2019-08-15 20:36:08 INFO  BlockManagerMaster:54 - BlockManagerMaster stopped
+2019-08-15 20:36:08 INFO  OutputCommitCoordinator$OutputCommitCoordinatorEndpoint:54 - OutputCommitCoordinator stopped!
+2019-08-15 20:36:08 INFO  SparkContext:54 - Successfully stopped SparkContext
+2019-08-15 20:36:09 INFO  ShutdownHookManager:54 - Shutdown hook called
+2019-08-15 20:36:09 INFO  ShutdownHookManager:54 - Deleting directory /tmp/spark-1c44a2a7-8a3e-4c20-b2a3-cef4f949b498
+2019-08-15 20:36:09 INFO  ShutdownHookManager:54 - Deleting directory /tmp/spark-33c62440-7f43-4f11-872c-0bcf1919d376
+2019-08-15 20:36:09 INFO  ShutdownHookManager:54 - Deleting directory /tmp/spark-33c62440-7f43-4f11-872c-0bcf1919d376/pyspark-509b2734-99fd-4112-891f-7c88cc0c9929

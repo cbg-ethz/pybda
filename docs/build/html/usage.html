@@ -1,0 +1,407 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Getting started</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/css/custom.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Examples" href="examples.html" />
+    <link rel="prev" title="PyBDA" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="getting-started">
+<h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<p><em>Getting started</em> walks you through the installation of koios and to submit your first program.
+See the <a class="reference internal" href="examples.html"><span class="doc">examples</span></a> to get a better overview that koios has to offer.</p>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>Installing PyBDA is easy.</p>
+<ol class="arabic">
+<li><p>Make sure to have <code class="docutils literal notranslate"><span class="pre">python3</span></code> installed. PyBDA does not support
+previous versions. The best way to do that is to download and install <a class="reference external" href="https://www.continuum.io/downloads">anaconda</a> and create a
+virtual <a class="reference external" href="https://conda.io/docs/using/envs.html">environment</a> like this:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda create -y -n pybda <span class="nv">python</span><span class="o">=</span><span class="m">3</span>.6
+<span class="nb">source</span> activate pybda
+</pre></div>
+</div>
+</li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Make sure to use Python version 3.6 since some dependencies PyBDA uses so far don’t work with versions 3.7 or 3.8.</p>
+</div>
+<ol class="arabic" start="2">
+<li><p>I recommend installing PyBDA
+from <a class="reference external" href="https://bioconda.github.io/recipes/pybda/README.html?highlight=pybda#recipe-Recipe%20&amp;#x27;pybda&amp;#x27;">Bioconda</a>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda install -c bioconda pybda
+</pre></div>
+</div>
+</li>
+</ol>
+<blockquote>
+<div><p>You can however also directly install using <a class="reference external" href="https://pypi.org/project/pybda/">PyPI</a>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install pybda
+</pre></div>
+</div>
+<p>or by downloading the _latest_ <a class="reference external" href="https://github.com/cbg-ethz/pybda/releases">release</a></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>tar -zxvf pybda*.tar.gz
+pip install pybda
+</pre></div>
+</div>
+<p>I obviously recommend installation using the first option.</p>
+</div></blockquote>
+<ol class="arabic" start="3">
+<li><p>Download Spark from <a class="reference external" href="https://spark.apache.org/downloads.html">Apache Spark</a> (use the <em>prebuilt for Apache Hadoop</em> package type)
+and install the unpacked folder into a custom path like <code class="docutils literal notranslate"><span class="pre">`/opt/local/spark`</span></code>. Put an alias into your <code class="docutils literal notranslate"><span class="pre">`.bashrc`</span></code> (or whatever shell you are using)</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">echo</span> <span class="s2">&quot;alias spark-submit=&#39;opt/local/spark/bin/spark-submit&#39;&quot;</span> &gt;&gt; .bashrc
+</pre></div>
+</div>
+</li>
+<li><p>That is it.</p></li>
+</ol>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<p>Using PyBDA requires providing two things:</p>
+<ul class="simple">
+<li><p>a config file that specifies the methods you want to use, paths to files, and parameters,</p></li>
+<li><p>and the <code class="docutils literal notranslate"><span class="pre">IP</span></code> to a running spark-cluster which runs the algorithms and methods to be executed. If no cluster
+environment is available you can also run PyBDA locally. This, of course, somehow limits what PyBDA can do for you,
+since it’s real strength lies in distributed computation.</p></li>
+</ul>
+<div class="section" id="config">
+<h3>Config<a class="headerlink" href="#config" title="Permalink to this headline">¶</a></h3>
+<p>Running PyBDA requires a <code class="docutils literal notranslate"><span class="pre">yaml</span></code> configuration file that specifies several key-value pairs.
+The config file consists of</p>
+<ul class="simple">
+<li><p>general arguments, such as file names,</p></li>
+<li><p>method specific arguments,</p></li>
+<li><p>arguments for Apache Spark.</p></li>
+</ul>
+<div class="section" id="general-arguments">
+<h4>General arguments<a class="headerlink" href="#general-arguments" title="Permalink to this headline">¶</a></h4>
+<p>The following table shows the arguments that are <strong>mandatory</strong> and need to be set in every application.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 12%" />
+<col style="width: 88%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><em>Parameter</em></p></th>
+<th class="head"><p><em>Explanation</em></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">spark</span></code></p></td>
+<td><p>path to Apache spark <code class="docutils literal notranslate"><span class="pre">spark-submit</span></code> executable</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">infile</span></code></p></td>
+<td><p>tab-separated input file to use for any of the methods</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">outfolder</span></code></p></td>
+<td><p>folder where all results are written to.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">meta</span></code></p></td>
+<td><p>names of the columns that represent meta information (“n”-separated)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">features</span></code></p></td>
+<td><p>names of the columns that represent numerical features, i.e. columns that are used for analysis (“n”-separated).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sparkparams</span></code></p></td>
+<td><p>specifies parameters that are handed over to Apache Spark (which we cover in the section below)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="method-specific-arguments">
+<h4>Method specific arguments<a class="headerlink" href="#method-specific-arguments" title="Permalink to this headline">¶</a></h4>
+<p>The following tables show the arguments required for the single methods, i.e. dimension reduction,
+clustering and regression.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 12%" />
+<col style="width: 27%" />
+<col style="width: 62%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><em>Parameter</em></p></th>
+<th class="head"><p><em>Argument</em></p></th>
+<th class="head"><p><em>Explanation</em></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td colspan="3"><p><strong>Dimension reduction</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dimension_reduction</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">factor_analysis</span></code>/<code class="docutils literal notranslate"><span class="pre">pca</span></code>/<code class="docutils literal notranslate"><span class="pre">kpca</span></code>/<code class="docutils literal notranslate"><span class="pre">lda</span></code>/<code class="docutils literal notranslate"><span class="pre">ica</span></code></p></td>
+<td><p>Specifies which method to use for dimension reduction</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_components</span></code></p></td>
+<td><p>e.g <code class="docutils literal notranslate"><span class="pre">2,3,4</span></code> or <code class="docutils literal notranslate"><span class="pre">2</span></code></p></td>
+<td><p>Comma-separated list of integers specifying the number of variables in the lower dimensional space to use per reduction</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">response</span></code></p></td>
+<td><p>(only for <code class="docutils literal notranslate"><span class="pre">lda</span></code>)</p></td>
+<td><p>Name of column in <code class="docutils literal notranslate"><span class="pre">infile</span></code> that is the response. Only required for linear discriminant analysis.</p></td>
+</tr>
+<tr class="row-even"><td colspan="3"><p><strong>Clustering</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">clustering</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">kmeans</span></code>/<code class="docutils literal notranslate"><span class="pre">gmm</span></code></p></td>
+<td><p>Specifies which method to use for clustering</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_centers</span></code></p></td>
+<td><p>e.g <code class="docutils literal notranslate"><span class="pre">2,3,4</span></code> or <code class="docutils literal notranslate"><span class="pre">2</span></code></p></td>
+<td><p>Comma-separated list of integers specifying the number of clusters to use per cluystering</p></td>
+</tr>
+<tr class="row-odd"><td colspan="3"><p><strong>Regression</strong></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">regression</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">glm</span></code>/<code class="docutils literal notranslate"><span class="pre">forest</span></code>/<code class="docutils literal notranslate"><span class="pre">gbm</span></code></p></td>
+<td><p>Specifies which method to use for regression</p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p><code class="docutils literal notranslate"><span class="pre">response</span></code></p></td>
+<td><p>Name of column in <code class="docutils literal notranslate"><span class="pre">infile</span></code> that is the response</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">family</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">gaussian</span></code>/<code class="docutils literal notranslate"><span class="pre">binomial</span></code>/<code class="docutils literal notranslate"><span class="pre">categorical</span></code></p></td>
+<td><p>Distribution family of the response variable</p></td>
+</tr>
+</tbody>
+</table>
+<p>The abbreveations of the methods are explained in the following list.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">factor_analysis</span></code> <a class="reference external" href="https://en.wikipedia.org/wiki/Factor_analysis">for factor analysis</a>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">forest</span></code> for <a class="reference external" href="https://en.wikipedia.org/wiki/Random_forest">random forests</a>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gbm</span></code> for stochastic <a class="reference external" href="https://en.wikipedia.org/wiki/Gradient_boosting">gradient boosting</a>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">glm</span></code> for <a class="reference external" href="https://en.wikipedia.org/wiki/Generalized_linear_model">generalized linear regression models</a>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gmm</span></code> for <a class="reference external" href="https://en.wikipedia.org/wiki/Mixture_model#Gaussian_mixture_model">Gaussian mixture models</a>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ica</span></code>  for <a class="reference external" href="https://en.wikipedia.org/wiki/Independent_component_analysis">independent component analysis</a>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lda</span></code> for <a class="reference external" href="https://en.wikipedia.org/wiki/Linear_discriminant_analysis">linear discriminant analysis</a>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kmeans</span></code> for <a class="reference external" href="https://en.wikipedia.org/wiki/K-means_clustering">K-means</a>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kpca</span></code> for <a class="reference external" href="https://en.wikipedia.org/wiki/Kernel_principal_component_analysis">kernel principal component analysis</a> using Fourier features to approximate the kernel map,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pca</span></code> for <a class="reference external" href="https://en.wikipedia.org/wiki/Principal_component_analysis">principal component analysis</a>.</p></li>
+</ul>
+</div>
+<div class="section" id="example">
+<h4>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h4>
+<p>For instance, consider the config file below:</p>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">Contents of <code class="docutils literal notranslate"><span class="pre">data/pybda-usecase.config</span></code> file</span><a class="headerlink" href="#id1" title="Permalink to this code">¶</a></div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">spark</span><span class="p">:</span> <span class="n">spark</span><span class="o">-</span><span class="n">submit</span>
+<span class="n">infile</span><span class="p">:</span> <span class="n">data</span><span class="o">/</span><span class="n">single_cell_imaging_data</span><span class="o">.</span><span class="n">tsv</span>
+<span class="n">predict</span><span class="p">:</span> <span class="n">data</span><span class="o">/</span><span class="n">single_cell_imaging_data</span><span class="o">.</span><span class="n">tsv</span>
+<span class="n">outfolder</span><span class="p">:</span> <span class="n">data</span><span class="o">/</span><span class="n">results</span>
+<span class="n">meta</span><span class="p">:</span> <span class="n">data</span><span class="o">/</span><span class="n">meta_columns</span><span class="o">.</span><span class="n">tsv</span>
+<span class="n">features</span><span class="p">:</span> <span class="n">data</span><span class="o">/</span><span class="n">feature_columns</span><span class="o">.</span><span class="n">tsv</span>
+<span class="n">dimension_reduction</span><span class="p">:</span> <span class="n">pca</span>
+<span class="n">n_components</span><span class="p">:</span> <span class="mi">5</span>
+<span class="n">clustering</span><span class="p">:</span> <span class="n">kmeans</span>
+<span class="n">n_centers</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">130</span><span class="p">,</span> <span class="mi">140</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">160</span><span class="p">,</span> <span class="mi">170</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">190</span><span class="p">,</span> <span class="mi">200</span>
+<span class="n">regression</span><span class="p">:</span> <span class="n">forest</span>
+<span class="n">family</span><span class="p">:</span> <span class="n">binomial</span>
+<span class="n">response</span><span class="p">:</span> <span class="n">is_infected</span>
+<span class="n">sparkparams</span><span class="p">:</span>
+  <span class="o">-</span> <span class="s2">&quot;--driver-memory=3G&quot;</span>
+  <span class="o">-</span> <span class="s2">&quot;--executor-memory=6G&quot;</span>
+<span class="n">debug</span><span class="p">:</span> <span class="n">true</span>
+</pre></div>
+</div>
+</div>
+<p>It would execute the following jobs:</p>
+<ol class="arabic simple">
+<li><p>dimension reduction (PCA) on the input file with 5 components,</p></li>
+<li><p>clustering on the result of the dimensionality reduction with multiple cluster centers (<code class="docutils literal notranslate"><span class="pre">k</span></code>-means),</p></li>
+<li><p>binomial-family random forest (i.e. logistic) on the input file with response <em>is_infected</em> and features from <code class="docutils literal notranslate"><span class="pre">data/feature_columns.tsv</span></code></p></li>
+</ol>
+<p>In addition we would allow Spark to use <cite>3G</cite> driver memory, <cite>6G</cite> executor memory and set the configuration variable <code class="docutils literal notranslate"><span class="pre">spark.driver.maxResultSize</span></code>
+to <cite>3G</cite> (all configurations can be found <a class="reference external" href="https://spark.apache.org/docs/latest/configuration.html#available-properties">here</a>).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>PyBDA first parses through the config file and builds a DAG of the methods that should be executed. If it finds dimensionality reduction <em>and</em> clustering, it will first embed the data in a lower dimensional space und use the result of this for clustering (i.e. in order to remove correlated features). The same does <em>not</em> happen with regression.</p>
+</div>
+</div>
+<div class="section" id="spark-parameters">
+<h4>Spark parameters<a class="headerlink" href="#spark-parameters" title="Permalink to this headline">¶</a></h4>
+<p>The Spark <a class="reference external" href="https://spark.apache.org/docs/latest/submitting-applications.html">documentation</a>
+for submitting applications provides details which arguments are valid here. You provide them as list in the yaml file as key <code class="docutils literal notranslate"><span class="pre">sparkparams</span></code>:
+Below, the most important two are listed:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">&quot;--driver-memory=xG&quot;</span></code></dt><dd><p>Amount of memory to use for the driver process in gigabyte, i.e. where SparkContext is initialized.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">&quot;--executor-memory=xG&quot;</span></code></dt><dd><p>Amount of memory to use per executor process in giga byte.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">&quot;--conf</span> <span class="pre">spark.driver.maxResultSize=3G&quot;</span></code></dt><dd><p>Limit of total size of serialized results of all partitions for each Spark action.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="spark">
+<h3>Spark<a class="headerlink" href="#spark" title="Permalink to this headline">¶</a></h3>
+<p>In order for PyBDA to work you need to have a working
+<em>standalone spark environment</em> set up, running and listening to some <code class="docutils literal notranslate"><span class="pre">IP</span></code>.
+You can find a good introduction
+<a class="reference external" href="https://spark.apache.org/docs/latest/spark-standalone.html">here</a> on how
+to start the standalone Spark cluster. Alternatively, as mentioned above, a desktop PC suffices as well, but will limit what PyBDA can do for you.</p>
+<p><strong>We assume that you know how to use Apache Spark and start a cluster.</strong>
+However, for the sake of demonstration the next two sections give a short introduction how Spark clusters are set up.</p>
+<div class="section" id="local-spark-context">
+<h4>Local Spark context<a class="headerlink" href="#local-spark-context" title="Permalink to this headline">¶</a></h4>
+<p>On a local resource, such as a laptop or desktop computer, there is no need to start a Spark cluster.
+In such a scenario the <code class="docutils literal notranslate"><span class="pre">IP</span></code> PyBDA requires for submitting jobs is just called <code class="docutils literal notranslate"><span class="pre">local</span></code>.</p>
+<p>Alternatively, you can always <em>simulate</em> a cluster environment. You start the Spark environment using:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">$SPARK_HOME</span>/sbin/start-master.sh
+<span class="nv">$SPARK_HOME</span>/sbin/start-slave.sh &lt;IP&gt;
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">$SPARK_HOME</span></code> is the installation path of Spark and <code class="docutils literal notranslate"><span class="pre">IP</span></code> the IP to which we will submit jobs.
+When calling <code class="docutils literal notranslate"><span class="pre">start-master.sh</span></code> Spark will log the <code class="docutils literal notranslate"><span class="pre">IP</span></code> it uses. Thus you need to have a look there to find it. Usually the line looks something like:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="m">2019</span>-01-23 <span class="m">21</span>:57:29 INFO  Master:54 - Starting Spark master at spark://&lt;COMPUTERNAME&gt;:7077
+</pre></div>
+</div>
+<p>In the above case the <code class="docutils literal notranslate"><span class="pre">IP</span></code> is <code class="docutils literal notranslate"><span class="pre">spark://&lt;COMPUTERNAME&gt;:7077</span></code>. Thus you start the slave using</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">$SPARK_HOME</span>/sbin/start-slave.sh spark://&lt;COMPUTERNAME&gt;:7077
+</pre></div>
+</div>
+<p>That is it.</p>
+</div>
+<div class="section" id="cluster-environment">
+<h4>Cluster environment<a class="headerlink" href="#cluster-environment" title="Permalink to this headline">¶</a></h4>
+<p>If you are working on a cluster, you can use <code class="docutils literal notranslate"><span class="pre">sparkhpc</span></code> to set up a Spark instance (find the documenation <a class="reference external" href="https://sparkhpc.readthedocs.io/en/latest/">here</a>).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you want to use <code class="docutils literal notranslate"><span class="pre">sparkhpc</span></code> , please read its documentation to understand how Spark clusters are started.</p>
+</div>
+<p>Sparkhpc can be used to start a standalone cluster on an LSF/SGE high-performance computing environment. In order for them to work make sure to have
+<strong>openmpi and Java installed</strong>. Sparkhpc installs with PyBDA, but in case it didn’t just reinstall it:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install sparkhpc
+</pre></div>
+</div>
+<p>Sparkhpc helps you setting up spark clusters for LSF and Slurm cluster environments. If you have one of those start a Spark cluster, for instance, using:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sparkcluster start --memory-per-executor <span class="m">50000</span> --memory-per-core <span class="m">10000</span> --walltime <span class="m">4</span>:00 --cores-per-executor <span class="m">5</span> <span class="m">2</span> <span class="p">&amp;</span>
+sparkcluster launch <span class="p">&amp;</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>For your own cluster, you should modify the number of workers, nodes, cores and memory.</p>
+</div>
+<p>In the above call we would request <cite>2</cite> nodes with <cite>5</cite> cores each. Every core would receive 10G of memory, while the entuire executor would receive <cite>50G</cite> of memory.</p>
+<p>After the job has started, you need to call</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sparkcluster info
+</pre></div>
+</div>
+<p>in order to receive the Spark <code class="docutils literal notranslate"><span class="pre">IP</span></code>.</p>
+</div>
+</div>
+<div class="section" id="calling">
+<h3>Calling<a class="headerlink" href="#calling" title="Permalink to this headline">¶</a></h3>
+<p>If you made it thus far, you successfully</p>
+<ol class="arabic simple">
+<li><p>modified the config file,</p></li>
+<li><p>started a Spark standalone cluster and have the <code class="docutils literal notranslate"><span class="pre">IP</span></code> to which the Spark cluster listens.</p></li>
+</ol>
+<p>Now we can finally start our application.</p>
+<p>For dimension reduction:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pybda dimension-reduction pybda-usecase.config IP
+</pre></div>
+</div>
+<p>For clustering:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pybda clustering pybda-usecase.config IP
+</pre></div>
+</div>
+<p>For regression:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pybda regression pybda-usecase.config IP
+</pre></div>
+</div>
+<p>In all cases, the methods create <code class="docutils literal notranslate"><span class="pre">tsv</span></code> files, plots and statistics.</p>
+</div>
+</div>
+<div class="section" id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<p>Murphy, Kevin P. Machine learning: a probabilistic perspective. <cite>MIT press</cite> (2012).</p>
+<p>Breiman, Leo. “Random forests.” <cite>Machine learning</cite> 45.1 (2001): 5-32.</p>
+<p>Friedman, Jerome H. “Stochastic gradient boosting.” <cite>Computational Statistics &amp; Data Analysis</cite> 38.4 (2002): 367-378.</p>
+<p>Trevor, Hastie, Tibshirani Robert, and Friedman JH. “The elements of statistical learning: data mining, inference, and prediction.” (2009).</p>
+<p>Hyvärinen, Aapo, Juha Karhunen, and Erkki Oja. Independent component analysis. Vol. 46. <cite>John Wiley &amp; Sons</cite> (2004).</p>
+<p>Köster, Johannes, and Sven Rahmann. “Snakemake—a scalable bioinformatics workflow engine.” <cite>Bioinformatics</cite> 28.19 (2012): 2520-2522.</p>
+<p>Meng, Xiangrui, et al. “MLlib: Machine Learning in Apache Spark.” <cite>The Journal of Machine Learning Research</cite> 17.1 (2016): 1235-1241</p>
+<p>Rahimi, Ali, and Benjamin Recht. “Random features for large-scale kernel machines.” <cite>Advances in Neural Information Processing Systems</cite> (2008).</p>
+<p>Zaharia, Matei, et al. “Apache Spark: a unified engine for big data processing.” <cite>Communications of the ACM</cite> 59.11 (2016): 56-65.</p>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><p class="logo">
+    <a href="index.html">
+        <img src="_static/sticker_pybda.png"
+             title="PyBDA"/>
+    </a>
+</p><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+      rel="stylesheet"
+      integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
+      crossorigin="anonymous">
+
+<h3>Contents</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Home</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+</ul>
+
+<hr>
+<ul>
+    <li>
+        <a href="https://github.com/cbg-ethz/pybda" style="text-decoration : none">
+            <i class="fa fa-github-square fa-3x" aria-hidden="true" style="vertical-align :middle;"></i>
+            <span style="vertical-align: middle; font-size: 1.3rem">GitHub</span>
+        </a>
+    </li>
+</ul>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018-2019, Simon Dirmeier.
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

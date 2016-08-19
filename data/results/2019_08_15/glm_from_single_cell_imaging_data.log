@@ -1,0 +1,25 @@
+[2019-08-15 20:46:18,063 - INFO - pybda.spark_session]: Initializing pyspark session
+[2019-08-15 20:46:19,035 - INFO - pybda.spark_session]: Config: spark.master, value: local
+[2019-08-15 20:46:19,035 - INFO - pybda.spark_session]: Config: spark.driver.memory, value: 1G
+[2019-08-15 20:46:19,035 - INFO - pybda.spark_session]: Config: spark.rdd.compress, value: True
+[2019-08-15 20:46:19,036 - INFO - pybda.spark_session]: Config: spark.driver.port, value: 36171
+[2019-08-15 20:46:19,036 - INFO - pybda.spark_session]: Config: spark.serializer.objectStreamReset, value: 100
+[2019-08-15 20:46:19,036 - INFO - pybda.spark_session]: Config: spark.driver.host, value: 192.168.1.33
+[2019-08-15 20:46:19,036 - INFO - pybda.spark_session]: Config: spark.executor.id, value: driver
+[2019-08-15 20:46:19,036 - INFO - pybda.spark_session]: Config: spark.submit.deployMode, value: client
+[2019-08-15 20:46:19,036 - INFO - pybda.spark_session]: Config: spark.app.name, value: glm.py
+[2019-08-15 20:46:19,036 - INFO - pybda.spark_session]: Config: spark.app.id, value: local-1565894778655
+[2019-08-15 20:46:19,036 - INFO - pybda.spark_session]: Openened spark context at: Thu Aug 15 20:46:19 2019
+[2019-08-15 20:46:19,048 - INFO - pybda.io.io]: Reading tsv: single_cell_imaging_data.tsv
+[2019-08-15 20:46:22,380 - INFO - pybda.spark.features]: Casting columns to double.
+[2019-08-15 20:46:23,100 - INFO - pybda.spark.features]: Assembling column to feature vector
+[2019-08-15 20:46:23,213 - INFO - pybda.spark.features]: Dropping redundant columns
+[2019-08-15 20:46:23,225 - INFO - __main__]: Fitting GLM with family='binomial'
+[2019-08-15 20:46:25,448 - INFO - pybda.decorators]: function: '_balance' took: 2.2230 sec
+[2019-08-15 20:46:38,148 - INFO - pybda.decorators]: function: '_fit' took: 14.9231 sec
+[2019-08-15 20:46:44,461 - WARNING - pybda.fit.glm_fit]: Could not compute p-values, t-values and SEs. Possibly due to singular vcov.
+[2019-08-15 20:46:44,463 - INFO - pybda.fit.glm_fit]: Writing regression statistics
+[2019-08-15 20:46:44,463 - INFO - pybda.fit.glm_fit]: Writing regression table
+[2019-08-15 20:46:44,464 - INFO - pybda.spark_session]: Stopping Spark context
+[2019-08-15 20:46:44,465 - INFO - pybda.spark_session]: Closed spark context at: Thu Aug 15 20:46:44 2019
+[2019-08-15 20:46:44,465 - INFO - pybda.spark_session]: Computation took: 25

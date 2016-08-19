@@ -1,0 +1,19 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	factor_analysis
+	1	lda
+	1	pca
+	3
+
+[Thu Aug  8 22:41:36 2019]
+rule factor_analysis:
+    input: iris.tsv
+    output: results/2019_08_08/factor_analysis_from_iris.tsv, results/2019_08_08/factor_analysis_from_iris-loadings.tsv, results/2019_08_08/factor_analysis_from_iris-loglik.tsv, results/2019_08_08/factor_analysis_from_iris-plot
+    jobid: 0
+
+Terminating processes on user request, this might take some time.
+Complete log: /home/simon/PROJECTS/pybda/data/.snakemake/log/2019-08-08T224136.255178.snakemake.log

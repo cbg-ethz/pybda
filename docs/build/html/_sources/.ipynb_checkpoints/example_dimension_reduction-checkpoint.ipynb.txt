@@ -1,0 +1,460 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Dimension reduction\n",
+    "\n",
+    "\n",
+    "Here, we demonstrate how PyBDA can be used for dimension reduction. We use the `iris` data, because we know _how_ we want the different plants to be clustered. We'll use PCA, factor analysis and LDA for the dimension reduction and embed it into a two-dimensional space."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We activate our environment first:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "(pybda) "
+     ]
+    },
+    {
+     "ename": "",
+     "evalue": "1",
+     "output_type": "error",
+     "traceback": []
+    }
+   ],
+   "source": [
+    "source ~/miniconda3/bin/activate pybda"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We already provided an example how dimension reduction can be used in the `data` folder. It is fairly simple:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "(pybda) "
+     ]
+    },
+    {
+     "ename": "",
+     "evalue": "1",
+     "output_type": "error",
+     "traceback": []
+    }
+   ],
+   "source": [
+    "cd data"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "spark: spark-submit\n",
+      "infile: iris.tsv\n",
+      "outfolder: results\n",
+      "meta: iris_meta_columns.tsv\n",
+      "features: iris_feature_columns.tsv\n",
+      "dimension_reduction: pca, factor_analysis, lda\n",
+      "n_components: 2\n",
+      "response: Species\n",
+      "sparkparams:\n",
+      "  - \"--driver-memory=1G\"\n",
+      "  - \"--executor-memory=1G\"\n",
+      "debug: true\n",
+      "(pybda) "
+     ]
+    },
+    {
+     "ename": "",
+     "evalue": "1",
+     "output_type": "error",
+     "traceback": []
+    }
+   ],
+   "source": [
+    "cat pybda-usecase-dimred.config"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "In the config above we will do the following:\n",
+    "\n",
+    "* do three dimensionality reductions to two dimensions on the features in `iris_feature_columns.tsv`,\n",
+    "* for the LDA use the response variable `Species`,\n",
+    "* give the Spark driver 1G of memory and the executor 1G of memory,\n",
+    "* write the results to `results`,\n",
+    "* print debug information.\n",
+    "\n",
+    "As can be seen, the effort to implement the three embedings is minimal."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We execute PyBDA like this:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Checking command line arguments for method: dimension_reduction\n",
+      "\u001b[1;33m Printing rule tree:\n",
+      " -> _ (, iris.tsv)\n",
+      "\t -> dimension_reduction (iris.tsv, results/2019_08_09/lda_from_iris.tsv)\n",
+      "\t -> dimension_reduction (iris.tsv, results/2019_08_09/factor_analysis_from_iris.tsv)\n",
+      "\t -> dimension_reduction (iris.tsv, results/2019_08_09/pca_from_iris.tsv)\n",
+      "\u001b[0m\n",
+      "\u001b[33mBuilding DAG of jobs...\u001b[0m\n",
+      "[2019-08-09 00:12:43,789 - WARNING - snakemake.logging]: Building DAG of jobs...\n",
+      "\u001b[33mUsing shell: /bin/bash\u001b[0m\n",
+      "[2019-08-09 00:12:43,800 - WARNING - snakemake.logging]: Using shell: /bin/bash\n",
+      "\u001b[33mProvided cores: 1\u001b[0m\n",
+      "[2019-08-09 00:12:43,801 - WARNING - snakemake.logging]: Provided cores: 1\n",
+      "\u001b[33mRules claiming more threads will be scaled down.\u001b[0m\n",
+      "[2019-08-09 00:12:43,801 - WARNING - snakemake.logging]: Rules claiming more threads will be scaled down.\n",
+      "\u001b[33mJob counts:\n",
+      "\tcount\tjobs\n",
+      "\t1\tfactor_analysis\n",
+      "\t1\tlda\n",
+      "\t1\tpca\n",
+      "\t3\u001b[0m\n",
+      "[2019-08-09 00:12:43,801 - WARNING - snakemake.logging]: Job counts:\n",
+      "\tcount\tjobs\n",
+      "\t1\tfactor_analysis\n",
+      "\t1\tlda\n",
+      "\t1\tpca\n",
+      "\t3\n",
+      "\u001b[32m\u001b[0m\n",
+      "[2019-08-09 00:12:43,802 - INFO - snakemake.logging]: \n",
+      "\u001b[32m[Fri Aug  9 00:12:43 2019]\u001b[0m\n",
+      "[2019-08-09 00:12:43,802 - INFO - snakemake.logging]: [Fri Aug  9 00:12:43 2019]\n",
+      "\u001b[32mrule pca:\n",
+      "    input: iris.tsv\n",
+      "    output: results/2019_08_09/pca_from_iris.tsv, results/2019_08_09/pca_from_iris-loadings.tsv, results/2019_08_09/pca_from_iris-plot\n",
+      "    jobid: 0\u001b[0m\n",
+      "[2019-08-09 00:12:43,802 - INFO - snakemake.logging]: rule pca:\n",
+      "    input: iris.tsv\n",
+      "    output: results/2019_08_09/pca_from_iris.tsv, results/2019_08_09/pca_from_iris-loadings.tsv, results/2019_08_09/pca_from_iris-plot\n",
+      "    jobid: 0\n",
+      "\u001b[32m\u001b[0m\n",
+      "[2019-08-09 00:12:43,802 - INFO - snakemake.logging]: \n",
+      "\u001b[1;33m Printing rule tree:\n",
+      " -> _ (, iris.tsv)\n",
+      "\t -> dimension_reduction (iris.tsv, results/2019_08_09/lda_from_iris.tsv)\n",
+      "\t -> dimension_reduction (iris.tsv, results/2019_08_09/factor_analysis_from_iris.tsv)\n",
+      "\t -> dimension_reduction (iris.tsv, results/2019_08_09/pca_from_iris.tsv)\n",
+      "\u001b[0m\n",
+      "\u001b[33mJob counts:\n",
+      "\tcount\tjobs\n",
+      "\t1\tpca\n",
+      "\t1\u001b[0m\n",
+      "\u001b[1;33m Submitting job spark-submit --master local --driver-memory=1G --executor-memory=1G /home/simon/PROJECTS/pybda/pybda/pca.py 2 iris.tsv iris_feature_columns.tsv results/2019_08_09/pca_from_iris > results/2019_08_09/pca_from_iris-spark.log \u001b[\u001b[0m\n",
+      "\u001b[32m[Fri Aug  9 00:13:25 2019]\u001b[0m\n",
+      "[2019-08-09 00:13:25,029 - INFO - snakemake.logging]: [Fri Aug  9 00:13:25 2019]\n",
+      "\u001b[32mFinished job 0.\u001b[0m\n",
+      "[2019-08-09 00:13:25,030 - INFO - snakemake.logging]: Finished job 0.\n",
+      "\u001b[32m1 of 3 steps (33%) done\u001b[0m\n",
+      "[2019-08-09 00:13:25,030 - INFO - snakemake.logging]: 1 of 3 steps (33%) done\n",
+      "\u001b[32m\u001b[0m\n",
+      "[2019-08-09 00:13:25,030 - INFO - snakemake.logging]: \n",
+      "\u001b[32m[Fri Aug  9 00:13:25 2019]\u001b[0m\n",
+      "[2019-08-09 00:13:25,030 - INFO - snakemake.logging]: [Fri Aug  9 00:13:25 2019]\n",
+      "\u001b[32mrule factor_analysis:\n",
+      "    input: iris.tsv\n",
+      "    output: results/2019_08_09/factor_analysis_from_iris.tsv, results/2019_08_09/factor_analysis_from_iris-loadings.tsv, results/2019_08_09/factor_analysis_from_iris-loglik.tsv, results/2019_08_09/factor_analysis_from_iris-plot\n",
+      "    jobid: 1\u001b[0m\n",
+      "[2019-08-09 00:13:25,030 - INFO - snakemake.logging]: rule factor_analysis:\n",
+      "    input: iris.tsv\n",
+      "    output: results/2019_08_09/factor_analysis_from_iris.tsv, results/2019_08_09/factor_analysis_from_iris-loadings.tsv, results/2019_08_09/factor_analysis_from_iris-loglik.tsv, results/2019_08_09/factor_analysis_from_iris-plot\n",
+      "    jobid: 1\n",
+      "\u001b[32m\u001b[0m\n",
+      "[2019-08-09 00:13:25,030 - INFO - snakemake.logging]: \n",
+      "\u001b[1;33m Printing rule tree:\n",
+      " -> _ (, iris.tsv)\n",
+      "\t -> dimension_reduction (iris.tsv, results/2019_08_09/lda_from_iris.tsv)\n",
+      "\t -> dimension_reduction (iris.tsv, results/2019_08_09/factor_analysis_from_iris.tsv)\n",
+      "\t -> dimension_reduction (iris.tsv, results/2019_08_09/pca_from_iris.tsv)\n",
+      "\u001b[0m\n",
+      "\u001b[33mJob counts:\n",
+      "\tcount\tjobs\n",
+      "\t1\tfactor_analysis\n",
+      "\t1\u001b[0m\n",
+      "\u001b[1;33m Submitting job spark-submit --master local --driver-memory=1G --executor-memory=1G /home/simon/PROJECTS/pybda/pybda/factor_analysis.py 2 iris.tsv iris_feature_columns.tsv results/2019_08_09/factor_analysis_from_iris > results/2019_08_09/factor_analysis_from_iris-spark.log \u001b[\u001b[0m\n",
+      "\u001b[32m[Fri Aug  9 00:14:23 2019]\u001b[0m\n",
+      "[2019-08-09 00:14:23,030 - INFO - snakemake.logging]: [Fri Aug  9 00:14:23 2019]\n",
+      "\u001b[32mFinished job 1.\u001b[0m\n",
+      "[2019-08-09 00:14:23,030 - INFO - snakemake.logging]: Finished job 1.\n",
+      "\u001b[32m2 of 3 steps (67%) done\u001b[0m\n",
+      "[2019-08-09 00:14:23,030 - INFO - snakemake.logging]: 2 of 3 steps (67%) done\n",
+      "\u001b[32m\u001b[0m\n",
+      "[2019-08-09 00:14:23,031 - INFO - snakemake.logging]: \n",
+      "\u001b[32m[Fri Aug  9 00:14:23 2019]\u001b[0m\n",
+      "[2019-08-09 00:14:23,031 - INFO - snakemake.logging]: [Fri Aug  9 00:14:23 2019]\n",
+      "\u001b[32mrule lda:\n",
+      "    input: iris.tsv\n",
+      "    output: results/2019_08_09/lda.tsv, results/2019_08_09/lda-projection.tsv, results/2019_08_09/lda-plot\n",
+      "    jobid: 2\u001b[0m\n",
+      "[2019-08-09 00:14:23,031 - INFO - snakemake.logging]: rule lda:\n",
+      "    input: iris.tsv\n",
+      "    output: results/2019_08_09/lda.tsv, results/2019_08_09/lda-projection.tsv, results/2019_08_09/lda-plot\n",
+      "    jobid: 2\n",
+      "\u001b[32m\u001b[0m\n",
+      "[2019-08-09 00:14:23,031 - INFO - snakemake.logging]: \n",
+      "\u001b[1;33m Printing rule tree:\n",
+      " -> _ (, iris.tsv)\n",
+      "\t -> dimension_reduction (iris.tsv, results/2019_08_09/lda_from_iris.tsv)\n",
+      "\t -> dimension_reduction (iris.tsv, results/2019_08_09/factor_analysis_from_iris.tsv)\n",
+      "\t -> dimension_reduction (iris.tsv, results/2019_08_09/pca_from_iris.tsv)\n",
+      "\u001b[0m\n",
+      "\u001b[33mJob counts:\n",
+      "\tcount\tjobs\n",
+      "\t1\tlda\n",
+      "\t1\u001b[0m\n",
+      "\u001b[1;33m Submitting job spark-submit --master local --driver-memory=1G --executor-memory=1G /home/simon/PROJECTS/pybda/pybda/lda.py 2 iris.tsv iris_feature_columns.tsv Species results/2019_08_09/lda > results/2019_08_09/lda-spark.log \u001b[\u001b[0m\n",
+      "\u001b[32m[Fri Aug  9 00:15:09 2019]\u001b[0m\n",
+      "[2019-08-09 00:15:09,943 - INFO - snakemake.logging]: [Fri Aug  9 00:15:09 2019]\n",
+      "\u001b[32mFinished job 2.\u001b[0m\n",
+      "[2019-08-09 00:15:09,943 - INFO - snakemake.logging]: Finished job 2.\n",
+      "\u001b[32m3 of 3 steps (100%) done\u001b[0m\n",
+      "[2019-08-09 00:15:09,943 - INFO - snakemake.logging]: 3 of 3 steps (100%) done\n",
+      "\u001b[33mComplete log: /home/simon/PROJECTS/pybda/data/.snakemake/log/2019-08-09T001243.730838.snakemake.log\u001b[0m\n",
+      "[2019-08-09 00:15:09,944 - WARNING - snakemake.logging]: Complete log: /home/simon/PROJECTS/pybda/data/.snakemake/log/2019-08-09T001243.730838.snakemake.log\n",
+      "(pybda) "
+     ]
+    },
+    {
+     "ename": "",
+     "evalue": "1",
+     "output_type": "error",
+     "traceback": []
+    }
+   ],
+   "source": [
+    "pybda dimension-reduction pybda-usecase-dimred.config local"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "After the three methods ran, we should check the plots and statistics. Let's see what we got:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "(pybda) total 852\n",
+      "-rw-rw-r-- 1    190 Aug  9 00:14 factor_analysis_from_iris-loadings.tsv\n",
+      "-rw-rw-r-- 1   4882 Aug  9 00:14 factor_analysis_from_iris.log\n",
+      "-rw-rw-r-- 1    483 Aug  9 00:14 factor_analysis_from_iris-loglik.tsv\n",
+      "drwxrwxr-x 2   4096 Aug  9 00:14 \u001b[0m\u001b[01;34mfactor_analysis_from_iris-plot\u001b[0m\n",
+      "-rw-rw-r-- 1 319484 Aug  9 00:14 factor_analysis_from_iris-spark.log\n",
+      "-rw-r--r-- 1  12780 Aug  9 00:14 factor_analysis_from_iris.tsv\n",
+      "-rw-rw-r-- 1   2812 Aug  9 00:15 lda.log\n",
+      "drwxrwxr-x 2   4096 Aug  9 00:15 \u001b[01;34mlda-plot\u001b[0m\n",
+      "-rw-rw-r-- 1    346 Aug  9 00:15 lda-projection.tsv\n",
+      "-rw-rw-r-- 1 345011 Aug  9 00:15 lda-spark.log\n",
+      "-rw-r--r-- 1  12541 Aug  9 00:15 lda.tsv\n",
+      "-rw-rw-r-- 1    348 Aug  9 00:13 pca_from_iris-loadings.tsv\n",
+      "-rw-rw-r-- 1   2987 Aug  9 00:13 pca_from_iris.log\n",
+      "drwxrwxr-x 2   4096 Aug  9 00:13 \u001b[01;34mpca_from_iris-plot\u001b[0m\n",
+      "-rw-rw-r-- 1 107912 Aug  9 00:13 pca_from_iris-spark.log\n",
+      "-rw-r--r-- 1  12749 Aug  9 00:13 pca_from_iris.tsv\n",
+      "(pybda) "
+     ]
+    },
+    {
+     "ename": "",
+     "evalue": "1",
+     "output_type": "error",
+     "traceback": []
+    }
+   ],
+   "source": [
+    "cd results\n",
+    "ls -lgG *"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "It should be interesting to look at the different embeddings (since we cannot open them from the command line, we load pre-computed plots)."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "First, the embedding of the *PCA*:\n",
+    "\n",
+    "![missing file pca](_static/examples/pca.svg)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The embedding of the *factor analysis*:\n",
+    "\n",
+    "![missing file fa](_static/examples/fa.svg)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Finally, the embedding of the *LDA*. Since, LDA needs a response variable to work, when we create a plot, we include this info:\n",
+    "\n",
+    "![missing file lda](_static/examples/lda.svg)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "PyBDA creates many other files and plots. It is, for instance, always important to look at `log` files:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[2019-08-09 00:12:46,861 - INFO - pybda.spark_session]: Initializing pyspark session\n",
+      "[2019-08-09 00:12:48,092 - INFO - pybda.spark_session]: Config: spark.master, value: local\n",
+      "[2019-08-09 00:12:48,093 - INFO - pybda.spark_session]: Config: spark.driver.memory, value: 1G\n",
+      "[2019-08-09 00:12:48,093 - INFO - pybda.spark_session]: Config: spark.rdd.compress, value: True\n",
+      "[2019-08-09 00:12:48,093 - INFO - pybda.spark_session]: Config: spark.serializer.objectStreamReset, value: 100\n",
+      "[2019-08-09 00:12:48,093 - INFO - pybda.spark_session]: Config: spark.driver.host, value: 192.168.1.33\n",
+      "[2019-08-09 00:12:48,093 - INFO - pybda.spark_session]: Config: spark.executor.id, value: driver\n",
+      "[2019-08-09 00:12:48,093 - INFO - pybda.spark_session]: Config: spark.submit.deployMode, value: client\n",
+      "[2019-08-09 00:12:48,093 - INFO - pybda.spark_session]: Config: spark.app.name, value: pca.py\n",
+      "[2019-08-09 00:12:48,093 - INFO - pybda.spark_session]: Config: spark.driver.port, value: 37579\n",
+      "(pybda) "
+     ]
+    },
+    {
+     "ename": "",
+     "evalue": "1",
+     "output_type": "error",
+     "traceback": []
+    }
+   ],
+   "source": [
+    "head */pca_from_iris.log"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Furthermore, the Spark `log` file is sometimes important to look at when the methods failed:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "2019-08-09 00:12:44 WARN  Utils:66 - Your hostname, hoto resolves to a loopback address: 127.0.1.1; using 192.168.1.33 instead (on interface wlp2s0)\n",
+      "2019-08-09 00:12:44 WARN  Utils:66 - Set SPARK_LOCAL_IP if you need to bind to another address\n",
+      "2019-08-09 00:12:45 WARN  NativeCodeLoader:62 - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable\n",
+      "2019-08-09 00:12:46 INFO  SparkContext:54 - Running Spark version 2.4.0\n",
+      "2019-08-09 00:12:46 INFO  SparkContext:54 - Submitted application: pca.py\n",
+      "2019-08-09 00:12:46 INFO  SecurityManager:54 - Changing view acls to: simon\n",
+      "2019-08-09 00:12:46 INFO  SecurityManager:54 - Changing modify acls to: simon\n",
+      "2019-08-09 00:12:46 INFO  SecurityManager:54 - Changing view acls groups to: \n",
+      "2019-08-09 00:12:46 INFO  SecurityManager:54 - Changing modify acls groups to: \n",
+      "2019-08-09 00:12:46 INFO  SecurityManager:54 - SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(simon); groups with view permissions: Set(); users  with modify permissions: Set(simon); groups with modify permissions: Set()\n",
+      "(pybda) "
+     ]
+    },
+    {
+     "ename": "",
+     "evalue": "1",
+     "output_type": "error",
+     "traceback": []
+    }
+   ],
+   "source": [
+    "head */pca_from_iris-spark.log"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Bash",
+   "language": "bash",
+   "name": "bash"
+  },
+  "language_info": {
+   "codemirror_mode": "shell",
+   "file_extension": ".sh",
+   "mimetype": "text/x-sh",
+   "name": "bash"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}

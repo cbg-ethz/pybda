@@ -1,0 +1,4 @@
+[console_scripts]
+snakemake = snakemake:main
+snakemake-bash-completion = snakemake:bash_completion
+

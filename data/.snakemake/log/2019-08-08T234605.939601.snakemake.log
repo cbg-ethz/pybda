@@ -1,0 +1,30 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	forest
+	1	gbm
+	2
+
+[Thu Aug  8 23:46:06 2019]
+rule forest:
+    input: single_cell_imaging_data.tsv
+    output: results/2019_08_08/forest_from_single_cell_imaging_data-statistics.tsv
+    jobid: 0
+
+[Thu Aug  8 23:46:42 2019]
+Finished job 0.
+1 of 2 steps (50%) done
+
+[Thu Aug  8 23:46:42 2019]
+rule gbm:
+    input: single_cell_imaging_data.tsv
+    output: results/2019_08_08/gbm_from_single_cell_imaging_data-statistics.tsv
+    jobid: 1
+
+[Thu Aug  8 23:48:01 2019]
+Finished job 1.
+2 of 2 steps (100%) done
+Complete log: /home/simon/PROJECTS/pybda/data/.snakemake/log/2019-08-08T234605.939601.snakemake.log

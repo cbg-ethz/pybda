@@ -1,0 +1,715 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Clustering and mixture models</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput,
+div.nbinput div.prompt,
+div.nbinput div.input_area,
+div.nbinput div[class*=highlight],
+div.nbinput div[class*=highlight] pre,
+div.nboutput,
+div.nbinput div.prompt,
+div.nbinput div.output_area,
+div.nboutput div[class*=highlight],
+div.nboutput div[class*=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* avoid gaps between output lines */
+div.nboutput div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput,
+div.nboutput {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput,
+    div.nboutput {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput div.prompt,
+div.nboutput div.prompt {
+    min-width: 5ex;
+    padding-top: 0.4em;
+    padding-right: 0.4em;
+    text-align: right;
+    flex: 0;
+}
+@media (max-width: 540px) {
+    div.nbinput div.prompt,
+    div.nboutput div.prompt {
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput div.prompt.empty {
+        padding: 0;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput div.prompt pre,
+div.nboutput div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput div.input_area,
+div.nboutput div.output_area {
+    padding: 0.4em;
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput div.input_area,
+    div.nboutput div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    background: #f5f5f5;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<div class="section" id="Clustering-and-mixture-models">
+<h1>Clustering and mixture models<a class="headerlink" href="#Clustering-and-mixture-models" title="Permalink to this headline">¶</a></h1>
+<p>The following <code class="docutils literal notranslate"><span class="pre">notebook</span></code> shows how PyBDA can be used for a simple clustering task. We use the <code class="docutils literal notranslate"><span class="pre">iris</span></code> data, because clustering it is fairly easy and we can use it as a check if everything worked out nicely. We’ll use a <span class="math notranslate nohighlight">\(k\)</span>-means clustering and compare it to a Gaussian mixture model (GMM). The <span class="math notranslate nohighlight">\(k\)</span>-means has fairly stringent assumptions about the data, i.e. spherical Gaussians, while the GMM estimates the variances from the data.</p>
+<p>We start by activating our environment:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-bash notranslate"><div class="highlight"><pre>
+<span></span><span class="nb">source</span> ~/miniconda3/bin/activate pybda
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(pybda)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+<p>In order to do two clusterings, we merely need to set up a short config file with the two method names. We already provided a file that could do the trick for us in the <code class="docutils literal notranslate"><span class="pre">data</span></code> folder:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-bash notranslate"><div class="highlight"><pre>
+<span></span><span class="nb">cd</span> data
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(pybda)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-bash notranslate"><div class="highlight"><pre>
+<span></span>cat pybda-usecase-clustering.config
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+spark: spark-submit
+infile: iris.tsv
+outfolder: results
+meta: iris_meta_columns.tsv
+features: iris_feature_columns.tsv
+clustering: kmeans,gmm
+n_centers: 3, 5, 10
+sparkparams:
+  - &#34;--driver-memory=1G&#34;
+  - &#34;--executor-memory=1G&#34;
+debug: true
+(pybda)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+<p>In the config above we will do the following:</p>
+<ul class="simple">
+<li><p>do clustering/mixture model with 3, 5 and 10 cluster centers on the features provided in <code class="docutils literal notranslate"><span class="pre">iris_feature_columns.tsv</span></code>,</p></li>
+<li><p>give the Spark driver 1G of memory and the executor 1G of memory,</p></li>
+<li><p>write the results to <code class="docutils literal notranslate"><span class="pre">results</span></code>,</p></li>
+<li><p>print debug information.</p></li>
+</ul>
+<p>This totals 6 clusterings from two different methods with minimal coding effort.</p>
+<p>Having the parameters set, we can call PyBDA:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-bash notranslate"><div class="highlight"><pre>
+<span></span>pybda clustering pybda-usecase-clustering.config <span class="nb">local</span> <span class="p">|</span> head -n <span class="m">10</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+<span class="ansi-yellow-fg">Building DAG of jobs...</span>
+[2019-08-08 22:22:30,284 - WARNING - snakemake.logging]: Building DAG of jobs...
+<span class="ansi-yellow-fg">Using shell: /bin/bash</span>
+[2019-08-08 22:22:30,296 - WARNING - snakemake.logging]: Using shell: /bin/bash
+<span class="ansi-yellow-fg">Provided cores: 1</span>
+[2019-08-08 22:22:30,296 - WARNING - snakemake.logging]: Provided cores: 1
+<span class="ansi-yellow-fg">Rules claiming more threads will be scaled down.</span>
+[2019-08-08 22:22:30,296 - WARNING - snakemake.logging]: Rules claiming more threads will be scaled down.
+<span class="ansi-yellow-fg">Job counts:
+        count   jobs
+        1       gmm
+        1       kmeans
+        2</span>
+[2019-08-08 22:22:30,297 - WARNING - snakemake.logging]: Job counts:
+        count   jobs
+        1       gmm
+        1       kmeans
+        2
+
+[2019-08-08 22:22:30,297 - INFO - snakemake.logging]:
+<span class="ansi-green-fg">[Thu Aug  8 22:22:30 2019]</span>
+[2019-08-08 22:22:30,297 - INFO - snakemake.logging]: [Thu Aug  8 22:22:30 2019]
+<span class="ansi-green-fg">rule gmm:
+    input: iris.tsv
+    output: results/2019_08_08/gmm_from_iris, results/2019_08_08/gmm_from_iris-profile.png, results/2019_08_08/gmm_from_iris-profile.pdf, results/2019_08_08/gmm_from_iris-profile.eps, results/2019_08_08/gmm_from_iris-profile.svg, results/2019_08_08/gmm_from_iris-profile.tsv, results/2019_08_08/gmm_from_iris-transformed-K3-components, results/2019_08_08/gmm_from_iris-transformed-K5-components, results/2019_08_08/gmm_from_iris-transformed-K10-components
+    jobid: 0</span>
+[2019-08-08 22:22:30,297 - INFO - snakemake.logging]: rule gmm:
+    input: iris.tsv
+    output: results/2019_08_08/gmm_from_iris, results/2019_08_08/gmm_from_iris-profile.png, results/2019_08_08/gmm_from_iris-profile.pdf, results/2019_08_08/gmm_from_iris-profile.eps, results/2019_08_08/gmm_from_iris-profile.svg, results/2019_08_08/gmm_from_iris-profile.tsv, results/2019_08_08/gmm_from_iris-transformed-K3-components, results/2019_08_08/gmm_from_iris-transformed-K5-components, results/2019_08_08/gmm_from_iris-transformed-K10-components
+    jobid: 0
+
+[2019-08-08 22:22:30,297 - INFO - snakemake.logging]:
+<span class="ansi-yellow-fg">Job counts:
+        count   jobs
+        1       gmm
+        1</span>
+<span class="ansi-yellow-intense-fg ansi-bold"> Submitting job spark-submit --master local --driver-memory=1G --executor-memory=1G /home/simon/PROJECTS/pybda/pybda/gmm.py 3,5,10 iris.tsv iris_feature_columns.tsv results/2019_08_08/gmm_from_iris &gt; results/2019_08_08/gmm_from_iris-spark.log </span><span class="ansi-yellow-intense-fg ansi-bold">0m
+</span><span class="ansi-yellow-intense-fg ansi-bold"> Printing rule tree:
+ -&gt; _ (, iris.tsv)
+         -&gt; clustering (iris.tsv, results/2019_08_08/gmm_from_iris.tsv)
+         -&gt; clustering (iris.tsv, results/2019_08_08/kmeans_from_iris.tsv)
+</span>
+<span class="ansi-green-fg">[Thu Aug  8 22:22:59 2019]</span>
+[2019-08-08 22:22:59,844 - INFO - snakemake.logging]: [Thu Aug  8 22:22:59 2019]
+<span class="ansi-green-fg">Finished job 0.</span>
+[2019-08-08 22:22:59,844 - INFO - snakemake.logging]: Finished job 0.
+<span class="ansi-green-fg">1 of 2 steps (50%) done</span>
+[2019-08-08 22:22:59,845 - INFO - snakemake.logging]: 1 of 2 steps (50%) done
+
+[2019-08-08 22:22:59,847 - INFO - snakemake.logging]:
+<span class="ansi-green-fg">[Thu Aug  8 22:22:59 2019]</span>
+[2019-08-08 22:22:59,848 - INFO - snakemake.logging]: [Thu Aug  8 22:22:59 2019]
+<span class="ansi-green-fg">rule kmeans:
+    input: iris.tsv
+    output: results/2019_08_08/kmeans_from_iris, results/2019_08_08/kmeans_from_iris-profile.png, results/2019_08_08/kmeans_from_iris-profile.pdf, results/2019_08_08/kmeans_from_iris-profile.eps, results/2019_08_08/kmeans_from_iris-profile.svg, results/2019_08_08/kmeans_from_iris-profile.tsv, results/2019_08_08/kmeans_from_iris-transformed-K3-clusters, results/2019_08_08/kmeans_from_iris-transformed-K5-clusters, results/2019_08_08/kmeans_from_iris-transformed-K10-clusters
+    jobid: 1</span>
+[2019-08-08 22:22:59,848 - INFO - snakemake.logging]: rule kmeans:
+    input: iris.tsv
+    output: results/2019_08_08/kmeans_from_iris, results/2019_08_08/kmeans_from_iris-profile.png, results/2019_08_08/kmeans_from_iris-profile.pdf, results/2019_08_08/kmeans_from_iris-profile.eps, results/2019_08_08/kmeans_from_iris-profile.svg, results/2019_08_08/kmeans_from_iris-profile.tsv, results/2019_08_08/kmeans_from_iris-transformed-K3-clusters, results/2019_08_08/kmeans_from_iris-transformed-K5-clusters, results/2019_08_08/kmeans_from_iris-transformed-K10-clusters
+    jobid: 1
+
+[2019-08-08 22:22:59,850 - INFO - snakemake.logging]:
+<span class="ansi-yellow-fg">Job counts:
+        count   jobs
+        1       kmeans
+        1</span>
+<span class="ansi-yellow-intense-fg ansi-bold"> Submitting job spark-submit --master local --driver-memory=1G --executor-memory=1G /home/simon/PROJECTS/pybda/pybda/kmeans.py 3,5,10 iris.tsv iris_feature_columns.tsv results/2019_08_08/kmeans_from_iris &gt; results/2019_08_08/kmeans_from_iris-spark.log </span><span class="ansi-yellow-intense-fg ansi-bold">0m
+</span><span class="ansi-yellow-intense-fg ansi-bold"> Printing rule tree:
+ -&gt; _ (, iris.tsv)
+         -&gt; clustering (iris.tsv, results/2019_08_08/gmm_from_iris.tsv)
+</span><span class="ansi-green-intense-fg ansi-bold">[Thu Aug  8 22:23:31 2019]</span>
+[2019-08-08 22:23:31,590 - INFO - snakemake.logging]: [Thu Aug  8 22:23:31 2019]
+<span class="ansi-green-fg">Finished job 1.</span>
+[2019-08-08 22:23:31,590 - INFO - snakemake.logging]: Finished job 1.
+<span class="ansi-green-fg">2 of 2 steps (100%) done</span>
+[2019-08-08 22:23:31,590 - INFO - snakemake.logging]: 2 of 2 steps (100%) done
+<span class="ansi-yellow-fg">Complete log: /home/simon/PROJECTS/pybda/data/.snakemake/log/2019-08-08T222230.229745.snakemake.log</span>
+[2019-08-08 22:23:31,590 - WARNING - snakemake.logging]: Complete log: /home/simon/PROJECTS/pybda/data/.snakemake/log/2019-08-08T222230.229745.snakemake.log
+Exception ignored in: &lt;_io.TextIOWrapper name=&#39;&lt;stdout&gt;&#39; mode=&#39;w&#39; encoding=&#39;UTF-8&#39;&gt;
+BrokenPipeError: [Errno 32] Broken pipe
+(pybda)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+<p>The call automatically executes the jobs defined in the config. After both ran, we should check the plots and statistics. Let’s see what we got:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-bash notranslate"><div class="highlight"><pre>
+<span></span><span class="nb">cd</span> results
+ls -lgG *
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(pybda) total 3196
+drwxrwxr-x 5    4096 Aug  8 22:22 <span class="ansi-blue-intense-fg ansi-bold">gmm_from_iris</span>
+-rw-rw-r-- 1   41630 Aug  8 22:22 gmm_from_iris-cluster_sizes-histogram.eps
+-rw-rw-r-- 1   11913 Aug  8 22:22 gmm_from_iris-cluster_sizes-histogram.pdf
+-rw-rw-r-- 1   94191 Aug  8 22:22 <span class="ansi-magenta-intense-fg ansi-bold">gmm_from_iris-cluster_sizes-histogram.png</span>
+-rw-rw-r-- 1   54900 Aug  8 22:22 <span class="ansi-magenta-intense-fg ansi-bold">gmm_from_iris-cluster_sizes-histogram.svg</span>
+-rw-rw-r-- 1    6332 Aug  8 22:22 gmm_from_iris.log
+-rw-rw-r-- 1   22803 Aug  8 22:22 gmm_from_iris-profile.eps
+-rw-rw-r-- 1   13040 Aug  8 22:22 gmm_from_iris-profile.pdf
+-rw-rw-r-- 1  218232 Aug  8 22:22 <span class="ansi-magenta-intense-fg ansi-bold">gmm_from_iris-profile.png</span>
+-rw-rw-r-- 1   31619 Aug  8 22:22 <span class="ansi-magenta-intense-fg ansi-bold">gmm_from_iris-profile.svg</span>
+-rw-rw-r-- 1     137 Aug  8 22:22 gmm_from_iris-profile.tsv
+-rw-rw-r-- 1 1288436 Aug  8 22:22 gmm_from_iris-spark.log
+drwxrwxr-x 2    4096 Aug  8 22:22 <span class="ansi-blue-intense-fg ansi-bold">gmm_from_iris-transformed-K10-components</span>
+drwxrwxr-x 2    4096 Aug  8 22:22 <span class="ansi-blue-intense-fg ansi-bold">gmm_from_iris-transformed-K3-components</span>
+drwxrwxr-x 2    4096 Aug  8 22:22 <span class="ansi-blue-intense-fg ansi-bold">gmm_from_iris-transformed-K5-components</span>
+drwxrwxr-x 5    4096 Aug  8 22:23 <span class="ansi-blue-intense-fg ansi-bold">kmeans_from_iris</span>
+-rw-rw-r-- 1   42077 Aug  8 22:23 kmeans_from_iris-cluster_sizes-histogram.eps
+-rw-rw-r-- 1   12123 Aug  8 22:23 kmeans_from_iris-cluster_sizes-histogram.pdf
+-rw-rw-r-- 1   95647 Aug  8 22:23 <span class="ansi-magenta-intense-fg ansi-bold">kmeans_from_iris-cluster_sizes-histogram.png</span>
+-rw-rw-r-- 1   55531 Aug  8 22:23 <span class="ansi-magenta-intense-fg ansi-bold">kmeans_from_iris-cluster_sizes-histogram.svg</span>
+-rw-rw-r-- 1    6699 Aug  8 22:23 kmeans_from_iris.log
+-rw-rw-r-- 1   21507 Aug  8 22:23 kmeans_from_iris-profile.eps
+-rw-rw-r-- 1   11786 Aug  8 22:23 kmeans_from_iris-profile.pdf
+-rw-rw-r-- 1  211541 Aug  8 22:23 <span class="ansi-magenta-intense-fg ansi-bold">kmeans_from_iris-profile.png</span>
+-rw-rw-r-- 1   29644 Aug  8 22:23 <span class="ansi-magenta-intense-fg ansi-bold">kmeans_from_iris-profile.svg</span>
+-rw-rw-r-- 1     296 Aug  8 22:23 kmeans_from_iris-profile.tsv
+-rw-rw-r-- 1  920657 Aug  8 22:23 kmeans_from_iris-spark.log
+-rw-rw-r-- 1      33 Aug  8 22:23 kmeans_from_iris-total_sse.tsv
+drwxrwxr-x 2    4096 Aug  8 22:23 <span class="ansi-blue-intense-fg ansi-bold">kmeans_from_iris-transformed-K10-clusters</span>
+drwxrwxr-x 2    4096 Aug  8 22:23 <span class="ansi-blue-intense-fg ansi-bold">kmeans_from_iris-transformed-K3-clusters</span>
+drwxrwxr-x 2    4096 Aug  8 22:23 <span class="ansi-blue-intense-fg ansi-bold">kmeans_from_iris-transformed-K5-clusters</span>
+(pybda)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+<p>Now, finally let’s check how many clusters/components are recommended for each method:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-bash notranslate"><div class="highlight"><pre>
+<span></span>cat */kmeans_from_iris-profile.tsv
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+k       within_cluster_variance explained_variance      total_variance  BIC
+3       78.85566447695781       0.8842690519576577      681.3705911067716       143.99392330020913
+5       46.71230004910447       0.931443621637341       681.3705911067716       151.93564122512583
+10      32.49992444218044       0.9523021321049536      681.3705911067716       237.93597150012693
+(pybda)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-bash notranslate"><div class="highlight"><pre>
+<span></span>cat */gmm_from_iris-profile.tsv
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+k       loglik  BIC
+3       -189.53852954643244     599.5450120331002
+5       -154.60572954901806     679.998470861159
+10      -50.516420858075136     847.6175005364923
+(pybda)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+<p>So in both cases the optimal number would be three! Just as expected from the <code class="docutils literal notranslate"><span class="pre">iris</span></code> data. Nice!</p>
+<p>There’s plenty of other files and plots available to check out, though! For instance, we should <em>always</em> look at the <code class="docutils literal notranslate"><span class="pre">log</span></code> files we created to check some params, and what we actually computed:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-bash notranslate"><div class="highlight"><pre>
+<span></span>cat */gmm_from_iris.log
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[2019-08-08 22:22:33,019 - INFO - pybda.spark_session]: Initializing pyspark session
+[2019-08-08 22:22:34,089 - INFO - pybda.spark_session]: Config: spark.master, value: local
+[2019-08-08 22:22:34,089 - INFO - pybda.spark_session]: Config: spark.driver.memory, value: 1G
+[2019-08-08 22:22:34,089 - INFO - pybda.spark_session]: Config: spark.rdd.compress, value: True
+[2019-08-08 22:22:34,089 - INFO - pybda.spark_session]: Config: spark.serializer.objectStreamReset, value: 100
+[2019-08-08 22:22:34,089 - INFO - pybda.spark_session]: Config: spark.app.name, value: gmm.py
+[2019-08-08 22:22:34,089 - INFO - pybda.spark_session]: Config: spark.executor.id, value: driver
+[2019-08-08 22:22:34,089 - INFO - pybda.spark_session]: Config: spark.driver.port, value: 37957
+[2019-08-08 22:22:34,089 - INFO - pybda.spark_session]: Config: spark.app.id, value: local-1565295753672
+[2019-08-08 22:22:34,089 - INFO - pybda.spark_session]: Config: spark.submit.deployMode, value: client
+[2019-08-08 22:22:34,089 - INFO - pybda.spark_session]: Config: spark.driver.host, value: 192.168.1.33
+[2019-08-08 22:22:34,089 - INFO - pybda.spark_session]: Openened spark context at: Thu Aug  8 22:22:34 2019
+[2019-08-08 22:22:34,101 - INFO - pybda.io.io]: Reading tsv: iris.tsv
+[2019-08-08 22:22:37,724 - INFO - pybda.spark.features]: Casting columns to double.
+[2019-08-08 22:22:37,974 - INFO - pybda.spark.features]: Assembling column to feature vector
+[2019-08-08 22:22:38,080 - INFO - pybda.spark.features]: Dropping redundant columns
+[2019-08-08 22:22:38,816 - INFO - pybda.spark.dataframe]: Using data with n=150 and p=4
+[2019-08-08 22:22:38,822 - INFO - __main__]: Clustering with K: 3
+[2019-08-08 22:22:42,892 - INFO - pybda.decorators]: function: &#39;_fit_one&#39; took: 4.0702 sec
+[2019-08-08 22:22:42,893 - INFO - pybda.fit.clustering_fit]: Writing cluster fit to: results/2019_08_08/gmm_from_iris/gmm-fit-K3
+[2019-08-08 22:22:43,828 - INFO - pybda.fit.clustering_fit]: Writing cluster size file to: results/2019_08_08/gmm_from_iris/gmm-fit-K3_cluster_sizes.tsv
+[2019-08-08 22:22:43,833 - INFO - pybda.fit.gmm_fit]: Writing cluster weights/means/variances
+[2019-08-08 22:22:43,982 - INFO - pybda.fit.gmm_fit]: Writing LogLik and BIC to: results/2019_08_08/gmm_from_iris/gmm-fit-K3_statistics.tsv
+[2019-08-08 22:22:43,982 - INFO - __main__]: Clustering with K: 5
+[2019-08-08 22:22:46,301 - INFO - pybda.decorators]: function: &#39;_fit_one&#39; took: 2.3183 sec
+[2019-08-08 22:22:46,301 - INFO - pybda.fit.clustering_fit]: Writing cluster fit to: results/2019_08_08/gmm_from_iris/gmm-fit-K5
+[2019-08-08 22:22:46,485 - INFO - pybda.fit.clustering_fit]: Writing cluster size file to: results/2019_08_08/gmm_from_iris/gmm-fit-K5_cluster_sizes.tsv
+[2019-08-08 22:22:46,488 - INFO - pybda.fit.gmm_fit]: Writing cluster weights/means/variances
+[2019-08-08 22:22:46,590 - INFO - pybda.fit.gmm_fit]: Writing LogLik and BIC to: results/2019_08_08/gmm_from_iris/gmm-fit-K5_statistics.tsv
+[2019-08-08 22:22:46,590 - INFO - __main__]: Clustering with K: 10
+[2019-08-08 22:22:48,165 - INFO - pybda.decorators]: function: &#39;_fit_one&#39; took: 1.5755 sec
+[2019-08-08 22:22:48,166 - INFO - pybda.fit.clustering_fit]: Writing cluster fit to: results/2019_08_08/gmm_from_iris/gmm-fit-K10
+[2019-08-08 22:22:48,347 - INFO - pybda.fit.clustering_fit]: Writing cluster size file to: results/2019_08_08/gmm_from_iris/gmm-fit-K10_cluster_sizes.tsv
+[2019-08-08 22:22:48,352 - INFO - pybda.fit.gmm_fit]: Writing cluster weights/means/variances
+[2019-08-08 22:22:48,452 - INFO - pybda.fit.gmm_fit]: Writing LogLik and BIC to: results/2019_08_08/gmm_from_iris/gmm-fit-K10_statistics.tsv
+[2019-08-08 22:22:48,452 - INFO - pybda.fit.clustering_fit_profile]: Writing fit profile to results/2019_08_08/gmm_from_iris-profile.tsv
+[2019-08-08 22:22:48,454 - INFO - pybda.fit.clustering_fit_profile]: 3
+[2019-08-08 22:22:48,462 - INFO - pybda.fit.gmm_fit_profile]: Plotting profile to: results/2019_08_08/gmm_from_iris-profile.png
+[2019-08-08 22:22:51,947 - INFO - pybda.fit.clustering_fit_profile]: Plotting cluster sizes to: results/2019_08_08/gmm_from_iris-cluster_sizes-histogram.png
+[2019-08-08 22:22:53,737 - INFO - pybda.fit.gmm_fit_profile]: Plotting profile to: results/2019_08_08/gmm_from_iris-profile.pdf
+[2019-08-08 22:22:54,015 - INFO - pybda.fit.clustering_fit_profile]: Plotting cluster sizes to: results/2019_08_08/gmm_from_iris-cluster_sizes-histogram.pdf
+[2019-08-08 22:22:54,398 - INFO - pybda.fit.gmm_fit_profile]: Plotting profile to: results/2019_08_08/gmm_from_iris-profile.svg
+[2019-08-08 22:22:54,654 - INFO - pybda.fit.clustering_fit_profile]: Plotting cluster sizes to: results/2019_08_08/gmm_from_iris-cluster_sizes-histogram.svg
+[2019-08-08 22:22:55,080 - INFO - pybda.fit.gmm_fit_profile]: Plotting profile to: results/2019_08_08/gmm_from_iris-profile.eps
+[2019-08-08 22:22:55,348 - INFO - pybda.fit.clustering_fit_profile]: Plotting cluster sizes to: results/2019_08_08/gmm_from_iris-cluster_sizes-histogram.eps
+[2019-08-08 22:22:55,702 - INFO - pybda.decorators]: function: &#39;fit&#39; took: 17.6145 sec
+[2019-08-08 22:22:55,714 - INFO - pybda.fit.gmm_transformed]: Writing components to: results/2019_08_08/gmm_from_iris-transformed-K3-components
+[2019-08-08 22:22:55,715 - INFO - pybda.spark.features]: Splitting vector columns: features
+[2019-08-08 22:22:55,863 - INFO - pybda.spark.features]: Splitting vector columns: responsibilities
+[2019-08-08 22:22:57,157 - INFO - pybda.fit.gmm_transformed]: Writing components to: results/2019_08_08/gmm_from_iris-transformed-K5-components
+[2019-08-08 22:22:57,161 - INFO - pybda.spark.features]: Splitting vector columns: features
+[2019-08-08 22:22:57,305 - INFO - pybda.spark.features]: Splitting vector columns: responsibilities
+[2019-08-08 22:22:57,833 - INFO - pybda.fit.gmm_transformed]: Writing components to: results/2019_08_08/gmm_from_iris-transformed-K10-components
+[2019-08-08 22:22:57,834 - INFO - pybda.spark.features]: Splitting vector columns: features
+[2019-08-08 22:22:57,951 - INFO - pybda.spark.features]: Splitting vector columns: responsibilities
+[2019-08-08 22:22:58,572 - INFO - pybda.spark_session]: Stopping Spark context
+[2019-08-08 22:22:58,572 - INFO - pybda.spark_session]: Closed spark context at: Thu Aug  8 22:22:58 2019
+[2019-08-08 22:22:58,572 - INFO - pybda.spark_session]: Computation took: 24
+(pybda)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+<p>Furthermore, the Spark <code class="docutils literal notranslate"><span class="pre">log</span></code> file is sometimes important to look at when the methods failed:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-bash notranslate"><div class="highlight"><pre>
+<span></span>head */gmm_from_iris-spark.log
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2019-08-08 22:22:31 WARN  Utils:66 - Your hostname, hoto resolves to a loopback address: 127.0.1.1; using 192.168.1.33 instead (on interface wlp2s0)
+2019-08-08 22:22:31 WARN  Utils:66 - Set SPARK_LOCAL_IP if you need to bind to another address
+2019-08-08 22:22:31 WARN  NativeCodeLoader:62 - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2019-08-08 22:22:33 INFO  SparkContext:54 - Running Spark version 2.4.0
+2019-08-08 22:22:33 INFO  SparkContext:54 - Submitted application: gmm.py
+2019-08-08 22:22:33 INFO  SecurityManager:54 - Changing view acls to: simon
+2019-08-08 22:22:33 INFO  SecurityManager:54 - Changing modify acls to: simon
+2019-08-08 22:22:33 INFO  SecurityManager:54 - Changing view acls groups to:
+2019-08-08 22:22:33 INFO  SecurityManager:54 - Changing modify acls groups to:
+2019-08-08 22:22:33 INFO  SecurityManager:54 - SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(simon); groups with view permissions: Set(); users  with modify permissions: Set(simon); groups with modify permissions: Set()
+(pybda)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><p class="logo">
+    <a href="../index.html">
+        <img src="../_static/sticker_pybda.png"
+             title="PyBDA"/>
+    </a>
+</p><h3>Contents</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+</ul>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018-2019, Simon Dirmeier.
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

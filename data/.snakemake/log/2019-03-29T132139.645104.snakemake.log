@@ -1,0 +1,18 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	kmeans
+	1	pca
+	2
+
+[Fri Mar 29 13:21:39 2019]
+rule pca:
+    input: single_cell_imaging_data.tsv
+    output: results/pca.tsv, results/pca-loadings.tsv, results/pca-plot
+    jobid: 1
+
+Terminating processes on user request, this might take some time.
+Complete log: /home/simon/PROJECTS/pybda/data/.snakemake/log/2019-03-29T132139.645104.snakemake.log

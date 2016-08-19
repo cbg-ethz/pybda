@@ -1,0 +1,9 @@
+actionid: py36
+msg: getenv
+cmdargs: '/home/simon/miniconda3/envs/tix/bin/python -m virtualenv --python /home/simon/miniconda3/envs/tix/bin/python py36'
+
+Already using interpreter /home/simon/miniconda3/envs/tix/bin/python
+Using base prefix '/home/simon/miniconda3/envs/tix'
+New python executable in /home/simon/PROJECTS/pybda/.tox/py36/bin/python
+Installing setuptools, pip, wheel...
+done.

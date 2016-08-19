@@ -1,0 +1,118 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Clustering</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Regression" href="usecase_regression.html" />
+    <link rel="prev" title="Dimension reduction" href="usecase_dimred.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="clustering">
+<h1>Clustering<a class="headerlink" href="#clustering" title="Permalink to this headline">¶</a></h1>
+<p>Here we show a small use case of how to cluster data on a small sample data set
+(<code class="docutils literal notranslate"><span class="pre">data/iris.tsv</span></code>). We assume you
+already set up the cluster for Spark (other check <a class="reference external" href="./usage.html#spark">here</a>) with an <code class="docutils literal notranslate"><span class="pre">IP</span></code> address.</p>
+<div class="section" id="analysis">
+<h2>Analysis<a class="headerlink" href="#analysis" title="Permalink to this headline">¶</a></h2>
+<p>For analysis we decide to use a simple k-means with various cluster centers. All
+methods for clustering are:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">kmeans</span></code> for <a class="reference external" href="https://en.wikipedia.org/wiki/K-means_clustering">K-means</a>,</li>
+<li><code class="docutils literal notranslate"><span class="pre">gmm</span></code> for <a class="reference external" href="https://en.wikipedia.org/wiki/Mixture_model#Gaussian_mixture_model">Gaussian mixture models</a>.</li>
+</ul>
+<p>In order to account for correlated features, we first map the features into a lower
+dimensional space using factor analysis (we could also use a GMM, where we estimate
+the correlations too, or remove the line in the config):</p>
+<div class="literal-block-wrapper docutils container" id="pybda-usecase-clustering-config">
+<div class="code-block-caption"><span class="caption-text">Contents of <code class="docutils literal notranslate"><span class="pre">data/pybda-usecase-clustering.config</span></code> file</span><a class="headerlink" href="#pybda-usecase-clustering-config" title="Permalink to this code">¶</a></div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">spark</span><span class="p">:</span> <span class="n">spark</span><span class="o">-</span><span class="n">submit</span>
+<span class="n">infile</span><span class="p">:</span> <span class="n">data</span><span class="o">/</span><span class="n">iris</span><span class="o">.</span><span class="n">tsv</span>
+<span class="n">outfolder</span><span class="p">:</span> <span class="n">data</span>
+<span class="n">meta</span><span class="p">:</span> <span class="n">data</span><span class="o">/</span><span class="n">iris_meta_columns</span><span class="o">.</span><span class="n">tsv</span>
+<span class="n">features</span><span class="p">:</span> <span class="n">data</span><span class="o">/</span><span class="n">iris_feature_columns</span><span class="o">.</span><span class="n">tsv</span>
+<span class="n">dimension_reduction</span><span class="p">:</span> <span class="n">factor_analysis</span>
+<span class="n">n_components</span><span class="p">:</span> <span class="mi">2</span>
+<span class="n">clustering</span><span class="p">:</span> <span class="n">kmeans</span>
+<span class="n">n_centers</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span>
+<span class="n">sparkparams</span><span class="p">:</span>
+  <span class="o">-</span> <span class="s2">&quot;--driver-memory=1G&quot;</span>
+  <span class="o">-</span> <span class="s2">&quot;--executor-memory=1G&quot;</span>
+</pre></div>
+</div>
+</div>
+<p>In the config above we will do the following.</p>
+<ul class="simple">
+<li>Use a factor analysis into a space with two dimensions on the features in <code class="docutils literal notranslate"><span class="pre">data/iris_feature_columns.tsv</span></code>,</li>
+<li>do a clustering with 2, 3 and 5 cluster centers on the two features we got from the factor analysis,</li>
+<li>give the Spark driver 3G of memory and the executor 1G of memory.</li>
+</ul>
+<p>Having the parameters set, we call PyBDA</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pybda clustering pybda-usecase-clustering.config <span class="sb">``</span>IP<span class="sb">``</span>
+</pre></div>
+</div>
+<p>The above command first executes the dimension reduction and then the clustering.
+After both ran, you should check the plots and statistics.</p>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><p class="logo">
+    <a href="index.html">
+        <img src="_static/sticker_pybda.png"
+             title="koios"/>
+    </a>
+</p><h3>Contents</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usecase_dimred.html">Dimension reduction</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Clustering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usecase_regression.html">Regression</a></li>
+</ul>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018-2019, Simon Dirmeier.
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

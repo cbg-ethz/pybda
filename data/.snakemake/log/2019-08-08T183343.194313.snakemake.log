@@ -1,0 +1,4 @@
+Building DAG of jobs...
+MissingInputException in line 345 of /home/simon/PROJECTS/pybda/pybda/pybda.snake:
+Missing input files for rule kmeans:
+results/2019_08_08/factor_analysis_from_iris.tsv

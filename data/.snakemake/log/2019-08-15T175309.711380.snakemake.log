@@ -1,0 +1,41 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	factor_analysis
+	1	lda
+	1	pca
+	3
+
+[Thu Aug 15 17:53:09 2019]
+rule pca:
+    input: iris.tsv
+    output: results/2019_08_15/pca_from_iris.tsv, results/2019_08_15/pca_from_iris-loadings.tsv, results/2019_08_15/pca_from_iris-plot
+    jobid: 0
+
+[Thu Aug 15 17:53:53 2019]
+Finished job 0.
+1 of 3 steps (33%) done
+
+[Thu Aug 15 17:53:53 2019]
+rule factor_analysis:
+    input: iris.tsv
+    output: results/2019_08_15/factor_analysis_from_iris.tsv, results/2019_08_15/factor_analysis_from_iris-loadings.tsv, results/2019_08_15/factor_analysis_from_iris-loglik.tsv, results/2019_08_15/factor_analysis_from_iris-plot
+    jobid: 1
+
+[Thu Aug 15 17:54:52 2019]
+Finished job 1.
+2 of 3 steps (67%) done
+
+[Thu Aug 15 17:54:52 2019]
+rule lda:
+    input: iris.tsv
+    output: results/2019_08_15/lda_from_iris.tsv, results/2019_08_15/lda_from_iris-projection.tsv, results/2019_08_15/lda_from_iris-plot
+    jobid: 2
+
+[Thu Aug 15 17:55:43 2019]
+Finished job 2.
+3 of 3 steps (100%) done
+Complete log: /home/simon/PROJECTS/pybda/data/.snakemake/log/2019-08-15T175309.711380.snakemake.log

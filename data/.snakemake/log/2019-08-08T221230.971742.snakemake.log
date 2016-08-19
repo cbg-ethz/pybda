@@ -1,0 +1,30 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	gmm
+	1	kmeans
+	2
+
+[Thu Aug  8 22:12:31 2019]
+rule kmeans:
+    input: iris.tsv
+    output: results/2019_08_08/kmeans_from_iris, results/2019_08_08/kmeans_from_iris-profile.png, results/2019_08_08/kmeans_from_iris-profile.pdf, results/2019_08_08/kmeans_from_iris-profile.eps, results/2019_08_08/kmeans_from_iris-profile.svg, results/2019_08_08/kmeans_from_iris-profile.tsv, results/2019_08_08/kmeans_from_iris-transformed-K3-clusters, results/2019_08_08/kmeans_from_iris-transformed-K5-clusters, results/2019_08_08/kmeans_from_iris-transformed-K10-clusters
+    jobid: 0
+
+[Thu Aug  8 22:12:58 2019]
+Finished job 0.
+1 of 2 steps (50%) done
+
+[Thu Aug  8 22:12:58 2019]
+rule gmm:
+    input: iris.tsv
+    output: results/2019_08_08/gmm_from_iris, results/2019_08_08/gmm_from_iris-profile.png, results/2019_08_08/gmm_from_iris-profile.pdf, results/2019_08_08/gmm_from_iris-profile.eps, results/2019_08_08/gmm_from_iris-profile.svg, results/2019_08_08/gmm_from_iris-profile.tsv, results/2019_08_08/gmm_from_iris-transformed-K3-components, results/2019_08_08/gmm_from_iris-transformed-K5-components, results/2019_08_08/gmm_from_iris-transformed-K10-components
+    jobid: 1
+
+[Thu Aug  8 22:13:28 2019]
+Finished job 1.
+2 of 2 steps (100%) done
+Complete log: /home/simon/PROJECTS/pybda/data/.snakemake/log/2019-08-08T221230.971742.snakemake.log

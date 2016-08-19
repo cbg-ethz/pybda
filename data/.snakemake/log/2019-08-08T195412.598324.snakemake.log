@@ -1,0 +1,19 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	kmeans
+	1
+
+[Thu Aug  8 19:54:12 2019]
+rule kmeans:
+    input: iris.tsv
+    output: results/2019_08_08/kmeans_from_iris, results/2019_08_08/kmeans_from_iris-profile.png, results/2019_08_08/kmeans_from_iris-profile.pdf, results/2019_08_08/kmeans_from_iris-profile.eps, results/2019_08_08/kmeans_from_iris-profile.svg, results/2019_08_08/kmeans_from_iris-profile.tsv, results/2019_08_08/kmeans_from_iris-transformed-K3-clusters, results/2019_08_08/kmeans_from_iris-transformed-K5-clusters, results/2019_08_08/kmeans_from_iris-transformed-K10-clusters
+    jobid: 0
+
+[Thu Aug  8 19:54:42 2019]
+Finished job 0.
+1 of 1 steps (100%) done
+Complete log: /home/simon/PROJECTS/pybda/data/.snakemake/log/2019-08-08T195412.598324.snakemake.log

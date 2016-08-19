@@ -1,0 +1,1 @@
+{"class":"org.apache.spark.ml.clustering.GaussianMixtureModel","timestamp":1565894598162,"sparkVersion":"2.4.0","uid":"GaussianMixture_700fcdbfc7da","paramMap":{"seed":23,"probabilityCol":"responsibilities","k":100},"defaultParamMap":{"maxIter":100,"probabilityCol":"probability","seed":-7090211980209472397,"k":2,"tol":0.01,"featuresCol":"features","predictionCol":"prediction"}}

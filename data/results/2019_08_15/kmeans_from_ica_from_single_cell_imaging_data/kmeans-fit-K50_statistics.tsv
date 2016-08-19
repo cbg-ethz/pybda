@@ -1,0 +1,2 @@
+k	within_cluster_variance	explained_variance	total_variance	BIC	n	p	path
+50	1.2291274648715969	0.7541745070601854	5.000000000701815	2313.0245608308937	10000	5	results/2019_08_15/kmeans_from_ica_from_single_cell_imaging_data/kmeans-fit-K50

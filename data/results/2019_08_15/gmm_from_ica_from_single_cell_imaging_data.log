@@ -1,0 +1,52 @@
+[2019-08-15 20:42:12,672 - INFO - pybda.spark_session]: Initializing pyspark session
+[2019-08-15 20:42:13,642 - INFO - pybda.spark_session]: Config: spark.master, value: local
+[2019-08-15 20:42:13,642 - INFO - pybda.spark_session]: Config: spark.app.id, value: local-1565894533273
+[2019-08-15 20:42:13,642 - INFO - pybda.spark_session]: Config: spark.driver.memory, value: 1G
+[2019-08-15 20:42:13,642 - INFO - pybda.spark_session]: Config: spark.rdd.compress, value: True
+[2019-08-15 20:42:13,642 - INFO - pybda.spark_session]: Config: spark.driver.port, value: 46001
+[2019-08-15 20:42:13,643 - INFO - pybda.spark_session]: Config: spark.serializer.objectStreamReset, value: 100
+[2019-08-15 20:42:13,643 - INFO - pybda.spark_session]: Config: spark.app.name, value: gmm.py
+[2019-08-15 20:42:13,643 - INFO - pybda.spark_session]: Config: spark.executor.id, value: driver
+[2019-08-15 20:42:13,643 - INFO - pybda.spark_session]: Config: spark.submit.deployMode, value: client
+[2019-08-15 20:42:13,643 - INFO - pybda.spark_session]: Config: spark.driver.host, value: 192.168.1.33
+[2019-08-15 20:42:13,643 - INFO - pybda.spark_session]: Openened spark context at: Thu Aug 15 20:42:13 2019
+[2019-08-15 20:42:13,650 - INFO - pybda.io.io]: Reading tsv: results/2019_08_15/ica_from_single_cell_imaging_data.tsv
+[2019-08-15 20:42:16,932 - INFO - pybda.spark.features]: Found columns with prefix f_ from previous computation: f_0	f_1	f_2	f_3	f_4.
+Preferring these columns as features/
+[2019-08-15 20:42:16,933 - INFO - pybda.spark.features]: Casting columns to double.
+[2019-08-15 20:42:17,211 - INFO - pybda.spark.features]: Assembling column to feature vector
+[2019-08-15 20:42:17,211 - INFO - pybda.spark.features]: Found columns with prefix f_ from previous computation: f_0	f_1	f_2	f_3	f_4. Preferring these columns as features
+[2019-08-15 20:42:17,319 - INFO - pybda.spark.features]: Dropping redundant columns
+[2019-08-15 20:42:18,063 - INFO - pybda.spark.dataframe]: Using data with n=10000 and p=5
+[2019-08-15 20:42:18,070 - INFO - __main__]: Clustering with K: 50
+[2019-08-15 20:42:40,409 - INFO - pybda.decorators]: function: '_fit_one' took: 22.3398 sec
+[2019-08-15 20:42:40,410 - INFO - pybda.fit.clustering_fit]: Writing cluster fit to: results/2019_08_15/gmm_from_ica_from_single_cell_imaging_data/gmm-fit-K50
+[2019-08-15 20:42:41,147 - INFO - pybda.fit.clustering_fit]: Writing cluster size file to: results/2019_08_15/gmm_from_ica_from_single_cell_imaging_data/gmm-fit-K50_cluster_sizes.tsv
+[2019-08-15 20:42:41,152 - INFO - pybda.fit.gmm_fit]: Writing cluster weights/means/variances
+[2019-08-15 20:42:41,328 - INFO - pybda.fit.gmm_fit]: Writing LogLik and BIC to: results/2019_08_15/gmm_from_ica_from_single_cell_imaging_data/gmm-fit-K50_statistics.tsv
+[2019-08-15 20:42:41,328 - INFO - __main__]: Clustering with K: 100
+[2019-08-15 20:43:18,154 - INFO - pybda.decorators]: function: '_fit_one' took: 36.8262 sec
+[2019-08-15 20:43:18,154 - INFO - pybda.fit.clustering_fit]: Writing cluster fit to: results/2019_08_15/gmm_from_ica_from_single_cell_imaging_data/gmm-fit-K100
+[2019-08-15 20:43:18,331 - INFO - pybda.fit.clustering_fit]: Writing cluster size file to: results/2019_08_15/gmm_from_ica_from_single_cell_imaging_data/gmm-fit-K100_cluster_sizes.tsv
+[2019-08-15 20:43:18,335 - INFO - pybda.fit.gmm_fit]: Writing cluster weights/means/variances
+[2019-08-15 20:43:18,502 - INFO - pybda.fit.gmm_fit]: Writing LogLik and BIC to: results/2019_08_15/gmm_from_ica_from_single_cell_imaging_data/gmm-fit-K100_statistics.tsv
+[2019-08-15 20:43:18,502 - INFO - pybda.fit.clustering_fit_profile]: Writing fit profile to results/2019_08_15/gmm_from_ica_from_single_cell_imaging_data-profile.tsv
+[2019-08-15 20:43:18,504 - INFO - pybda.fit.clustering_fit_profile]: 2
+[2019-08-15 20:43:18,509 - INFO - pybda.fit.gmm_fit_profile]: Plotting profile to: results/2019_08_15/gmm_from_ica_from_single_cell_imaging_data-profile.png
+[2019-08-15 20:43:21,828 - INFO - pybda.fit.clustering_fit_profile]: Plotting cluster sizes to: results/2019_08_15/gmm_from_ica_from_single_cell_imaging_data-cluster_sizes-histogram.png
+[2019-08-15 20:43:23,381 - INFO - pybda.fit.gmm_fit_profile]: Plotting profile to: results/2019_08_15/gmm_from_ica_from_single_cell_imaging_data-profile.pdf
+[2019-08-15 20:43:23,647 - INFO - pybda.fit.clustering_fit_profile]: Plotting cluster sizes to: results/2019_08_15/gmm_from_ica_from_single_cell_imaging_data-cluster_sizes-histogram.pdf
+[2019-08-15 20:43:23,908 - INFO - pybda.fit.gmm_fit_profile]: Plotting profile to: results/2019_08_15/gmm_from_ica_from_single_cell_imaging_data-profile.svg
+[2019-08-15 20:43:24,158 - INFO - pybda.fit.clustering_fit_profile]: Plotting cluster sizes to: results/2019_08_15/gmm_from_ica_from_single_cell_imaging_data-cluster_sizes-histogram.svg
+[2019-08-15 20:43:24,415 - INFO - pybda.fit.gmm_fit_profile]: Plotting profile to: results/2019_08_15/gmm_from_ica_from_single_cell_imaging_data-profile.eps
+[2019-08-15 20:43:24,711 - INFO - pybda.fit.clustering_fit_profile]: Plotting cluster sizes to: results/2019_08_15/gmm_from_ica_from_single_cell_imaging_data-cluster_sizes-histogram.eps
+[2019-08-15 20:43:24,951 - INFO - pybda.decorators]: function: 'fit' took: 67.6184 sec
+[2019-08-15 20:43:24,971 - INFO - pybda.fit.gmm_transformed]: Writing components to: results/2019_08_15/gmm_from_ica_from_single_cell_imaging_data-transformed-K50-components
+[2019-08-15 20:43:24,972 - INFO - pybda.spark.features]: Splitting vector columns: features
+[2019-08-15 20:43:25,198 - INFO - pybda.spark.features]: Splitting vector columns: responsibilities
+[2019-08-15 20:43:34,495 - INFO - pybda.fit.gmm_transformed]: Writing components to: results/2019_08_15/gmm_from_ica_from_single_cell_imaging_data-transformed-K100-components
+[2019-08-15 20:43:34,496 - INFO - pybda.spark.features]: Splitting vector columns: features
+[2019-08-15 20:43:34,687 - INFO - pybda.spark.features]: Splitting vector columns: responsibilities
+[2019-08-15 20:43:58,554 - INFO - pybda.spark_session]: Stopping Spark context
+[2019-08-15 20:43:58,554 - INFO - pybda.spark_session]: Closed spark context at: Thu Aug 15 20:43:58 2019
+[2019-08-15 20:43:58,554 - INFO - pybda.spark_session]: Computation took: 104

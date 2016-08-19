@@ -1,0 +1,4 @@
+Building DAG of jobs...
+MissingInputException in line 149 of /home/simon/PROJECTS/pybda/pybda/pybda.snake:
+Missing input files for rule ica:
+data/single_cell_imaging_data.tsv

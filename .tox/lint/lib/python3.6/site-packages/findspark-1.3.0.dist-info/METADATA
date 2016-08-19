@@ -1,0 +1,14 @@
+Metadata-Version: 2.1
+Name: findspark
+Version: 1.3.0
+Summary: Find pyspark to make it importable.
+Home-page: https://github.com/minrk/findspark
+Author: Min RK
+Author-email: benjaminrk@gmail.com
+License: BSD (3-clause)
+Platform: UNKNOWN
+
+
+Provides findspark.init() to make pyspark importable as a regular library.
+
+

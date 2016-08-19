@@ -1,0 +1,16 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	kmeans
+	1
+
+[Thu Aug  8 19:29:06 2019]
+rule kmeans:
+    output: results/2019_08_08/<none>, results/2019_08_08/<none>-profile.png, results/2019_08_08/<none>-profile.pdf, results/2019_08_08/<none>-profile.eps, results/2019_08_08/<none>-profile.svg, results/2019_08_08/<none>-profile.tsv, results/2019_08_08/<none>-transformed-K3-clusters, results/2019_08_08/<none>-transformed-K5-clusters, results/2019_08_08/<none>-transformed-K10-clusters
+    jobid: 0
+
+Terminating processes on user request, this might take some time.
+Cancelling snakemake on user request.

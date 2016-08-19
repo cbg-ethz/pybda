@@ -1,0 +1,4 @@
+Building DAG of jobs...
+MissingInputException in line 81 of /home/simon/PROJECTS/pybda/pybda/pybda.snake:
+Missing input files for rule factor_analysis:
+data/iris.tsv
