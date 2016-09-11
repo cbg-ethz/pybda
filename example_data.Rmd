@@ -1,5 +1,14 @@
+---
+output: pdf_document
+documentclass: article
+---
+
+```{r setup, include=FALSE}
 library(data.table)
 library(dplyr)
+library(gridExtra)
+
+ttheme_default(base_size=10)
 
 pathogens <- c("brucella", "adeno", "salmonella", "rhino",
               "vaccinia", "listeria", "shigella")
@@ -9,9 +18,9 @@ library_type <- c("pooled", "arrayed")
 well_rows <- 1:16
 well_cols <- 1:24
 image <- 1:9
-cell_nmb <- 1:1000
+cell_nmb <- 1:564
 features <- c("infection_index", "neighbour_cnt", "cell_density", "cell_size")
-plate_idx <- 1:200
+plate_idx <- 1:423
 well_idx <- 1:138
 
 nrow <- 1000000
@@ -33,8 +42,12 @@ data <- data.table(
       cell_density=rnorm(nrow, 5, 1),
       cell_size=rnorm(nrow, 15, 3)
 )
+```
 
-data <- data[, .SD[sample(.N, 1)],
-             by=c("pathogen", "library_vendor"),
-             .SDcols=c("plate_idx", "well_idx", "cell_idx", "infection_index")]
-
+```{r, include=T}
+data[, .SD[sample(.N, 1)],
+       by=c("pathogen"),
+       .SDcols=c("replicate", "plate_idx", "well_idx", 
+                 "image_idx", "cell_idx", "infection_index")] %>%
+  grid.table(rows=NULL)
+```
