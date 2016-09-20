@@ -1,6 +1,6 @@
-<h1 align="center"> tix utility </h1>
+<h1 align="center"> tixParser </h1>
 
-Collection of utiliy scripts and stuff for the TIX data.
+Maven executable for parsing a single plate to as tsv.
 
 ## Author
 
