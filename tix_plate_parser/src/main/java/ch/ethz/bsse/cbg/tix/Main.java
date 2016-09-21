@@ -40,7 +40,7 @@ public class Main
     private void run(String[] args)
     {
         parseArgs(args);
-        new TixParser(_plateFolder, _metaFile).parser();
+        new TixParser(_plateFolder, _metaFile).parse();
     }
 
     private void parseArgs(String[] args)
