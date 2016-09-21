@@ -6,13 +6,6 @@ CMD=${CMD%.sh}
 FLPTH=`dirname $LNK`
 PTH="/Users/simondi/PHD/data/data/target_infect_x/aggregates"
 CSVS=`find $PTH -name "*csv"`
-SCRPT="${FLPTH}/${CMD}.awk"
-
-if [ ! -e $SCRPT ]
-then
-  echo "There is no script: $SCRIPT"
-  exit
-fi
 
 for csv in $CSVS
 do
@@ -22,17 +15,23 @@ do
 done
 
 
-TSVS=`find $PTH -name "*tsv"`
+TSVS=`find $PTH -name "*parsed.tsv"`
 OUTF="${PTH}/target_infect_x_library_layouts.tsv"
 echo "Outfile: ${OUTF}"
 touch $OUTF
+C=1
 for tsv in $TSVS
 do
+  if [ $C == 1 ]
+  then
+    head -n1 $tsv > $OUTF
+    C==2
+  fi
   IFS=' ' read -ra CLS <<<  `head -n 1 ${tsv} | wc | tr -s " "`
   echo "Column count $tsv: ${CLS[1]}"
   echo `head -n 1 ${tsv}`
   echo ""
-  cat $tsv >> $OUTF
+  awk "{if (NR != 1) print; }" $tsv >> $OUTF
 done
 
 

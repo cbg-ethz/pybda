@@ -11,11 +11,11 @@ import java.io.*;
 public class CellFeature
 {
     private static final Logger _LOGGER = LoggerFactory.getLogger(CellFeature.class);
-    private double[][] features;
+    private double[][] _features;
 
     public CellFeature(File file)
     {
-        features = parse(file);
+        _features = parse(file);
     }
 
     private static double[][] parse(File file)
@@ -41,16 +41,16 @@ public class CellFeature
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < features.length; i++)
+        for (int i = 0; i < _features.length; i++)
         {
             if (i == 5)
                 break;
-            for (int j = 0; j < features[i].length; j++)
+            for (int j = 0; j < _features[i].length; j++)
             {
                 if (j >= 5)
                     break;
-                sb.append(features[i][j]);
-                if (j < 4 && j < features[i].length - 1)
+                sb.append(_features[i][j]);
+                if (j < 4 && j < _features[i].length - 1)
                     sb.append(", ");
             }
             sb.append("\n");

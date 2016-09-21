@@ -1,6 +1,7 @@
 package ch.ethz.bsse.cbg.tix.parser;
 
 import ch.ethz.bsse.cbg.tix.structs.CellFeature;
+import ch.ethz.bsse.cbg.tix.structs.LibraryLayout;
 import ch.ethz.bsse.cbg.tix.util.Files;
 
 import java.io.File;
@@ -13,11 +14,13 @@ public final class TixParser
 {
     private final String _PLATE_FOLDER;
     private final String _META_FILE;
+    private final LibraryLayout _LAYOUT;
 
     public TixParser(String plateFolder, String metaFile)
     {
         this._PLATE_FOLDER = plateFolder;
         this._META_FILE = metaFile;
+        this._LAYOUT = LibraryLayout.instance(this._META_FILE);
     }
 
     public final void parser()
