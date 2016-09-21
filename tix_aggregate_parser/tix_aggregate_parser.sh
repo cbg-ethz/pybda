@@ -18,6 +18,10 @@ done
 TSVS=`find $PTH -name "*parsed.tsv"`
 OUTF="${PTH}/target_infect_x_library_layouts.tsv"
 echo "Outfile: ${OUTF}"
+if [ -e $OUTF ]
+then
+  rm $OUTF
+fi
 touch $OUTF
 C=1
 for tsv in $TSVS
