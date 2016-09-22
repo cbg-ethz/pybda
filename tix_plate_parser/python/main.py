@@ -6,7 +6,7 @@ from __future__ import print_function, absolute_import
 import sys
 import argparse
 
-from .matlab_parser import MatlabParser
+from matlab_parser import MatlabParser
 
 
 def parse_options(args):
@@ -28,7 +28,7 @@ def parse_options(args):
 def main(args):
     fold, meta = parse_options(args)
     parser = MatlabParser(fold, meta)
-    parser.parse(fold, meta)
+    parser.parse()
 
 
 if __name__ == "__main__":
