@@ -33,7 +33,7 @@ public class CellFeature
             MLStructure cont = (MLStructure) reader.getContent().get("handles");
             if (cont.isStruct())
             {
-                MLArray arr = cont.getField("handles");
+                MLArray arr = cont.getField("Measurements");
                 System.out.println(arr);
             }
 
