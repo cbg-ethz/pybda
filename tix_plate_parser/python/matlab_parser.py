@@ -32,7 +32,8 @@ class MatlabParser:
 
     def parse_file(self, feat, f):
         try:
-            mat = self.alloc((spio.loadmat(f))["handles"][0][0][0][0][0][0][0][0][0][0])
+            mat = self.alloc((spio.loadmat(f))["handles"][0][0][0][0][0][0][0][0][0][0], f)
+            k = 2
             # le = str(len(mat))
             # if le not in feat:
             #     feat[le] = []
@@ -40,7 +41,13 @@ class MatlabParser:
         except ValueError or TypeError as e:
             logger.warn("Could not open %s: %s", f, e)
 
-    def alloc(self, arr):
+    def alloc(self, arr, f):
         nrow = len(arr)
         ncol = max((len(x) for x in arr))
-        mat = numpy.array
+        mat = numpy.empty(shape=(nrow, ncol), dtype="float64") * numpy.nan
+        for i in range(len(arr)):
+            row = arr[i]
+            for j in range(len(row)):
+                mat[i][j] = row[j]
+        return CellFeature(mat, nrow, ncol, f)
+
