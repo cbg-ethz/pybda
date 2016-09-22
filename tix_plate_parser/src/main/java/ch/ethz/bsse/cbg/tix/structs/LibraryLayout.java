@@ -8,9 +8,8 @@ import de.unknownreality.dataframe.csv.CSVReader;
 import de.unknownreality.dataframe.csv.CSVReaderBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.io.*;
+import java.io.File;
 
 /**
  * @author Simon Dirmeier {@literal simon.dirmeier@gmx.de}
@@ -44,7 +43,6 @@ public final class LibraryLayout
                             .addColumn(new StringColumn("sirna"))
                             .build();
         this._TABLE.addIndex("idx", "barcode", "pathogen", "replicate", "library", "well");
-        parse();
     }
 
     public static LibraryLayout instance(String file)
@@ -67,28 +65,5 @@ public final class LibraryLayout
                                  int replicate, String library, String well)
     {
         return this._TABLE.findByIndex("idx", barcode, pathogen, replicate, library, well);
-    }
-
-
-    private void parse()
-    {
-        BufferedReader bR;
-        try
-        {
-            bR = new BufferedReader(new FileReader(this._META_FILE));
-            String line = bR.readLine();
-            this._header = line.split("\t");
-            while ((line = bR.readLine()) != null)
-            {
-                if (line.startsWith(this._header[0])) continue;
-                String toks[] = line.split("\t");
-            }
-            bR.close();
-        }
-        catch (IOException e)
-        {
-            _LOGGER.error("Could not open file {}", this._META_FILE.getAbsoluteFile());
-            System.exit(-1);
-        }
     }
 }

@@ -1,9 +1,14 @@
 package ch.ethz.bsse.cbg.tix.structs;
 
+import com.jmatio.io.MatFileReader;
+import com.jmatio.types.MLArray;
+import com.jmatio.types.MLStructure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * @author Simon Dirmeier {@literal simon.dirmeier@gmx.de}
@@ -18,15 +23,20 @@ public class CellFeature
         _features = parse(file);
     }
 
-    private static double[][] parse(File file)
+    private double[][] parse(File file)
     {
-        BufferedReader bR;
+        System.out.println(6);
+        MatFileReader reader;
         try
         {
-            bR = new BufferedReader(new FileReader(file));
-            // TODO
-            // HERE PARSE MATLAB
-            bR.close();
+            reader = new MatFileReader(file);
+            MLStructure cont = (MLStructure) reader.getContent().get("handles");
+            if (cont.isStruct())
+            {
+                MLArray arr = cont.getField("handles");
+                System.out.println(arr);
+            }
+
         }
         catch (IOException e)
         {
