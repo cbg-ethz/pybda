@@ -41,4 +41,9 @@ class CellFeature:
         return self.__str__()
 
     def __str__(self):
-        return "mat "
+        return "Feature " + self._featurename
+
+    @property
+    def max_cells(self):
+        return self._n_max_cells_count
+

@@ -17,6 +17,10 @@ class PlateFileSet:
         self._cid = cid
         self._files = []
 
+    def __iter__(self):
+        for f in self._files:
+            yield f
+
     def __repr__(self):
         return self.__str__()
 
@@ -24,8 +28,15 @@ class PlateFileSet:
         return "\t".join([self._pathogen, self._library, self._replicate,
                           self._plate, self._cid])
 
+    def __len__(self):
+        return len(self._files)
+
     def sample(self, cnt):
         return random.sample(self._files, cnt)
+
+    @property
+    def classifier(self):
+        return self._classifier
 
     @property
     def files(self):
