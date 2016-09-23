@@ -7,7 +7,7 @@ from __future__ import print_function, absolute_import
 import argparse
 import sys
 
-from plate_parser.matlab_parser import MatlabParser
+from plate_parser.plate_parser import PlateParser
 
 
 def parse_options(args):
@@ -28,8 +28,8 @@ def parse_options(args):
 
 def main(args):
     fold, meta = parse_options(args)
-    parser = MatlabParser(fold, meta)
-    parser.parse()
+    parser = PlateParser(fold, meta)
+    parser.parse_plate_file_sets()
 
 
 if __name__ == "__main__":

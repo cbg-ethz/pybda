@@ -5,18 +5,21 @@
 import logging
 import os
 import re
-import random
+from ._plate_file import PlateFile
+from ._plate_file_set import PlateFileSet
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class FileSets:
+class PlateFileSets:
     def __init__(self, folder):
         self._plates = {}
         self.parse_file_names(folder)
-        for k, v in self._plates.items():
-            print(k, " ", v, len(v.files), v.sample(5))
+
+    def __iter__(self):
+        for _k, v in self._plates.items():
+            yield v
 
     def parse_file_names(self, folder):
         fls = self.find_files(folder)
@@ -60,53 +63,5 @@ class FileSets:
         return ret, subs
 
 
-class PlateFileSet:
-    def __init__(self, classifier, outfile, pathogen,
-                 library, replicate, plate, cid):
-        self._classifier = classifier
-        self._outfile = outfile
-        self._pathogen = pathogen
-        self._library = library
-        self._replicate = replicate
-        self._plate = plate
-        self._cid = cid
-        self._files = []
-
-    def __repr__(self):
-        return self.__str__()
-
-    def __str__(self):
-        return "\t".join([self._pathogen, self._library, self._replicate,
-                          self._plate, self._cid])
-
-    def sample(self, cnt):
-        return random.sample(self._files, cnt)
-
-    @property
-    def files(self):
-        return self._files
 
 
-class PlateFile:
-    """
-    Class that stores the feature name and the absolute filename.
-
-    """
-
-    def __init__(self, filename, feature):
-        self._filename = filename
-        self._feature = feature
-
-    @property
-    def filename(self):
-        return self._filename
-
-    @property
-    def featurename(self):
-        return self._feature
-
-    def __repr__(self):
-        return self.__str__()
-
-    def __str__(self):
-        return self._feature

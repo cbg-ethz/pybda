@@ -15,7 +15,10 @@ class CellFeature:
     Class that stores the features for a single matlab files
 
     """
-    def __init__(self, mat, n_images, n_max_cells_count, filename, n_cells_per_image):
+
+    def __init__(self, mat, n_images, n_max_cells_count,
+                 filename, n_cells_per_image,
+                 featurename):
         """
         :param mat: the parsed matrix
         :param n_images: the number of images * wells (this usually is 3456).
@@ -29,7 +32,13 @@ class CellFeature:
         self._n_max_cells_count = n_max_cells_count
         self._filename = filename
         self._n_cells_per_image = n_cells_per_image
-        assert(shape(self._mat)[0] == self._n_images)
-        assert(max([count_nonzero(isnan(x)) for x in self._mat]) == n_max_cells_count)
-        k = 2
+        self._featurename = featurename
+        assert (shape(self._mat)[0] == self._n_images)
+        assert (max([count_nonzero(isnan(x)) for x in self._mat]) ==
+                n_max_cells_count)
 
+    def __repr__(self):
+        return self.__str__()
+
+    def __str__(self):
+        return "mat "
