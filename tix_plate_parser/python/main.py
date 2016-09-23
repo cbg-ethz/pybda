@@ -3,10 +3,11 @@
 # __date__   = 22/09/16
 
 from __future__ import print_function, absolute_import
-import sys
-import argparse
 
-from matlab_parser import MatlabParser
+import argparse
+import sys
+
+from plate_parser.matlab_parser import MatlabParser
 
 
 def parse_options(args):

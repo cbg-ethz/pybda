@@ -2,12 +2,13 @@
 # __email__  = 'simon.dirmeier@bsse.ethz.ch'
 # __date__   = 22/09/16
 
-import os
-import scipy.io as spio
 import logging
+
 import numpy
+import scipy.io as spio
 from cell_features import CellFeature
-from file_sets import FileSets
+
+from plate_parser.file_sets import FileSets
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
