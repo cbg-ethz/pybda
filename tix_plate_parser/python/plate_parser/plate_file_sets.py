@@ -47,6 +47,8 @@ class PlateFileSets:
                         continue
                     if basename.startswith("Batch_handles."):
                         continue
+                    if basename.startswith("Neighbors."):
+                            continue
                     if nma is not None:
                         continue
                     if nma is not None and nma.group() is None:
