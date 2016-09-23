@@ -53,6 +53,8 @@ class PlateFileSets:
                         continue
                     if nma is not None and nma.group() is None:
                         continue
+                    if basename.startswith("BlobBacteria."):
+                        continue
                     yield os.path.join(d, basename)
 
     def _parse_plate_name(self, f):
