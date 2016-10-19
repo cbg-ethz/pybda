@@ -13,16 +13,33 @@ logger = logging.getLogger(__name__)
 
 
 class PlateFileSets:
+    """
+    Class for keeping all the filenames of plates stored as a map.
+
+    """
+
     def __init__(self, folder):
         self._plates = {}
         self._parse_file_names(folder)
 
     def __iter__(self):
+        """
+        Iterate over all the single plates.
+
+        """
         for _k, v in self._plates.items():
             yield v
 
     def _parse_file_names(self, folder):
+        """
+        Traverse the given folder structure and save every
+        (classifier-folder) pair in a plate map.
+
+        :param folder: the folder for which all the plates should get parsed
+        """
+        # find all relevant matlab files in the folder
         fls = self._find_files(folder)
+        # iterate over this array
         for f in fls:
             classifier, pathogen, library, replicate, \
             plate, cid, feature, fileprefix = self._parse_plate_name(f)
@@ -35,6 +52,12 @@ class PlateFileSets:
 
     @staticmethod
     def _find_files(folder):
+        """
+        Traverse the folder and return all relevant matlab files
+
+        :param folder: the folder for which all the plates should get parsed
+        :return: returns a list of matlab files
+        """
         leave_out_image = ".+/(Image.+.mat?)$"
         for d, s, f in os.walk(folder):
             for basename in f:

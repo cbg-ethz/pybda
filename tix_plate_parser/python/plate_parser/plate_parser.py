@@ -15,7 +15,8 @@ logger = logging.getLogger(__name__)
 
 class PlateParser:
     """
-    Class for parsing a single plate containing matlab files for the features.
+    Class for parsing a folder of plates containing matlab files for the
+    features.
 
     """
 

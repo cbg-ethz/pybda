@@ -21,7 +21,8 @@ from plate_parser.plate_parser import PlateParser
 
 
 def parse_options(args):
-    parser = argparse.ArgumentParser(description='Parse matlab files of genetic perturbation screens.')
+    parser = argparse.ArgumentParser(
+        description='Parse matlab files of genetic perturbation screens.')
     parser.add_argument('-f',
                         type=str,
                         help='input folder, e.g. BRUCELLA-AU-CV3/VZ001-2H',
@@ -29,7 +30,8 @@ def parse_options(args):
                         metavar='input-folder')
     parser.add_argument('-m',
                         type=str,
-                        help='meta file, e.g. target_infect_x_library_layouts_beautified.tsv',
+                        help='meta file, e.g. '
+                             'target_infect_x_library_layouts_beautified.tsv',
                         required=True,
                         metavar='meta-file')
     opts = parser.parse_args(args)
@@ -38,6 +40,7 @@ def parse_options(args):
 
 def main(args):
     fold, meta = parse_options(args)
+    # create plate parser object and parse the single plates
     parser = PlateParser(fold, meta)
     parser.parse_plate_file_sets()
 
