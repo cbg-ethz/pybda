@@ -56,9 +56,16 @@ class PlateParser:
             if cf is None:
                 continue
             print("\t", plate_file, " ", cf.max_cells)
+            # this is not good
             #self._add(features, cf)
 
     def _parse_file(self, plate_file):
+        """
+        Parse a matlab bianry as np.array
+
+        :param plate_file: the matlab file
+        :return: returns a 2D np.array
+        """
         featurename = plate_file.featurename
         file = plate_file.filename
         matrix = None
