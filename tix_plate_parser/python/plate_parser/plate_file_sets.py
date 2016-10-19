@@ -41,14 +41,16 @@ class PlateFileSets:
                 if basename.endswith(".mat"):
                     # this tests if the feature file is image related
                     nma = re.match(leave_out_image, basename)
-                    # if the regex returns none, the featue does not contain
+                    # if the regex returns none, the feature does not contain
                     # image
                     if basename.startswith("Image."):
                         continue
                     if basename.startswith("Batch_handles."):
                         continue
                     if basename.startswith("Neighbors."):
-                            continue
+                        continue
+                    if basename.startswith("Bacteria.SubObjectFlag."):
+                        continue
                     if nma is not None:
                         continue
                     if nma is not None and nma.group() is None:

@@ -2,6 +2,16 @@
 # __email__  = 'simon.dirmeier@bsse.ethz.ch'
 # __date__   = 22/09/16
 
+################################################################################
+# Main file for plate_parser. Takes a folder of matlab files as input and
+# converts every plate to a file in vsc format, where every line is ONE
+# single cell.
+#
+# __author__ = 'Simon Dirmeier'
+# __email__  = 'simon.dirmeier@bsse.ethz.ch'
+# __date__   = 22/09/16
+################################################################################
+
 from __future__ import print_function, absolute_import
 
 import argparse
