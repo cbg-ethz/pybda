@@ -41,13 +41,13 @@ class PlateFileSets:
         fls = self._find_files(folder)
         # iterate over this array
         for f in fls:
+            # decompose the file name
             classifier, pathogen, library, replicate, \
-            plate, cid, feature, fileprefix = self._parse_plate_name(f)
-            if classifier not in self._plates:
-                outfile = fileprefix + "/" + classifier + ".tsv"
-                self._plates[classifier] = \
-                    PlateFileSet(classifier, outfile, pathogen, library,
-                                 replicate, plate, cid)
+             plate, cid, feature, fileprefix = self._parse_plate_name(f)
+            # add the (classifier-platefileset) pair to the plate map
+            self._add(classifier, fileprefix, pathogen, library,
+                                replicate, plate, cid)
+            # add the current matlab file do the respective platefile
             self._plates[classifier].files.append(PlateFile(f, feature))
 
     @staticmethod
@@ -83,6 +83,13 @@ class PlateFileSets:
                     yield os.path.join(d, basename)
 
     def _parse_plate_name(self, f):
+        """
+        Decompose a filename into several features names.
+
+        :param f: the file name
+        :return: returns a list of feature names
+        """
+
         filename = f
         feature, f = self._match_and_sub(f, ".*/(.+mat?)$", 1, filename)
         cid, f = self._match_and_sub(f, ".*/(\d+.\d+?)$", 1, filename)
@@ -103,3 +110,11 @@ class PlateFileSets:
             logger.warn("Could not match string %s in file %s", string,
                         filename)
         return ret, subs
+
+    def _add(self, classifier, fileprefix, pathogen, library,
+                       replicate, plate, cid):
+        if classifier not in self._plates:
+            outfile = fileprefix + "/" + classifier + ".tsv"
+            self._plates[classifier] = \
+                PlateFileSet(classifier, outfile, pathogen, library,
+                             replicate, plate, cid)

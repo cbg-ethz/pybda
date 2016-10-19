@@ -29,25 +29,27 @@ class PlateParser:
         """
 
         self._folder = folder
+        # parse the folder into a map of (classifier-plate) pairs
         self._plate_file_sets = PlateFileSets(self._folder)
         self._meta = meta
 
     def parse_plate_file_sets(self):
         """
-        Parse the PlateFileSets (i.e.: all parsed folders).
+        Parse the PlateFileSets (i.e.: all parsed folders) into tsvs.
 
         """
 
         # iterate over the file sets and create matrices
-        # every fileset represents a plate
+        # every platefileset represents a plate
+        # so every platefileset is a single file
         for platefileset in self._plate_file_sets:
             self._parse_plate_file_set(platefileset)
 
     def _parse_plate_file_set(self, plate_file_set):
-        # feature map
-        # there is a chance that different features
+        # feature map: there is a chance that different features
         # have a different set of cells
         features = {}
+        # TODO: here
         print(plate_file_set.classifier, " ", len(plate_file_set))
         for plate_file in plate_file_set:
             cf = self._parse_file(plate_file)
