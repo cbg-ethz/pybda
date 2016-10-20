@@ -141,7 +141,7 @@ class PlateParser:
         filename = outfile + "_max_nit_" + max_ncells + ".tsv"
         with open(filename, "w") as f:
             # write the feature names
-            f.write("\t".join([feat.featurename for feat in features]))
+            f.write("\t".join([feat.featurename for feat in features]) + "\n")
             # iterate over the different images
             # number of images per plate (should be 9 * 384)
             nimg = features[0].values.shape[0]
@@ -154,4 +154,4 @@ class PlateParser:
                     # iterate over a single cell's feature
                     vals = [features[p].values[iimg, cell] for p in
                             range(len(features))]
-                    f.write("\t".join(map(str,vals)))
+                    f.write("\t".join(map(str, vals)) + "\n")
