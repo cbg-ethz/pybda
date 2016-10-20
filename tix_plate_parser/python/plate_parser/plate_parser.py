@@ -50,7 +50,7 @@ class PlateParser:
         features = {}
         print("Doing:", plate_file_set.classifier, " ", len(plate_file_set))
         for plate_file in plate_file_set:
-            if not plate_file.filename\
+            if not plate_file.featurename\
                     .startswith("Bacteria"):
                 continue
             cf = self._parse_file(plate_file)
@@ -144,12 +144,14 @@ class PlateParser:
             f.write("\t".join([feat.featurename for feat in features]))
             # iterate over the different images
             # number of images per plate (should be 9 * 384)
-            for iimg in range(features[0].values.shape[0]):
+            nimg = features[0].values.shape[0]
+            for iimg in range(nimg):
                 # number of cells in the iimg-th image
-                ncells = len(features[0].values[iimg])
+                cell_vals = features[0].values[iimg]
+                ncells = cell_vals.shape[0]
                 # iterate over all the cells
                 for cell in range(ncells):
                     # iterate over a single cell's feature
                     vals = [features[p].values[iimg, cell] for p in
                             range(len(features))]
-                    f.write("\t".join(vals))
+                    f.write("\t".join(map(str,vals)))
