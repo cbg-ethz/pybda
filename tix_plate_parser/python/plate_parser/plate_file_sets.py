@@ -114,7 +114,7 @@ class PlateFileSets:
     def _add(self, classifier, fileprefix, pathogen, library,
                        replicate, plate, cid):
         if classifier not in self._plates:
-            outfile = fileprefix + "/" + classifier + ".tsv"
+            outfile = fileprefix + "/" + classifier
             self._plates[classifier] = \
                 PlateFileSet(classifier, outfile, pathogen, library,
                              replicate, plate, cid)

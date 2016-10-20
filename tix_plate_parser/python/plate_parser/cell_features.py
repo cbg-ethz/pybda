@@ -47,3 +47,10 @@ class CellFeature:
     def max_cells(self):
         return self._n_max_cells_count
 
+    @property
+    def values(self):
+        return self._mat
+
+    @property
+    def featurename(self):
+        return self._featurename

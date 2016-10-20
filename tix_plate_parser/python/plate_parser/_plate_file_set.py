@@ -42,3 +42,6 @@ class PlateFileSet:
     def files(self):
         return self._files
 
+    @property
+    def outfile(self):
+        return self._outfile

@@ -27,7 +27,6 @@ class PlateParser:
         :param folder: folder containing all the plate data
         :param meta: file containing the sirna-entrez mappings
         """
-
         self._folder = folder
         # parse the folder into a map of (classifier-plate) pairs
         self._plate_file_sets = PlateFileSets(self._folder)
@@ -38,26 +37,29 @@ class PlateParser:
         Parse the PlateFileSets (i.e.: all parsed folders) into tsvs.
 
         """
-
         # iterate over the file sets and create matrices
         # every platefileset represents a plate
         # so every platefileset is a single file
         for platefileset in self._plate_file_sets:
-            self._parse_plate_file_set(platefileset)
+            features = self._parse_plate_file_set(platefileset)
+            self._integrate_features(platefileset._outfile, features)
 
     def _parse_plate_file_set(self, plate_file_set):
         # feature map: there is a chance that different features
         # have a different set of cells
         features = {}
-        print("Doing:",  plate_file_set.classifier, " ", len(plate_file_set))
+        print("Doing:", plate_file_set.classifier, " ", len(plate_file_set))
         for plate_file in plate_file_set:
-
+            if not plate_file.filename\
+                    .startswith("Bacteria"):
+                continue
             cf = self._parse_file(plate_file)
             if cf is None:
                 continue
             print("\t", plate_file, " ", cf.max_cells)
             # this is not good
-            #self._add(features, cf)
+            self._add(features, cf)
+        return features
 
     def _parse_file(self, plate_file):
         """
@@ -114,9 +116,40 @@ class PlateParser:
         :param features: the feature map
         :param cf: the cell feature object
         """
+        # TODO: is this really enough?
+        # maybe compare all cell numbers and not only the max cell number
         max_cells = str(cf.max_cells)
         if max_cells not in features:
             features[max_cells] = []
         features[max_cells].append(cf)
 
+    def _integrate_features(self, classifier, features):
+        """
+        Iterate over all matlab files and create the final matrices
 
+        :param classifier: classifier for the current plate
+        :param features: the parses feature map
+
+        """
+        # since some features have different numbers of calls
+        for k, v in features.items():
+            self._integrate_feature(classifier, k, v)
+            exit()
+
+    @staticmethod
+    def _integrate_feature(outfile, max_ncells, features):
+        filename = outfile + "_max_nit_" + max_ncells + ".tsv"
+        with open(filename, "w") as f:
+            # write the feature names
+            f.write("\t".join([feat.featurename for feat in features]))
+            # iterate over the different images
+            # number of images per plate (should be 9 * 384)
+            for iimg in range(features[0].values.shape[0]):
+                # number of cells in the iimg-th image
+                ncells = len(features[0].values[iimg])
+                # iterate over all the cells
+                for cell in range(ncells):
+                    # iterate over a single cell's feature
+                    vals = [features[p].values[iimg, cell] for p in
+                            range(len(features))]
+                    f.write("\t".join(vals))
