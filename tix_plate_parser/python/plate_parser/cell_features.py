@@ -54,3 +54,7 @@ class CellFeature:
     @property
     def featurename(self):
         return self._featurename
+
+    @property
+    def ncells(self):
+        return self._n_cells_per_image

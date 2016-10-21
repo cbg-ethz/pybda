@@ -30,6 +30,7 @@ class PlateParser:
         self._folder = folder
         # parse the folder into a map of (classifier-plate) pairs
         self._plate_file_sets = PlateFileSets(self._folder)
+        # TODO: incorporate meta info to the files
         self._meta = meta
 
     def parse_plate_file_sets(self):
@@ -41,21 +42,26 @@ class PlateParser:
         # every platefileset represents a plate
         # so every platefileset is a single file
         for platefileset in self._plate_file_sets:
+            if not platefileset.classifier.startswith(
+                    "BRUCELLA_AU_CV3_VZ002-2H_20160530065217171-3439206"):
+                continue
+            print(platefileset.classifier)
             features = self._parse_plate_file_set(platefileset)
             self._integrate_platefileset(platefileset._outfile, features)
+            exit()
 
     def _parse_plate_file_set(self, plate_file_set):
         # feature map: there is a chance that different features
         # have a different set of cells
         features = {}
-        logger.info("Doing: " + plate_file_set.classifier)
-        logger.info("\t#Features: " + len(plate_file_set))
+        logger.info("Doing: " + str(plate_file_set.classifier))
+        logger.info("\t#Features: " + str(len(plate_file_set)))
         for plate_file in plate_file_set:
             cf = self._parse_file(plate_file)
             if cf is None:
                 continue
-            logger.info("\tFile: " + plate_file + " -> max cells:" +
-                        cf.max_cells)
+            logger.info("\tFile: " + str(plate_file) + " -> max cells:" +
+                        str(cf.max_cells))
             self._add(features, cf)
         return features
 
@@ -129,6 +135,7 @@ class PlateParser:
         :param features: the parses feature map
 
         """
+        logger.info("Integrating the different features to a single matrix")
         # since some features have different numbers of calls
         for k, v in features.items():
             self._integrate_feature(classifier, k, v)
@@ -145,7 +152,8 @@ class PlateParser:
             for iimg in range(nimg):
                 # number of cells in the iimg-th image
                 cell_vals = features[0].values[iimg]
-                ncells = cell_vals.shape[0]
+                #ncells = cell_vals.shape[0]
+                ncells = features[0].ncells[iimg]
                 # iterate over all the cells
                 for cell in range(ncells):
                     # iterate over a single cell's feature
