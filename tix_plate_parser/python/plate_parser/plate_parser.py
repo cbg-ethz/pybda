@@ -42,28 +42,26 @@ class PlateParser:
         # so every platefileset is a single file
         for platefileset in self._plate_file_sets:
             features = self._parse_plate_file_set(platefileset)
-            self._integrate_features(platefileset._outfile, features)
+            self._integrate_platefileset(platefileset._outfile, features)
 
     def _parse_plate_file_set(self, plate_file_set):
         # feature map: there is a chance that different features
         # have a different set of cells
         features = {}
-        print("Doing:", plate_file_set.classifier, " ", len(plate_file_set))
+        logger.info("Doing: " + plate_file_set.classifier)
+        logger.info("\t#Features: " + len(plate_file_set))
         for plate_file in plate_file_set:
-            if not plate_file.featurename\
-                    .startswith("Bacteria"):
-                continue
             cf = self._parse_file(plate_file)
             if cf is None:
                 continue
-            print("\t", plate_file, " ", cf.max_cells)
-            # this is not good
+            logger.info("\tFile: " + plate_file + " -> max cells:" +
+                        cf.max_cells)
             self._add(features, cf)
         return features
 
     def _parse_file(self, plate_file):
         """
-        Parse a matlab bianry as np.array
+        Parse a matlab binary as np.array
 
         :param plate_file: the matlab file
         :return: returns a 2D np.array
@@ -123,7 +121,7 @@ class PlateParser:
             features[max_cells] = []
         features[max_cells].append(cf)
 
-    def _integrate_features(self, classifier, features):
+    def _integrate_platefileset(self, classifier, features):
         """
         Iterate over all matlab files and create the final matrices
 
@@ -134,7 +132,6 @@ class PlateParser:
         # since some features have different numbers of calls
         for k, v in features.items():
             self._integrate_feature(classifier, k, v)
-            exit()
 
     @staticmethod
     def _integrate_feature(outfile, max_ncells, features):
