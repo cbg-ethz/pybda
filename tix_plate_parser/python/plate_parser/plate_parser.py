@@ -97,7 +97,8 @@ class PlateParser:
             # maximum number of cells
             m_ncol = max(rowlens)
             # initialize empty matrix of NaNs
-            mat = numpy.empty(shape=(nrow, m_ncol), dtype="float64") * numpy.nan
+            mat = numpy.full(shape=(nrow, m_ncol), fill_value=numpy.nan,
+                             dtype="float64")
             # fill matrix
             for i in range(len(arr)):
                 row = arr[i]
@@ -138,6 +139,7 @@ class PlateParser:
     @staticmethod
     def _integrate_feature(outfile, max_ncells, features):
         filename = outfile + "_max_nit_" + max_ncells + ".tsv"
+        logger.info("Writing to: " + filename)
         with open(filename, "w") as f:
             # write the feature names
             f.write("\t".join([feat.featurename for feat in features]) + "\n")

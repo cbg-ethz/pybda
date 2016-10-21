@@ -93,6 +93,7 @@ class PlateFileSets:
         filename = f
         feature, f = self._match_and_sub(f, ".*/(.+mat?)$", 1, filename)
         cid, f = self._match_and_sub(f, ".*/(\d+.\d+?)$", 1, filename)
+        # remove HCS_ANALYSIS_CELL_FEATURES_CC_MAT string
         _, f = self._match_and_sub(f, ".*/(.+?)$", 1, filename)
         plate, f = self._match_and_sub(f, ".*/(\w+\d+.+?)$", 1, filename)
         screen, f = self._match_and_sub(f, ".*/(.+)$", 1, filename)
