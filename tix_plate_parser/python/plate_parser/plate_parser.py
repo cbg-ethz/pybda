@@ -42,13 +42,8 @@ class PlateParser:
         # every platefileset represents a plate
         # so every platefileset is a single file
         for platefileset in self._plate_file_sets:
-            if not platefileset.classifier.startswith(
-                    "BRUCELLA_AU_CV3_VZ002-2H_20160530065217171-3439206"):
-                continue
-            print(platefileset.classifier)
             features = self._parse_plate_file_set(platefileset)
             self._integrate_platefileset(platefileset._outfile, features)
-            exit()
 
     def _parse_plate_file_set(self, plate_file_set):
         # feature map: there is a chance that different features
