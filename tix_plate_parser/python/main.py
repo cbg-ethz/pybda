@@ -31,28 +31,22 @@ def parse_options(args):
                         metavar='input-folder')
     parser.add_argument('-m',
                         type=str,
-                        help='meta file, e.g. '
+                        help='tix layout meta file, e.g. '
                              'target_infect_x_library_layouts_beautified.tsv',
                         required=True,
-                        metavar='meta-file')
-    parser.add_argument('-u',
+                        metavar='layout-meta-file')
+    parser.add_argument('-e',
                         type=str,
-                        help='user name for open-bis',
+                        help='experiment meta file',
                         required=True,
-                        metavar='user-name')
-    parser.add_argument('-p',
-                        type=str,
-                        help='password for open-bis',
-                        required=True,
-                        metavar='pw')
+                        metavar='experiment-meta-file')
     opts = parser.parse_args(args)
-    return opts.f, opts.m, opts.u, opts.p
+    return opts.f, opts.m, opts.e
 
 
 def main(args):
-    fold, meta, user, pw = parse_options(args)
-    loader = ExperimentMetaLoader(
-        "https://infectx.biozentrum.unibas.ch/openbis", user, pw)
+    fold, meta, exm = parse_options(args)
+    loader = ExperimentMetaLoader(exm)
     # create plate parser object and parse the single plates
     #parser = PlateParser(fold, meta)
     #parser.parse_plate_file_sets()
