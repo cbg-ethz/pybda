@@ -16,13 +16,15 @@ class ExperimentMetaFileLoader:
 
     """
 
-    def __init__(self, file):
+    def __init__(self, file, pattern):
         """
         Constructor for the meta file loader from an open-bis instance.
 
         :param file: the experiment meta file
+        :param pattern: a regex that you want to use for file searching
         """
         self._meta_file = file
+        self._pattern = pattern
         self._plate_files = self._load()
 
     def __iter__(self):
@@ -31,11 +33,17 @@ class ExperimentMetaFileLoader:
 
     def _load(self):
         fls = []
-        reg = re.compile("BACKUP|REIMAGED|INVASIN|OLIGOPROFILE")
+        reg = re.compile(".*((BACKUP)|(INVASIN)|(OLIGOPROFILE)|(TITRATION)|"
+                         "(RHINO-TEST)).*")
+        pat = re.compile(self._pattern)
         with open(self._meta_file, "r") as f:
             for entry in f.readlines():
+                if entry.startswith("PLATENAME"):
+                    continue
                 filename = entry.strip().split("\t")[0]
                 if reg.match(filename):
+                    continue
+                if not pat.match(filename):
                     continue
                 fls.append(filename)
         return fls
