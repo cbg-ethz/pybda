@@ -17,6 +17,7 @@ from __future__ import print_function, absolute_import
 import argparse
 import sys
 
+from plate_parser.experiment_meta_loader import ExperimentMetaLoader
 from plate_parser.plate_parser import PlateParser
 
 
@@ -34,15 +35,27 @@ def parse_options(args):
                              'target_infect_x_library_layouts_beautified.tsv',
                         required=True,
                         metavar='meta-file')
+    parser.add_argument('-u',
+                        type=str,
+                        help='user name for open-bis',
+                        required=True,
+                        metavar='user-name')
+    parser.add_argument('-p',
+                        type=str,
+                        help='password for open-bis',
+                        required=True,
+                        metavar='pw')
     opts = parser.parse_args(args)
-    return opts.f, opts.m
+    return opts.f, opts.m, opts.u, opts.p
 
 
 def main(args):
-    fold, meta = parse_options(args)
+    fold, meta, user, pw = parse_options(args)
+    loader = ExperimentMetaLoader(
+        "https://infectx.biozentrum.unibas.ch/openbis", user, pw)
     # create plate parser object and parse the single plates
-    parser = PlateParser(fold, meta)
-    parser.parse_plate_file_sets()
+    #parser = PlateParser(fold, meta)
+    #parser.parse_plate_file_sets()
 
 
 if __name__ == "__main__":
