@@ -1,7 +1,3 @@
-# __author__ = 'Simon Dirmeier'
-# __email__  = 'simon.dirmeier@bsse.ethz.ch'
-# __date__   = 22/09/16
-
 ################################################################################
 # Main file for plate_parser. Takes a folder of matlab files as input and
 # converts every plate to a file in vsc format, where every line is ONE
@@ -38,7 +34,8 @@ def parse_options(args):
                         metavar='layout-meta-file')
     parser.add_argument('-e',
                         type=str,
-                        help='experiment meta file',
+                        help='experiment meta file, e.g. '
+                             'experiment_meta_file.tsv',
                         required=True,
                         metavar='experiment-meta-file')
     opts = parser.parse_args(args)
@@ -47,12 +44,11 @@ def parse_options(args):
 
 def main(args):
     fold, meta, exm = parse_options(args)
-    expmeta = ExperimentMeta(exm, ".*\/\w+\-\w[P|U]\-[G|K]\d+\/.*")
-    layout = LayoutMeta(meta)
-    k = 1
+    expmeta = ExperimentMeta(exm, ".*\/\w+\-\w[P|U]\-[G|K]\d+\/.*".lower())
+    #layout = LayoutMeta(meta)
     # create plate parser object and parse the single plates
-    #parser = PlateParser(fold, meta)
-    #parser.parse_plate_file_sets()
+    parser = PlateParser(fold, expmeta, None)
+    parser.parse()
 
 
 if __name__ == "__main__":

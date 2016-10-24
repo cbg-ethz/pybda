@@ -20,20 +20,34 @@ class PlateParser:
 
     """
 
-    def __init__(self, folder, meta):
+    def __init__(self, folder, experiment_meta, layout_meta):
         """
         Constructor for PlateParser.
 
         :param folder: folder containing all the plate data
-        :param meta: file containing the sirna-entrez mappings
+        :param experiment_meta: parsed experiment meta information (i.e. the
+        plates you want to parse)
+        :param layout_meta: parsed layout meta files (i.e. the sirna-gene
+        mappings)
         """
         self._folder = folder
         # parse the folder into a map of (classifier-plate) pairs
         self._plate_file_sets = PlateFileSets(self._folder)
         # TODO: incorporate meta info to the files
-        self._meta = meta
+        self._experiment_meta = experiment_meta
+        self._layout_meta = layout_meta
 
-    def parse_plate_file_sets(self):
+    def parse(self):
+        """
+        Iterate over the experiments, download the files, parse them and
+        store to tsv.
+
+        """
+        print(1)
+        for plate in self._experiment_meta:
+            print(plate)
+
+    def _parse_plate_file_sets(self):
         """
         Parse the PlateFileSets (i.e.: all parsed folders) into tsvs.
 

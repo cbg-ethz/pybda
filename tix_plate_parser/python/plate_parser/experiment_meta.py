@@ -34,7 +34,7 @@ class ExperimentMeta:
     def _load(self):
         fls = []
         reg = re.compile(".*((BACKUP)|(INVASIN)|(OLIGOPROFILE)|(TITRATION)|"
-                         "(RHINO-TEST)).*")
+                         "(RHINO-TEST)).*".lower())
         pat = re.compile(self._pattern)
         with open(self._meta_file, "r") as f:
             for entry in f.readlines():
