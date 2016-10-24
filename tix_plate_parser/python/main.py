@@ -46,9 +46,7 @@ def parse_options(args):
 
 def main(args):
     fold, meta, exm = parse_options(args)
-    loader = ExperimentMetaFileLoader(exm, ".*/\w+\-[K|G][P|U]\-[G|K]\d+.*")
-    for f in loader:
-        print(f)
+    #loader = ExperimentMetaFileLoader(exm, ".*\/\w+\-\w[P|U]\-[G|K]\d+\/.*")
     # create plate parser object and parse the single plates
     #parser = PlateParser(fold, meta)
     #parser.parse_plate_file_sets()
