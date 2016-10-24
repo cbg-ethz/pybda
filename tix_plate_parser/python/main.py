@@ -17,7 +17,7 @@ from __future__ import print_function, absolute_import
 import argparse
 import sys
 
-from plate_parser.experiment_meta_loader import ExperimentMetaLoader
+from plate_parser.experiment_meta_files_loader import ExperimentMetaFileLoader
 from plate_parser.plate_parser import PlateParser
 
 
@@ -46,7 +46,9 @@ def parse_options(args):
 
 def main(args):
     fold, meta, exm = parse_options(args)
-    loader = ExperimentMetaLoader(exm)
+    loader = ExperimentMetaFileLoader(exm)
+    for f in loader:
+        print(f)
     # create plate parser object and parse the single plates
     #parser = PlateParser(fold, meta)
     #parser.parse_plate_file_sets()
