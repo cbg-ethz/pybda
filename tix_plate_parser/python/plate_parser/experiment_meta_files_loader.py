@@ -38,7 +38,8 @@ class ExperimentMetaFileLoader:
         pat = re.compile(self._pattern)
         with open(self._meta_file, "r") as f:
             for entry in f.readlines():
-                if entry.startswith("PLATENAME"):
+                entry = entry.lower()
+                if entry.startswith("platename"):
                     continue
                 filename = entry.strip().split("\t")[0]
                 if reg.match(filename):

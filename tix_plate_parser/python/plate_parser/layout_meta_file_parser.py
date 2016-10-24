@@ -10,7 +10,8 @@ logger = logging.getLogger(__name__)
 
 class LayoutMetaFileLoader:
     """
-    Class that loads the layout meta files from an open-bis instance
+    Class that loads the layout meta files for the plates, i.e. which siRNAs
+    map to which well, etc.
 
     """
 
@@ -20,4 +21,23 @@ class LayoutMetaFileLoader:
 
         :param file: the experiment meta file
         """
+
         self._meta_file = file
+        self._meta = {}
+        self._load()
+
+    def _load(self):
+        with open(self._meta_file, "r") as f:
+            for entry in f.readline():
+                entry = entry.lower()
+                if entry.startswith("barcode"):
+                    continue
+                tokens = entry.strip().split("\t")
+                self._add(tokens)
+
+    def _add(self, tokens):
+        bar, pathogen, geneset, replicate, library, row, col, well, \
+        well_type, gene, sirna = tokens
+        classifier = pathogen + "-" + replicate
+        if bar not in self._meta:
+            self._meta[bar]
