@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class ExperimentMetaFileLoader:
+class ExperimentMeta:
     """
     Class that loads the experiment meta files from an open-bis instance
 

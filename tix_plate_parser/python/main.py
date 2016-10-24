@@ -17,7 +17,8 @@ from __future__ import print_function, absolute_import
 import argparse
 import sys
 
-from plate_parser.experiment_meta_files_loader import ExperimentMetaFileLoader
+from plate_parser.experiment_meta import ExperimentMeta
+from plate_parser.plate_layout import LayoutMeta
 from plate_parser.plate_parser import PlateParser
 
 
@@ -46,7 +47,9 @@ def parse_options(args):
 
 def main(args):
     fold, meta, exm = parse_options(args)
-    #loader = ExperimentMetaFileLoader(exm, ".*\/\w+\-\w[P|U]\-[G|K]\d+\/.*")
+    expmeta = ExperimentMeta(exm, ".*\/\w+\-\w[P|U]\-[G|K]\d+\/.*")
+    layout = LayoutMeta(meta)
+    k = 1
     # create plate parser object and parse the single plates
     #parser = PlateParser(fold, meta)
     #parser.parse_plate_file_sets()
