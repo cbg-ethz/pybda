@@ -43,7 +43,7 @@ class PlateParser:
         store to tsv.
 
         """
-        print(1)
+        # TODO downloader here
         for plate in self._experiment_meta:
             print(plate)
 

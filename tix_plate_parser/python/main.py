@@ -38,6 +38,12 @@ def parse_options(args):
                              'experiment_meta_file.tsv',
                         required=True,
                         metavar='experiment-meta-file')
+    parser.add_argument('-e',
+                        type=str,
+                        help='experiment meta file, e.g. '
+                             'experiment_meta_file.tsv',
+                        required=True,
+                        metavar='experiment-meta-file')
     opts = parser.parse_args(args)
     return opts.f, opts.m, opts.e
 
