@@ -50,16 +50,16 @@ def parse_options(args):
                         required=True,
                         metavar='bee-exe')
     opts = parser.parse_args(args)
-    return opts.m, opts.e, opts.u, opts.p, opts.b.
+    return opts.m, opts.e, opts.u, opts.p, opts.b,
 
 
 def main(args):
     fold, meta, exm = parse_options(args)
-    expmeta = ExperimentMeta(exm, ".*\/\w+\-\w[P|U]\-[G|K]\d+\/.*".lower())
+    experiment_meta = ExperimentMeta(exm, ".*\/\w+\-\w[P|U]\-[G|K]\d+\/.*".lower())
     downloader = PlateLoader()
-    #layout = LayoutMeta(meta)
+    layout_meta = LayoutMeta(meta)
     # create plate parser object and parse the single plates
-    parser = PlateParser(fold, expmeta, None)
+    parser = PlateParser(fold, experiment_meta, None)
     parser.parse()
 
 
