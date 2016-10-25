@@ -49,6 +49,7 @@ class PlateParser:
 
         """
         # TODO downloader here
+        cnt = 0
         for plate in self._experiment_meta:
             pa = self._output_path + "/" + plate
             self._downloader.load(plate)
@@ -56,7 +57,10 @@ class PlateParser:
             if len(platefilesets) > 1:
                 logger.warn("Found multiple plate identifiers for: " + plate)
             self._parse_plate_file_sets(platefilesets)
-            exit(1)
+            cnt += 1
+            if cnt == 5:
+                exit(1)
+
 
     def _parse_plate_file_sets(self, platefilesets):
         """
@@ -114,7 +118,7 @@ class PlateParser:
         :param featurename: the name of the feature
         :return: return a plate cell feature
         """
-        featurename = str(featurename).replace(".mat","")
+        featurename = str(featurename).replace(".mat", "")
         try:
             # number of images on the plate (usually 9 * 384)
             nrow = len(arr)
@@ -130,12 +134,10 @@ class PlateParser:
                 row = arr[i]
                 for j in range(len(row)):
                     mat[i][j] = row[j]
-            print(1)
             return PlateCellFeature(mat, nrow, m_ncol, file, rowlens,
                                     featurename)
         except AssertionError:
             logger.warn("Could not alloc feature %s of %s", featurename, file)
-        print(2)
         return None
 
     def _add(self, features, cf):
