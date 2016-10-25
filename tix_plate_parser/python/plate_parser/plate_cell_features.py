@@ -34,8 +34,8 @@ class PlateCellFeature:
         self._n_cells_per_image = n_cells_per_image
         self._featurename = featurename
         assert (shape(self._mat)[0] == self._n_images)
-        assert (max([count_nonzero(isnan(x)) for x in self._mat]) ==
-                n_max_cells_count)
+        assert (shape(self._mat)[1] == self._n_max_cells_count)
+
 
     def __repr__(self):
         return self.__str__()
