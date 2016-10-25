@@ -13,8 +13,8 @@ from __future__ import print_function, absolute_import
 import argparse
 import sys
 
-from plate_parser.experiment_meta import ExperimentMeta
-from plate_parser.plate_layout import LayoutMeta
+from plate_parser.plate_experiment_meta import PlateExperimentMeta
+from plate_parser.plate_layout import PlateLayoutMeta
 from plate_parser.plate_loader import PlateLoader
 from plate_parser.plate_parser import PlateParser
 
@@ -49,17 +49,24 @@ def parse_options(args):
                         help='bee-executable, e.g. BeeDataSetDownloader.sh',
                         required=True,
                         metavar='bee-exe')
+    parser.add_argument('-o',
+                        type=str,
+                        help='output folder, i.e. the folder where the stuff '
+                             'is downloaded to and parsed to',
+                        required=True,
+                        metavar='output-folder')
     opts = parser.parse_args(args)
-    return opts.m, opts.e, opts.u, opts.p, opts.b,
+    return opts.m, opts.e, opts.u, opts.p, opts.b, opts.o
 
 
 def main(args):
-    fold, meta, exm = parse_options(args)
-    experiment_meta = ExperimentMeta(exm, ".*\/\w+\-\w[P|U]\-[G|K]\d+\/.*".lower())
-    downloader = PlateLoader()
-    layout_meta = LayoutMeta(meta)
+    layout_file, experiment_file, user, password, bee_exe, output_folder = \
+        parse_options(args)
+    experiment_meta = PlateExperimentMeta(experiment_file,
+                                     ".*\/\w+\-\w[P|U]\-[G|K]\d+\/.*")
+    # layout_meta = LayoutMeta(layout_file)
     # create plate parser object and parse the single plates
-    parser = PlateParser(fold, experiment_meta, None)
+    parser = PlateParser(experiment_meta, None, bee_exe, output_folder, user, password)
     parser.parse()
 
 

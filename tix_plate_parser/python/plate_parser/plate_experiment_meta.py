@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class ExperimentMeta:
+class PlateExperimentMeta:
     """
     Class that loads the experiment meta files from an open-bis instance
 
@@ -25,6 +25,7 @@ class ExperimentMeta:
         """
         self._meta_file = file
         self._pattern = pattern
+        logger.info("Loading experiments..")
         self._plate_files = self._load()
 
     def __iter__(self):
@@ -34,12 +35,12 @@ class ExperimentMeta:
     def _load(self):
         fls = []
         reg = re.compile(".*((BACKUP)|(INVASIN)|(OLIGOPROFILE)|(TITRATION)|"
-                         "(RHINO-TEST)).*".lower())
+                         "(RHINO-TEST)).*".upper())
         pat = re.compile(self._pattern)
         with open(self._meta_file, "r") as f:
             for entry in f.readlines():
-                entry = entry.lower()
-                if entry.startswith("platename"):
+                entry = entry.upper()
+                if entry.startswith("PLATENAME"):
                     continue
                 filename = entry.strip().split("\t")[0]
                 if reg.match(filename):

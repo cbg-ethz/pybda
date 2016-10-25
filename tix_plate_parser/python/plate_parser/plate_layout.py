@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class LayoutMeta:
+class PlateLayoutMeta:
     """
     Class that loads the layout meta files for the plates, i.e. which siRNAs
     map to which well, etc.
@@ -24,6 +24,7 @@ class LayoutMeta:
 
         self._meta_file = file
         self._meta = {}
+        logger.info("Loading layout...")
         self._load()
 
     def _load(self):

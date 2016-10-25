@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class CellFeature:
+class PlateCellFeature:
     """
     Class that stores the features for a single matlab files
 

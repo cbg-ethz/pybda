@@ -12,14 +12,15 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class PlateFileSets:
+class PlateFileSetParser:
     """
     Class for keeping all the filenames of plates stored as a map.
 
     """
 
-    def __init__(self, folder):
+    def __init__(self, folder, outfile):
         self._plates = {}
+        self._outfile = outfile
         self._parse_file_names(folder)
 
     def __iter__(self):
@@ -27,8 +28,11 @@ class PlateFileSets:
         Iterate over all the single plates.
 
         """
-        for _k, v in self._plates.items():
+        for _, v in self._plates.items():
             yield v
+
+    def __len__(self):
+        return len(self._plates)
 
     def _parse_file_names(self, folder):
         """
@@ -46,7 +50,7 @@ class PlateFileSets:
              plate, cid, feature, fileprefix = self._parse_plate_name(f)
             # add the (classifier-platefileset) pair to the plate map
             self._add(classifier, fileprefix, pathogen, library,
-                                replicate, plate, cid)
+                                replicate, plate, cid, self._outfile)
             # add the current matlab file do the respective platefile
             self._plates[classifier].files.append(PlateFile(f, feature))
 
@@ -113,9 +117,9 @@ class PlateFileSets:
         return ret, subs
 
     def _add(self, classifier, fileprefix, pathogen, library,
-                       replicate, plate, cid):
+                       replicate, plate, cid, outfile):
         if classifier not in self._plates:
-            outfile = fileprefix + "/" + classifier
             self._plates[classifier] = \
-                PlateFileSet(classifier, outfile, pathogen, library,
+                PlateFileSet(classifier, outfile + '/' + classifier,
+                             pathogen, library,
                              replicate, plate, cid)

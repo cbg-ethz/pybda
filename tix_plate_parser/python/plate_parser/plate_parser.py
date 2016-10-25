@@ -5,9 +5,11 @@
 import logging
 import numpy
 import scipy.io as spio
-from .cell_features import CellFeature
 
-from plate_parser.plate_file_sets import PlateFileSets
+from plate_parser.plate_loader import PlateLoader
+from .plate_cell_features import PlateCellFeature
+
+from plate_parser.plate_file_set_parser import PlateFileSetParser
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -20,23 +22,25 @@ class PlateParser:
 
     """
 
-    def __init__(self, folder, experiment_meta, layout_meta,
-                 bee_loader, download_path, username, pw):
+    def __init__(self, experiment_meta, layout_meta,
+                 bee_loader, output_path, username, pw):
         """
         Constructor for PlateParser.
 
-        :param folder: folder containing all the plate data
-        :param experiment_meta: parsed experiment meta information (i.e. the
-        plates you want to parse)
-        :param layout_meta: parsed layout meta files (i.e. the sirna-gene
-        mappings)
+        :param experiment_meta: parsed experiment meta files
+        :param layout_meta: parsed layout meta
+        :param bee_loader: the full path with the script name that downloads
+         the data (e.g. /bla/..../BeeDataSetDownloader.sh)
+        :param output_path: the folder where all the plates get stored and
+        parsed to
+        :param username: the user name of the open bis instance
+        :param pw: the password of the open bis instance
         """
-        self._folder = folder
         # parse the folder into a map of (classifier-plate) pairs
-        self._plate_file_sets = PlateFileSets(self._folder)
         self._experiment_meta = experiment_meta
         self._layout_meta = layout_meta
-        self._downloader = PlateLoader(bee_loader, download_path, username, pw)
+        self._downloader = PlateLoader(bee_loader, output_path, username, pw)
+        self._output_path = output_path
 
     def parse(self):
         """
@@ -46,9 +50,15 @@ class PlateParser:
         """
         # TODO downloader here
         for plate in self._experiment_meta:
-            print(plate)
+            pa = self._output_path + "/" + plate
+            self._downloader.load(plate)
+            platefilesets = PlateFileSetParser(pa, self._output_path)
+            if len(platefilesets) > 1:
+                logger.warn("Found multiple plate identifiers for: " + plate)
+            self._parse_plate_file_sets(platefilesets)
+            exit(1)
 
-    def _parse_plate_file_sets(self):
+    def _parse_plate_file_sets(self, platefilesets):
         """
         Parse the PlateFileSets (i.e.: all parsed folders) into tsvs.
 
@@ -56,9 +66,9 @@ class PlateParser:
         # iterate over the file sets and create matrices
         # every platefileset represents a plate
         # so every platefileset is a single file
-        for platefileset in self._plate_file_sets:
+        for platefileset in platefilesets:
             features = self._parse_plate_file_set(platefileset)
-            self._integrate_platefileset(platefileset._outfile, features)
+            self._integrate_platefileset(platefileset.outfile, features)
 
     def _parse_plate_file_set(self, plate_file_set):
         # feature map: there is a chance that different features
@@ -119,7 +129,8 @@ class PlateParser:
                 row = arr[i]
                 for j in range(len(row)):
                     mat[i][j] = row[j]
-            return CellFeature(mat, nrow, m_ncol, file, rowlens, featurename)
+            return PlateCellFeature(mat, nrow, m_ncol, file, rowlens,
+                                    featurename)
         except AssertionError:
             logger.warn("Could not alloc feature %s of %s", featurename, file)
         return None
@@ -164,7 +175,7 @@ class PlateParser:
             for iimg in range(nimg):
                 # number of cells in the iimg-th image
                 cell_vals = features[0].values[iimg]
-                #ncells = cell_vals.shape[0]
+                # ncells = cell_vals.shape[0]
                 ncells = features[0].ncells[iimg]
                 # iterate over all the cells
                 for cell in range(ncells):
