@@ -99,6 +99,7 @@ class PlateFileSetParser:
         cid, f = self._match_and_sub(f, ".*/(\d+.\d+?)$", 1, filename)
         # remove HCS_ANALYSIS_CELL_FEATURES_CC_MAT string
         _, f = self._match_and_sub(f, ".*/(.+?)$", 1, filename)
+        # Todo change plate parser!!!! wrong regex
         plate, f = self._match_and_sub(f, ".*/(\w+\d+.+?)$", 1, filename)
         screen, f = self._match_and_sub(f, ".*/(.+)$", 1, filename)
         pathogen, library, replicate = screen.split("-")[0:3]
@@ -112,8 +113,8 @@ class PlateFileSetParser:
             ret = re.match(match, string).group(grp)
             subs = re.sub('/' + ret, '', string)
         except AttributeError or IndexError:
-            logger.warn("Could not match string %s in file %s", string,
-                        filename)
+            logger.warn("Could not match string %s in file %s against %s",
+                        string, filename, match)
         return ret, subs
 
     def _add(self, classifier, fileprefix, pathogen, library,
