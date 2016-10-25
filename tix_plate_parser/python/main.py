@@ -15,17 +15,13 @@ import sys
 
 from plate_parser.experiment_meta import ExperimentMeta
 from plate_parser.plate_layout import LayoutMeta
+from plate_parser.plate_loader import PlateLoader
 from plate_parser.plate_parser import PlateParser
 
 
 def parse_options(args):
     parser = argparse.ArgumentParser(
         description='Parse matlab files of genetic perturbation screens.')
-    parser.add_argument('-f',
-                        type=str,
-                        help='input folder, e.g. BRUCELLA-AU-CV3/VZ001-2H',
-                        required=True,
-                        metavar='input-folder')
     parser.add_argument('-m',
                         type=str,
                         help='tix layout meta file, e.g. '
@@ -38,19 +34,29 @@ def parse_options(args):
                              'experiment_meta_file.tsv',
                         required=True,
                         metavar='experiment-meta-file')
-    parser.add_argument('-e',
+    parser.add_argument('-u',
                         type=str,
-                        help='experiment meta file, e.g. '
-                             'experiment_meta_file.tsv',
+                        help='open-bis user name',
                         required=True,
-                        metavar='experiment-meta-file')
+                        metavar='user-name')
+    parser.add_argument('-p',
+                        type=str,
+                        help='open-bis password',
+                        required=True,
+                        metavar='password')
+    parser.add_argument('-b',
+                        type=str,
+                        help='bee-executable, e.g. BeeDataSetDownloader.sh',
+                        required=True,
+                        metavar='bee-exe')
     opts = parser.parse_args(args)
-    return opts.f, opts.m, opts.e
+    return opts.m, opts.e, opts.u, opts.p, opts.b.
 
 
 def main(args):
     fold, meta, exm = parse_options(args)
     expmeta = ExperimentMeta(exm, ".*\/\w+\-\w[P|U]\-[G|K]\d+\/.*".lower())
+    downloader = PlateLoader()
     #layout = LayoutMeta(meta)
     # create plate parser object and parse the single plates
     parser = PlateParser(fold, expmeta, None)

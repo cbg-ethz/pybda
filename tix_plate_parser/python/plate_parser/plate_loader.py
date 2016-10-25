@@ -4,6 +4,7 @@
 
 import logging
 import os
+import subprocess
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -32,6 +33,16 @@ class PlateLoader:
             logger.error("Could not find $BEESOFTSRC environment variable")
             exit(-1)
 
-     def load(self, plate_id):
-         
-
+    def load(self, plate_id):
+        logger.log("Downloading: " + plate_id)
+        sc = [self._BEESRC,
+              "--user", self._username,
+              "--password", self._pw,
+              "--outputdir", self._download_path,
+              "--plateid", plate_id,
+              "--datasetid", "HCS_ANALYSIS_CELL_FEATURES_CC_MAT",
+              " --files", ".*.mat"]
+        ret = subprocess.call(sc)
+        if ret != 0:
+            logger.warn("\tdownloaded failed with status: " + str(0))
+        return ret
