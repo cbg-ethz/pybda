@@ -20,7 +20,8 @@ class PlateParser:
 
     """
 
-    def __init__(self, folder, experiment_meta, layout_meta):
+    def __init__(self, folder, experiment_meta, layout_meta,
+                 bee_loader, download_path, username, pw):
         """
         Constructor for PlateParser.
 
@@ -33,9 +34,9 @@ class PlateParser:
         self._folder = folder
         # parse the folder into a map of (classifier-plate) pairs
         self._plate_file_sets = PlateFileSets(self._folder)
-        # TODO: incorporate meta info to the files
         self._experiment_meta = experiment_meta
         self._layout_meta = layout_meta
+        self._downloader = PlateLoader(bee_loader, download_path, username, pw)
 
     def parse(self):
         """
