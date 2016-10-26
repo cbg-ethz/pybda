@@ -48,9 +48,11 @@ class PlateParser:
         store to tsv.
 
         """
-        # TODO downloader here
         cnt = 0
         for plate in self._experiment_meta:
+            cnt += 1
+            if cnt != 2:
+                continue
             pa = self._output_path + "/" + plate
             self._downloader.load(plate)
             platefilesets = PlateFileSetParser(pa, self._output_path)
@@ -154,18 +156,18 @@ class PlateParser:
             features[max_cells] = []
         features[max_cells].append(cf)
 
-    def _integrate_platefileset(self, classifier, features):
+    def _integrate_platefileset(self, outfile, features):
         """
         Iterate over all matlab files and create the final matrices
 
-        :param classifier: classifier for the current plate
+        :param outfile: outfile name
         :param features: the parses feature map
 
         """
         logger.info("Integrating the different features to a single matrix")
         # since some features have different numbers of calls
         for k, v in features.items():
-            self._integrate_feature(classifier, k, v)
+            self._integrate_feature(outfile, k, v)
 
     @staticmethod
     def _integrate_feature(outfile, max_ncells, features):

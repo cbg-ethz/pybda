@@ -49,7 +49,7 @@ class PlateFileSetParser:
             classifier, pathogen, library, replicate, \
              plate, cid, feature, fileprefix = self._parse_plate_name(f)
             # add the (classifier-platefileset) pair to the plate map
-            self._add(classifier, fileprefix, pathogen, library,
+            self._add(classifier, pathogen, library,
                                 replicate, plate, cid, self._outfile)
             # add the current matlab file do the respective platefile
             self._plates[classifier].files.append(PlateFile(f, feature))
@@ -99,11 +99,13 @@ class PlateFileSetParser:
         cid, f = self._match_and_sub(f, ".*/(\d+.\d+?)$", 1, filename)
         # remove HCS_ANALYSIS_CELL_FEATURES_CC_MAT string
         _, f = self._match_and_sub(f, ".*/(.+?)$", 1, filename)
-        # Todo change plate parser!!!! wrong regex
-        plate, f = self._match_and_sub(f, ".*/(\w+\d+.+?)$", 1, filename)
+        plate, f = self._match_and_sub(f, ".*/(.+)$", 1, filename)
         screen, f = self._match_and_sub(f, ".*/(.+)$", 1, filename)
         pathogen, library, replicate = screen.split("-")[0:3]
-        classifier = "_".join([pathogen, library, replicate, plate, cid])
+        team, f = self._match_and_sub(f, ".*/(.+)$", 1, filename)
+        src, f = self._match_and_sub(f, ".*/(.+)$", 1, filename)
+        classifier = "_".join([src, team, pathogen, library, replicate, plate,
+                               cid])
         return classifier, pathogen, library, replicate, plate, cid, feature, f
 
     @staticmethod
@@ -117,8 +119,8 @@ class PlateFileSetParser:
                         string, filename, match)
         return ret, subs
 
-    def _add(self, classifier, fileprefix, pathogen, library,
-                       replicate, plate, cid, outfile):
+    def _add(self, classifier, pathogen, library, replicate, plate, cid,
+             outfile):
         if classifier not in self._plates:
             self._plates[classifier] = \
                 PlateFileSet(classifier, outfile + '/' + classifier,
