@@ -22,6 +22,10 @@ class PlateParser:
 
     """
 
+    _meta = ["pathogen", "replicate", "library", "plate",
+             "well", "image", "cell_number",
+             "sirna", "gene"]
+
     def __init__(self, experiment_meta, layout_meta,
                  bee_loader, output_path, username, pw):
         """
@@ -52,7 +56,7 @@ class PlateParser:
         for plate in self._experiment_meta:
             cnt += 1
             pa = self._output_path + "/" + plate
-            #self._downloader.load(plate)
+            # self._downloader.load(plate)
             platefilesets = PlateFileSetParser(pa, self._output_path)
             if len(platefilesets) > 1:
                 logger.warn("Found multiple plate identifiers for: " + plate)
@@ -169,13 +173,20 @@ class PlateParser:
     def _integrate_feature(self, platefileset, max_ncells, features):
         filename = platefileset.outfile + "_max_nit_" + max_ncells + ".tsv"
         logger.info("Writing to: " + filename)
-        layout = self._layout_meta.get(platefileset.pathogen,
-                                       platefileset.library,
-                                       platefileset.replicate,
-                                       platefileset.plate)
+        pathogen = platefileset.pathogen
+        library = platefileset.library
+        replicate = platefileset.replicate
+        plate = replicate.plate
+        layout = self._layout_meta.get(pathogen, library, replicate, plate)
+        # _meta = ["pathogen", "replicate", "library", "plate",
+        #          "well", "image", "cell_number",
+        #          "sirna", "gene"]
+
         with open(filename, "w") as f:
+            header = PlateParser._meta + \
+                     [feat.featurename.lower() for feat in features]
             # write the feature names
-            f.write("\t".join([feat.featurename for feat in features]) + "\n")
+            f.write("\t".join(header) + "\n")
             # iterate over the different images
             # number of images per plate (should be 9 * 384)
             nimg = features[0].values.shape[0]
@@ -189,4 +200,10 @@ class PlateParser:
                     # iterate over a single cell's feature
                     vals = [features[p].values[iimg, cell] for p in
                             range(len(features))]
-                    f.write("\t".join(map(str, vals)) + "\n")
+                    # TODO: finish meta
+                    sirna = layout.sirna(iimg)
+                    gene = layout.gene(iimg)
+                    well = layout.well(iimg)
+                    meta = [pathogen, replicate, library, plate, layout,
+                            well, iimg, cell, sirna, gene]
+                    f.write("\t".join(meta + list(map(str, vals))) + "\n")

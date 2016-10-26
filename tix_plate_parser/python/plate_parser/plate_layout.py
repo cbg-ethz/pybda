@@ -3,7 +3,6 @@
 # __date__   = 24/10/16
 
 import logging
-import re
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -78,6 +77,8 @@ class PlateLayout(object):
                         self._classifier + " layout!")
         self._well_layout[well] = Well(gene, sirna, well, well_type)
 
+
+    def pathogen
 
 class Well:
     def __init__(self, gene, sirna, well, well_type):
