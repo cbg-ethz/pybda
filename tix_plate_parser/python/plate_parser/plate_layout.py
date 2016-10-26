@@ -78,7 +78,7 @@ class PlateLayout(object):
         self._well_layout[well] = Well(gene, sirna, well, well_type)
 
 
-    def pathogen
+
 
 class Well:
     def __init__(self, gene, sirna, well, well_type):

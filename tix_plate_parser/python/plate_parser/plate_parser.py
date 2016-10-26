@@ -204,6 +204,6 @@ class PlateParser:
                     sirna = layout.sirna(iimg)
                     gene = layout.gene(iimg)
                     well = layout.well(iimg)
-                    meta = [pathogen, replicate, library, plate, layout,
-                            well, iimg, cell, sirna, gene]
+                    meta = [pathogen, replicate, library, plate,
+                            layout, well, iimg, cell, sirna, gene]
                     f.write("\t".join(meta + list(map(str, vals))) + "\n")
