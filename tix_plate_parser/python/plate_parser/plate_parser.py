@@ -50,15 +50,14 @@ class PlateParser:
         """
         cnt = 0
         for plate in self._experiment_meta:
-            # cnt += 1
-            # pa = self._output_path + "/" + plate
-            # self._downloader.load(plate)
-            # platefilesets = PlateFileSetParser(pa, self._output_path)
-            # if len(platefilesets) > 1:
-            #     logger.warn("Found multiple plate identifiers for: " + plate)
-            # self._parse_plate_file_sets(platefilesets)
-            # if cnt == 5:
-            #     exit(1)
+            cnt += 1
+            pa = self._output_path + "/" + plate
+            #self._downloader.load(plate)
+            platefilesets = PlateFileSetParser(pa, self._output_path)
+            if len(platefilesets) > 1:
+                logger.warn("Found multiple plate identifiers for: " + plate)
+            self._parse_plate_file_sets(platefilesets)
+            exit(1)
 
     def _parse_plate_file_sets(self, platefilesets):
         """
@@ -71,7 +70,8 @@ class PlateParser:
         # todo add meta files for single cells
         for platefileset in platefilesets:
             features = self._parse_plate_file_set(platefileset)
-            self._integrate_platefileset(platefileset.outfile, features)
+            self._integrate_platefileset(platefileset,
+                                         features)
 
     def _parse_plate_file_set(self, plate_file_set):
         # feature map: there is a chance that different features
@@ -153,23 +153,26 @@ class PlateParser:
             features[max_cells] = []
         features[max_cells].append(cf)
 
-    def _integrate_platefileset(self, outfile, features):
+    def _integrate_platefileset(self, platefileset, features):
         """
         Iterate over all matlab files and create the final matrices
 
-        :param outfile: outfile name
+        :param platefileset: othe platefile set
         :param features: the parses feature map
 
         """
         logger.info("Integrating the different features to a single matrix")
         # since some features have different numbers of calls
         for k, v in features.items():
-            self._integrate_feature(outfile, k, v)
+            self._integrate_feature(platefileset, k, v)
 
-    @staticmethod
-    def _integrate_feature(outfile, max_ncells, features):
-        filename = outfile + "_max_nit_" + max_ncells + ".tsv"
+    def _integrate_feature(self, platefileset, max_ncells, features):
+        filename = platefileset.outfile + "_max_nit_" + max_ncells + ".tsv"
         logger.info("Writing to: " + filename)
+        layout = self._layout_meta.get(platefileset.pathogen,
+                                       platefileset.library,
+                                       platefileset.replicate,
+                                       platefileset.plate)
         with open(filename, "w") as f:
             # write the feature names
             f.write("\t".join([feat.featurename for feat in features]) + "\n")

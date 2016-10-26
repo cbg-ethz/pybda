@@ -3,6 +3,7 @@
 # __date__   = 24/10/16
 
 import logging
+import re
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -20,6 +21,7 @@ class PlateLayoutMeta:
         Constructor for the meta file loader from an open-bis instance.
 
         :param file: the experiment meta file
+        :param pattern: the patterns you are searching for
         """
 
         self._meta_file = file
@@ -30,8 +32,8 @@ class PlateLayoutMeta:
     def _load(self):
         with open(self._meta_file, "r") as f:
             for entry in f.readlines():
-                entry = entry.lower()
-                if entry.startswith("barcode"):
+                entry = entry.upper()
+                if entry.startswith("BARCODE"):
                     continue
                 tokens = entry.strip().split("\t")
                 self._add(tokens)
@@ -39,11 +41,28 @@ class PlateLayoutMeta:
     def _add(self, tokens):
         bar, expr, pathogen, geneset, replicate, library, row, col, well, \
         well_type, gene, sirna = tokens
+
         classifier = expr + "-" + bar
         if classifier not in self._meta:
-            self._meta[classifier] = PlateLayout(classifier, geneset,
-                                                 library)
+            self._meta[classifier] = PlateLayout(classifier, geneset, library)
         self._meta[classifier].add(gene, sirna, well, well_type)
+
+    def get(self, pathogen, library, replicate, plate):
+        """
+        Get the layout for a specific plate.
+
+        :param pathogen: the pathogen, e.g. BRUCELLA
+        :param library: the library, e.g. DP
+        :param replicate: replicate, e.. G1
+        :param plate: the plate, e.g. DZ44-1K
+        :return: returns a PlateLayout
+        """
+
+        cl = "-".join([pathogen, library, replicate, plate]).upper()
+        if cl in self._meta:
+            return self._meta[cl]
+        logger.warn("Did not find " + cl + " in meta file")
+        return None
 
 
 class PlateLayout(object):

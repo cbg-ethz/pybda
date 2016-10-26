@@ -31,6 +31,22 @@ class PlateFileSet:
     def __len__(self):
         return len(self._files)
 
+    @property
+    def pathogen(self):
+        return self._pathogen
+
+    @property
+    def library(self):
+        return self._library
+
+    @property
+    def replicate(self):
+        return self._replicate
+
+    @property
+    def plate(self):
+        return self._plate
+
     def sample(self, cnt):
         return random.sample(self._files, cnt)
 

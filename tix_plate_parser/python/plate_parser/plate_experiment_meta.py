@@ -46,7 +46,7 @@ class PlateExperimentMeta:
                 if len(toks) < 2:
                     continue
                 platetype = toks[1]
-                # TODO: what?
+                # TODO: what actually?
                 if not platetype.lower().startswith("screeningplate"):
                     continue
                 filename = toks[0]

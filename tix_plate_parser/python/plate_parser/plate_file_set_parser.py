@@ -18,10 +18,11 @@ class PlateFileSetParser:
 
     """
 
+    _skippable_features = ["Image.", "Batch_handles.", "Neighbors.",
+                           "Bacteria.SubObjectFlag.", "CometTails.",
+                           "DAPIFG.", "BlobBacteria.", "ExpandedNuclei."]
+
     def __init__(self, folder, outfile):
-        self._skippable_features = ["Image.", "Batch_handles.", "Neighbors.",
-                                    "Bacteria.SubObjectFlag.", "CometTails.",
-                                    "DAPIFG.", "BlobBacteria."]
         self._plates = {}
         self._outfile = outfile
         self._parse_file_names(folder)
@@ -80,8 +81,9 @@ class PlateFileSetParser:
                         continue
                     yield os.path.join(d, basename)
 
-    def _skip_feature(self, basename):
-        for skip in self._skippable_features:
+    @staticmethod
+    def _skip_feature(basename):
+        for skip in PlateFileSetParser._skippable_features:
             if basename.startswith(skip):
                 return True
         return False
