@@ -78,6 +78,10 @@ class PlateFileSetParser:
                         continue
                     if basename.startswith("Bacteria.SubObjectFlag."):
                         continue
+                    if basename.startswith("CometTails."):
+                            continue
+                    if basename.startswith("DAPIFG."):
+                        continue
                     if nma is not None:
                         continue
                     if nma is not None and nma.group() is None:

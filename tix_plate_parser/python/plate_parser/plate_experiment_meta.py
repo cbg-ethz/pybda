@@ -25,7 +25,7 @@ class PlateExperimentMeta:
         """
         self._meta_file = file
         self._pattern = pattern
-        logger.info("Loading experiments..")
+        logger.info("Loading experiments...")
         self._plate_files = self._load()
 
     def __iter__(self):
@@ -42,7 +42,14 @@ class PlateExperimentMeta:
                 entry = entry.upper()
                 if entry.startswith("PLATENAME"):
                     continue
-                filename = entry.strip().split("\t")[0]
+                toks = entry.strip().split("\t")
+                if len(toks) < 2:
+                    continue
+                platetype = toks[1]
+                # TODO: 
+                if not platetype.lower().startswith("screeningplate"):
+                    continue
+                filename = toks[0]
                 if reg.match(filename):
                     continue
                 if not pat.match(filename):

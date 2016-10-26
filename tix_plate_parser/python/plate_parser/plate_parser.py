@@ -50,15 +50,16 @@ class PlateParser:
         """
         cnt = 0
         for plate in self._experiment_meta:
-            cnt += 1
-            pa = self._output_path + "/" + plate
-            self._downloader.load(plate)
-            platefilesets = PlateFileSetParser(pa, self._output_path)
-            if len(platefilesets) > 1:
-                logger.warn("Found multiple plate identifiers for: " + plate)
-            self._parse_plate_file_sets(platefilesets)
-            if cnt == 5:
-                exit(1)
+            print(plate)
+            # cnt += 1
+            # pa = self._output_path + "/" + plate
+            # self._downloader.load(plate)
+            # platefilesets = PlateFileSetParser(pa, self._output_path)
+            # if len(platefilesets) > 1:
+            #     logger.warn("Found multiple plate identifiers for: " + plate)
+            # self._parse_plate_file_sets(platefilesets)
+            # if cnt == 5:
+            #     exit(1)
 
     def _parse_plate_file_sets(self, platefilesets):
         """
@@ -68,6 +69,7 @@ class PlateParser:
         # iterate over the file sets and create matrices
         # every platefileset represents a plate
         # so every platefileset is a single file
+        # todo add meta files for single cells
         for platefileset in platefilesets:
             features = self._parse_plate_file_set(platefileset)
             self._integrate_platefileset(platefileset.outfile, features)
@@ -177,7 +179,7 @@ class PlateParser:
             nimg = features[0].values.shape[0]
             for iimg in range(nimg):
                 # number of cells in the iimg-th image
-                cell_vals = features[0].values[iimg]
+                # cell_vals = features[0].values[iimg]
                 # ncells = cell_vals.shape[0]
                 ncells = features[0].ncells[iimg]
                 # iterate over all the cells

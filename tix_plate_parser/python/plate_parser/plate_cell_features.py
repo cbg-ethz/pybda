@@ -36,7 +36,6 @@ class PlateCellFeature:
         assert (shape(self._mat)[0] == self._n_images)
         assert (shape(self._mat)[1] == self._n_max_cells_count)
 
-
     def __repr__(self):
         return self.__str__()
 

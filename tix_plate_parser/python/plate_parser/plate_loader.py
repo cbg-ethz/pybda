@@ -3,7 +3,6 @@
 # __date__   = 25/10/16
 
 import logging
-import os
 import subprocess
 
 logging.basicConfig(level=logging.INFO)
