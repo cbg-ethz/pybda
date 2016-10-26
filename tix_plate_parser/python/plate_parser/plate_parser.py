@@ -50,7 +50,6 @@ class PlateParser:
         """
         cnt = 0
         for plate in self._experiment_meta:
-            print(plate)
             # cnt += 1
             # pa = self._output_path + "/" + plate
             # self._downloader.load(plate)

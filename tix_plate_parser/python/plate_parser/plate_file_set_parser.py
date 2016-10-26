@@ -19,6 +19,9 @@ class PlateFileSetParser:
     """
 
     def __init__(self, folder, outfile):
+        self._skippable_features = ["Image.", "Batch_handles.", "Neighbors.",
+                                    "Bacteria.SubObjectFlag.", "CometTails.",
+                                    "DAPIFG.", "BlobBacteria."]
         self._plates = {}
         self._outfile = outfile
         self._parse_file_names(folder)
@@ -47,15 +50,14 @@ class PlateFileSetParser:
         for f in fls:
             # decompose the file name
             classifier, pathogen, library, replicate, \
-             plate, cid, feature, fileprefix = self._parse_plate_name(f)
+            plate, cid, feature, fileprefix = self._parse_plate_name(f)
             # add the (classifier-platefileset) pair to the plate map
             self._add(classifier, pathogen, library,
-                                replicate, plate, cid, self._outfile)
+                      replicate, plate, cid, self._outfile)
             # add the current matlab file do the respective platefile
             self._plates[classifier].files.append(PlateFile(f, feature))
 
-    @staticmethod
-    def _find_files(folder):
+    def _find_files(self, folder):
         """
         Traverse the folder and return all relevant matlab files
 
@@ -70,25 +72,19 @@ class PlateFileSetParser:
                     nma = re.match(leave_out_image, basename)
                     # if the regex returns none, the feature does not contain
                     # image
-                    if basename.startswith("Image."):
-                        continue
-                    if basename.startswith("Batch_handles."):
-                        continue
-                    if basename.startswith("Neighbors."):
-                        continue
-                    if basename.startswith("Bacteria.SubObjectFlag."):
-                        continue
-                    if basename.startswith("CometTails."):
-                            continue
-                    if basename.startswith("DAPIFG."):
+                    if self._skip_feature(basename):
                         continue
                     if nma is not None:
                         continue
                     if nma is not None and nma.group() is None:
                         continue
-                    if basename.startswith("BlobBacteria."):
-                        continue
                     yield os.path.join(d, basename)
+
+    def _skip_feature(self, basename):
+        for skip in self._skippable_features:
+            if basename.startswith(skip):
+                return True
+        return False
 
     def _parse_plate_name(self, f):
         """
