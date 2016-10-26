@@ -51,18 +51,14 @@ class PlateParser:
         cnt = 0
         for plate in self._experiment_meta:
             cnt += 1
-            if cnt != 2:
-                continue
             pa = self._output_path + "/" + plate
             self._downloader.load(plate)
             platefilesets = PlateFileSetParser(pa, self._output_path)
             if len(platefilesets) > 1:
                 logger.warn("Found multiple plate identifiers for: " + plate)
             self._parse_plate_file_sets(platefilesets)
-            cnt += 1
             if cnt == 5:
                 exit(1)
-
 
     def _parse_plate_file_sets(self, platefilesets):
         """
