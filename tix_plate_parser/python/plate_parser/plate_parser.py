@@ -53,9 +53,10 @@ class PlateParser:
         store to tsv.
 
         """
+        # todo parallelize
         for plate in self._experiment_meta:
             pa = self._output_path + "/" + plate
-            # self._downloader.load(plate)
+            self._downloader.load(plate)
             platefilesets = PlateFileSetParser(pa, self._output_path)
             if len(platefilesets) > 1:
                 logger.warn("Found multiple plate identifiers for: " + plate)
