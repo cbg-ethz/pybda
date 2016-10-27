@@ -54,7 +54,7 @@ class PlateParser:
         """
         for plate in self._experiment_meta:
             pa = self._output_path + "/" + plate
-            #self._downloader.load(plate)
+            # self._downloader.load(plate)
             platefilesets = PlateFileSetParser(pa, self._output_path)
             if len(platefilesets) > 1:
                 logger.warn("Found multiple plate identifiers for: " + plate)
@@ -72,6 +72,8 @@ class PlateParser:
         # todo add meta files for single cells
         for platefileset in platefilesets:
             features = self._parse_plate_file_set(platefileset)
+            # TODO
+            mapping = self._parse_plate_mapping(platefileset)
             self._integrate_platefileset(platefileset, features)
 
     def _parse_plate_file_set(self, plate_file_set):
@@ -154,6 +156,10 @@ class PlateParser:
             features[max_cells] = []
         features[max_cells].append(cf)
 
+    def _parse_plate_mapping(self, plate_file_set):
+        logger.info("#Loading meta: " + str(plate_file_set.classifier))
+
+
     def _integrate_platefileset(self, platefileset, features):
         """
         Iterate over all matlab files and create the final matrices
@@ -173,12 +179,11 @@ class PlateParser:
         pathogen = platefileset.pathogen
         library = platefileset.library
         replicate = platefileset.replicate
-        plate = replicate.plate
+        plate = platefileset.plate
         layout = self._layout_meta.get(pathogen, library, replicate, plate)
         # _meta = ["pathogen", "replicate", "library", "plate",
         #          "well", "image", "cell_number",
         #          "sirna", "gene"]
-
         with open(filename, "w") as f:
             header = PlateParser._meta + \
                      [feat.featurename.lower() for feat in features]

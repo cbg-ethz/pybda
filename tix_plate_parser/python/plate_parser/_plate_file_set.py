@@ -16,6 +16,7 @@ class PlateFileSet:
         self._plate = plate
         self._cid = cid
         self._files = []
+        # sirna-entrez mapping
         self._mapping = None
 
     def __iter__(self):
@@ -70,3 +71,5 @@ class PlateFileSet:
     @mapping.setter
     def mapping(self, value):
         self._mapping = value
+
+

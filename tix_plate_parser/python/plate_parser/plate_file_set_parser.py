@@ -59,7 +59,7 @@ class PlateFileSetParser:
                       replicate, plate, cid, self._outfile)
             # add the current matlab file do the respective platefile
             if feature.lower() == PlateFileSetParser._se_map:
-                self._plates[classifier].mapping(feature)
+                self._plates[classifier].mapping = feature
             else:
                 self._plates[classifier].files.append(PlateFile(f, feature))
 
