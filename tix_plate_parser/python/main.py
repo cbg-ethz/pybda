@@ -63,9 +63,9 @@ def main(args):
         parse_options(args)
     experiment_meta = PlateExperimentMeta(experiment_file,
                                      ".*\/\w+\-\w[P|U]\-[G|K]\d+\/.*")
-    layout_meta = PlateLayoutMeta(layout_file)
+    # layout_meta = PlateLayoutMeta(layout_file)
     # create plate parser object and parse the single plates
-    parser = PlateParser(experiment_meta, layout_meta,
+    parser = PlateParser(experiment_meta, None,
                          bee_exe, output_folder, user,
                          password)
     parser.parse()

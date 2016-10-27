@@ -6,6 +6,7 @@ import logging
 import numpy
 import scipy.io as spio
 
+from plate_parser._plate_sirna_gene_mapping import PlateSirnaGeneMapping
 from plate_parser.plate_loader import PlateLoader
 from ._plate_cell_features import PlateCellFeature
 
@@ -102,10 +103,9 @@ class PlateParser:
         file = plate_file.filename
         matrix = None
         try:
-            matlab_matrix = (spio.loadmat(file))
             matrix = \
                 self._alloc(
-                    matlab_matrix["handles"][0][0][0][0][0][0][0][0][0][0],
+                    self._load_matlab(file),
                     file, featurename)
         except ValueError or TypeError or AssertionError:
             logger.warn("Could not parse: %s", file)
@@ -158,7 +158,8 @@ class PlateParser:
 
     def _parse_plate_mapping(self, plate_file_set):
         logger.info("#Loading meta: " + str(plate_file_set.classifier))
-
+        mapp = PlateSirnaGeneMapping(plate_file_set.mapping.filename)
+        return mapp
 
     def _integrate_platefileset(self, platefileset, features):
         """
