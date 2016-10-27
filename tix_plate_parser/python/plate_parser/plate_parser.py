@@ -7,7 +7,7 @@ import numpy
 import scipy.io as spio
 
 from plate_parser.plate_loader import PlateLoader
-from .plate_cell_features import PlateCellFeature
+from ._plate_cell_features import PlateCellFeature
 
 from plate_parser.plate_file_set_parser import PlateFileSetParser
 
@@ -52,11 +52,9 @@ class PlateParser:
         store to tsv.
 
         """
-        cnt = 0
         for plate in self._experiment_meta:
-            cnt += 1
             pa = self._output_path + "/" + plate
-            # self._downloader.load(plate)
+            #self._downloader.load(plate)
             platefilesets = PlateFileSetParser(pa, self._output_path)
             if len(platefilesets) > 1:
                 logger.warn("Found multiple plate identifiers for: " + plate)
@@ -74,8 +72,7 @@ class PlateParser:
         # todo add meta files for single cells
         for platefileset in platefilesets:
             features = self._parse_plate_file_set(platefileset)
-            self._integrate_platefileset(platefileset,
-                                         features)
+            self._integrate_platefileset(platefileset, features)
 
     def _parse_plate_file_set(self, plate_file_set):
         # feature map: there is a chance that different features

@@ -78,8 +78,6 @@ class PlateLayout(object):
         self._well_layout[well] = Well(gene, sirna, well, well_type)
 
 
-
-
 class Well:
     def __init__(self, gene, sirna, well, well_type):
         self._gene = gene

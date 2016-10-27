@@ -16,6 +16,7 @@ class PlateFileSet:
         self._plate = plate
         self._cid = cid
         self._files = []
+        self._mapping = None
 
     def __iter__(self):
         for f in self._files:
@@ -61,3 +62,11 @@ class PlateFileSet:
     @property
     def outfile(self):
         return self._outfile
+
+    @property
+    def mapping(self):
+        return self._mapping
+
+    @mapping.setter
+    def mapping(self, value):
+        self._mapping = value

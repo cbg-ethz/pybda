@@ -40,8 +40,7 @@ class PlateLoader:
               "--plateid", plate_id,
               "--type", "HCS_ANALYSIS_CELL_FEATURES_CC_MAT",
               "--newest",
-              # TODO: remove
-              "--files", ".*Cells.AreaShape_Area.mat"]
+              "--files", ".*.mat"]
         ret = subprocess.call(sc)
         if ret != 0:
             logger.warn("\tdownload failed with status: " + str(0))

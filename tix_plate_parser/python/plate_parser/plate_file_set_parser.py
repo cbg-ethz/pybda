@@ -18,9 +18,11 @@ class PlateFileSetParser:
 
     """
 
-    _skippable_features = ["Image.", "Batch_handles.", "Neighbors.",
+    _skippable_features = ["Batch_handles.", "Neighbors.",
                            "Bacteria.SubObjectFlag.", "CometTails.",
                            "DAPIFG.", "BlobBacteria.", "ExpandedNuclei."]
+
+    _se_map = "Image.FileName_OrigDNA.mat".lower()
 
     def __init__(self, folder, outfile):
         self._plates = {}
@@ -56,7 +58,10 @@ class PlateFileSetParser:
             self._add(classifier, pathogen, library,
                       replicate, plate, cid, self._outfile)
             # add the current matlab file do the respective platefile
-            self._plates[classifier].files.append(PlateFile(f, feature))
+            if feature.lower() == PlateFileSetParser._se_map:
+                self._plates[classifier].mapping(feature)
+            else:
+                self._plates[classifier].files.append(PlateFile(f, feature))
 
     def _find_files(self, folder):
         """
@@ -65,19 +70,16 @@ class PlateFileSetParser:
         :param folder: the folder for which all the plates should get parsed
         :return: returns a list of matlab files
         """
-        leave_out_image = ".+/(Image.+.mat?)$"
         for d, s, f in os.walk(folder):
             for basename in f:
                 if basename.endswith(".mat"):
-                    # this tests if the feature file is image related
-                    nma = re.match(leave_out_image, basename)
                     # if the regex returns none, the feature does not contain
                     # image
                     if self._skip_feature(basename):
                         continue
-                    if nma is not None:
-                        continue
-                    if nma is not None and nma.group() is None:
+                    if basename.startswith("Image.") and \
+                            not basename.startswith(
+                                "Image.FileName_OrigDNA"):
                         continue
                     yield os.path.join(d, basename)
 
@@ -121,8 +123,8 @@ class PlateFileSetParser:
                         string, filename, match)
         return ret, subs
 
-    def _add(self, classifier, pathogen, library, replicate, plate, cid,
-             outfile):
+    def _add(self, classifier, pathogen, library,
+             replicate, plate, cid, outfile):
         if classifier not in self._plates:
             self._plates[classifier] = \
                 PlateFileSet(classifier, outfile + '/' + classifier,
