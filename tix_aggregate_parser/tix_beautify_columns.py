@@ -25,7 +25,7 @@ def parse_table(fl):
             pathogen = re.sub("-.+$", "", toks[2])
             geneset = toks[3]
             rep, library, row, col = toks[4:8]
-            well = row + ("%02d" % col)
+            well = row + ("%02d" % int(col))
             welltype, gene,sirna = toks[8:11]
             print("\t".join([barcode, expr, pathogen, geneset, rep, library, row, col, well, welltype, gene, sirna]))
 
