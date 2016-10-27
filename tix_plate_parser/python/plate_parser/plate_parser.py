@@ -181,7 +181,9 @@ class PlateParser:
         replicate = platefileset.replicate
         screen = platefileset.screen
         plate = platefileset.plate
-        layout = self._layout_meta.get(pathogen, library, replicate, plate)
+        layout = self._layout_meta.get(pathogen, library,
+                                       screen, replicate,
+                                       plate)
         with open(filename, "w") as f:
             header = PlateParser._meta + \
                      [feat.featurename.lower() for feat in features]

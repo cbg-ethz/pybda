@@ -46,18 +46,20 @@ class PlateLayoutMeta:
             self._meta[classifier] = PlateLayout(classifier, geneset, library)
         self._meta[classifier].add(gene, sirna, well, well_type)
 
-    def get(self, pathogen, library, replicate, plate):
+    def get(self, pathogen, library, screen, replicate, plate):
         """
         Get the layout for a specific plate.
 
         :param pathogen: the pathogen, e.g. BRUCELLA
         :param library: the library, e.g. DP
-        :param replicate: replicate, e.. G1
+        :param screen: replicate, e.g D
+        :param replicate: replicate, e.g 1
         :param plate: the plate, e.g. DZ44-1K
         :return: returns a PlateLayout
         """
 
-        cl = "-".join([pathogen, library, replicate, plate]).upper()
+        cl = "-".join([pathogen, library, "".join([screen, replicate]),
+                       plate]).upper()
         if cl in self._meta:
             return self._meta[cl]
         logger.warn("Did not find " + cl + " in meta file")
@@ -77,21 +79,18 @@ class PlateLayout(object):
                         self._classifier + " layout!")
         self._well_layout[well] = Well(gene, sirna, well, well_type)
 
-    @property
     def sirna(self, well):
         if well not in self._well_layout:
             logger.warn("Could not find well:" + well)
             return None
         return self._well_layout[well].sirna
 
-    @property
     def welltype(self, well):
         if well not in self._well_layout:
             logger.warn("Could not find well:" + well)
             return None
         return self._well_layout[well].welltype
 
-    @property
     def gene(self, well):
         if well not in self._well_layout:
             logger.warn("Could not find well:" + well)

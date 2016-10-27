@@ -63,7 +63,8 @@ class PlateFileSetParser:
             # add the current matlab file do the respective platefile
             if feature.lower() == PlateFileSetParser._se_map:
                 self._plates[classifier].mapping = PlateFile(f, feature)
-            self._plates[classifier].files.append(PlateFile(f, feature))
+            else:
+                self._plates[classifier].files.append(PlateFile(f, feature))
 
     def _find_files(self, folder):
         """
