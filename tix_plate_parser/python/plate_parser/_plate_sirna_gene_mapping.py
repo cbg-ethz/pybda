@@ -30,6 +30,9 @@ class PlateSirnaGeneMapping:
             return self._mapping[item]
         return None
 
+    def __len__(self):
+        return len(self._mapping)
+
     def _load(self, plate_file_set):
         cf = load_matlab(plate_file_set.mapping.filename)
         if cf is None:

@@ -22,7 +22,8 @@ class PlateParser:
 
     """
     # meta information header for a single cell
-    _meta = ["pathogen", "library", "screen", "replicate",
+    _meta = ["pathogen", "library_vendor", "library_type", "screen",
+             "replicate",
              "plate", "sirna", "gene",
              "well", "welltype", "image", "cell_number"]
 
@@ -178,6 +179,7 @@ class PlateParser:
         logger.info("Writing to: " + filename)
         pathogen = platefileset.pathogen
         library = platefileset.library
+        library_vendor, library_type = list(library)
         replicate = platefileset.replicate
         screen = platefileset.screen
         plate = platefileset.plate
@@ -192,21 +194,23 @@ class PlateParser:
             # iterate over the different images
             # number of images per plate (should be 9 * 384)
             nimg = features[0].values.shape[0]
+            assert nimg == len(mapping)
             for iimg in range(nimg):
                 well = mapping[iimg]
-                welltype = layout.sirna(well)
-                sirna = layout.welltype(well)
+                sirna = layout.sirna(well)
+                welltype = layout.welltype(well)
                 gene = layout.gene(well)
                 # number of cells in the iimg-th image
-                # cell_vals = features[0].values[iimg]
-                # ncells = cell_vals.shape[0]
                 ncells = features[0].ncells[iimg]
                 # iterate over all the cells
                 for cell in range(ncells):
                     # iterate over a single cell's feature
                     vals = [features[p].values[iimg, cell] for p in
                             range(len(features))]
-                    meta = [pathogen, library, screen, replicate,
+                    meta = [pathogen, library_vendor, library_type, screen,
+                            replicate,
                             plate, sirna, gene,
                             well, welltype, iimg, cell]
-                    f.write("\t".join(meta + list(map(str, vals))) + "\n")
+                    f.write("\t".join(list(map(str, meta)) +
+                                      list(map(str, vals))).lower() +
+                            "\n")
