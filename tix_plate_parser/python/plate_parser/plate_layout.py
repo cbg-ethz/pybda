@@ -77,6 +77,27 @@ class PlateLayout(object):
                         self._classifier + " layout!")
         self._well_layout[well] = Well(gene, sirna, well, well_type)
 
+    @property
+    def sirna(self, well):
+        if well not in self._well_layout:
+            logger.warn("Could not find well:" + well)
+            return None
+        return self._well_layout[well].sirna
+
+    @property
+    def welltype(self, well):
+        if well not in self._well_layout:
+            logger.warn("Could not find well:" + well)
+            return None
+        return self._well_layout[well].welltype
+
+    @property
+    def gene(self, well):
+        if well not in self._well_layout:
+            logger.warn("Could not find well:" + well)
+            return None
+        return self._well_layout[well].gene
+
 
 class Well:
     def __init__(self, gene, sirna, well, well_type):
@@ -94,5 +115,5 @@ class Well:
         return self._sirna
 
     @property
-    def well_type(self):
+    def welltype(self):
         return self._well_type

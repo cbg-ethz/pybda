@@ -25,6 +25,11 @@ class PlateSirnaGeneMapping:
         self._mapping = []
         self._load(plate_file_set)
 
+    def __getitem__(self, item):
+        if isinstance(item, int):
+            return self._mapping[item]
+        return None
+
     def _load(self, plate_file_set):
         cf = load_matlab(plate_file_set.mapping.filename)
         if cf is None:
@@ -40,4 +45,4 @@ class PlateSirnaGeneMapping:
                     "Could not parse meta: " + str(plate_file_set.classifier))
                 self._err = 1
                 continue
-            self._mapping[i] = mat.group(1).lower()
+            self._mapping[i] = mat.group(1).upper()

@@ -17,14 +17,17 @@ class PlateFileSetParser:
     Class for keeping all the filenames of plates stored as a map.
 
     """
-
+    # these are feature file names we dont use
     _skippable_features = ["Batch_handles.", "Neighbors.",
                            "Bacteria.SubObjectFlag.", "CometTails.",
                            "DAPIFG.", "BlobBacteria.", "ExpandedNuclei."]
-
+    # name of the file that has the sirna-entrez mapping information
     _se_map = "Image.FileName_OrigDNA.mat".lower()
+    # the pattern for screen, replicate
+    _setting_pattern = "(\w+)(\d+)"
 
     def __init__(self, folder, outfile):
+        self._setting_regex = re.compile(PlateFileSetParser._setting_pattern)
         self._plates = {}
         self._outfile = outfile
         self._parse_file_names(folder)
@@ -52,10 +55,10 @@ class PlateFileSetParser:
         # iterate over this array
         for f in fls:
             # decompose the file name
-            classifier, pathogen, library, replicate, \
+            classifier, pathogen, library, screen, replicate, \
             plate, cid, feature, fileprefix = self._parse_plate_name(f)
             # add the (classifier-platefileset) pair to the plate map
-            self._add(classifier, pathogen, library,
+            self._add(classifier, pathogen, library, screen,
                       replicate, plate, cid, self._outfile)
             # add the current matlab file do the respective platefile
             if feature.lower() == PlateFileSetParser._se_map:
@@ -103,13 +106,17 @@ class PlateFileSetParser:
         # remove HCS_ANALYSIS_CELL_FEATURES_CC_MAT string
         _, f = self._match_and_sub(f, ".*/(.+?)$", 1, filename)
         plate, f = self._match_and_sub(f, ".*/(.+)$", 1, filename)
-        screen, f = self._match_and_sub(f, ".*/(.+)$", 1, filename)
-        pathogen, library, replicate = screen.split("-")[0:3]
+        exper, f = self._match_and_sub(f, ".*/(.+)$", 1, filename)
+        pathogen, library, sett = exper.split("-")[0:3]
+        mat = self._setting_regex.match(sett)
+        screen, replicate = mat.group(1), mat.group(2)
         team, f = self._match_and_sub(f, ".*/(.+)$", 1, filename)
         src, f = self._match_and_sub(f, ".*/(.+)$", 1, filename)
-        classifier = "_".join([src, team, pathogen, library, replicate, plate,
+        classifier = "_".join([src, team, pathogen, library, sett,
+                               plate,
                                cid])
-        return classifier, pathogen, library, replicate, plate, cid, feature, f
+        return classifier, pathogen, library, screen, replicate, plate, cid, \
+               feature, f
 
     @staticmethod
     def _match_and_sub(string, match, grp, filename):
@@ -122,10 +129,10 @@ class PlateFileSetParser:
                         string, filename, match)
         return ret, subs
 
-    def _add(self, classifier, pathogen, library,
+    def _add(self, classifier, pathogen, library, screen,
              replicate, plate, cid, outfile):
         if classifier not in self._plates:
             self._plates[classifier] = \
                 PlateFileSet(classifier, outfile + '/' + classifier,
-                             pathogen, library,
+                             pathogen, library, screen,
                              replicate, plate, cid)

@@ -7,11 +7,12 @@ import random
 
 class PlateFileSet:
     def __init__(self, classifier, outfile, pathogen,
-                 library, replicate, plate, cid):
+                 library, screen, replicate, plate, cid):
         self._classifier = classifier
         self._outfile = outfile
         self._pathogen = pathogen
         self._library = library
+        self._screen = screen
         self._replicate = replicate
         self._plate = plate
         self._cid = cid
@@ -44,6 +45,10 @@ class PlateFileSet:
     @property
     def replicate(self):
         return self._replicate
+
+    @property
+    def screen(self):
+        return self._screen
 
     @property
     def plate(self):

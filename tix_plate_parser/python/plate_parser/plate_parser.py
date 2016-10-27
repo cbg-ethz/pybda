@@ -21,10 +21,10 @@ class PlateParser:
     features.
 
     """
-
-    _meta = ["pathogen", "replicate", "library", "plate",
-             "well", "image", "cell_number",
-             "sirna", "gene"]
+    # meta information header for a single cell
+    _meta = ["pathogen", "library", "screen", "replicate",
+             "plate", "sirna", "gene",
+             "well", "welltype", "image", "cell_number"]
 
     def __init__(self, experiment_meta, layout_meta,
                  bee_loader, output_path, username, pw):
@@ -179,11 +179,9 @@ class PlateParser:
         pathogen = platefileset.pathogen
         library = platefileset.library
         replicate = platefileset.replicate
+        screen = platefileset.screen
         plate = platefileset.plate
         layout = self._layout_meta.get(pathogen, library, replicate, plate)
-        # _meta = ["pathogen", "replicate", "library", "plate",
-        #          "well", "image", "cell_number",
-        #          "sirna", "gene"]
         with open(filename, "w") as f:
             header = PlateParser._meta + \
                      [feat.featurename.lower() for feat in features]
@@ -193,6 +191,10 @@ class PlateParser:
             # number of images per plate (should be 9 * 384)
             nimg = features[0].values.shape[0]
             for iimg in range(nimg):
+                well = mapping[iimg]
+                welltype = layout.sirna(well)
+                sirna = layout.welltype(well)
+                gene = layout.gene(well)
                 # number of cells in the iimg-th image
                 # cell_vals = features[0].values[iimg]
                 # ncells = cell_vals.shape[0]
@@ -202,10 +204,7 @@ class PlateParser:
                     # iterate over a single cell's feature
                     vals = [features[p].values[iimg, cell] for p in
                             range(len(features))]
-                    # TODO: finish meta
-                    sirna = layout.sirna(iimg)
-                    gene = layout.gene(iimg)
-                    well = layout.well(iimg)
-                    meta = [pathogen, replicate, library, plate,
-                            layout, well, iimg, cell, sirna, gene]
+                    meta = [pathogen, library, screen, replicate,
+                            plate, sirna, gene,
+                            well, welltype, iimg, cell]
                     f.write("\t".join(meta + list(map(str, vals))) + "\n")
