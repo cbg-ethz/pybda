@@ -4,13 +4,12 @@
 
 import logging
 import numpy
-import scipy.io as spio
 
-from plate_parser._plate_sirna_gene_mapping import PlateSirnaGeneMapping
-from plate_parser.plate_loader import PlateLoader
+from ._plate_sirna_gene_mapping import PlateSirnaGeneMapping
+from ._utility import load_matlab
+from .plate_loader import PlateLoader
 from ._plate_cell_features import PlateCellFeature
-
-from plate_parser.plate_file_set_parser import PlateFileSetParser
+from .plate_file_set_parser import PlateFileSetParser
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -75,7 +74,7 @@ class PlateParser:
             features = self._parse_plate_file_set(platefileset)
             # TODO
             mapping = self._parse_plate_mapping(platefileset)
-            self._integrate_platefileset(platefileset, features)
+            self._integrate_platefileset(platefileset, features, mapping)
 
     def _parse_plate_file_set(self, plate_file_set):
         # feature map: there is a chance that different features
@@ -105,7 +104,7 @@ class PlateParser:
         try:
             matrix = \
                 self._alloc(
-                    self._load_matlab(file),
+                    load_matlab(file),
                     file, featurename)
         except ValueError or TypeError or AssertionError:
             logger.warn("Could not parse: %s", file)
@@ -158,10 +157,10 @@ class PlateParser:
 
     def _parse_plate_mapping(self, plate_file_set):
         logger.info("#Loading meta: " + str(plate_file_set.classifier))
-        mapp = PlateSirnaGeneMapping(plate_file_set.mapping.filename)
+        mapp = PlateSirnaGeneMapping(plate_file_set)
         return mapp
 
-    def _integrate_platefileset(self, platefileset, features):
+    def _integrate_platefileset(self, platefileset, features, mapping):
         """
         Iterate over all matlab files and create the final matrices
 
@@ -172,9 +171,9 @@ class PlateParser:
         logger.info("Integrating the different features to a single matrix")
         # since some features have different numbers of calls
         for k, v in features.items():
-            self._integrate_feature(platefileset, k, v)
+            self._integrate_feature(platefileset, k, v, mapping)
 
-    def _integrate_feature(self, platefileset, max_ncells, features):
+    def _integrate_feature(self, platefileset, max_ncells, features, mapping):
         filename = platefileset.outfile + "_max_nit_" + max_ncells + ".tsv"
         logger.info("Writing to: " + filename)
         pathogen = platefileset.pathogen
