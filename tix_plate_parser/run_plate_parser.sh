@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 echo -e "Plate parser for open bis plate data!"
-echo -n "Enter password"
+echo -n "Enter password: "
 read -s PASS
 echo ""
 
