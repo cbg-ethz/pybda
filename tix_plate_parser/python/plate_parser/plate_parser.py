@@ -81,7 +81,7 @@ class PlateParser:
         self._parse_plate_file_sets(platefilesets)
         # remove the matlab plate files
         # TODO
-        #platefilesets.remove()
+        # platefilesets.remove()
 
     def _parse_plate_file_sets(self, platefilesets):
         """
@@ -196,16 +196,14 @@ class PlateParser:
         logger.info("Writing to: " + filename)
         pathogen = platefileset.pathogen
         library = platefileset.library
-        library_vendor, library_type = list(library)
         replicate = platefileset.replicate
         screen = platefileset.screen
         plate = platefileset.plate
+        library_vendor, library_type = list(library)
         layout = self._layout_meta.get(pathogen, library,
-                                       screen, replicate,
-                                       plate)
+                                       screen, replicate, plate)
         with open(filename, "w") as f:
-            header = PlateParser._meta + \
-                     [feat.featurename.lower() for feat in features]
+            header = PlateParser._meta + [feat.featurename.lower() for feat in features]
             # write the feature names
             f.write("\t".join(header) + "\n")
             # iterate over the different images
