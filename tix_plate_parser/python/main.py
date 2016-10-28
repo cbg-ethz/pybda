@@ -13,8 +13,6 @@ from __future__ import print_function, absolute_import
 import argparse
 import sys
 
-from plate_parser.plate_experiment_meta import PlateExperimentMeta
-from plate_parser.plate_layout import PlateLayoutMeta
 from plate_parser import PlateParser
 
 

@@ -31,16 +31,16 @@ class PlateLoader:
         self._username = username
         self._pw = pw
 
-    def load(self, plate_id, lock):
+    def load(self, plate_id):
         """
         Download a plate using the bee-data downloader.
 
-        :param plate_id:
-        :param lock:
+        :param plate_id: the full qualifier id of a plate
         :return:
         """
-        lock.acquire()
+        global lock
         try:
+            lock.acquire()
             logger.info("Downloading: " + plate_id)
             sc = [self._bee_loader,
                   "--user", self._username,

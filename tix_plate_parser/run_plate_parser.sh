@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
 echo -e "Plate parser for open bis plate data!"
-echo -e "Enter password"
+echo -n "Enter password"
 read -s PASS
+echo ""
 
 if [ "$(uname)" == "Darwin" ]; then
   LINK=$(greadlink -f $0)

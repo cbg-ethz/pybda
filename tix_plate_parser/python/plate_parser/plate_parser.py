@@ -17,6 +17,7 @@ from .plate_file_set_parser import PlateFileSetParser
 logger = mp.log_to_stderr()
 logger.setLevel(logging.INFO)
 
+lock, pool = None, None
 
 class PlateParser:
     """
@@ -63,20 +64,25 @@ class PlateParser:
         store to tsv.
 
         """
+        global lock
+        global pool
         lock = mp.Lock()
+        pool = mp.Pool(mp.cpu_count() - 1)
         cnt = 0
         logger.info("Going parallel ...")
         for plate in self._experiment_meta:
             cnt += 1
-            if cnt == 10:
+            if cnt == 2:
                 break
-            mp.Process(target=self._parse, args=(lock, plate)).start()
+            pool.apply_async(func=self._parse, args=(plate,))
+        pool.close()
+        pool.join()
 
-    def _parse(self, lock, plate):
+    def _parse(self, plate):
         # plate file name
         pa = self._output_path + "/" + plate
         # download the plate files with a process lock
-        self._downloader.load(plate, lock)
+        self._downloader.load(plate)
         # parse the plate file names
         platefilesets = PlateFileSetParser(pa, self._output_path)
         if len(platefilesets) > 1:
