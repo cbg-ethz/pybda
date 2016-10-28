@@ -72,7 +72,7 @@ class PlateParser:
         logger.info("Going parallel ...")
         for plate in self._experiment_meta:
             cnt += 1
-            if cnt == 2:
+            if cnt == 4:
                 break
             pool.apply_async(func=self._parse, args=(plate,))
         pool.close()
