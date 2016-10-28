@@ -4,6 +4,7 @@
 
 import logging
 import subprocess
+import plate_parser
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -38,9 +39,8 @@ class PlateLoader:
         :param plate_id: the full qualifier id of a plate
         :return:
         """
-        global lock
         try:
-            lock.acquire()
+            plate_parser.lock.acquire()
             logger.info("Downloading: " + plate_id)
             sc = [self._bee_loader,
                   "--user", self._username,
@@ -54,5 +54,5 @@ class PlateLoader:
             if ret != 0:
                 logger.warn("\tdownload failed with status: " + str(0))
         finally:
-            lock.release()
+            plate_parser.lock.release()
         return ret
