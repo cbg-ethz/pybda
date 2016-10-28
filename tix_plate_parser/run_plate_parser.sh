@@ -1,15 +1,13 @@
 #!/usr/bin/env bash
 
-if [[ $# -ne 1 ]];
-then
-	echo -e "usage:\t$0 <open-bis password for simon dirmeier>"
-	exit
-fi
+echo -e "Plate parser for open bis plate data!"
+echo -e "Enter password"
+read -s PASS
 
 if [ "$(uname)" == "Darwin" ]; then
   LINK=$(greadlink -f $0)
 else
-  LINK=$(readlink -f $1)
+  LINK=$(readlink -f $0)
 fi
 DIR=$(dirname ${LINK})
 
@@ -26,7 +24,6 @@ EXE="${DIR}/python/main.py"
 META="${PATH_PREFIX}/plate_layout_meta_files/target_infect_x_library_layouts_beautified.tsv"
 EXPER="${PATH_PREFIX}/experiment_meta_files/experiment_meta_file.tsv"
 USER="simon.dirmeier@bsse.ethz.ch"
-PASS=$0
 DOWNLOADER="${SRC_PREFIX}/tix_mario/openBIS/Tools/BeeDataSetDownloader/BeeDataSetDownloader.sh"
 OUTPUT="${PATH_PREFIX}/screening_data/"
 
@@ -61,4 +58,4 @@ then
   exit
 fi
 
-python $EXE -m $META -e $EXPER -u $USER -p $1 -b $DOWNLOADER -o $OUTPUT
+python $EXE -m $META -e $EXPER -u $USER -p $PASS -b $DOWNLOADER -o $OUTPUT
