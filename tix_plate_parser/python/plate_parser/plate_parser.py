@@ -4,6 +4,7 @@
 
 import logging
 import numpy
+import multiprocessing
 
 from ._plate_sirna_gene_mapping import PlateSirnaGeneMapping
 from ._utility import load_matlab
@@ -11,8 +12,8 @@ from .plate_loader import PlateLoader
 from ._plate_cell_features import PlateCellFeature
 from .plate_file_set_parser import PlateFileSetParser
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = multiprocessing.log_to_stderr()
+logger.setLevel(logging.INFO)
 
 
 class PlateParser:
@@ -41,11 +42,15 @@ class PlateParser:
         :param username: the user name of the open bis instance
         :param pw: the password of the open bis instance
         """
+
         # parse the folder into a map of (classifier-plate) pairs
         self._experiment_meta = experiment_meta
         self._layout_meta = layout_meta
-        self._downloader = PlateLoader(bee_loader, output_path, username, pw)
+        self._bee_loader = bee_loader
+        self._username = username
+        self._pw = pw
         self._output_path = output_path
+        self._downloader = PlateLoader(bee_loader, output_path, username, pw)
 
     def parse(self):
         """
@@ -53,15 +58,23 @@ class PlateParser:
         store to tsv.
 
         """
-        # todo parallelize
+        lock = multiprocessing.Lock()
+        cnt = 0
+        logger.info("Going parallel...")
         for plate in self._experiment_meta:
-            pa = self._output_path + "/" + plate
-            self._downloader.load(plate)
-            platefilesets = PlateFileSetParser(pa, self._output_path)
-            if len(platefilesets) > 1:
-                logger.warn("Found multiple plate identifiers for: " + plate)
-            self._parse_plate_file_sets(platefilesets)
-            exit(1)
+            cnt += 1
+            if cnt == 5:
+                break
+            multiprocessing.Process(target=self._parse,
+                                    args=(lock, plate)).start()
+
+    def _parse(self, lock, plate):
+        pa = self._output_path + "/" + plate
+        self._downloader.load(plate, lock)
+        #platefilesets = PlateFileSetParser(pa, self._output_path)
+        #if len(platefilesets) > 1:
+        #    logger.warn("Found multiple plate identifiers for: " + plate)
+        #self._parse_plate_file_sets(platefilesets)
 
     def _parse_plate_file_sets(self, platefilesets):
         """

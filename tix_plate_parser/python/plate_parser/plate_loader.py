@@ -31,17 +31,28 @@ class PlateLoader:
         self._username = username
         self._pw = pw
 
-    def load(self, plate_id):
-        logger.info("Downloading: " + plate_id)
-        sc = [self._bee_loader,
-              "--user", self._username,
-              "--password", self._pw,
-              "--outputdir", self._output_path,
-              "--plateid", plate_id,
-              "--type", "HCS_ANALYSIS_CELL_FEATURES_CC_MAT",
-              "--newest",
-              "--files", ".*.mat"]
-        ret = subprocess.call(sc)
-        if ret != 0:
-            logger.warn("\tdownload failed with status: " + str(0))
+    def load(self, plate_id, lock):
+        """
+        Download a plate using the bee-data downloader.
+
+        :param plate_id:
+        :param lock:
+        :return:
+        """
+        lock.acquire()
+        try:
+            logger.info("Downloading: " + plate_id)
+            sc = [self._bee_loader,
+                  "--user", self._username,
+                  "--password", self._pw,
+                  "--outputdir", self._output_path,
+                  "--plateid", plate_id,
+                  "--type", "HCS_ANALYSIS_CELL_FEATURES_CC_MAT",
+                  "--newest",
+                  "--files", ".*.mat"]
+            ret = subprocess.call(sc)
+            if ret != 0:
+                logger.warn("\tdownload failed with status: " + str(0))
+        finally:
+            lock.release()
         return ret
