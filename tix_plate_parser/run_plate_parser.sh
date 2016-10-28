@@ -19,6 +19,7 @@ then
 	SRC_PREFIX="/home/simondi/PROJECTS/target_infect_x_project"
 fi
 
+EXE="${DIR}/python/main.py"
 META="${PATH_PREFIX}/plate_layout_meta_files/target_infect_x_library_layouts_beautified.tsv"
 EXPER="${PATH_PREFIX}/experiment_meta_files/experiment_meta_file.tsv"
 USER="simon.dirmeier@bsse.ethz.ch"
@@ -26,6 +27,12 @@ PASS=$0
 DOWNLOADER="${SRC_PREFIX}/tix_mario/openBIS/Tools/BeeDataSetDownloader/BeeDataSetDownloader.sh"
 OUTPUT="${PATH_PREFIX}/screening_data/"
 
+if [[ ! -e $EXE ]];
+then
+	echo "Executable not found!"
+	echo $EXE
+	exit
+fi
 if [[ ! -e $META ]];
 then
 	echo "Meta files have not been found!"
@@ -51,4 +58,4 @@ then
   exit
 fi
 
-echo $1
+python $EXE -m $META -e $EXPER -u $USER -p $1 -b $DOWNLOADER -o $OUTPUT
