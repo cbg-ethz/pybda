@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [[ $# -ne 2 ]];
+if [[ $# -ne 1 ]];
 then
 	echo -e "usage:\t$0 <open-bis password for simon dirmeier>"
 	exit

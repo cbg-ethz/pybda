@@ -15,7 +15,7 @@ import sys
 
 from plate_parser.plate_experiment_meta import PlateExperimentMeta
 from plate_parser.plate_layout import PlateLayoutMeta
-from plate_parser.plate_parser import PlateParser
+from plate_parser import PlateParser
 
 
 def parse_options(args):
@@ -59,18 +59,13 @@ def parse_options(args):
 
 
 def main(args):
-    print("Let the fun begin")
-    return(1)
-    # layout_file, experiment_file, user, password, bee_exe, output_folder = \
-    #     parse_options(args)
-    # experiment_meta = PlateExperimentMeta(experiment_file,
-    #                                  ".*\/\w+\-\w[P|U]\-[G|K]\d+\/.*")
-    # layout_meta = PlateLayoutMeta(layout_file)
-    # # create plate parser object and parse the single plates
-    # parser = PlateParser(experiment_meta, layout_meta,
-    #                      bee_exe, output_folder, user,
-    #                      password)
-    # parser.parse()
+    layout_file, experiment_file, user, password, bee_exe, output_folder = \
+        parse_options(args)
+    # create plate parser object and parse the single plates
+    parser = PlateParser(experiment_file, layout_file,
+                         bee_exe, output_folder, user,
+                         password)
+    parser.parse()
 
 if __name__ == "__main__":
     main(sys.argv[1:])

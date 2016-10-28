@@ -6,6 +6,8 @@ import logging
 import numpy
 import multiprocessing as mp
 
+from .plate_experiment_meta import PlateExperimentMeta
+from .plate_layout import PlateLayoutMeta
 from ._plate_sirna_gene_mapping import PlateSirnaGeneMapping
 from ._utility import load_matlab
 from .plate_loader import PlateLoader
@@ -29,7 +31,7 @@ class PlateParser:
              "plate", "sirna", "gene",
              "well", "welltype", "image", "cell_number"]
 
-    def __init__(self, experiment_meta, layout_meta,
+    def __init__(self, experiment_file, layout_file,
                  bee_loader, output_path, username, pw):
         """
         Constructor for PlateParser.
@@ -43,10 +45,12 @@ class PlateParser:
         :param username: the user name of the open bis instance
         :param pw: the password of the open bis instance
         """
-
+        self._experiment_file = experiment_file
+        self._layout_file = layout_file
         # parse the folder into a map of (classifier-plate) pairs
-        self._experiment_meta = experiment_meta
-        self._layout_meta = layout_meta
+        self._experiment_meta = PlateExperimentMeta(experiment_file,
+                                              ".*\/\w+\-\w[P|U]\-[G|K]\d+\/.*")
+        self._layout_meta = PlateLayoutMeta(layout_file)
         self._bee_loader = bee_loader
         self._username = username
         self._pw = pw
@@ -61,7 +65,7 @@ class PlateParser:
         """
         lock = mp.Lock()
         cnt = 0
-        logger.info("Going parallel...")
+        logger.info("Going parallel ...")
         for plate in self._experiment_meta:
             cnt += 1
             if cnt == 10:
