@@ -1,1 +1,0 @@
-python main.py -f /Users/simondi/PHD/data/data/target_infect_x/BRUCELLA-AU-CV3 -m /Users/simondi/PHD/data/data/target_infect_x/aggregates/target_infect_x_library_layouts_beautified.tsv -e /Users/simondi/PHD/data/data/target_infect_x/experiment_meta_files/experiment_meta_file.tsv

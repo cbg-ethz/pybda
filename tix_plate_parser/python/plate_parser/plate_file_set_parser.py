@@ -28,8 +28,10 @@ class PlateFileSetParser:
 
     def __init__(self, folder, outfile):
         self._setting_regex = re.compile(PlateFileSetParser._setting_pattern)
+        self._folder = folder
         self._plates = {}
         self._outfile = outfile
+        self._files = []
         self._parse_file_names(folder)
 
     def __iter__(self):
@@ -43,6 +45,17 @@ class PlateFileSetParser:
     def __len__(self):
         return len(self._plates)
 
+    def remove(self):
+        """
+        Remove the plate file set from the disc.
+
+        """
+        logger.info("Removing platefile sets")
+        from subprocess import call
+        for f in self._files:
+            if f.endswith(".mat"):
+                call(["rm", f.filename])
+
     def _parse_file_names(self, folder):
         """
         Traverse the given folder structure and save every
@@ -50,10 +63,15 @@ class PlateFileSetParser:
 
         :param folder: the folder for which all the plates should get parsed
         """
-        # find all relevant matlab files in the folder
-        fls = self._find_files(folder)
         # iterate over this array
-        for f in fls:
+        for basename, f in self._find_files(folder):
+            self._files.append(f)
+            if self._skip_feature(basename):
+                continue
+            if basename.startswith("Image.") and \
+                    not basename.startswith(
+                        "Image.FileName_OrigDNA"):
+                continue
             # decompose the file name
             classifier, pathogen, library, screen, replicate, \
             plate, cid, feature, fileprefix = self._parse_plate_name(f)
@@ -76,15 +94,7 @@ class PlateFileSetParser:
         for d, s, f in os.walk(folder):
             for basename in f:
                 if basename.endswith(".mat"):
-                    # if the regex returns none, the feature does not contain
-                    # image
-                    if self._skip_feature(basename):
-                        continue
-                    if basename.startswith("Image.") and \
-                            not basename.startswith(
-                                "Image.FileName_OrigDNA"):
-                        continue
-                    yield os.path.join(d, basename)
+                    yield basename, os.path.join(d, basename)
 
     @staticmethod
     def _skip_feature(basename):

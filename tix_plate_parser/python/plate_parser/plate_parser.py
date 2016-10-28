@@ -70,11 +70,12 @@ class PlateParser:
 
     def _parse(self, lock, plate):
         pa = self._output_path + "/" + plate
-        self._downloader.load(plate, lock)
+       # self._downloader.load(plate, lock)
         platefilesets = PlateFileSetParser(pa, self._output_path)
         if len(platefilesets) > 1:
            logger.warn("Found multiple plate identifiers for: " + plate)
-        self._parse_plate_file_sets(platefilesets)
+      #  self._parse_plate_file_sets(platefilesets)
+        platefilesets.remove()
 
     def _parse_plate_file_sets(self, platefilesets):
         """
