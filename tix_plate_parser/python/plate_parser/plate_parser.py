@@ -4,7 +4,7 @@
 
 import logging
 import numpy
-import multiprocessing
+import multiprocessing as mp
 
 from ._plate_sirna_gene_mapping import PlateSirnaGeneMapping
 from ._utility import load_matlab
@@ -12,7 +12,7 @@ from .plate_loader import PlateLoader
 from ._plate_cell_features import PlateCellFeature
 from .plate_file_set_parser import PlateFileSetParser
 
-logger = multiprocessing.log_to_stderr()
+logger = mp.log_to_stderr()
 logger.setLevel(logging.INFO)
 
 
@@ -58,23 +58,27 @@ class PlateParser:
         store to tsv.
 
         """
-        lock = multiprocessing.Lock()
+        lock = mp.Lock()
         cnt = 0
         logger.info("Going parallel...")
         for plate in self._experiment_meta:
             cnt += 1
             if cnt == 5:
                 break
-            multiprocessing.Process(target=self._parse,
-                                    args=(lock, plate)).start()
+            mp.Process(target=self._parse, args=(lock, plate)).start()
 
     def _parse(self, lock, plate):
+        # plate file name
         pa = self._output_path + "/" + plate
-       # self._downloader.load(plate, lock)
+        # download the plate files with a process lock
+        self._downloader.load(plate, lock)
+        # parse the plate file names
         platefilesets = PlateFileSetParser(pa, self._output_path)
         if len(platefilesets) > 1:
-           logger.warn("Found multiple plate identifiers for: " + plate)
-      #  self._parse_plate_file_sets(platefilesets)
+            logger.warn("Found multiple plate identifiers for: " + plate)
+        # parse the files
+        self._parse_plate_file_sets(platefilesets)
+        # remove the matlab plate files
         platefilesets.remove()
 
     def _parse_plate_file_sets(self, platefilesets):
