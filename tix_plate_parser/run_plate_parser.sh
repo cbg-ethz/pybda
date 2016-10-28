@@ -16,7 +16,7 @@ DIR=$(dirname ${LINK})
 PATH_PREFIX="/Users/simondi/PHD/data/data/target_infect_x"
 SRC_PREFIX="/Users/simondi/PROJECTS/target_infect_x_project"
 
-if [[ $DIR == /home/simondi/tix_util* ]];
+if [[ $DIR == /home/simondi/* ]];
 then
 	PATH_PREFIX="/links/groups/beerenwinkel/simon/data/target_infect_x"
 	SRC_PREFIX="/home/simondi/PROJECTS/target_infect_x_project"
