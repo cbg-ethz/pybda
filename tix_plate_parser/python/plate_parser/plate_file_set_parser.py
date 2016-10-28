@@ -30,8 +30,8 @@ class PlateFileSetParser:
         self._setting_regex = re.compile(PlateFileSetParser._setting_pattern)
         self._folder = folder
         self._plates = {}
-        self._outfile = outfile
         self._files = []
+        self._outfile = outfile
         self._parse_file_names(folder)
 
     def __iter__(self):
@@ -66,23 +66,30 @@ class PlateFileSetParser:
         # iterate over this array
         for basename, f in self._find_files(folder):
             self._files.append(f)
-            if self._skip_feature(basename):
-                continue
-            if basename.startswith("Image.") and \
-                    not basename.startswith(
-                        "Image.FileName_OrigDNA"):
-                continue
+            if self._skip(basename):
+                return
             # decompose the file name
-            classifier, pathogen, library, screen, replicate, \
-            plate, cid, feature, fileprefix = self._parse_plate_name(f)
+            clss, path, lib, scr, rep, plt, cid, feat, _ = self._parse_plate_name(f)
             # add the (classifier-platefileset) pair to the plate map
-            self._add(classifier, pathogen, library, screen,
-                      replicate, plate, cid, self._outfile)
+            self._add_platefileset(clss, path, lib, scr,
+                                   rep, plt, cid, self._outfile)
+            self._add_platefile(f, feat, clss)
+
+    def _add_platefile(self, f, feature, classifier):
+        # matlab file is the well mapping
+        if feature.lower() == PlateFileSetParser._se_map:
+            self._plates[classifier].mapping = PlateFile(f, feature)
             # add the current matlab file do the respective platefile
-            if feature.lower() == PlateFileSetParser._se_map:
-                self._plates[classifier].mapping = PlateFile(f, feature)
-            else:
-                self._plates[classifier].files.append(PlateFile(f, feature))
+        else:
+            self._plates[classifier].files.append(PlateFile(f, feature))
+
+    def _skip(self, basename):
+        if self._skip_feature(basename):
+            return True
+        if basename.startswith("Image.") and \
+                not basename.startswith("Image.FileName_OrigDNA"):
+            return True
+        return False
 
     @staticmethod
     def _find_files(folder):
@@ -141,8 +148,8 @@ class PlateFileSetParser:
                         string, filename, match)
         return ret, subs
 
-    def _add(self, classifier, pathogen, library, screen,
-             replicate, plate, cid, outfile):
+    def _add_platefileset(self, classifier, pathogen, library,
+                          screen, replicate, plate, cid, outfile):
         if classifier not in self._plates:
             self._plates[classifier] = \
                 PlateFileSet(classifier, outfile + '/' + classifier,
