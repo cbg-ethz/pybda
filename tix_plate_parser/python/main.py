@@ -71,5 +71,20 @@ def main(args):
     parser.parse()
 
 
-if __name__ == "__main__":
-    main(sys.argv[1:])
+from multiprocessing import Process, Lock
+import time
+
+def f(l, i):
+    l.acquire()
+    time.sleep(10/(i % 2+1))
+    print("hello world %s" % i)
+    l.release()
+
+if __name__ == '__main__':
+    lock = Lock()
+    for num in range(10):
+        Process(target=f, args=(lock, num)).start()
+
+#if __name__ == "__main__":
+
+    #main(sys.argv[1:])

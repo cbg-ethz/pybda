@@ -211,7 +211,7 @@ class PlateParser:
                     meta = [pathogen, library_vendor, library_type, screen,
                             replicate,
                             plate, sirna, gene,
-                            well, welltype, iimg, cell]
+                            well, welltype, iimg + 1, cell + 1]
                     f.write("\t".join(list(map(str, meta)) +
                                       list(map(str, vals))).lower() +
                             "\n")
