@@ -25,6 +25,9 @@ class PlateExperimentMeta:
         """
         self._meta_file = file
         self._pattern = pattern
+        self._regex = re.compile(".*((BACKUP)|(INVASIN)|(OLIGOPROFILE)|("
+                              "TITRATION)|"
+                         "(RHINO-TEST)|(1PMOL)).*".upper())
         logger.info("Loading experiments...")
         self._plate_files = self._load()
 
@@ -34,8 +37,6 @@ class PlateExperimentMeta:
 
     def _load(self):
         fls = []
-        reg = re.compile(".*((BACKUP)|(INVASIN)|(OLIGOPROFILE)|(TITRATION)|"
-                         "(RHINO-TEST)|(1PMOL)).*".upper())
         pat = re.compile(self._pattern)
         with open(self._meta_file, "r") as f:
             for entry in f.readlines():
@@ -45,14 +46,10 @@ class PlateExperimentMeta:
                 toks = entry.strip().split("\t")
                 if len(toks) < 2:
                     continue
-                platetype = toks[1]
-                # TODO: what actually?
+                filename, platetype = toks[0], toks[1]
                 if not platetype.lower().startswith("screeningplate"):
                     continue
-                filename = toks[0]
-                if reg.match(filename):
-                    continue
-                if not pat.match(filename):
+                if self._regex.match(filename) or not pat.match(filename):
                     continue
                 fls.append(filename)
         return fls

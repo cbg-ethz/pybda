@@ -4,7 +4,7 @@
 
 import logging
 
-from numpy import shape, isnan, count_nonzero
+from numpy import shape
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

@@ -50,11 +50,11 @@ class PlateFileSetParser:
         Remove the plate file set from the disc.
 
         """
-        logger.info("Removing platefile sets")
+        logger.info("Removing plate-file sets")
         from subprocess import call
         for f in self._files:
             if f.endswith(".mat"):
-                call(["rm", f.filename])
+                call(["rm", f])
 
     def _parse_file_names(self, folder):
         """
@@ -84,7 +84,8 @@ class PlateFileSetParser:
             else:
                 self._plates[classifier].files.append(PlateFile(f, feature))
 
-    def _find_files(self, folder):
+    @staticmethod
+    def _find_files(folder):
         """
         Traverse the folder and return all relevant matlab files
 
