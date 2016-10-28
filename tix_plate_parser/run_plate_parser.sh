@@ -6,8 +6,11 @@ then
 	exit
 fi
 
-
-LINK=$(greadlink -f $0)
+if [ "$(uname)" == "Darwin" ]; then
+  LINK=$(greadlink -f $0)
+else
+  LINK=$(readlink -f $1)
+fi
 DIR=$(dirname ${LINK})
 
 PATH_PREFIX="/Users/simondi/PHD/data/data/target_infect_x"
