@@ -22,6 +22,7 @@ class PlateParser:
     features.
 
     """
+
     # meta information header for a single cell
     _meta = ["pathogen", "library_vendor", "library_type", "screen",
              "replicate",
@@ -63,7 +64,7 @@ class PlateParser:
         logger.info("Going parallel...")
         for plate in self._experiment_meta:
             cnt += 1
-            if cnt == 5:
+            if cnt == 10:
                 break
             mp.Process(target=self._parse, args=(lock, plate)).start()
 
@@ -79,34 +80,32 @@ class PlateParser:
         # parse the files
         self._parse_plate_file_sets(platefilesets)
         # remove the matlab plate files
-        platefilesets.remove()
+        # TODO
+        #platefilesets.remove()
 
     def _parse_plate_file_sets(self, platefilesets):
         """
         Parse the PlateFileSets (i.e.: all parsed folders) into tsvs.
 
+        Iterate over the file sets and create matrices every platefileset
+        represents a plate so every platefileset is a single file
+
         """
-        # iterate over the file sets and create matrices
-        # every platefileset represents a plate
-        # so every platefileset is a single file
-        # todo add meta files for single cells
+
         for platefileset in platefilesets:
+            # parse the feates to np arrays
             features = self._parse_plate_file_set(platefileset)
+            # load the mapping file for the wells
             mapping = self._parse_plate_mapping(platefileset)
             self._integrate_platefileset(platefileset, features, mapping)
 
     def _parse_plate_file_set(self, plate_file_set):
-        # feature map: there is a chance that different features
-        # have a different set of cells
         features = {}
         logger.info("Doing: " + str(plate_file_set.classifier))
-        logger.info("\t#Features: " + str(len(plate_file_set)))
         for plate_file in plate_file_set:
             cf = self._parse_file(plate_file)
             if cf is None:
                 continue
-            logger.info("\tFile: " + str(plate_file) + " -> max cells:" +
-                        str(cf.max_cells))
             self._add(features, cf)
         return features
 
@@ -215,9 +214,6 @@ class PlateParser:
             assert nimg == len(mapping)
             for iimg in range(nimg):
                 well = mapping[iimg]
-                sirna = layout.sirna(well)
-                welltype = layout.welltype(well)
-                gene = layout.gene(well)
                 # number of cells in the iimg-th image
                 ncells = features[0].ncells[iimg]
                 # iterate over all the cells
@@ -226,9 +222,8 @@ class PlateParser:
                     vals = [features[p].values[iimg, cell] for p in
                             range(len(features))]
                     meta = [pathogen, library_vendor, library_type, screen,
-                            replicate,
-                            plate, sirna, gene,
-                            well, welltype, iimg + 1, cell + 1]
+                            replicate, plate, layout.sirna(well),
+                            layout.gene(well), well, layout.welltype(well),
+                            iimg + 1, cell + 1]
                     f.write("\t".join(list(map(str, meta)) +
-                                      list(map(str, vals))).lower() +
-                            "\n")
+                                      list(map(str, vals))).lower() + "\n")
