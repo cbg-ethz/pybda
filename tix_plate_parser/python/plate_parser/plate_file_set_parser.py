@@ -67,7 +67,7 @@ class PlateFileSetParser:
         for basename, f in self._find_files(folder):
             self._files.append(f)
             if self._skip(basename):
-                return
+                continue
             # decompose the file name
             clss, path, lib, scr, rep, plt, cid, feat, _ = self._parse_plate_name(f)
             # add the (classifier-platefileset) pair to the plate map
@@ -79,7 +79,7 @@ class PlateFileSetParser:
         # matlab file is the well mapping
         if feature.lower() == PlateFileSetParser._se_map:
             self._plates[classifier].mapping = PlateFile(f, feature)
-            # add the current matlab file do the respective platefile
+        # add the current matlab file do the respective platefile
         else:
             self._plates[classifier].files.append(PlateFile(f, feature))
 

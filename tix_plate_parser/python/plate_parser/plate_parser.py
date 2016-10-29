@@ -10,8 +10,7 @@ import multiprocessing as mp
 from .plate_experiment_meta import PlateExperimentMeta
 from .plate_layout import PlateLayoutMeta
 from ._plate_sirna_gene_mapping import PlateSirnaGeneMapping
-from ._utility import load_matlab
-from ._plate_cell_features import PlateCellFeature
+from ._utility import parse_file
 from .plate_file_set_parser import PlateFileSetParser
 
 logger = mp.log_to_stderr()
@@ -65,25 +64,26 @@ class PlateParser:
         store to tsv.
 
         """
-        global lock
-        global pool
-        lock = mp.Lock()
-        pool = mp.Pool(mp.cpu_count() - 1)
+        # global lock
+        # global pool
+        # lock = mp.Lock()
+        # pool = mp.Pool(mp.cpu_count() - 1)
         cnt = 0
         logger.info("Going parallel ...")
         for plate in self._experiment_meta:
             cnt += 1
-            if cnt == 4:
+            if cnt == 2:
                 break
-            pool.apply(func=self._parse, args=(plate,))
-        pool.close()
-        pool.join()
+            self._parse(plate)
+            # pool.apply(func=self._parse, args=(plate,))
+        # pool.close()
+        # pool.join()
 
     def _parse(self, plate):
         # plate file name
         pa = self._output_path + "/" + plate
         # download the plate files with a process lock
-        self._downloader.load(plate)
+        # self._downloader.load(plate)
         # parse the plate file names
         platefilesets = PlateFileSetParser(pa, self._output_path)
         if len(platefilesets) > 1:
@@ -102,73 +102,37 @@ class PlateParser:
         represents a plate so every platefileset is a single file
 
         """
-
         for platefileset in platefilesets:
             # parse the feates to np arrays
             features = self._parse_plate_file_set(platefileset)
+            if len(features) == 0:
+                logger.warn("Didnt find features for: " +
+                            platefileset.classifier + ". Continuing to next "
+                                                      "set!")
+                continue
             # load the mapping file for the wells
             mapping = self._parse_plate_mapping(platefileset)
+            if mapping is None:
+                logger.warn("Mapping is none for plate-fileset: " +
+                            platefileset.classifier + ". Continuing to next "
+                                                      "set!")
+                continue
             self._integrate_platefileset(platefileset, features, mapping)
 
     def _parse_plate_file_set(self, plate_file_set):
         features = {}
         logger.info("Doing: " + str(plate_file_set.classifier))
+        cnt = 0
         for plate_file in plate_file_set:
-            cf = self._parse_file(plate_file)
+            cnt += 1
+            # TODO
+            if cnt == 2:
+                break
+            cf = parse_file(plate_file)
             if cf is None:
                 continue
             self._add(features, cf)
         return features
-
-    def _parse_file(self, plate_file):
-        """
-        Parse a matlab binary as np.array
-
-        :param plate_file: the matlab file
-        :return: returns a 2D np.array
-        """
-        featurename = plate_file.featurename
-        file = plate_file.filename
-        matrix = None
-        try:
-            matrix = \
-                self._alloc(
-                    load_matlab(file),
-                    file, featurename)
-        except ValueError or TypeError or AssertionError:
-            logger.warn("Could not parse: %s", file)
-        return matrix
-
-    def _alloc(self, arr, file, featurename):
-        """
-        Create a Cell feature object from a matlab binary.
-
-        :param arr: the matrix object
-        :param file: the filename of the matlab binary
-        :param featurename: the name of the feature
-        :return: return a plate cell feature
-        """
-        featurename = str(featurename).replace(".mat", "")
-        try:
-            # number of images on the plate (usually 9 * 384)
-            nrow = len(arr)
-            # number of cells per image
-            rowlens = [len(x) for x in arr]
-            # maximum number of cells
-            m_ncol = max(rowlens)
-            # initialize empty matrix of NaNs
-            mat = numpy.full(shape=(nrow, m_ncol), fill_value=numpy.nan,
-                             dtype="float64")
-            # fill matrix
-            for i in range(len(arr)):
-                row = arr[i]
-                for j in range(len(row)):
-                    mat[i][j] = row[j]
-            return PlateCellFeature(mat, nrow, m_ncol, file, rowlens,
-                                    featurename)
-        except AssertionError:
-            logger.warn("Could not alloc feature %s of %s", featurename, file)
-        return None
 
     def _add(self, features, cf):
         """
@@ -193,7 +157,7 @@ class PlateParser:
         """
         Iterate over all matlab files and create the final matrices
 
-        :param platefileset: othe platefile set
+        :param platefileset: the platefile set
         :param features: the parses feature map
 
         """
@@ -211,23 +175,20 @@ class PlateParser:
         screen = platefileset.screen
         plate = platefileset.plate
         library_vendor, library_type = list(library)
-        layout = self._layout_meta.get(pathogen, library,
-                                       screen, replicate, plate)
+        layout = self._layout_meta.get(pathogen, library, screen,
+                                       replicate, plate)
+        if layout is None:
+            logger.warn("Could not load layout for: " + platefileset.classifier)
+            return
         with open(filename, "w") as f:
-            header = PlateParser._meta + [feat.featurename.lower() for feat in features]
-            # write the feature names
+            header = PlateParser._meta + \
+                     [feat.featurename.lower() for feat in features]
             f.write("\t".join(header) + "\n")
-            # iterate over the different images
-            # number of images per plate (should be 9 * 384)
             nimg = features[0].values.shape[0]
             assert nimg == len(mapping)
             for iimg in range(nimg):
                 well = mapping[iimg]
-                # number of cells in the iimg-th image
-                ncells = features[0].ncells[iimg]
-                # iterate over all the cells
-                for cell in range(ncells):
-                    # iterate over a single cell's feature
+                for cell in range(features[0].ncells[iimg]):
                     vals = [features[p].values[iimg, cell] for p in
                             range(len(features))]
                     meta = [pathogen, library_vendor, library_type, screen,
