@@ -72,7 +72,7 @@ class PlateParser:
         for plate in self._experiment_meta:
             # TODO
             cnt += 1
-            if cnt == 5:
+            if cnt == 2:
                 break
             pool.apply(func=self._parse, args=(plate,))
         pool.close()
@@ -83,7 +83,7 @@ class PlateParser:
         pa = self._output_path + "/" + plate
         # download the plate files with a process lock
         # TODO
-        self._downloader.load(plate)
+     #   self._downloader.load(plate)
         # parse the plate file names
         platefilesets = PlateFileSetParser(pa, self._output_path)
         if len(platefilesets) > 1:
@@ -123,7 +123,12 @@ class PlateParser:
         features = {}
         logger.info("Parsing plate file set to memory: " + str(
             plate_file_set.classifier))
+        # TODO
+        cnt = 0
         for plate_file in plate_file_set:
+            cnt += 1
+            if cnt == 25:
+                break
             cf = parse_file(plate_file)
             if cf is None:
                 continue
@@ -165,7 +170,7 @@ class PlateParser:
             self._integrate_feature(platefileset, k, v, mapping)
 
     def _integrate_feature(self, platefileset, max_ncells, features, mapping):
-        features.sorted(key=lambda x: x.featurename.lower())
+        features = sorted(features, key=lambda x: x.featurename.lower())
         filename = platefileset.outfile + "_max_nit_" + max_ncells + ".tsv"
         logger.info("Writing to: " + filename)
         pathogen = platefileset.pathogen
