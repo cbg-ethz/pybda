@@ -40,7 +40,6 @@ class PlateLayoutMeta:
     def _add(self, tokens):
         bar, expr, pathogen, geneset, replicate, library, row, col, well, \
         well_type, gene, sirna = tokens
-
         classifier = expr + "-" + bar
         if classifier not in self._meta:
             self._meta[classifier] = PlateLayout(classifier, geneset, library)

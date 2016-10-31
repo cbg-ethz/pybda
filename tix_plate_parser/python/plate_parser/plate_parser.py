@@ -70,6 +70,7 @@ class PlateParser:
         cnt = 0
         logger.info("Going parallel ...")
         for plate in self._experiment_meta:
+            # TODO
             cnt += 1
             if cnt == 20:
                 break
@@ -120,12 +121,7 @@ class PlateParser:
     def _parse_plate_file_set(self, plate_file_set):
         features = {}
         logger.info("Doing: " + str(plate_file_set.classifier))
-        cnt = 0
         for plate_file in plate_file_set:
-            cnt += 1
-            # TODO
-            if cnt == 2:
-                break
             cf = parse_file(plate_file)
             if cf is None:
                 continue
