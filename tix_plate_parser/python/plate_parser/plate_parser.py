@@ -72,9 +72,9 @@ class PlateParser:
         for plate in self._experiment_meta:
             # TODO
             cnt += 1
-            if cnt == 2:
+            if cnt == 10:
                 break
-            pool.apply_async(func=self._parse, args=(plate,))
+            pool.apply(func=self._parse, args=(plate,))
         pool.close()
         pool.join()
 
@@ -82,8 +82,7 @@ class PlateParser:
         # plate file name
         pa = self._output_path + "/" + plate
         # download the plate files with a process lock
-        # TODO
-     #   self._downloader.load(plate)
+        self._downloader.load(plate)
         # parse the plate file names
         platefilesets = PlateFileSetParser(pa, self._output_path)
         if len(platefilesets) > 1:
@@ -107,28 +106,23 @@ class PlateParser:
             features = self._parse_plate_file_set(platefileset)
             if len(features) == 0:
                 logger.warn("Didnt find features for: " +
-                            platefileset.classifier + ". Continuing to next "
-                                                      "set!")
+                            platefileset.classifier +
+                            ". Continuing to next set!")
                 continue
             # load the mapping file for the wells
             mapping = self._parse_plate_mapping(platefileset)
             if mapping is None:
                 logger.warn("Mapping is none for plate-fileset: " +
-                            platefileset.classifier + ". Continuing to next "
-                                                      "set!")
+                            platefileset.classifier +
+                            ". Continuing to next set!")
                 continue
             self._integrate_platefileset(platefileset, features, mapping)
 
     def _parse_plate_file_set(self, plate_file_set):
         features = {}
-        logger.info("Parsing plate file set to memory: " + str(
-            plate_file_set.classifier))
-        # TODO
-        cnt = 0
+        logger.info("Parsing plate file set to memory: " +
+                    str(plate_file_set.classifier))
         for plate_file in plate_file_set:
-            cnt += 1
-            if cnt == 25:
-                break
             cf = parse_file(plate_file)
             if cf is None:
                 continue
