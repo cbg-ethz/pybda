@@ -72,7 +72,7 @@ class PlateParser:
         for plate in self._experiment_meta:
             # TODO
             cnt += 1
-            if cnt == 20:
+            if cnt == 5:
                 break
             pool.apply_async(func=self._parse, args=(plate,))
         pool.close()
