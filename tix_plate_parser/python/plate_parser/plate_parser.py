@@ -82,6 +82,7 @@ class PlateParser:
         # plate file name
         pa = self._output_path + "/" + plate
         # download the plate files with a process lock
+        # TODO
         self._downloader.load(plate)
         # parse the plate file names
         platefilesets = PlateFileSetParser(pa, self._output_path)
@@ -120,7 +121,8 @@ class PlateParser:
 
     def _parse_plate_file_set(self, plate_file_set):
         features = {}
-        logger.info("Doing: " + str(plate_file_set.classifier))
+        logger.info("Parsing plate file set to memory: " + str(
+            plate_file_set.classifier))
         for plate_file in plate_file_set:
             cf = parse_file(plate_file)
             if cf is None:
@@ -143,7 +145,8 @@ class PlateParser:
         features[max_cells].append(cf)
 
     def _parse_plate_mapping(self, plate_file_set):
-        logger.info("#Loading meta: " + str(plate_file_set.classifier))
+        logger.info("Loading meta for plate file set: " + str(
+            plate_file_set.classifier))
         mapp = PlateSirnaGeneMapping(plate_file_set)
         return mapp
 
@@ -155,12 +158,14 @@ class PlateParser:
         :param features: the parses feature map
 
         """
-        logger.info("Integrating the different features to a single matrix")
+        logger.info("Integrating the different feature sets to matrices for "
+                    "plate file set: " + str(platefileset.classifier))
         # since some features have different numbers of calls
         for k, v in features.items():
             self._integrate_feature(platefileset, k, v, mapping)
 
     def _integrate_feature(self, platefileset, max_ncells, features, mapping):
+        features.sorted(key=lambda x: x.featurename.lower())
         filename = platefileset.outfile + "_max_nit_" + max_ncells + ".tsv"
         logger.info("Writing to: " + filename)
         pathogen = platefileset.pathogen
