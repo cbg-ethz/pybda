@@ -74,7 +74,7 @@ class PlateParser:
             cnt += 1
             if cnt == 2:
                 break
-            pool.apply(func=self._parse, args=(plate,))
+            pool.apply_async(func=self._parse, args=(plate,))
         pool.close()
         pool.join()
 
