@@ -68,13 +68,13 @@ class PlateParser:
         lock = mp.Lock()
         pool = mp.Pool(mp.cpu_count() - 1)
         cnt = 0
-        logger.info("Going parallel ...")
+        logger.info("Going parallel with" + str(mp.cpu_count() - 1) + " cores!")
         for plate in self._experiment_meta:
             # TODO
             cnt += 1
             if cnt == 10:
                 break
-            pool.apply(func=self._parse, args=(plate,))
+            pool.apply_async(func=self._parse, args=(plate,))
         pool.close()
         pool.join()
 
