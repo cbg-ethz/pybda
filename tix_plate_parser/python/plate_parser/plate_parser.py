@@ -77,7 +77,7 @@ class PlateParser:
         #         break
         #     pool.apply_async(func=self._parse, args=(plate,))
         exps = self._experiment_meta.plate_files[:10]
-        pool.map_async(func=self._parse, iterable=exps)
+        ret = pool.map_async(func=self._parse, iterable=exps)
         pool.close()
         pool.join()
 
@@ -95,6 +95,7 @@ class PlateParser:
         # remove the matlab plate files
         # TODO
         # platefilesets.remove()
+        return 0
 
     def _parse_plate_file_sets(self, platefilesets):
         """
