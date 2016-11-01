@@ -35,6 +35,10 @@ class PlateExperimentMeta:
         for f in self._plate_files:
             yield f
 
+    @property
+    def plate_files(self):
+        return self._plate_files
+
     def _load(self):
         fls = []
         pat = re.compile(self._pattern)

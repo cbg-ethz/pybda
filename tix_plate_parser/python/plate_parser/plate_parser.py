@@ -49,7 +49,7 @@ class PlateParser:
         self._layout_file = layout_file
         # parse the folder into a map of (classifier-plate) pairs
         self._experiment_meta = PlateExperimentMeta(experiment_file,
-                                              ".*\/\w+\-\w[P|U]\-[G|K]\d+\/.*")
+                                                    ".*\/\w+\-\w[P|U]\-[G|K]\d+\/.*")
         self._layout_meta = PlateLayoutMeta(layout_file)
         self._bee_loader = bee_loader
         self._username = username
@@ -66,16 +66,18 @@ class PlateParser:
         global lock
         global pool
         lock = mp.Lock()
-        pool = mp.Pool(mp.cpu_count() - 1)
+        min_cores = min(mp.cpu_count(), 4)
+        pool = mp.Pool(min_cores)
         cnt = 0
-        logger.info("Going parallel with " + str(mp.cpu_count() - 1) + " "
-                                                                       "cores!")
-        for plate in self._experiment_meta:
-            # TODO
-            cnt += 1
-            if cnt == 10:
-                break
-            pool.apply_async(func=self._parse, args=(plate,))
+        logger.info("Going parallel with " + min_cores + " cores!")
+        # for plate in self._experiment_meta:
+        #     # TODO
+        #     cnt += 1
+        #     if cnt == 10:
+        #         break
+        #     pool.apply_async(func=self._parse, args=(plate,))
+        exps = self._experiment_meta.plate_files[:10]
+        pool.map_async(func=self._parse, iterable=exps)
         pool.close()
         pool.join()
 
