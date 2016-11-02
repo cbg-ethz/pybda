@@ -5,6 +5,7 @@
 import logging
 import subprocess
 import multiprocessing as mp
+import random
 
 from .plate_experiment_meta import PlateExperimentMeta
 from .plate_layout import PlateLayoutMeta
@@ -63,39 +64,50 @@ class PlateParser:
         store to tsv.
 
         """
+        # use globals vars for process pool
         global lock
         global pool
         lock = mp.Lock()
-        min_cores = min(mp.cpu_count(), 4)
-        logger.info("Going parallel with " + str(min_cores) + " cores!")
-        pool = mp.Pool(min_cores)
-        # cnt = 0
-        # for plate in self._experiment_meta:
-        #     # TODO
-        #     cnt += 1
-        #     if cnt == 10:
-        #         break
-        #     pool.apply_async(func=self._parse, args=(plate,))
-        exps = self._experiment_meta.plate_files[:10]
+        # number of cores we are using
+        n_cores = mp.cpu_count() - 1
+        logger.info("Going parallel with " + str(n_cores) + " cores!")
+        pool = mp.Pool(n_cores)
+        # get only infect x data
+        # TODO: remove this after testing
+        exps = list(filter(lambda x: x.startswith("/INFECT"),
+                      self._experiment_meta.plate_files))
+        random.shuffle(exps)
+        exps = exps[:10]
+        # asynychronously start jobs
         ret = pool.map_async(func=self._parse, iterable=exps)
         pool.close()
         pool.join()
+        if all(ret) == 0:
+            logger.info("All's well that ends well")
+        else:
+            logger.warn("Some errors occurred")
 
     def _parse(self, plate):
-        # plate file name
-        pa = self._output_path + "/" + plate
-        # download the plate files with a process lock
-        self._downloader.load(plate)
-        # parse the plate file names
-        platefilesets = PlateFileSetParser(pa, self._output_path)
-        if len(platefilesets) > 1:
-            logger.warn("Found multiple plate identifiers for: " + plate)
-        # parse the files
-        self._parse_plate_file_sets(platefilesets)
-        # remove the matlab plate files
-        # TODO
-        # platefilesets.remove()
-        return 0
+        try:
+            # plate file name
+            pa = self._output_path + "/" + plate
+            # download the plate files with a process lock
+            down_ret_val = self._downloader.load(plate)
+            if down_ret_val != 0:
+                return -1
+            # parse the plate file names
+            platefilesets = PlateFileSetParser(pa, self._output_path)
+            if len(platefilesets) > 1:
+                logger.warn("Found multiple plate identifiers for: " + plate)
+            # parse the files
+            ret = self._parse_plate_file_sets(platefilesets)
+            # remove the matlab plate files
+            # TODO
+            # platefilesets.remove()
+        except Exception:
+            logger.error("Found error parsing: " + str(plate))
+            ret = -1
+        return ret
 
     def _parse_plate_file_sets(self, platefilesets):
         """
@@ -121,6 +133,7 @@ class PlateParser:
                             ". Continuing to next set!")
                 continue
             self._integrate_platefileset(platefileset, features, mapping)
+        return 0
 
     def _parse_plate_file_set(self, plate_file_set):
         features = {}
@@ -166,6 +179,7 @@ class PlateParser:
         # since some features have different numbers of calls
         for k, v in features.items():
             self._integrate_feature(platefileset, k, v, mapping)
+        return 0
 
     def _integrate_feature(self, platefileset, max_ncells, features, mapping):
         features = sorted(features, key=lambda x: x.featurename.lower())
@@ -199,6 +213,7 @@ class PlateParser:
                             iimg + 1, cell + 1]
                     f.write("\t".join(list(map(str, meta)) +
                                       list(map(str, vals))).lower() + "\n")
+        return 0
 
 
 class PlateLoader:
@@ -231,6 +246,7 @@ class PlateLoader:
         :return:
         """
         global lock
+        ret = -1
         try:
             lock.acquire()
             logger.info("Downloading: " + plate_id)
