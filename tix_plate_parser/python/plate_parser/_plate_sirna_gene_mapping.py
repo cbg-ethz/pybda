@@ -7,7 +7,7 @@ import re
 
 from ._utility import load_matlab
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, filemode="w")
 logger = logging.getLogger(__name__)
 
 

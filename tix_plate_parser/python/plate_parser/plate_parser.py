@@ -14,7 +14,6 @@ from ._utility import parse_file
 from .plate_file_set_parser import PlateFileSetParser
 
 logger = mp.log_to_stderr()
-logger.setLevel(logging.INFO)
 
 lock, pool = None, None
 

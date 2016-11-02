@@ -12,7 +12,7 @@ from __future__ import print_function, absolute_import
 
 import argparse
 import sys
-
+import logging
 from plate_parser import PlateParser
 
 
@@ -57,13 +57,20 @@ def parse_options(args):
 
 
 def main(args):
-    layout_file, experiment_file, user, password, bee_exe, output_folder = \
-        parse_options(args)
+    # TODO
+    layout_file, experiment_file, user, password, bee_exe, output_folder = parse_options(args)
+    log_file = output_folder + "/log.txt"
+    logging.basicConfig(filename=log_file,
+                        level=logging.INFO,
+                        format='[%(levelname)-1s/%(processName)-1s/%('
+                               'name)-1s]: '
+                               '%(message)s')
     # create plate parser object and parse the single plates
     parser = PlateParser(experiment_file, layout_file,
                          bee_exe, output_folder, user,
                          password)
     parser.parse()
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])

@@ -2,12 +2,7 @@
 # __email__  = 'simon.dirmeier@bsse.ethz.ch'
 # __date__   = 22/09/16
 
-import logging
-
 from numpy import shape
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 
 class PlateCellFeature:
