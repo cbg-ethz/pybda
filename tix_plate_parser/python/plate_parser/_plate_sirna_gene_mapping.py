@@ -44,6 +44,7 @@ class PlateSirnaGeneMapping:
         cf = load_matlab(plate_file_set.mapping.filename)
         if cf is None:
             self._set_error(plate_file_set)
+            return
         # create mapping array of same length
         self._mapping = [None] * len(cf)
         # pattern for every line: we are instested in a char, followed by 2

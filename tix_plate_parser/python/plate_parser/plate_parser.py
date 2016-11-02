@@ -184,7 +184,6 @@ class PlateParser:
     def _integrate_feature(self, platefileset, max_ncells, features, mapping):
         features = sorted(features, key=lambda x: x.featurename.lower())
         filename = platefileset.outfile + "_max_nit_" + max_ncells + ".tsv"
-        logger.info("Writing to: " + filename)
         pathogen = platefileset.pathogen
         library = platefileset.library
         replicate = platefileset.replicate
@@ -196,6 +195,7 @@ class PlateParser:
         if layout is None:
             logger.warn("Could not load layout for: " + platefileset.classifier)
             return
+        logger.info("Writing to: " + filename)
         with open(filename, "w") as f:
             header = PlateParser._meta + \
                      [feat.featurename.lower() for feat in features]

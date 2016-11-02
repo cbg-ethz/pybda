@@ -18,9 +18,10 @@ class PlateFileSetParser:
 
     """
     # these are feature file names we dont use
-    _skippable_features = ["Batch_handles.", "Neighbors.",
-                           "Bacteria.SubObjectFlag.", "CometTails.",
-                           "DAPIFG.", "BlobBacteria.", "ExpandedNuclei."]
+    _skippable_features_starts = ["Batch_handles.", "Neighbors.",
+                                  "Bacteria.SubObjectFlag.", "CometTails.",
+                                  "DAPIFG.", "BlobBacteria.", "ExpandedNuclei."]
+    _skippable_features_contains = ["SubObjectFlag"]
     # name of the file that has the sirna-entrez mapping information
     _se_map = "Image.FileName_OrigDNA.mat".lower()
     # the pattern for screen, replicate
@@ -69,7 +70,8 @@ class PlateFileSetParser:
             if self._skip(basename):
                 continue
             # decompose the file name
-            clss, path, lib, scr, rep, plt, cid, feat, _ = self._parse_plate_name(f)
+            clss, path, lib, scr, rep, plt, cid, feat, _ = self._parse_plate_name(
+                f)
             # add the (classifier-platefileset) pair to the plate map
             self._add_platefileset(clss, path, lib, scr,
                                    rep, plt, cid, self._outfile)
@@ -106,7 +108,7 @@ class PlateFileSetParser:
 
     @staticmethod
     def _skip_feature(basename):
-        for skip in PlateFileSetParser._skippable_features:
+        for skip in PlateFileSetParser._skippable_features_starts:
             if basename.startswith(skip):
                 return True
         return False
