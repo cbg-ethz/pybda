@@ -84,10 +84,7 @@ class PlateParser:
         ret = pool.map_async(func=self._parse, iterable=exps)
         pool.close()
         pool.join()
-        if all(ret) == 0:
-            logger.info("All's well that ends well")
-        else:
-            logger.warn("Some errors occurred")
+        logger.info("All's well that ends well")
 
     def _parse(self, plate):
         try:
