@@ -39,7 +39,7 @@ class PlateSirnaGeneMapping:
 
         :param plate_file_set: plate file set object
         """
-
+        # TODO: make nice
         # read the plate file
         cf = load_matlab(plate_file_set.mapping.filename)
         if cf is None:

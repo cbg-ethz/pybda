@@ -18,6 +18,8 @@ logger.setLevel(logging.INFO)
 
 lock, pool = None, None
 
+#TODO: make nice
+#TODO: better logging
 
 class PlateParser:
     """
