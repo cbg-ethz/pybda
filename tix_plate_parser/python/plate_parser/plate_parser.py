@@ -81,6 +81,7 @@ class PlateParser:
         random.shuffle(exps)
         exps = exps[:150]
         for i in exps:
+            print(i)
             self._parse(i)
         # asynychronously start jobs
         # ret = pool.map_async(func=self._parse, iterable=exps)
@@ -89,8 +90,8 @@ class PlateParser:
         logger.info("All's well that ends well")
 
     def _parse(self, plate):
-        ret = 0
-        try:
+        # ret = 0
+        # try:
             # plate file name
             pa = self._output_path + "/" + plate
             # download the plate files with a process lock
@@ -106,9 +107,9 @@ class PlateParser:
             # remove the matlab plate files
             # TODO
             # platefilesets.remove()
-        except Exception:
-            logger.error("Found error parsing: " + str(plate))
-            ret = -1
+        # except Exception:
+        #     logger.error("Found error parsing: " + str(plate))
+        #     ret = -1
         return ret
 
     def _parse_plate_file_sets(self, platefilesets):
