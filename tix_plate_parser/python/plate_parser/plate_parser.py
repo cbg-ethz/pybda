@@ -66,39 +66,43 @@ class PlateParser:
 
         """
         # use globals vars for process pool
-        global lock
-        global pool
-        lock = mp.Lock()
-        # number of cores we are using
-        n_cores = mp.cpu_count() - 1
-        logger.info("Going parallel with " + str(n_cores) + " cores!")
-        pool = mp.Pool(n_cores)
+        # global lock
+        # global pool
+        # lock = mp.Lock()
+        # # number of cores we are using
+        # n_cores = mp.cpu_count() - 1
+        # logger.info("Going parallel with " + str(n_cores) + " cores!")
+        # pool = mp.Pool(n_cores)
         # get only infect x data
         # TODO: remove this after testing
-        exps = list(filter(lambda x: x.startswith("/INFECT"),
-                      self._experiment_meta.plate_files))
+        # exps = list(filter(lambda x: x.startswith("/INFECT"),
+        #               self._experiment_meta.plate_files))
+        exps = list(self._experiment_meta.plate_files)
         random.shuffle(exps)
-        exps = exps[:10]
+        exps = exps[:150]
+        for i in exps:
+            self._parse(i)
         # asynychronously start jobs
-        ret = pool.map_async(func=self._parse, iterable=exps)
-        pool.close()
-        pool.join()
+        # ret = pool.map_async(func=self._parse, iterable=exps)
+        # pool.close()
+        # pool.join()
         logger.info("All's well that ends well")
 
     def _parse(self, plate):
+        ret = 0
         try:
             # plate file name
             pa = self._output_path + "/" + plate
             # download the plate files with a process lock
             down_ret_val = self._downloader.load(plate)
-            if down_ret_val != 0:
-                return -1
-            # parse the plate file names
-            platefilesets = PlateFileSetParser(pa, self._output_path)
-            if len(platefilesets) > 1:
-                logger.warn("Found multiple plate identifiers for: " + plate)
+            # if down_ret_val != 0:
+            #     return -1
+            # # parse the plate file names
+            # platefilesets = PlateFileSetParser(pa, self._output_path)
+            # if len(platefilesets) > 1:
+            #     logger.warn("Found multiple plate identifiers for: " + plate)
             # parse the files
-            ret = self._parse_plate_file_sets(platefilesets)
+            # ret = self._parse_plate_file_sets(platefilesets)
             # remove the matlab plate files
             # TODO
             # platefilesets.remove()
