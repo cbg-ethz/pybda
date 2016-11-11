@@ -66,12 +66,12 @@ class PlateParser:
 
         """
         # use globals vars for process pool
-        # global lock
-        # global pool
-        # lock = mp.Lock()
+        global lock
+        global pool
+        lock = mp.Lock()
         # # number of cores we are using
-        # n_cores = mp.cpu_count() - 1
-        # logger.info("Going parallel with " + str(n_cores) + " cores!")
+        n_cores = mp.cpu_count() - 1
+        logger.info("Going parallel with " + str(n_cores) + " cores!")
         # pool = mp.Pool(n_cores)
         # get only infect x data
         # TODO: remove this after testing
@@ -93,9 +93,9 @@ class PlateParser:
         # ret = 0
         # try:
             # plate file name
-            pa = self._output_path + "/" + plate
-            # download the plate files with a process lock
-            down_ret_val = self._downloader.load(plate)
+        pa = self._output_path + "/" + plate
+        # download the plate files with a process lock
+        down_ret_val = self._downloader.load(plate)
             # if down_ret_val != 0:
             #     return -1
             # # parse the plate file names
@@ -110,7 +110,7 @@ class PlateParser:
         # except Exception:
         #     logger.error("Found error parsing: " + str(plate))
         #     ret = -1
-        return ret
+        return 1
 
     def _parse_plate_file_sets(self, platefilesets):
         """
