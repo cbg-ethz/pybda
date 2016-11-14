@@ -12,26 +12,34 @@ logger = logging.getLogger(__name__)
 
 
 class DBConnection:
-    def __init__(self, user, password):
+    def __init__(self, user, password, use_cassandra):
         self.__user = user
         self.__password = password
+        self.__use_cassandra=use_cassandra
 
     def __enter__(self):
         logger.info("Connecting to db")
-        self.__connection = pymysql.connect(
-            host='localhost', user=self.__user, password=self.__password,
-            db='tix',
-            charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor)
+        if self.__use_cassandra:
+            pass
+        else:
+            self.__connection = pymysql.connect(
+                host='localhost', user=self.__user, password=self.__password,
+                db='tix',
+                charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         logger.info("Closing connection to db")
-        self.__connection.close()
+        if self.__use_cassandra:
+            pass
+        else:
+            self.__connection.close()
 
     def execute(self, statement):
-        with self.__connection.cursor() as cursor:
-            cursor.execute(statement)
-        self.__connection.commit()
+        if self.__use_cassandra:
+            pass
+        else:
+            with self.__connection.cursor() as cursor:
+                cursor.execute(statement)
+            self.__connection.commit()
 
-    def close(self):
-        self.__connection.close()
