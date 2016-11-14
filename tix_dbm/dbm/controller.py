@@ -4,61 +4,48 @@
 
 
 import logging
-import os
-import re
 
-logging.basicConfig(format='[%(levelname)-1s/%(processName)-1s/%('
-                           'name)-1s]: %(message)s')
+from ._database_headers import DatabaseHeaders
+from ._database_connector import DBConnection
+
+logging.basicConfig(level=logging.DEBUG,
+                    format='[%(levelname)-1s/%(' \
+                           'processName)-1s/%(name)-1s]: %(message)s')
 logger = logging.getLogger(__name__)
-
-__skippable_features__ = [x.lower() for x in
-                          ["comet", "image", "dapif", "neighbors"]]
 
 
 class Controller:
-    def __init__(self):
-        self._data_base_headers = {}
-        self._data_bases = {}
+    def __init__(self, user, password):
+        self.__user = user
+        self.__password = password
 
     def create(self, folder):
-        for f in self._find_files(folder):
-            self._add_file(f)
-        print(self._data_base_headers.keys())
-        print(self._data_bases.keys())
+        self.__db_headers = DatabaseHeaders(folder)
+        with DBConnection(self.__user, self.__password) as connection:
+            logger.info("Creating meta table")
+            self._create_meta_table(connection)
+            logger.info("Creating data tables")
+            self._create_data_table(connection)
+            logger.info("Closing db connection")
 
     def query(self, query):
         pass
 
-    def _find_files(self, folder):
-        for d, _, f in os.walk(folder):
-            for b in f:
-                if b.endswith(".mat"):
-                    yield os.path.join(d, b)
+    def _create_meta_table(self, connection):
+        create_meta_statement = \
+            "CREATE TABLE IF NOT EXISTS meta " \
+            "(" \
+            "id int(255) not null auto_increment, " \
+            "screen varchar(255) not null, " \
+            "primary key (id));"
+        connection.execute(create_meta_statement)
 
-    def _add_file(self, filename):
-        toks = filename.strip().lower().split("/")
-        try:
-            org, feature = toks[-1].replace(".mat", "").split(".")
-            if self._skip(toks[-1]):
-                return
-            screen, plate = self._screen_name(filename)
-            self._add(self._data_base_headers, org, feature)
-            self._add(self._data_bases, screen, plate)
-        except ValueError:
-            logger.warn("Could not feature: " +
-                        str(toks[-1].replace(".mat", "")))
-
-    def _skip(self, feature):
-        for x in __skippable_features__:
-            if feature.startswith(x):
-                return True
-        return False
-
-    def _screen_name(self, f):
-        ret = re.match("/.*/(.*)/(.*)/.*/.*/.+mat?$", f)
-        return ret.group(1), ret.group(2)
-
-    def _add(self, db, k, v):
-        if k not in db:
-            db[k] = []
-        db[k].append(v)
+    def _create_data_table(self, connection):
+        for screen, _ in self.__db_headers.screens:
+            for feature_type, features in self.__db_headers.feature_types:
+                tbl = screen.lower().replace("-", "_") + "_" + feature_type
+                fe = (" double, ".join(features)) + " double"
+                create_statement = \
+                    "CREATE TABLE IF NOT EXISTS " + tbl + " " \
+                                                          "(plate varchar(255), " + fe + ");"
+                connection.execute(create_statement)

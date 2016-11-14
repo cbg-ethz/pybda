@@ -20,6 +20,10 @@ __QUERY__ = "query"
 def parse_options(args):
     parser = argparse.ArgumentParser(
         description='Create/query the TIX data-base.')
+    parser.add_argument('-u', type=str, help='mysql user name',
+                        required=True, metavar='user-name')
+    parser.add_argument('-p', type=str, help='mysql password',
+                        required=True, metavar='password')
     subparsers = parser.add_subparsers(help='help for subcommand')
     creat_parser = subparsers.add_parser(
         'create', help='Create a database-instance.')
@@ -38,10 +42,11 @@ def parse_options(args):
 
 def main(args):
     opts = parse_options(args)
+    c = Controller(opts.u, opts.p)
     if opts.which == __CREATE__:
-        Controller().create(opts.f)
+        c.create(opts.f)
     else:
-        Controller().query(opts.query)
+        c.query(opts.query)
 
 
 if __name__ == "__main__":
