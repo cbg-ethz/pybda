@@ -21,7 +21,7 @@ then
 	SRC_PREFIX="/home/simondi/PROJECTS/target_infect_x_project"
 fi
 
-EXE="${DIR}/python/main.py"
+EXE="${DIR}/main.py"
 META="${PATH_PREFIX}/plate_layout_meta_files/target_infect_x_library_layouts_beautified.tsv"
 EXPER="${PATH_PREFIX}/experiment_meta_files/experiment_meta_file.tsv"
 USER="simon.dirmeier@bsse.ethz.ch"
