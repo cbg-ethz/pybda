@@ -16,7 +16,7 @@ __NA__ = "NA"
 
 
 class Controller:
-    def __init__(self, user, password, use_cassandra):
+    def __init__(self, user=None, password=None, use_cassandra=None):
         self.__screen_regex = re.compile(
             "^(\S+-?\S+)-(\w+)-(\w)(\w)-(\w+)(\d+)(-(.*))?$")
         self.__user = user
@@ -34,10 +34,22 @@ class Controller:
             self._create_data_tables(connection)
             self._add_to_meta(connection)
 
-    def query(self, query):
-        pass
+    def print(self, folder):
+        self.__db_headers = DatabaseHeaders(folder)
+        print(self._create_meta_table_statement())
+        for screen, _ in self.__db_headers.screens:
+            st, pa, lib, des, scr, rep, suf = self._parse_screen(screen)
+            self.__meta.append([st, pa, lib, des, scr, rep, suf])
+            for ftype, features in self.__db_headers.feature_types:
+                if any([st, pa, lib, des, scr, rep, suf]) is None:
+                    continue
+                print(self._create_data_table_statement(
+                    ftype, features, st, pa, lib, des, scr, rep, suf))
 
     def _create_meta_table(self, connection):
+        connection.execute(self._create_meta_table_statement())
+
+    def _create_meta_table_statement(self):
         if self.__use_cassandra:
             create_meta_statement = \
                 "CREATE TABLE IF NOT EXISTS meta" \
@@ -64,7 +76,7 @@ class Controller:
                 "replicate int(255) not null, " \
                 "suffix varchar(255), " \
                 "primary key (id));"
-        connection.execute(create_meta_statement)
+        return create_meta_statement
 
     def _create_data_tables(self, con):
         for screen, _ in self.__db_headers.screens:
@@ -73,18 +85,19 @@ class Controller:
             for ftype, features in self.__db_headers.feature_types:
                 if any([st, pa, lib, des, scr, rep, suf]) is None:
                     continue
-                self._create_data_table(con, ftype, features,
-                                        st, pa, lib, des, scr, rep, suf)
+                self._create_data_table(
+                    con, ftype, features, st, pa, lib, des, scr, rep, suf)
 
-    def _create_data_table(self, connection, ftype, features, st, pa, lib, des,
-                           scr,
-                           rep, suf):
-        tbl = self._table_name(st, pa, lib, des, scr, rep, suf, ftype)
-        fe = (" double, ".join(features)) + " double"
-        create_statement = self._create_data_table_statement(tbl, fe)
+    def _create_data_table(self, connection, ftype, features,
+                           st, pa, lib, des, scr, rep, suf):
+        create_statement = self._create_data_table_statement(
+            ftype, features, st, pa, lib, des, scr, rep, suf)
         connection.execute(create_statement)
 
-    def _create_data_table_statement(self, tbl, fe):
+    def _create_data_table_statement(
+            self, ftype, features, st, pa, lib, des, scr, rep, suf):
+        tbl = self._table_name(st, pa, lib, des, scr, rep, suf, ftype)
+        fe = (" double, ".join(features)) + " double"
         create_statement = "CREATE TABLE IF NOT EXISTS " + tbl
         if self.__use_cassandra:
             create_statement += " (id int, plate varchar, "
