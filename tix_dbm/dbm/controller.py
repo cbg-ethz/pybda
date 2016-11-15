@@ -80,7 +80,7 @@ class Controller:
     def _create_data_tables(self, con):
         for screen, _ in self.__db_headers.screens:
             st, pa, lib, des, scr, rep, suf = self._parse_screen(screen)
-            if any([st, pa, lib, des, scr, rep, suf]) is None:
+            if None in [st, pa, lib, des, scr, rep, suf]:
                 continue
             self.__meta.append([st, pa, lib, des, scr, rep, suf])
             for ftype, features in self.__db_headers.feature_types:
