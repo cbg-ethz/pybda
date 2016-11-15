@@ -39,7 +39,7 @@ class Controller:
         print(self._create_meta_table_statement())
         for screen, _ in self.__db_headers.screens:
             st, pa, lib, des, scr, rep, suf = self._parse_screen(screen)
-            if any([st, pa, lib, des, scr, rep, suf]) is None:
+            if None in [st, pa, lib, des, scr, rep, suf]:
                 continue
             for ftype, features in self.__db_headers.feature_types:
                 print(self._create_data_table_statement(
