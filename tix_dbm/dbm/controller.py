@@ -116,6 +116,8 @@ class Controller:
     def _parse_screen(self, screen):
         try:
             pat = self.__screen_regex.match(screen.lower())
+            if pat is None:
+                return [None] * 7
             return pat.group(1), pat.group(2), pat.group(3), pat.group(4), \
                    pat.group(5), pat.group(6), \
                    pat.group(8) if pat.group(8) is not None else __NA__
