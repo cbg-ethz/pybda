@@ -16,7 +16,7 @@ __SQL_DATA_BASE__ = "CREATE DATABASE IF NOT EXISTS tix;"
 
 class DBConnection:
     def __init__(self, user, password, use_cassandra):
-        self._id  = 0
+        self._id = 0
         self.__user = user
         self.__password = password
         self.__use_cassandra = use_cassandra
@@ -74,8 +74,15 @@ class DBConnection:
                                         screen, int(replicate), suffix))
             self.__connection.execute(batch)
         else:
-            logger.error("NOT YET MPLEMENTED")
-
+            for (study, pathogen, library, design, screen, replicate, suffix) \
+                    in array:
+                self.__connection.execute(
+                    "INSERT INTO META (study, pathogen, library, " \
+                    "design, screen, replicate, suffix) VALUES "
+                    "(%s, %s, %s, %s, %s, %s, %s)",
+                    (study, pathogen, library, design,
+                     screen, replicate, suffix))
+            self.__connection.commit()
     def next_id(self):
         self._id += 1
         return self._id
