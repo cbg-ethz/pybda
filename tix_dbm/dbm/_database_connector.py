@@ -74,15 +74,17 @@ class DBConnection:
                                         screen, int(replicate), suffix))
             self.__connection.execute(batch)
         else:
-            for (study, pathogen, library, design, screen, replicate, suffix) \
-                    in array:
-                self.__connection.execute(
-                    "INSERT INTO META (study, pathogen, library, " \
-                    "design, screen, replicate, suffix) VALUES "
-                    "(%s, %s, %s, %s, %s, %s, %s)",
-                    (study, pathogen, library, design,
-                     screen, replicate, suffix))
+            with self.__connection.cursor() as cursor:
+                for (study, pathogen, library, design, screen, replicate, suffix) \
+                        in array:
+                    cursor.execute(
+                        "INSERT INTO META (study, pathogen, library, " \
+                        "design, screen, replicate, suffix) VALUES "
+                        "(%s, %s, %s, %s, %s, %s, %s)",
+                        (study, pathogen, library, design,
+                         screen, replicate, suffix))
             self.__connection.commit()
+
     def next_id(self):
         self._id += 1
         return self._id
