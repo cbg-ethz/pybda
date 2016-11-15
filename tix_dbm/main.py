@@ -49,7 +49,6 @@ def parse_options(args):
 
 def main(args):
     opts = parse_options(args)
-    print(opts.cassandra)
     c = Controller(opts.u, opts.p, opts.cassandra)
     if opts.which == __CREATE__:
         c.create(opts.f)

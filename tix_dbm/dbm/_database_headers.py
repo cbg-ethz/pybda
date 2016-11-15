@@ -6,8 +6,7 @@ import os
 import logging
 import re
 
-logging.basicConfig(format='[%(levelname)-1s/%(processName)-1s/%('
-                           'name)-1s]: %(message)s')
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 __skippable_features__ = [x.lower() for x in
                           ["comet", "image", "dapif", "neighbors", "expanded"]]
@@ -50,8 +49,8 @@ class DatabaseHeaders:
         return False
 
     def _screen_name(self, f):
-        ret = re.match("/.*/(.*)/(.*)/.*/.*/.+mat?$", f)
-        return ret.group(1), ret.group(2)
+        ret = re.match(".*/(.*)/.*/(.*)/(.*)/.*/.*/.+mat?$", f)
+        return ret.group(1) + "-" + ret.group(2), ret.group(3)
 
     def _add(self, db, k, v):
         if k not in db:
