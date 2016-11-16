@@ -2,16 +2,15 @@
 # __email__  = 'simon.dirmeier@bsse.ethz.ch'
 # __date__   = 22/09/16
 
-import subprocess
 import multiprocessing as mp
 import random
 
-from .plate_downloader import PlateDownloader
+from .plate_db_writer import DatabaseWriter
 from ._plate_list import PlateList
-from .plate_layout import PlateLayoutMeta
 from ._plate_sirna_gene_mapping import PlateSirnaGeneMapping
 from ._utility import parse_file
-from .plate_file_set_parser import PlateFileSetParser
+from .plate_downloader import PlateDownloader
+from .plate_layout import PlateLayoutMeta
 
 logger = mp.log_to_stderr()
 
@@ -22,7 +21,7 @@ lock, pool = None, None
 # TODO: better logging
 
 
-class PlateParser:
+class Controller:
     """
     Class for parsing a folder of plates containing matlab files for the
     features.
@@ -35,8 +34,7 @@ class PlateParser:
              "plate", "sirna", "gene",
              "well", "welltype", "image", "cell_number"]
 
-    def __init__(self, experiment_file, layout_file,
-                 bee_loader, output_path, username, pw):
+    def __init__(self, config):
         """
         Constructor for PlateParser.
 
@@ -49,21 +47,25 @@ class PlateParser:
         :param username: the user name of the open bis instance
         :param pw: the password of the open bis instance
         """
-        self._experiment_file = experiment_file
-        self._layout_file = layout_file
-        self._bee_loader = bee_loader
-        self._username = username
-        self._pw = pw
-        self._output_path = output_path
-        # read the expe
+        self._experiment_file = config.experiment_file
+        self._layout_file = config.layout_file
+        self._output_path = config.output_path
+        self._bee_loader = config.bee_loader
+        # read the plate list files
         self._plate_list = PlateList(
-            experiment_file, ".*\/\w+\-\w[P|U]\-[G|K]\d+\/.*")
+            self._experiment_file, ".*\/\w+\-\w[P|U]\-[G|K]\d+\/.*")
         # parse the folder into a map of (classifier-plate) pairs
-        self._layout = PlateLayoutMeta(layout_file)
+        self._layout = PlateLayoutMeta(self._layout_file)
         # function to download data
         self._downloader = PlateDownloader(
-            bee_loader, output_path, username, pw)
-        self._db_writer = DatabaseWriter()
+            self._bee_loader, self._output_path,
+            config.bee_username,
+            config.bee_password)
+        # the connection to the database
+        self._db_writer = DatabaseWriter(
+            user=config.db_username,
+            password=config.db_password,
+            use_cassandra=True)
 
     def parse(self):
         """
@@ -206,7 +208,7 @@ class PlateParser:
             return
         logger.info("Writing to: " + filename)
         with open(filename, "w") as f:
-            header = PlateParser._meta + \
+            header = Controller._meta + \
                      [feat.featurename.lower() for feat in features]
             f.write("\t".join(header) + "\n")
             nimg = features[0].values.shape[0]

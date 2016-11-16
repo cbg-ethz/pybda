@@ -9,18 +9,22 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class Credentials:
+class Config:
     __BEE_PASSWORD__ = "bee_password"
     __BEE_USER__ = "bee_user_name"
+    __BEE_LOADER__ = "bee_loader"
+    __EXPERIMENT_FILE__ = "experiment_file"
+    __LAYOUT_META_FILE__ = "layout_file"
+    __OUTPUT_FOLDER__ = "output_folder"
     __DB_PASSWORD__ = "db_password"
     __DB_USER__ = "db_user_name"
-    __CREDENTIALS__ = \
+    __CONFIG__ = \
         [__BEE_PASSWORD__, __BEE_USER__, __DB_PASSWORD__, __DB_USER__]
 
     def __init__(self, credentials):
         with open(credentials, 'r') as f:
             doc = yaml.load(f)
-            for credential in Credentials.__CREDENTIALS__:
+            for credential in Config.__CONFIG__:
                 if credential not in doc:
                     logger.error(
                         "Could not find credential: " + str(credential))
@@ -29,19 +33,16 @@ class Credentials:
 
     @property
     def bee_username(self):
-        return getattr(self, "_" + Credentials.__BEE_USER__)
+        return getattr(self, "_" + Config.__BEE_USER__)
 
     @property
     def bee_password(self):
-        return getattr(self, "_" + Credentials.__BEE_PASSWORD__)
+        return getattr(self, "_" + Config.__BEE_PASSWORD__)
 
     @property
     def db_username(self):
-        return getattr(self, "_" + Credentials.__BEE_USER__)
+        return getattr(self, "_" + Config.__DB_USER__)
 
     @property
     def db_password(self):
-        return getattr(self, "_" + Credentials.__BEE_USER__)
-
-c = Credentials(
-    "/Users/simondi/PROJECTS/target_infect_x_project/tix_util/credentials.yaml")
+        return getattr(self, "_" + Config.__DB_PASSWORD__)
