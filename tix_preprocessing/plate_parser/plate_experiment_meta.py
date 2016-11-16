@@ -25,6 +25,7 @@ class PlateExperimentMeta:
         """
         self._meta_file = file
         self._pattern = pattern
+        # regex that automatically excludes files
         self._regex = re.compile(".*((BACKUP)|(INVASIN)|(OLIGOPROFILE)|("
                               "TITRATION)|"
                          "(RHINO-TEST)|(1PMOL)).*".upper())
