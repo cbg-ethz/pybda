@@ -53,7 +53,6 @@ class Controller:
             create_meta_statement = \
                 "CREATE TABLE IF NOT EXISTS meta" \
                 "(" \
-                "id int, " \
                 "study varchar, " \
                 "pathogen varchar, " \
                 "library varchar, " \
@@ -61,12 +60,12 @@ class Controller:
                 "screen varchar, " \
                 "replicate int, " \
                 "suffix varchar, " \
-                "primary key(id));"
+                "primary key(study, pathogen, library, design, screen, " \
+                "replicate, suffix));"
         else:
             create_meta_statement = \
                 "CREATE TABLE IF NOT EXISTS meta " \
                 "(" \
-                "id int(255) not null auto_increment, " \
                 "study varchar(255) not null, " \
                 "pathogen varchar(255) not null, " \
                 "library varchar(255) not null, " \
@@ -74,7 +73,8 @@ class Controller:
                 "screen varchar(255) not null, " \
                 "replicate int(255) not null, " \
                 "suffix varchar(255), " \
-                "primary key (id));"
+                "primary key(study, pathogen, library, design, screen, " \
+                "replicate, suffix));"
         return create_meta_statement
 
     def _create_data_tables(self, con):
