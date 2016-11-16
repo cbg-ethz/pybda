@@ -2,12 +2,12 @@
 # __email__  = 'simon.dirmeier@bsse.ethz.ch'
 # __date__   = 22/09/16
 
-import logging
 import subprocess
 import multiprocessing as mp
 import random
 
-from .plate_experiment_meta import PlateExperimentMeta
+from .plate_downloader import PlateDownloader
+from ._plate_list import PlateList
 from .plate_layout import PlateLayoutMeta
 from ._plate_sirna_gene_mapping import PlateSirnaGeneMapping
 from ._utility import parse_file
@@ -17,8 +17,10 @@ logger = mp.log_to_stderr()
 
 lock, pool = None, None
 
-#TODO: make nice
-#TODO: better logging
+
+# TODO: make nice
+# TODO: better logging
+
 
 class PlateParser:
     """
@@ -49,16 +51,19 @@ class PlateParser:
         """
         self._experiment_file = experiment_file
         self._layout_file = layout_file
-        # parse the folder into a map of (classifier-plate) pairs
-        self._experiment_meta = PlateExperimentMeta(experiment_file,
-                                                    ".*\/\w+\-\w[P|U]\-[G|K]\d+\/.*")
-        self._layout_meta = PlateLayoutMeta(layout_file)
-        self._downloader = Downloader
         self._bee_loader = bee_loader
         self._username = username
         self._pw = pw
         self._output_path = output_path
-        self._downloader = PlateLoader(bee_loader, output_path, username, pw)
+        # read the expe
+        self._plate_list = PlateList(
+            experiment_file, ".*\/\w+\-\w[P|U]\-[G|K]\d+\/.*")
+        # parse the folder into a map of (classifier-plate) pairs
+        self._layout = PlateLayoutMeta(layout_file)
+        # function to download data
+        self._downloader = PlateDownloader(
+            bee_loader, output_path, username, pw)
+        self._db_writer = DatabaseWriter()
 
     def parse(self):
         """
@@ -78,7 +83,7 @@ class PlateParser:
         # TODO: remove this after testing
         # exps = list(filter(lambda x: x.startswith("/INFECT"),
         #               self._experiment_meta.plate_files))
-        exps = list(self._experiment_meta.plate_files)
+        exps = list(self._plate_list.plate_files)
         random.shuffle(exps)
         exps = exps[:150]
         for i in exps:
@@ -93,21 +98,21 @@ class PlateParser:
     def _parse(self, plate):
         # ret = 0
         # try:
-            # plate file name
+        # plate file name
         pa = self._output_path + "/" + plate
         # download the plate files with a process lock
         down_ret_val = self._downloader.load(plate)
-            # if down_ret_val != 0:
-            #     return -1
-            # # parse the plate file names
-            # platefilesets = PlateFileSetParser(pa, self._output_path)
-            # if len(platefilesets) > 1:
-            #     logger.warn("Found multiple plate identifiers for: " + plate)
-            # parse the files
-            # ret = self._parse_plate_file_sets(platefilesets)
-            # remove the matlab plate files
-            # TODO
-            # platefilesets.remove()
+        # if down_ret_val != 0:
+        #     return -1
+        # # parse the plate file names
+        # platefilesets = PlateFileSetParser(pa, self._output_path)
+        # if len(platefilesets) > 1:
+        #     logger.warn("Found multiple plate identifiers for: " + plate)
+        # parse the files
+        # ret = self._parse_plate_file_sets(platefilesets)
+        # remove the matlab plate files
+        # TODO
+        # platefilesets.remove()
         # except Exception:
         #     logger.error("Found error parsing: " + str(plate))
         #     ret = -1
@@ -194,8 +199,8 @@ class PlateParser:
         screen = platefileset.screen
         plate = platefileset.plate
         library_vendor, library_type = list(library)
-        layout = self._layout_meta.get(pathogen, library, screen,
-                                       replicate, plate)
+        layout = self._layout.get(pathogen, library, screen,
+                                  replicate, plate)
         if layout is None:
             logger.warn("Could not load layout for: " + platefileset.classifier)
             return
@@ -219,29 +224,6 @@ class PlateParser:
                                       list(map(str, vals))).lower() + "\n")
         return 0
 
-
-class PlateLoader:
-    """
-    Class for plate downloading.
-
-    """
-
-    def __init__(self, bee_loader, output_path, username, pw):
-        """
-        Constructor for the plate downloader.
-
-        :param bee_loader: the full path with the script name that downloads
-        the data (e.g. /bla/..../BeeDataSetDownloader.sh)
-        :param output_path: the folder where all the plates get stored and
-        parsed to
-        :param username: the user name of the open bis instance
-        :param pw: the password of the open bis instance
-        """
-        self._bee_loader = bee_loader
-        self._output_path = output_path
-        self._username = username
-        self._pw = pw
-
     def load(self, plate_id):
         """
         Download a plate using the bee-data downloader.
@@ -250,20 +232,10 @@ class PlateLoader:
         :return:
         """
         global lock
-        ret = -1
         try:
             lock.acquire()
             logger.info("Downloading: " + plate_id)
-            sc = [self._bee_loader,
-                  "--user", self._username,
-                  "--password", self._pw,
-                  "--outputdir", self._output_path,
-                  "--plateid", plate_id,
-                  "--type", "HCS_ANALYSIS_CELL_FEATURES_CC_MAT",
-                  "--newest",
-                  "--files", ".*.mat",
-                  "--verbose", "1"]
-            ret = subprocess.call(sc)
+            ret = self._downloader.load(plate_id)
             if ret != 0:
                 logger.warn("\tdownload failed with status: " + str(0))
         finally:
