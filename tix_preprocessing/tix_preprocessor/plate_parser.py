@@ -53,6 +53,7 @@ class PlateParser:
         self._experiment_meta = PlateExperimentMeta(experiment_file,
                                                     ".*\/\w+\-\w[P|U]\-[G|K]\d+\/.*")
         self._layout_meta = PlateLayoutMeta(layout_file)
+        self._downloader = Downloader
         self._bee_loader = bee_loader
         self._username = username
         self._pw = pw

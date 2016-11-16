@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 __NA__ = "NA"
 
 
-class Controller:
+class PlateDatabaseWriter:
     def __init__(self, user=None, password=None, use_cassandra=None):
         self.__screen_regex = re.compile(
             "^(\S+-?\S+)-(\w+)-(\w)(\w)-(\w+)(\d+)(-(.*))?$")
