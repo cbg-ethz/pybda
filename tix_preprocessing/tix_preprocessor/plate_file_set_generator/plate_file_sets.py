@@ -6,6 +6,8 @@ import logging
 import os
 import re
 
+from tix_preprocessor.utility import parse_plate_info, regex
+from tix_preprocessor.utility import parse_screen_details
 from ._plate_file import PlateFile
 from ._plate_file_set import PlateFileSet
 
@@ -74,8 +76,8 @@ class PlateFileSets:
             if self._skip(basename):
                 continue
             # decompose the file name
-            clss, path, lib, scr, rep, plt, cid, feat, _ = self._parse_plate_name(
-                f)
+                classifier, st, pa, lib, des, scr, rep, suf, plate, feature\
+                    = self._parse_plate_name(f)
             # add the (classifier-platefileset) pair to the plate map
             self._add_platefileset(clss, path, lib, scr,
                                    rep, plt, cid, self._outfolder)
@@ -117,12 +119,6 @@ class PlateFileSets:
                 return True
         return False
 
-    def _screen_name(self, f):
-        ret = re.match(".*/(.*)/.*/(.*)/(.*)/.*/.*/.+mat?$", f)
-        return ret.group(1) + "-" + ret.group(2), ret.group(3)
-
-    st, pa, lib, des, scr, rep, suf = self._parse_screen(screen)
-
     def _parse_plate_name(self, f):
         """
         Decompose a filename into several features names.
@@ -130,38 +126,16 @@ class PlateFileSets:
         :param f: the file name
         :return: returns a list of feature names
         """
+        f = f.strip().lower()
+        screen, plate = parse_plate_info(f)
+        st, pa, lib, des, scr, rep, suf  = parse_screen_details(screen)
+        feature = (f.split("/")[-1]).replace(".mat", "")
+        if suf != regex.__NA__:
+            classifier = "-".join([st, pa, lib, des, scr, rep, suf, plate])
+        else:
+            classifier = "-".join([st, pa, lib, des, scr, rep, plate])
+        return classifier, st, pa, lib, des, scr, rep, suf, plate, feature
 
-        screen, plate
-
-        filename = f
-        feature, f = self._match_and_sub(f, ".*/(.+mat?)$", 1, filename)
-        cid, f = self._match_and_sub(f, ".*/(\d+.\d+?)$", 1, filename)
-        # remove HCS_ANALYSIS_CELL_FEATURES_CC_MAT string
-        _, f = self._match_and_sub(f, ".*/(.+?)$", 1, filename)
-        plate, f = self._match_and_sub(f, ".*/(.+)$", 1, filename)
-        exper, f = self._match_and_sub(f, ".*/(.+)$", 1, filename)
-        pathogen, library, sett = exper.split("-")[0:3]
-
-        mat = self._setting_regex.match(sett)
-        screen, replicate = mat.group(1), mat.group(2)
-        team, f = self._match_and_sub(f, ".*/(.+)$", 1, filename)
-        src, f = self._match_and_sub(f, ".*/(.+)$", 1, filename)
-        classifier = "_".join([src, team, pathogen, library, sett,
-                               plate,
-                               cid])
-        return classifier, pathogen, library, screen, replicate, plate, cid, \
-               feature, f
-
-    @staticmethod
-    def _match_and_sub(string, match, grp, filename):
-        ret = subs = ""
-        try:
-            ret = re.match(match, string).group(grp)
-            subs = re.sub('/' + ret, '', string)
-        except AttributeError or IndexError:
-            logger.warn("Could not match string %s in file %s against %s",
-                        string, filename, match)
-        return ret, subs
 
     def _add_platefileset(self, classifier, pathogen, library,
                           screen, replicate, plate, cid, outfolder):
