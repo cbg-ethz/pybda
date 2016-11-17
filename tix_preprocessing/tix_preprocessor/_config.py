@@ -11,15 +11,22 @@ logger = logging.getLogger(__name__)
 
 class Config:
     __BEE_PASSWORD__ = "bee_password"
-    __BEE_USER__ = "bee_user_name"
+    __BEE_USER__ = "bee_username"
     __BEE_LOADER__ = "bee_loader"
-    __EXPERIMENT_FILE__ = "experiment_file"
-    __LAYOUT_META_FILE__ = "layout_file"
-    __OUTPUT_FOLDER__ = "output_folder"
     __DB_PASSWORD__ = "db_password"
-    __DB_USER__ = "db_user_name"
+    __DB_USER__ = "db_username"
+    __DB__ = "db"
+    __PLATE_ID_FILE__ = "plate_id_file"
+    __LAYOUT_FILE__ = "layout_file"
+    __PLATE_FOLDER__ = "plate_folder"
+    __OUTPUT_PATH__ = "output_path"
+    __MULTI_PROCESSING__ = "multiprocessing"
     __CONFIG__ = \
-        [__BEE_PASSWORD__, __BEE_USER__, __DB_PASSWORD__, __DB_USER__]
+        [__BEE_PASSWORD__, __BEE_USER__, __BEE_LOADER__,
+         __DB__, __DB_PASSWORD__, __DB_USER__,
+         __PLATE_FOLDER__, __PLATE_ID_FILE__, __LAYOUT_FILE__,
+         __MULTI_PROCESSING__, __OUTPUT_PATH__
+         ]
 
     def __init__(self, credentials):
         with open(credentials, 'r') as f:

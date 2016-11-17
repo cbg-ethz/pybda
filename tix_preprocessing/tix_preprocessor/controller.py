@@ -45,14 +45,14 @@ class Controller:
         :param username: the user name of the open bis instance
         :param pw: the password of the open bis instance
         """
-        self._experiment_file = config.experiment_file
+        self._plate_id_file = config.plate_id_file
         self._layout_file = config.layout_file
         self._output_path = config.output_path
         self._bee_loader = config.bee_loader
         self._multi_processing = config.multi_processing
         # read the plate list files
         self._plate_list = PlateList(
-            self._experiment_file, ".*\/\w+\-\w[P|U]\-[G|K]\d+\/.*")
+            self._plate_id_file, ".*\/\w+\-\w[P|U]\-[G|K]\d+\/.*")
         # parse the folder into a map of (classifier-plate) pairs
         self._layout = PlateLayoutMeta(self._layout_file)
         # function to download data

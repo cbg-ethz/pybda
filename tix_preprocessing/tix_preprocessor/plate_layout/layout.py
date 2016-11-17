@@ -4,7 +4,6 @@
 
 import logging
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -17,9 +16,10 @@ class PlateLayoutMeta:
 
     def __init__(self, file):
         """
-        Constructor for the meta file loader from an open-bis instance.
+        Constructor for the meta file loader from an open-bis instance,
+        e.g.: target_infect_x_library_layouts_beautified.tsv
 
-        :param file: the experiment meta file
+        :param file: the layout meta file
         :param pattern: the patterns you are searching for
         """
 
@@ -65,36 +65,7 @@ class PlateLayoutMeta:
         return None
 
 
-class PlateLayout(object):
-    def __init__(self, classifier, geneset, library):
-        self._classifier = classifier
-        self._geneset = geneset
-        self._library = library
-        self._well_layout = {}
 
-    def add(self, gene, sirna, well, well_type):
-        if well in self._well_layout:
-            logger.warn("Adding " + well + " multiple times to " +
-                        self._classifier + " layout!")
-        self._well_layout[well] = Well(gene, sirna, well, well_type)
-
-    def sirna(self, well):
-        if well not in self._well_layout:
-            logger.warn("Could not find well:" + well)
-            return None
-        return self._well_layout[well].sirna
-
-    def welltype(self, well):
-        if well not in self._well_layout:
-            logger.warn("Could not find well:" + well)
-            return None
-        return self._well_layout[well].welltype
-
-    def gene(self, well):
-        if well not in self._well_layout:
-            logger.warn("Could not find well:" + well)
-            return None
-        return self._well_layout[well].gene
 
 
 class Well:
