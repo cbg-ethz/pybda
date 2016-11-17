@@ -6,6 +6,7 @@
 import logging
 import re
 
+from tix_preprocessor.utility import parse_screen_details
 from ._database_connector import DBConnection
 from ._database_headers import DatabaseHeaders
 
@@ -95,7 +96,7 @@ class DatabaseWriter:
     def _create_data_table_statements(self):
         for screen, _ in self.__db_headers.screens:
             # study/pathogen/library/design/screen/replicate/suffix
-            st, pa, lib, des, scr, rep, suf = self._parse_screen(screen)
+            st, pa, lib, des, scr, rep, suf = parse_screen_details(screen)
             if None in [st, pa, lib, des, scr, rep, suf]:
                 continue
             self.__meta.append([st, pa, lib, des, scr, rep, suf])
@@ -127,14 +128,3 @@ class DatabaseWriter:
         tbl += "_" + f
         return tbl
 
-    def _parse_screen(self, screen):
-        try:
-            pat = self.__screen_regex.match(screen.lower())
-            if pat is None:
-                return [None] * 7
-            return pat.group(1), pat.group(2), pat.group(3), pat.group(4), \
-                   pat.group(5), pat.group(6), \
-                   pat.group(8) if pat.group(8) is not None else __NA__
-        except AttributeError:
-            logger.warn("Could not parse: " + str(screen))
-            return None

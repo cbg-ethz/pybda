@@ -4,7 +4,8 @@
 
 import os
 import logging
-import re
+
+from tix_preprocessor.utility import parse_plate_info
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -35,7 +36,7 @@ class DatabaseHeaders:
             org, feature = toks[-1].replace(".mat", "").split(".")
             if self._skip(toks[-1]):
                 return
-            screen, plate = self._screen_name(filename)
+            screen, plate = parse_plate_info(filename)
             self._add(self._feature_type_name_map, org, feature)
             self._add(self._screen_plate_map, screen, plate)
         except ValueError:
@@ -47,10 +48,6 @@ class DatabaseHeaders:
             if feature.startswith(x):
                 return True
         return False
-
-    def _screen_name(self, f):
-        ret = re.match(".*/(.*)/.*/(.*)/(.*)/.*/.*/.+mat?$", f)
-        return ret.group(1) + "-" + ret.group(2), ret.group(3)
 
     def _add(self, db, k, v):
         if k not in db:

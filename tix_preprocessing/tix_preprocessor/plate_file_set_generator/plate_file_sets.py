@@ -29,6 +29,7 @@ class PlateFileSets:
     _mapping_file_ = "Image.FileName_OrigDNA"
     # the pattern for screen, replicate
     _setting_pattern = "(\w+)(\d+)"
+    _
 
     def __init__(self, folder, outfolder):
         self._setting_regex = re.compile(PlateFileSets._setting_pattern)
@@ -116,6 +117,12 @@ class PlateFileSets:
                 return True
         return False
 
+    def _screen_name(self, f):
+        ret = re.match(".*/(.*)/.*/(.*)/(.*)/.*/.*/.+mat?$", f)
+        return ret.group(1) + "-" + ret.group(2), ret.group(3)
+
+    st, pa, lib, des, scr, rep, suf = self._parse_screen(screen)
+
     def _parse_plate_name(self, f):
         """
         Decompose a filename into several features names.
@@ -123,6 +130,8 @@ class PlateFileSets:
         :param f: the file name
         :return: returns a list of feature names
         """
+
+        screen, plate
 
         filename = f
         feature, f = self._match_and_sub(f, ".*/(.+mat?)$", 1, filename)
@@ -132,6 +141,7 @@ class PlateFileSets:
         plate, f = self._match_and_sub(f, ".*/(.+)$", 1, filename)
         exper, f = self._match_and_sub(f, ".*/(.+)$", 1, filename)
         pathogen, library, sett = exper.split("-")[0:3]
+
         mat = self._setting_regex.match(sett)
         screen, replicate = mat.group(1), mat.group(2)
         team, f = self._match_and_sub(f, ".*/(.+)$", 1, filename)
