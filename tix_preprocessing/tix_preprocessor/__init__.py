@@ -3,3 +3,4 @@
 # __date__   = 23/09/16
 
 from .controller import Controller
+from .plate_parser import PlateParser

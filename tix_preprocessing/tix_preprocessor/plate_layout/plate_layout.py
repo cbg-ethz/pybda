@@ -5,6 +5,8 @@
 
 import logging
 
+from .plate_well import PlateWell
+
 logger = logging.getLogger(__name__)
 
 
@@ -19,7 +21,7 @@ class PlateLayout(object):
         if well in self._well_layout:
             logger.warn("Adding " + well + " multiple times to " +
                         self._classifier + " layout!")
-        self._well_layout[well] = Well(gene, sirna, well, well_type)
+        self._well_layout[well] = PlateWell(gene, sirna, well, well_type)
 
     def sirna(self, well):
         if well not in self._well_layout:

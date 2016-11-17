@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class FileSetGenerator:
+class PlateFileSets:
     """
     Class for keeping all the filenames of plates stored as a map.
 
@@ -30,12 +30,12 @@ class FileSetGenerator:
     # the pattern for screen, replicate
     _setting_pattern = "(\w+)(\d+)"
 
-    def __init__(self, folder, outfile):
-        self._setting_regex = re.compile(FileSetGenerator._setting_pattern)
+    def __init__(self, folder, outfolder):
+        self._setting_regex = re.compile(PlateFileSets._setting_pattern)
         self._folder = folder
         self._plates = {}
         self._files = []
-        self._outfile = outfile
+        self._outfolder = outfolder
         self._parse_file_names(folder)
 
     def __iter__(self):
@@ -77,12 +77,12 @@ class FileSetGenerator:
                 f)
             # add the (classifier-platefileset) pair to the plate map
             self._add_platefileset(clss, path, lib, scr,
-                                   rep, plt, cid, self._outfile)
+                                   rep, plt, cid, self._outfolder)
             self._add_platefile(f, feat, clss)
 
     def _add_platefile(self, f, feature, classifier):
         # matlab file is the well mapping
-        if feature.lower() == FileSetGenerator._se_map:
+        if feature.lower() == PlateFileSets._se_map:
             self._plates[classifier].mapping = PlateFile(f, feature)
         # add the current matlab file do the respective platefile
         else:
@@ -91,8 +91,8 @@ class FileSetGenerator:
     def _skip(self, basename):
         if self._skip_feature(basename):
             return True
-        if basename.startswith(FileSetGenerator._image_) and \
-                not basename.startswith(FileSetGenerator._mapping_file_):
+        if basename.startswith(PlateFileSets._image_) and \
+                not basename.startswith(PlateFileSets._mapping_file_):
             return True
         return False
 
@@ -111,7 +111,7 @@ class FileSetGenerator:
 
     @staticmethod
     def _skip_feature(basename):
-        for skip in FileSetGenerator._skippable_features_starts:
+        for skip in PlateFileSets._skippable_features_starts:
             if basename.startswith(skip):
                 return True
         return False
@@ -154,9 +154,9 @@ class FileSetGenerator:
         return ret, subs
 
     def _add_platefileset(self, classifier, pathogen, library,
-                          screen, replicate, plate, cid, outfile):
+                          screen, replicate, plate, cid, outfolder):
         if classifier not in self._plates:
             self._plates[classifier] = \
-                PlateFileSet(classifier, outfile + '/' + classifier,
+                PlateFileSet(classifier, outfolder + '/' + classifier,
                              pathogen, library, screen,
                              replicate, plate, cid)

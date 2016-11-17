@@ -5,7 +5,7 @@
 import logging
 import re
 
-from ._utility import load_matlab
+from .utility import load_matlab
 
 logging.basicConfig(level=logging.INFO, filemode="w")
 logger = logging.getLogger(__name__)
@@ -18,12 +18,10 @@ class PlateSirnaGeneMapping:
     """
 
     def __init__(self, plate_file_set):
-        self._err = 0
-        if plate_file_set.mapping is None:
-            self._set_error(plate_file_set)
-        self._mapping = []
-        self._pattern = re.compile(".*\_w(\\w\\d+)\_s\d\_z\d.*tif")
-        self._load(plate_file_set)
+        if plate_file_set.mapping is not None:
+            self._mapping = []
+            self._pattern = re.compile(".*\_w(\\w\\d+)\_s\d\_z\d.*tif")
+            self._load(plate_file_set)
 
     def __getitem__(self, item):
         if isinstance(item, int):
@@ -39,32 +37,22 @@ class PlateSirnaGeneMapping:
 
         :param plate_file_set: plate file set object
         """
-        # TODO: make nice
-        # read the plate file
         cf = load_matlab(plate_file_set.mapping.filename)
         if cf is None:
-            self._set_error(plate_file_set)
             return
         # create mapping array of same length
         self._mapping = [None] * len(cf)
         # pattern for every line: we are instested in a char, followed by 2
         # numbers
-
         for i, e in enumerate(cf):
-            self._load_entry(plate_file_set, i, self._pattern.match(e[0]))
+            self._load_entry(i, self._pattern.match(e[0]))
 
-    def _load_entry(self, plate_file_set, i, mat):
+    def _load_entry(self, i, mat):
         """
         Load a single line/image from the well mapping
 
         """
 
         if mat is None:
-            self._set_error(plate_file_set)
             return
         self._mapping[i] = mat.group(1).upper()
-
-    def _set_error(self, plate_file_set):
-        logger.error(
-            "Could not parse meta: " + str(plate_file_set.classifier))
-        self._err = 1
