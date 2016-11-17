@@ -6,7 +6,6 @@
 import logging
 
 import numpy
-import scipy.io as spio
 
 from tix_preprocessor.utility import load_matlab
 from ._plate_sirna_gene_mapping import PlateSirnaGeneMapping
@@ -39,18 +38,17 @@ class PlateParser:
             # parse the feates to np arrays
             features = self._parse_plate_file_set(platefileset)
             if len(features) == 0:
-                logger.warn("Didnt find features for: " +
-                            platefileset.classifier +
-                            ". Continuing to next set!")
                 continue
             # load the mapping file for the wells
             mapping = self._parse_plate_mapping(platefileset)
-            if mapping is None:
+            if len(mapping) == 0:
                 logger.warn("Mapping is none for plate-fileset: " +
                             platefileset.classifier +
                             ". Continuing to next set!")
                 continue
             self._integrate_platefileset(platefileset, features, mapping)
+            # todo
+            #platefilesets.remove()
         return 0
 
     def _parse_plate_file_set(self, plate_file_set):
@@ -133,7 +131,6 @@ class PlateParser:
                     f.write("\t".join(list(map(str, meta)) +
                                       list(map(str, vals))).lower() + "\n")
         return 0
-
 
 
     def _parse_file(self, plate_file):

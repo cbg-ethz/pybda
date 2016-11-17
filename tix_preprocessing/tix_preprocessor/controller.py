@@ -4,6 +4,7 @@
 
 import multiprocessing as mp
 
+from .config import Config
 from .plate_parser import PlateParser
 from .plate_file_set_generator.plate_file_sets import PlateFileSets
 from .plate_list import PlateList
@@ -38,6 +39,9 @@ class Controller:
         :param username: the user name of the open bis instance
         :param pw: the password of the open bis instance
         """
+        if not isinstance(config, Config):
+            logger.error("Please provide a config object")
+            exit(-1)
         self._plate_id_file = config.plate_id_file
         self._layout_file = config.layout_file
         self._output_path = config.output_path
@@ -101,9 +105,6 @@ class Controller:
                 logger.warn("Found multiple plate identifiers for: " + plate)
             # parse the files
             ret = self.parse_plate_file_sets(platefilesets)
-            # remove the matlab plate files
-            # TODO
-            platefilesets.remove()
         except Exception:
             logger.error("Found error parsing: " + str(plate))
             ret = -1
