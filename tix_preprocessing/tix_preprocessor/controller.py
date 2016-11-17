@@ -3,12 +3,12 @@
 # __date__   = 22/09/16
 
 import multiprocessing as mp
-import random
 
-from .plate_db_writer import DatabaseWriter
+from tix_preprocessor.plate_file_set_generator.file_set_generator import FileSetGenerator
 from ._plate_list import PlateList
 from ._plate_sirna_gene_mapping import PlateSirnaGeneMapping
 from ._utility import parse_file
+from .plate_db_writer import DatabaseWriter
 from .plate_downloader import PlateDownloader
 from .plate_layout import PlateLayoutMeta
 
@@ -16,9 +16,7 @@ logger = mp.log_to_stderr()
 
 lock, pool = None, None
 
-
-# TODO: make nice
-# TODO: better logging
+startstr = "/GROUP_COSSART/LISTERIA_TEAM/LISTERIA-AU-CV2/VZ003-2E"
 
 
 class Controller:
@@ -51,6 +49,7 @@ class Controller:
         self._layout_file = config.layout_file
         self._output_path = config.output_path
         self._bee_loader = config.bee_loader
+        self._multi_processing = config.multi_processing
         # read the plate list files
         self._plate_list = PlateList(
             self._experiment_file, ".*\/\w+\-\w[P|U]\-[G|K]\d+\/.*")
@@ -65,58 +64,55 @@ class Controller:
         self._db_writer = DatabaseWriter(
             user=config.db_username,
             password=config.db_password,
-            db=config.db_name)
+            db=config.db_name,
+            folder=config.plate_folder)
 
     def parse(self):
         """
         Iterate over the experiments, download the files, parse them and
-        store to tsv.
+        store to data-base.
 
         """
+        exps = list(filter(lambda x: x.startswith(startstr),
+                           self._plate_list.plate_files))
         # use globals vars for process pool
-        global lock
-        global pool
-        lock = mp.Lock()
-        # # number of cores we are using
-        n_cores = mp.cpu_count() - 1
-        logger.info("Going parallel with " + str(n_cores) + " cores!")
-        pool = mp.Pool(n_cores)
-        exps = list(filter(lambda x: x.startswith("/GROUP_"),
-                      self._experiment_meta.plate_files))
-        exps = list(self._plate_list.plate_files)
-        random.shuffle(exps)
-        exps = exps[:150]
-        for i in exps:
-            print(i)
-            self.parse_plate(i)
-        # asynychronously start jobs
-        ret = pool.map_async(func=self._parse, iterable=exps)
-        pool.close()
-        pool.join()
+        if self._multi_processing:
+            global lock
+            global pool
+            lock = mp.Lock()
+            # # number of cores we are using
+            n_cores = mp.cpu_count() - 1
+            logger.info("Going parallel with " + str(n_cores) + " cores!")
+            pool = mp.Pool(n_cores)
+            ret = pool.map_async(func=self._parse, iterable=exps)
+            pool.close()
+            pool.join()
+        else:
+            for x in exps:
+                self._parse(x)
         logger.info("All's well that ends well")
 
     def _parse(self, plate):
-        # ret = 0
-        # try:
-        # plate file name
-        pa = self._output_path + "/" + plate
-        # download the plate files with a process lock
-        down_ret_val = self._downloader.load(plate)
-        # if down_ret_val != 0:
-        #     return -1
-        # # parse the plate file names
-        # platefilesets = PlateFileSetParser(pa, self._output_path)
-        # if len(platefilesets) > 1:
-        #     logger.warn("Found multiple plate identifiers for: " + plate)
-        # parse the files
-        # ret = self._parse_plate_file_sets(platefilesets)
-        # remove the matlab plate files
-        # TODO
-        # platefilesets.remove()
-        # except Exception:
-        #     logger.error("Found error parsing: " + str(plate))
-        #     ret = -1
-        return 1
+        ret = 0
+        try:
+            pa = self._output_path + "/" + plate
+            # download the plate files with a process lock
+            down_ret_val = self.load(plate)
+            if down_ret_val != 0:
+                return -1
+            # parse the plate file names
+            platefilesets = FileSetGenerator(pa, self._output_path)
+            if len(platefilesets) > 1:
+                logger.warn("Found multiple plate identifiers for: " + plate)
+            # parse the files
+            ret = self._parse_plate_file_sets(platefilesets)
+            # remove the matlab plate files
+            # TODO
+            platefilesets.remove()
+        except Exception:
+            logger.error("Found error parsing: " + str(plate))
+            ret = -1
+        return ret
 
     def _parse_plate_file_sets(self, platefilesets):
         """
@@ -231,13 +227,16 @@ class Controller:
         :param plate_id: the full qualifier id of a plate
         :return:
         """
-        global lock
-        try:
-            lock.acquire()
-            logger.info("Downloading: " + plate_id)
+        logger.info("Downloading: " + plate_id)
+        if self._multi_processing:
+            global lock
+            try:
+                lock.acquire()
+                ret = self._downloader.load(plate_id)
+            finally:
+                lock.release()
+        else:
             ret = self._downloader.load(plate_id)
-            if ret != 0:
-                logger.warn("\tdownload failed with status: " + str(0))
-        finally:
-            lock.release()
+        if ret != 0:
+            logger.warn("\tdownload failed with status: " + str(0))
         return ret

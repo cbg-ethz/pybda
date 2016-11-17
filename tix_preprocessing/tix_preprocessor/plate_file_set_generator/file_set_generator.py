@@ -5,6 +5,7 @@
 import logging
 import os
 import re
+
 from ._plate_file import PlateFile
 from ._plate_file_set import PlateFileSet
 
@@ -12,7 +13,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class PlateFileSetParser:
+class FileSetGenerator:
     """
     Class for keeping all the filenames of plates stored as a map.
 
@@ -24,11 +25,13 @@ class PlateFileSetParser:
     _skippable_features_contains = ["SubObjectFlag"]
     # name of the file that has the sirna-entrez mapping information
     _se_map = "Image.FileName_OrigDNA.mat".lower()
+    _image_ = "Image."
+    _mapping_file_ = "Image.FileName_OrigDNA"
     # the pattern for screen, replicate
     _setting_pattern = "(\w+)(\d+)"
 
     def __init__(self, folder, outfile):
-        self._setting_regex = re.compile(PlateFileSetParser._setting_pattern)
+        self._setting_regex = re.compile(FileSetGenerator._setting_pattern)
         self._folder = folder
         self._plates = {}
         self._files = []
@@ -79,7 +82,7 @@ class PlateFileSetParser:
 
     def _add_platefile(self, f, feature, classifier):
         # matlab file is the well mapping
-        if feature.lower() == PlateFileSetParser._se_map:
+        if feature.lower() == FileSetGenerator._se_map:
             self._plates[classifier].mapping = PlateFile(f, feature)
         # add the current matlab file do the respective platefile
         else:
@@ -88,8 +91,8 @@ class PlateFileSetParser:
     def _skip(self, basename):
         if self._skip_feature(basename):
             return True
-        if basename.startswith("Image.") and \
-                not basename.startswith("Image.FileName_OrigDNA"):
+        if basename.startswith(FileSetGenerator._image_) and \
+                not basename.startswith(FileSetGenerator._mapping_file_):
             return True
         return False
 
@@ -108,7 +111,7 @@ class PlateFileSetParser:
 
     @staticmethod
     def _skip_feature(basename):
-        for skip in PlateFileSetParser._skippable_features_starts:
+        for skip in FileSetGenerator._skippable_features_starts:
             if basename.startswith(skip):
                 return True
         return False

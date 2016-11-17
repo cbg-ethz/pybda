@@ -30,19 +30,45 @@ class DatabaseWriter:
                                   "PRIMARY KEY(table_name)" \
                                   ")"
 
-    def __init__(self, user=None, password=None, db=None):
+    def __init__(self, user=None, password=None, db=None, folder=None):
         self.__screen_regex = re.compile(
             "^(\S+-?\S+)-(\w+)-(\w)(\w)-(\w+)(\d+)(-(.*))?$")
         self.__user = user
         self.__meta = []
         self.__db = db
         self.__pw = password
+        if folder is not None:
+            self.__db_headers = DatabaseHeaders(folder)
 
     def print(self, folder):
+        """
+        Parse a folder of plates and feature files and print the statements
+        for the tables creations using postgreSQL.
+
+        :param folder: a folder containing plates and matlab files
+        """
         self._run(folder=folder, do_create=False)
 
     def create(self, folder):
+        """
+        Parse a folder of plates and feature files and create the respective
+        tables in a postgreSQL database.
+
+        :param folder: a folder containing plates and matlab files
+        """
         self._run(folder=folder, do_create=True)
+
+
+    def create_from_plate(self, plate_id):
+        """
+        Create the respective tables given a plate_id. The plate id has to
+        have a format as: '/GROUP_COSSART/LISTERIA_TEAM/LISTERIA-AU-CV2/VZ003-2E'
+        as it is given in the experiment file.
+
+        :param plate_id: a plate id
+        """
+        logger.error("to do")
+        pass
 
     def _run(self, folder, do_create):
         self.__db_headers = DatabaseHeaders(folder)
@@ -112,6 +138,3 @@ class DatabaseWriter:
         except AttributeError:
             logger.warn("Could not parse: " + str(screen))
             return None
-
-    def _add_to_meta(self, conn):
-        conn.add_batch_meta(self.__meta)
