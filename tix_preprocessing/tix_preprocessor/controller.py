@@ -16,7 +16,7 @@ logger = mp.log_to_stderr()
 
 lock, pool = None, None
 
-startstr = "/GROUP_COSSART/LISTERIA_TEAM/LISTERIA-AU-CV2/VZ003-2E"
+startstr = "/GROUP_COSSART/LISTERIA_TEAM/LISTERIA-DP-G1/DZ44-1K"
 
 
 class Controller:
@@ -93,7 +93,6 @@ class Controller:
     def _parse(self, plate):
         ret = 0
         try:
-
             # download the plate files with a process lock
             down_ret_val = self.download_plate(plate)
             if down_ret_val != 0:

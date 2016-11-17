@@ -76,3 +76,7 @@ class Config:
     @property
     def db_name(self):
         return getattr(self, "_" + Config.__DB__)
+
+    @property
+    def plate_folder(self):
+        return getattr(self, "_" + Config.__PLATE_FOLDER__)
