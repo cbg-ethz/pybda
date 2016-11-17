@@ -65,7 +65,7 @@ class Controller:
         self._db_writer = DatabaseWriter(
             user=config.db_username,
             password=config.db_password,
-            use_cassandra=True)
+            db=config.db_name)
 
     def parse(self):
         """
@@ -80,21 +80,19 @@ class Controller:
         # # number of cores we are using
         n_cores = mp.cpu_count() - 1
         logger.info("Going parallel with " + str(n_cores) + " cores!")
-        # pool = mp.Pool(n_cores)
-        # get only infect x data
-        # TODO: remove this after testing
-        # exps = list(filter(lambda x: x.startswith("/INFECT"),
-        #               self._experiment_meta.plate_files))
+        pool = mp.Pool(n_cores)
+        exps = list(filter(lambda x: x.startswith("/GROUP_"),
+                      self._experiment_meta.plate_files))
         exps = list(self._plate_list.plate_files)
         random.shuffle(exps)
         exps = exps[:150]
         for i in exps:
             print(i)
-            self._parse(i)
+            self.parse_plate(i)
         # asynychronously start jobs
-        # ret = pool.map_async(func=self._parse, iterable=exps)
-        # pool.close()
-        # pool.join()
+        ret = pool.map_async(func=self._parse, iterable=exps)
+        pool.close()
+        pool.join()
         logger.info("All's well that ends well")
 
     def _parse(self, plate):

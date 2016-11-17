@@ -6,13 +6,12 @@
 import logging
 import re
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
 class PlateList:
     """
-    Class that loads the experiment meta files from an open-bis instance
+    Class that stores plate file names as array and removes lines that should not be used
 
     """
 
@@ -26,9 +25,9 @@ class PlateList:
         self._meta_file = file
         self._pattern = pattern
         # regex that automatically excludes files
-        self._regex = re.compile(".*((BACKUP)|(INVASIN)|(OLIGOPROFILE)|("
-                              "TITRATION)|"
-                         "(RHINO-TEST)|(1PMOL)).*".upper())
+        self._regex = re.compile(
+            ".*((BACKUP)|(INVASIN)|(OLIGOPROFILE)|(TITRATION)|"
+            "(RHINO-TEST)|(1PMOL)).*".upper())
         logger.info("Loading experiments...")
         self._plate_files = self._load()
 

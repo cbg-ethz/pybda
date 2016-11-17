@@ -31,12 +31,12 @@ def parse_options(args):
         '-f', type=str, required=True, metavar='result-summary-folder',
         help='folder that contains the screening files (NOT the file), e.g.: '
              '/my/path/screening_data/INFECTX')
-    create_parser.add_argument('-u', type=str,
-                               help='user name for database connection',
-                               required=True, metavar='username')
-    create_parser.add_argument('-p', type=str,
-                               help='password for database connection',
-                               required=True, metavar='password')
+    create_parser.add_argument(
+        '-u', type=str, help='user name for database connection',
+        required=True, metavar='username')
+    create_parser.add_argument(
+        '-p', type=str, help='password for database connection',
+        required=True, metavar='password')
 
     query_parser = subparsers.add_parser(
         'print', help='Print the create statements for the data-bases.')
@@ -46,7 +46,6 @@ def parse_options(args):
         help='folder that contains the screening files (NOT the file), e.g.: '
              '/my/path/screening_data/INFECTX')
 
-
     opts = parser.parse_args(args)
     return opts
 
@@ -54,7 +53,7 @@ def parse_options(args):
 def main(args):
     opts = parse_options(args)
     if opts.which == __CREATE__:
-        DatabaseWriter(opts.u, opts.p).create(opts.f)
+        DatabaseWriter(opts.u, opts.p, "tix").create(opts.f)
     else:
         DatabaseWriter().print(opts.f)
 

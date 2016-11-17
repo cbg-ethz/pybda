@@ -30,12 +30,13 @@ class DatabaseWriter:
                                   "PRIMARY KEY(table_name)" \
                                   ")"
 
-    def __init__(self, user=None, password=None):
+    def __init__(self, user=None, password=None, db=None):
         self.__screen_regex = re.compile(
             "^(\S+-?\S+)-(\w+)-(\w)(\w)-(\w+)(\d+)(-(.*))?$")
         self.__user = user
         self.__meta = []
-        self.__password = password
+        self.__db = db
+        self.__pw = password
 
     def print(self, folder):
         self._run(folder=folder, do_create=False)
@@ -48,7 +49,7 @@ class DatabaseWriter:
         meta_data_st = self._create_meta_table_statement()
         data_tab_statements = self._create_data_table_statements()
         if do_create:
-            with DBConnection(self.__user, self.__password) as connection:
+            with DBConnection(self.__user, self.__pw, self.__db) as connection:
                 logger.info("Creating meta table")
                 self._execute(connection, meta_data_st)
                 logger.info("Creating data tables")
