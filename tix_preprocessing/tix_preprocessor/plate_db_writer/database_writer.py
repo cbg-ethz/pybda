@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 __NA__ = "NA"
 
+
 class DatabaseWriter:
     meta_table_create_statement = "CREATE TABLE IF NOT EXISTS meta" \
                                   "(" \
@@ -45,25 +46,26 @@ class DatabaseWriter:
     def _run(self, folder, do_create):
         self.__db_headers = DatabaseHeaders(folder)
         meta_data_st = self._create_meta_table_statement()
-        data_tab_statements = self._c
+        data_tab_statements = self._create_data_table_statements()
         if do_create:
             with DBConnection(self.__user, self.__password) as connection:
                 logger.info("Creating meta table")
-                self._create_meta_table(connection)
+                self._execute(connection, meta_data_st)
                 logger.info("Creating data tables")
-                self._create_data_tables(connection)
+                for x in data_tab_statements:
+                    self._execute(connection, x)
         else:
             print(meta_data_st)
-            print(x) for x in data_tab_statements
-
-
-    def _create_meta_table(self, connection):
-        connection.execute(self._create_meta_table_statement())
+            for x in data_tab_statements:
+                print(x)
 
     def _create_meta_table_statement(self):
         return DatabaseWriter.meta_table_create_statement
 
-    def _create_data_tables(self, con):
+    def _execute(self, connection, job):
+        connection.execute(job)
+
+    def _create_data_table_statements(self):
         for screen, _ in self.__db_headers.screens:
             # study/pathogen/library/design/screen/replicate/suffix
             st, pa, lib, des, scr, rep, suf = self._parse_screen(screen)
@@ -71,22 +73,23 @@ class DatabaseWriter:
                 continue
             self.__meta.append([st, pa, lib, des, scr, rep, suf])
             for ftype, features in self.__db_headers.feature_types:
-                self._create_data_table(
-                    con, ftype, features, st, pa, lib, des, scr, rep, suf)
-
-    def _create_data_table(self, connection, ftype, features,
-                           st, pa, lib, des, scr, rep, suf):
-        create_statement = self._create_data_table_statement(
-            ftype, features, st, pa, lib, des, scr, rep, suf)
-        connection.execute(create_statement)
+                yield self._create_data_table_statement(
+                    ftype, features, st, pa, lib, des, scr, rep, suf)
 
     def _create_data_table_statement(
             self, ftype, features, st, pa, lib, des, scr, rep, suf):
         tbl = self._table_name(st, pa, lib, des, scr, rep, suf, ftype)
         fe = (" double precision, ".join(features)) + " double precision"
         create_statement = "CREATE TABLE IF NOT EXISTS " + tbl
-        create_statement += " (id int, plate varchar(255), "
-        create_statement += fe + ", primary key(id));"
+        create_statement += " (plate varchar(40) NOT NULL, " \
+                            "gene varchar(40), " \
+                            "sirna varchar(40), " \
+                            "well_idx integer, " \
+                            "well_type varchar(40), " \
+                            "image_idx integer, " \
+                            "object_idx integer, "
+        create_statement += fe + ", primary key(plate, gene, sirna, well_idx, " \
+                                 " image_idx, object_idx));"
         return create_statement
 
     def _table_name(self, st, pa, lib, des, scr, rep, suf, f):
@@ -111,4 +114,3 @@ class DatabaseWriter:
 
     def _add_to_meta(self, conn):
         conn.add_batch_meta(self.__meta)
-
