@@ -7,7 +7,7 @@ import logging
 
 import numpy
 
-from tix_preprocessor.utility import load_matlab
+from .utility import load_matlab
 from ._plate_sirna_gene_mapping import PlateSirnaGeneMapping
 from .plate_file_set_generator import PlateFileSets
 from ._plate_cell_features import PlateCellFeature

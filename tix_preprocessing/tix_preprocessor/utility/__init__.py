@@ -4,3 +4,4 @@
 
 from .regex import parse_plate_info
 from .regex import parse_screen_details
+from .utility import load_matlab

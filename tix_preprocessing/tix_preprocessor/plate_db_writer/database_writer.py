@@ -10,7 +10,9 @@ from tix_preprocessor.utility import parse_screen_details
 from ._database_connector import DBConnection
 from ._database_headers import DatabaseHeaders
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO,
+                    format='[%(levelname)-1s/%(processName)-1s/%('
+                           'name)-1s]: %(message)s')
 logger = logging.getLogger(__name__)
 
 __NA__ = "NA"
@@ -31,34 +33,41 @@ class DatabaseWriter:
                                   "PRIMARY KEY(table_name)" \
                                   ")"
 
-    def __init__(self, user=None, password=None, db=None, folder=None):
+    def __init__(self, folder, user=None, password=None, db=None):
         self.__screen_regex = re.compile(
             "^(\S+-?\S+)-(\w+)-(\w)(\w)-(\w+)(\d+)(-(.*))?$")
         self.__user = user
         self.__meta = []
         self.__db = db
         self.__pw = password
-        if folder is not None:
-            self.__db_headers = DatabaseHeaders(folder)
+        self.__db_headers = DatabaseHeaders(folder)
 
-    def print(self, folder):
+    def print(self):
         """
         Parse a folder of plates and feature files and print the statements
         for the tables creations using postgreSQL.
 
         :param folder: a folder containing plates and matlab files
         """
-        self._run(folder=folder, do_create=False)
+        self._run(do_create=False)
 
-    def create(self, folder):
+    def create(self):
         """
         Parse a folder of plates and feature files and create the respective
         tables in a postgreSQL database.
 
         :param folder: a folder containing plates and matlab files
         """
-        self._run(folder=folder, do_create=True)
+        self._run(do_create=True)
 
+    def create_meta_table(self):
+        """
+        Create a meta data table.
+        """
+        meta_data_st = self._create_meta_table_statement()
+        with DBConnection(self.__user, self.__pw, self.__db) as connection:
+            logger.info("Creating meta table")
+            self._execute(connection, meta_data_st)
 
     def create_from_plate(self, plate_id):
         """
@@ -71,8 +80,7 @@ class DatabaseWriter:
         logger.error("to do")
         pass
 
-    def _run(self, folder, do_create):
-        self.__db_headers = DatabaseHeaders(folder)
+    def _run(self, do_create):
         meta_data_st = self._create_meta_table_statement()
         data_tab_statements = self._create_data_table_statements()
         if do_create:
@@ -127,4 +135,3 @@ class DatabaseWriter:
             tbl = "_".join([st, pa, lib, des, scr, rep, suf])
         tbl += "_" + f
         return tbl
-

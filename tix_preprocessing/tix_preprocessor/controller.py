@@ -3,6 +3,7 @@
 # __date__   = 22/09/16
 
 import multiprocessing as mp
+import logging
 
 from .config import Config
 from .plate_parser import PlateParser
@@ -12,6 +13,9 @@ from .plate_db_writer import DatabaseWriter
 from .plate_downloader import PlateDownloader
 from .plate_layout import MetaLayout
 
+logging.basicConfig(level=logging.INFO,
+                    format='[%(levelname)-1s/%(processName)-1s/%('
+                           'name)-1s]: %(message)s')
 logger = mp.log_to_stderr()
 
 lock, pool = None, None
@@ -42,27 +46,22 @@ class Controller:
         if not isinstance(config, Config):
             logger.error("Please provide a config object")
             exit(-1)
-        self._plate_id_file = config.plate_id_file
-        self._layout_file = config.layout_file
+        self._config = config
         self._output_path = config.output_path
-        self._bee_loader = config.bee_loader
         self._multi_processing = config.multi_processing
         # read the plate list files
         self._plate_list = PlateList(
-            self._plate_id_file, ".*\/\w+\-\w[P|U]\-[G|K]\d+\/.*")
+            config.plate_id_file, ".*\/\w+\-\w[P|U]\-[G|K]\d+\/.*")
         # parse the folder into a map of (classifier-plate) pairs
-        self._layout = MetaLayout(self._layout_file)
+        self._layout = MetaLayout(config.layout_file)
         # function to download data
         self._downloader = PlateDownloader(
-            self._bee_loader, self._output_path,
-            config.bee_username,
-            config.bee_password)
+            config.bee_loader, self._output_path,
+            config.bee_username, config.bee_password)
         # the connection to the database
         self._db_writer = DatabaseWriter(
-            user=config.db_username,
-            password=config.db_password,
-            db=config.db_name,
-            folder=config.plate_folder)
+            user=config.db_username, password=config.db_password,
+            db=config.db_name, folder=config.plate_folder)
         self._parser = PlateParser()
 
     def parse(self):
@@ -73,6 +72,7 @@ class Controller:
         """
         exps = list(filter(lambda x: x.startswith(startstr),
                            self._plate_list.plate_files))
+        self._db_writer.create_meta_table()
         # use globals vars for process pool
         if self._multi_processing:
             global lock
@@ -134,6 +134,9 @@ class Controller:
         return PlateFileSets(pa, output_path)
 
     def parse_plate_file_sets(self, platefilesets):
-        self._parser.parse(platefilesets)
-
-
+        self._db_writer.create_meta_table()
+        for platefileset in platefilesets:
+            # todo
+            self._db_writer.insert_meta(platefileset.meta)
+            self._db_writer.create_from_plate(platefileset.table_name)
+        #self._parser.parse(platefilesets)

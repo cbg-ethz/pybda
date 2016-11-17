@@ -10,7 +10,8 @@ from tix_preprocessor.utility import parse_plate_info
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 __skippable_features__ = [x.lower() for x in
-                          ["comet", "image", "dapif", "neighbors", "expanded"]]
+                          ["comet", "image", "dapif", "neighbors",
+                           "expanded", "batch_handles"]]
 
 
 class DatabaseHeaders:

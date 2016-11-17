@@ -6,16 +6,18 @@ import random
 
 
 class PlateFileSet:
-    def __init__(self, classifier, outfile, pathogen,
-                 library, screen, replicate, plate, cid):
+    def __init__(self, classifier, outfile, study, pathogen, library, design,
+                 screen, replicate, suffix, plate):
         self._classifier = classifier
         self._outfile = outfile
+        self._study = study
         self._pathogen = pathogen
         self._library = library
+        self._design = design
         self._screen = screen
         self._replicate = replicate
+        self._suffix = suffix
         self._plate = plate
-        self._cid = cid
         self._files = []
         # sirna-entrez mapping
         self._mapping = None
@@ -28,8 +30,9 @@ class PlateFileSet:
         return self.__str__()
 
     def __str__(self):
-        return "\t".join([self._pathogen, self._library, self._replicate,
-                          self._plate, self._cid])
+        return "\t".join([self._study, self._pathogen, self._library,
+                          self._design, self._screen, self._replicate,
+                          self._plate, self._suffix])
 
     def __len__(self):
         return len(self._files)
@@ -41,6 +44,10 @@ class PlateFileSet:
     @property
     def library(self):
         return self._library
+
+    @property
+    def design(self):
+        return self._design
 
     @property
     def replicate(self):
@@ -76,5 +83,3 @@ class PlateFileSet:
     @mapping.setter
     def mapping(self, value):
         self._mapping = value
-
-

@@ -6,6 +6,9 @@
 import re
 import logging
 
+logging.basicConfig(level=logging.INFO,
+                    format='[%(levelname)-1s/%(processName)-1s/%('
+                           'name)-1s]: %(message)s')
 logger = logging.getLogger(__name__)
 
 __screen_regex__ = re.compile("^(\S+-?\S+)-(\w+)-(\w)(\w)-(\w+)(\d+)(-(.*))?$")
