@@ -11,7 +11,7 @@ from __future__ import print_function, absolute_import
 import argparse
 import sys
 
-from dbm import Controller
+from tix_preprocessor.plate_db_writer import DatabaseWriter
 
 __CREATE__ = "create"
 __PRINT__ = "print"
@@ -37,11 +37,6 @@ def parse_options(args):
     create_parser.add_argument('-p', type=str,
                                help='password for database connection',
                                required=True, metavar='password')
-    create_group = create_parser.add_mutually_exclusive_group(required=True)
-    create_group.add_argument('--mysql', help='use a mySQL database',
-                              action='store_true')
-    create_group.add_argument('--cassandra', help='use a Cassandra database',
-                              action='store_true')
 
     query_parser = subparsers.add_parser(
         'print', help='Print the create statements for the data-bases.')
@@ -50,13 +45,7 @@ def parse_options(args):
         '-f', type=str, required=True, metavar='result-summary-folder',
         help='folder that contains the screening files (NOT the file), e.g.: '
              '/my/path/screening_data/INFECTX')
-    create_group_2 = query_parser.add_mutually_exclusive_group(required=True)
-    create_group_2.add_argument(
-        '--mysql', help='print statements for a mySQL database',
-        action='store_true')
-    create_group_2.add_argument(
-        '--cassandra', help='print statements for a Cassandra database',
-        action='store_true')
+
 
     opts = parser.parse_args(args)
     return opts
@@ -65,9 +54,9 @@ def parse_options(args):
 def main(args):
     opts = parse_options(args)
     if opts.which == __CREATE__:
-        Controller(opts.u, opts.p, opts.cassandra).create(opts.f)
+        DatabaseWriter(opts.u, opts.p).create(opts.f)
     else:
-        Controller(use_cassandra=opts.cassandra).print(opts.f)
+        DatabaseWriter().print(opts.f)
 
 
 if __name__ == "__main__":

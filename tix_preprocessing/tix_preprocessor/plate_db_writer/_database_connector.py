@@ -15,11 +15,10 @@ __SQL_DATA_BASE__ = "CREATE DATABASE IF NOT EXISTS tix;"
 
 
 class DBConnection:
-    def __init__(self, user, password, use_cassandra):
+    def __init__(self, user, password):
         self._id = 0
         self.__user = user
         self.__password = password
-        self.__use_cassandra = use_cassandra
 
     def __enter__(self):
         logger.info("Connecting to db")

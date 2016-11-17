@@ -6,79 +6,66 @@
 import logging
 import re
 
-from ._database_headers import DatabaseHeaders
 from ._database_connector import DBConnection
+from ._database_headers import DatabaseHeaders
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 __NA__ = "NA"
 
-
 class DatabaseWriter:
-    def __init__(self, user=None, password=None, use_cassandra=None):
+    meta_table_create_statement = "CREATE TABLE IF NOT EXISTS meta" \
+                                  "(" \
+                                  "study varchar(40) NOT NULL, " \
+                                  "pathogen varchar(40) NOT NULL, " \
+                                  "library varchar(40) NOT NULL, " \
+                                  "design varchar(40) NOT NULL, " \
+                                  "screen varchar(40) NOT NULL, " \
+                                  "replicate integer NOT NULL, " \
+                                  "suffix varchar(40), " \
+                                  "feature_group varchar(40) NOT NULL, " \
+                                  "table_name varchar(300) NOT NULL, " \
+                                  "PRIMARY KEY(table_name)" \
+                                  ")"
+
+    def __init__(self, user=None, password=None):
         self.__screen_regex = re.compile(
             "^(\S+-?\S+)-(\w+)-(\w)(\w)-(\w+)(\d+)(-(.*))?$")
         self.__user = user
         self.__meta = []
         self.__password = password
-        self.__use_cassandra = use_cassandra
-
-    def create(self, folder):
-        self.__db_headers = DatabaseHeaders(folder)
-        with DBConnection(self.__user, self.__password,
-                          self.__use_cassandra) as connection:
-            logger.info("Creating meta table")
-            self._create_meta_table(connection)
-            logger.info("Creating data tables")
-            self._create_data_tables(connection)
-            self._add_to_meta(connection)
 
     def print(self, folder):
+        self._run(folder=folder, do_create=False)
+
+    def create(self, folder):
+        self._run(folder=folder, do_create=True)
+
+    def _run(self, folder, do_create):
         self.__db_headers = DatabaseHeaders(folder)
-        print(self._create_meta_table_statement())
-        for screen, _ in self.__db_headers.screens:
-            st, pa, lib, des, scr, rep, suf = self._parse_screen(screen)
-            if None in [st, pa, lib, des, scr, rep, suf]:
-                continue
-            for ftype, features in self.__db_headers.feature_types:
-                print(self._create_data_table_statement(
-                    ftype, features, st, pa, lib, des, scr, rep, suf))
+        meta_data_st = self._create_meta_table_statement()
+        data_tab_statements = self._c
+        if do_create:
+            with DBConnection(self.__user, self.__password) as connection:
+                logger.info("Creating meta table")
+                self._create_meta_table(connection)
+                logger.info("Creating data tables")
+                self._create_data_tables(connection)
+        else:
+            print(meta_data_st)
+            print(x) for x in data_tab_statements
+
 
     def _create_meta_table(self, connection):
         connection.execute(self._create_meta_table_statement())
 
     def _create_meta_table_statement(self):
-        if self.__use_cassandra:
-            create_meta_statement = \
-                "CREATE TABLE IF NOT EXISTS meta" \
-                "(" \
-                "study varchar, " \
-                "pathogen varchar, " \
-                "library varchar, " \
-                "design varchar, " \
-                "screen varchar, " \
-                "replicate int, " \
-                "suffix varchar, " \
-                "primary key(study, pathogen, library, design, screen, " \
-                "replicate, suffix));"
-        else:
-            create_meta_statement = \
-                "CREATE TABLE IF NOT EXISTS meta " \
-                "(" \
-                "study varchar(255) not null, " \
-                "pathogen varchar(255) not null, " \
-                "library varchar(255) not null, " \
-                "design varchar(255) not null, " \
-                "screen varchar(255) not null, " \
-                "replicate int(255) not null, " \
-                "suffix varchar(255), " \
-                "primary key(study, pathogen, library, design, screen, " \
-                "replicate, suffix));"
-        return create_meta_statement
+        return DatabaseWriter.meta_table_create_statement
 
     def _create_data_tables(self, con):
         for screen, _ in self.__db_headers.screens:
+            # study/pathogen/library/design/screen/replicate/suffix
             st, pa, lib, des, scr, rep, suf = self._parse_screen(screen)
             if None in [st, pa, lib, des, scr, rep, suf]:
                 continue
@@ -96,12 +83,9 @@ class DatabaseWriter:
     def _create_data_table_statement(
             self, ftype, features, st, pa, lib, des, scr, rep, suf):
         tbl = self._table_name(st, pa, lib, des, scr, rep, suf, ftype)
-        fe = (" double, ".join(features)) + " double"
+        fe = (" double precision, ".join(features)) + " double precision"
         create_statement = "CREATE TABLE IF NOT EXISTS " + tbl
-        if self.__use_cassandra:
-            create_statement += " (id int, plate varchar, "
-        else:
-            create_statement += " (id int(255), plate varchar(255), "
+        create_statement += " (id int, plate varchar(255), "
         create_statement += fe + ", primary key(id));"
         return create_statement
 
@@ -127,3 +111,4 @@ class DatabaseWriter:
 
     def _add_to_meta(self, conn):
         conn.add_batch_meta(self.__meta)
+
