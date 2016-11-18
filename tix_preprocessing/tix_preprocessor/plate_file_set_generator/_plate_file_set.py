@@ -83,3 +83,8 @@ class PlateFileSet:
     @mapping.setter
     def mapping(self, value):
         self._mapping = value
+
+    @property
+    def meta(self):
+        return [self._study, self._pathogen, self._library, self._design,
+                self._screen, self._replicate, self._suffix]

@@ -137,6 +137,8 @@ class Controller:
         self._db_writer.create_meta_table()
         for platefileset in platefilesets:
             # todo
-            self._db_writer.insert_meta(platefileset.meta)
-            self._db_writer.create_from_plate(platefileset.table_name)
+            meta = platefileset.meta
+            self._db_writer.insert_meta(meta[0], meta[1], meta[2], meta[3],
+                                        meta[4], meta[5], meta[6])
+            #self._db_writer.create_from_plate(platefileset.table_name)
         #self._parser.parse(platefilesets)

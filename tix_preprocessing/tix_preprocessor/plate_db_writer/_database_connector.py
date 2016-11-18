@@ -6,8 +6,15 @@ import logging
 
 import psycopg2
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO,
+                    format='[%(levelname)-1s/%(processName)-1s/%('
+                           'name)-1s]: %(message)s')
 logger = logging.getLogger(__name__)
+
+__insert_meta_statement__ = "INSERT INTO meta " \
+                            "(study, pathogen, library, design, screen, replicate, suffix, feature_group, table_name) " \
+                            "VALUES " \
+                            "(%s, %s, %s, %s, %s, %s, %s, %s, %s);"
 
 
 class DBConnection:
@@ -35,3 +42,11 @@ class DBConnection:
     def add_batch_meta(self, array):
         logger.error('to do')
         pass
+
+    def insert_meta(self, conncetion, study, pathogen, library, design, screen,
+                    replicate, suffix, feature_group, table_name):
+        with self.__connection.cursor() as cursor:
+            cursor.execute(__insert_meta_statement__,
+                           (study, pathogen, library, design, screen, replicate,
+                            suffix, feature_group, table_name))
+        self.__connection.commit()

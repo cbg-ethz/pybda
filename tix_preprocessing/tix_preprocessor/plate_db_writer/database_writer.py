@@ -80,6 +80,30 @@ class DatabaseWriter:
         logger.error("to do")
         pass
 
+    def insert_meta(self, study, pathogen, library, design,
+                    screen, replicate, suffix):
+        """
+        Insert meta information into the meta table
+
+        :param study: the name of the study, e.g. infectx
+        :param pathogen: the name of the pathogen, e.g. bartonella
+        :param library: the name of the library, e.g. ambion
+        :param design: the kind of the library design, e.g. 'p' for pooled
+        :param screen: the level on which the experiment was performed on,
+        e.g. 'k' for kinome
+        :param replicate: the replicate number, e.g. 1
+        :param suffix: a random suffix, e.g. 1-pmol
+        """
+
+        with DBConnection(self.__user, self.__pw, self.__db) as connection:
+            for feature_group, feature_type_ in self.__db_headers.feature_types:
+                table_name = self.table_name(study, pathogen, library, design,
+                                             screen, replicate, suffix,
+                                             feature_group)
+                connection.insert_meta(connection, study, pathogen, library,
+                                      design, screen,
+                                      replicate, suffix, feature_group, table_name)
+
     def _run(self, do_create):
         meta_data_st = self._create_meta_table_statement()
         data_tab_statements = self._create_data_table_statements()
@@ -114,7 +138,7 @@ class DatabaseWriter:
 
     def _create_data_table_statement(
             self, ftype, features, st, pa, lib, des, scr, rep, suf):
-        tbl = self._table_name(st, pa, lib, des, scr, rep, suf, ftype)
+        tbl = self.table_name(st, pa, lib, des, scr, rep, suf, ftype)
         fe = (" double precision, ".join(features)) + " double precision"
         create_statement = "CREATE TABLE IF NOT EXISTS " + tbl
         create_statement += " (plate varchar(40) NOT NULL, " \
@@ -128,10 +152,13 @@ class DatabaseWriter:
                                  " image_idx, object_idx));"
         return create_statement
 
-    def _table_name(self, st, pa, lib, des, scr, rep, suf, f):
-        if suf == __NA__:
-            tbl = "_".join([st, pa, lib, des, scr, rep])
+    def table_name(self, study, pathogen, library, design, screen, replicate,
+                   suffix, feature_group):
+        if suffix == __NA__:
+            tbl = "_".join(
+                [study, pathogen, library, design, screen, replicate])
         else:
-            tbl = "_".join([st, pa, lib, des, scr, rep, suf])
-        tbl += "_" + f
+            tbl = "_".join(
+                [study, pathogen, library, design, screen, replicate, suffix])
+        tbl += "_" + feature_group
         return tbl
