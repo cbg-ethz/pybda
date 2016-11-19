@@ -186,10 +186,10 @@ class PlateParser:
         nimg = features[0].values.shape[0]
         assert nimg == len(mapping)
         state = "INSERT INTO " + tablename + \
-                "( " + \
+                " ( " + \
                 ", ".join(PlateParser._meta_) + ', ' + \
                 ", ".join([x.short_name for x in features]) + ") " + \
-                "VALUES (" + ', '.join(["%s"] * len(features)) + ")"
+                "VALUES (" + ', '.join(["%s"] * len(features)) + ");"
         dat = []
         for iimg in range(nimg):
             well = mapping[iimg]
