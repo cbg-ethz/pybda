@@ -187,7 +187,7 @@ class PlateParser:
         assert nimg == len(mapping)
         state = "INSERT INTO " + tablename + \
                 "( " + \
-                ", ".join(PlateParser._meta_) + ', '\
+                ", ".join(PlateParser._meta_) + ', ' + \
                 ", ".join([x.short_name for x in features]) + ") " + \
                 "VALUES (" + ', '.join(["%s"] * len(features)) + ")"
         dat = []
