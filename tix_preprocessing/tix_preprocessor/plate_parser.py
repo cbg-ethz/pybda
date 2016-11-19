@@ -7,6 +7,7 @@ import logging
 
 import numpy
 
+from .plate_db_writer import DatabaseWriter
 from .plate_file_set_generator import PlateFileSet
 from .utility import load_matlab
 from ._plate_sirna_gene_mapping import PlateSirnaGeneMapping
@@ -21,8 +22,12 @@ class PlateParser:
               "replicate", "plate", "sirna", "gene",
               "well", "welltype", "image", "cell_number"]
 
-    def __init__(self, layout, db):
+    def __init__(self, layout, db=None):
         self._layout = layout
+        if db is not None:
+            if not isinstance(db, DatabaseWriter):
+                logger.error("Please provide a DatabaseWriter object or None.")
+                exit(-1)
         self._db = db
 
     def parse(self, platefileset):
@@ -41,10 +46,6 @@ class PlateParser:
         features = self._parse_plate_file_set(platefileset)
         if len(features) == 0:
             return
-        for k, v in features.items():
-            for l in v:
-                print(k, l)
-        exit(1)
         # load the mapping file for the wells
         mapping = self._parse_plate_mapping(platefileset)
         if len(mapping) == 0:
@@ -153,23 +154,59 @@ class PlateParser:
         # since some features have different numbers of calls
         for k, v in features.items():
             self._integrate_feature(platefileset, k, v, mapping)
-            # TODO
+            # TODO left-tab
             return 0
 
-    def _integrate_feature(self, platefileset, max_ncells, features, mapping):
+    def _integrate_feature(self, platefileset, feature_group, features,
+                           mapping):
         features = sorted(features, key=lambda x: x.featurename.lower())
-        filename = platefileset.outfile + "_max_nit_" + max_ncells + ".tsv"
         pathogen = platefileset.pathogen
         library = platefileset.library
         replicate = platefileset.replicate
         screen = platefileset.screen
+        design = platefileset.design
+        study = platefileset.study
         plate = platefileset.plate
+        suffix = platefileset.suffix
         library_vendor, library_type = list(library)
-        layout = self._layout.get(pathogen, library, screen,
-                                  replicate, plate)
+        layout = self._layout.get(pathogen, library, screen, replicate, plate)
         if layout is None:
             logger.warn("Could not load layout for: " + platefileset.classifier)
             return
+
+        if self._db is None:
+            filename = platefileset.outfile + "_" + feature_group + ".tsv"
+            self._write_file(filename, features, mapping, pathogen,
+                             library_vendor, library_type, screen, replicate,
+                             plate, layout)
+        else:
+            tablename = self._db.tablename(study, pathogen, library, design, screen, replicate,
+                   suffix, feature_group)
+            self._write_db(features, mapping, pathogen,
+                           library_vendor, library_type, screen, replicate,
+                           plate, layout)
+
+    def _write_db(self, features, mapping, pathogen,
+                  library_vendor, library_type, screen, replicate,
+                  plate, layout):
+        nimg = features[0].values.shape[0]
+        assert nimg == len(mapping)
+        for iimg in range(nimg):
+            well = mapping[iimg]
+            for cell in range(features[0].ncells[iimg]):
+                vals = [features[p].values[iimg, cell] for p in
+                        range(len(features))]
+                meta = [pathogen, library_vendor, library_type, screen,
+                        replicate, plate, layout.sirna(well),
+                        layout.gene(well), well, layout.welltype(well),
+                        iimg + 1, cell + 1]
+
+                print("\t".join(list(map(str, meta)) + list(map(str,
+                                                               vals))).lower() + "\n")
+        return 0
+
+    def _write_file(self, filename, features, mapping, pathogen, library_vendor,
+                    library_type, screen, replicate, plate, layout):
         logger.info("Writing to: " + filename)
         with open(filename, "w") as f:
             header = PlateParser._meta_ + \

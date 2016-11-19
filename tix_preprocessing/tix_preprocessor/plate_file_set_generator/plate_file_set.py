@@ -77,12 +77,20 @@ class PlateFileSet:
         return self._outfile
 
     @property
+    def study(self):
+        return self._study
+
+    @property
     def mapping(self):
         return self._mapping
 
     @mapping.setter
     def mapping(self, value):
         self._mapping = value
+
+    @property
+    def suffix(self):
+        return self._suffix
 
     @property
     def meta(self):
