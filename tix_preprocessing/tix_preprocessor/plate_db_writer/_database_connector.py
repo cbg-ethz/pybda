@@ -43,7 +43,7 @@ class DBConnection:
         logger.error('to do')
         pass
 
-    def insert_meta(self, conncetion, study, pathogen, library, design, screen,
+    def insert_meta(self, study, pathogen, library, design, screen,
                     replicate, suffix, feature_group, table_name):
         with self.__connection.cursor() as cursor:
             cursor.execute(__insert_meta_statement__,

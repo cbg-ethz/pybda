@@ -7,9 +7,9 @@ import logging
 
 import numpy
 
+from .plate_file_set_generator import PlateFileSet
 from .utility import load_matlab
 from ._plate_sirna_gene_mapping import PlateSirnaGeneMapping
-from .plate_file_set_generator import PlateFileSets
 from ._plate_cell_features import PlateCellFeature
 
 logger = logging.getLogger(__name__)
@@ -17,11 +17,11 @@ logger = logging.getLogger(__name__)
 
 class PlateParser:
     # meta information header for a single cell
-    _meta = ["pathogen", "library_vendor", "library_type", "screen",
-             "replicate", "plate", "sirna", "gene",
-             "well", "welltype", "image", "cell_number"]
+    _meta_ = ["pathogen", "library_vendor", "library_type", "screen",
+              "replicate", "plate", "sirna", "gene",
+              "well", "welltype", "image", "cell_number"]
 
-    def parse(self, platefilesets):
+    def parse(self, platefileset):
         """
         Parse the PlateFileSets (i.e.: all parsed folders) into tsvs.
 
@@ -30,25 +30,26 @@ class PlateParser:
 
         """
 
-        if not isinstance(platefilesets, PlateFileSets):
-            logger.error("Please provide a PlateFileSets object")
+        if not isinstance(platefileset, PlateFileSet):
+            logger.error("Please provide a PlateFileSets object.")
             return
-
-        for platefileset in platefilesets:
-            # parse the feates to np arrays
-            features = self._parse_plate_file_set(platefileset)
-            if len(features) == 0:
-                continue
-            # load the mapping file for the wells
-            mapping = self._parse_plate_mapping(platefileset)
-            if len(mapping) == 0:
-                logger.warn("Mapping is none for plate-fileset: " +
-                            platefileset.classifier +
-                            ". Continuing to next set!")
-                continue
-            self._integrate_platefileset(platefileset, features, mapping)
-            # todo
-            #platefilesets.remove()
+        # parse the feates to np arrays
+        features = self._parse_plate_file_set(platefileset)
+        if len(features) == 0:
+            return
+        for k, v in features.items():
+            for l in v:
+                print(k, v, l)
+        exit(1)
+        # load the mapping file for the wells
+        mapping = self._parse_plate_mapping(platefileset)
+        if len(mapping) == 0:
+            logger.warn("Mapping is none for plate-fileset: " +
+                        platefileset.classifier + ". Continuing to next set!")
+            return
+        self._integrate_platefileset(platefileset, features, mapping)
+        # todo
+        # platefilesets.remove()
         return 0
 
     def _parse_plate_file_set(self, plate_file_set):
@@ -61,6 +62,59 @@ class PlateParser:
                 continue
             self._add(features, cf)
         return features
+
+    def _parse_file(self, plate_file):
+        """
+        Parse a matlab binary as np.array
+
+        :param plate_file: the matlab file
+        :return: returns a 2D np.array
+        """
+        featurename = plate_file.featurename
+        file = plate_file.filename
+        if file is None:
+            logger.warn("Could not parse: %s", file)
+            return None
+        matrix = None
+        try:
+            matrix = self._alloc(load_matlab(file), file, featurename)
+        except ValueError or TypeError or AssertionError:
+            logger.warn("Could not parse: %s", file)
+        return matrix
+
+    def _alloc(self, arr, file, featurename):
+        """
+        Create a Cell feature object from a matlab binary.
+
+        :param arr: the matrix object
+        :param file: the filename of the matlab binary
+        :param featurename: the name of the feature
+        :return: return a plate cell feature
+        """
+        featurename = str(featurename)
+        if featurename.endswith(".mat"):
+            featurename = featurename.replace(".mat", "")
+        try:
+            # number of images on the plate (usually 9 * 384)
+            nrow = len(arr)
+            # number of cells per image
+            rowlens = [len(x) for x in arr]
+            # maximum number of cells
+            m_ncol = max(rowlens)
+            # initialize empty matrix of NaNs
+            mat = numpy.full(shape=(nrow, m_ncol),
+                             fill_value=numpy.nan,
+                             dtype="float64")
+            # fill matrix
+            for i in range(len(arr)):
+                row = arr[i]
+                for j in range(len(row)):
+                    mat[i][j] = row[j]
+            return PlateCellFeature(mat, nrow, m_ncol, file, rowlens,
+                                    featurename)
+        except AssertionError:
+            logger.warn("Could not alloc feature %s of %s", featurename, file)
+        return None
 
     def _add(self, features, cf):
         """
@@ -114,7 +168,7 @@ class PlateParser:
             return
         logger.info("Writing to: " + filename)
         with open(filename, "w") as f:
-            header = PlateParser._meta + \
+            header = PlateParser._meta_ + \
                      [feat.featurename.lower() for feat in features]
             f.write("\t".join(header) + "\n")
             nimg = features[0].values.shape[0]
@@ -131,60 +185,3 @@ class PlateParser:
                     f.write("\t".join(list(map(str, meta)) +
                                       list(map(str, vals))).lower() + "\n")
         return 0
-
-
-    def _parse_file(self, plate_file):
-        """
-        Parse a matlab binary as np.array
-
-        :param plate_file: the matlab file
-        :return: returns a 2D np.array
-        """
-        featurename = plate_file.featurename
-        file = plate_file.filename
-        if file is None:
-            logger.warn("Could not parse: %s", file)
-            return None
-        matrix = None
-        try:
-            matrix = \
-                self._alloc(
-                    load_matlab(file),
-                    file, featurename)
-        except ValueError or TypeError or AssertionError:
-            logger.warn("Could not parse: %s", file)
-        return matrix
-
-    def _alloc(self, arr, file, featurename):
-        """
-        Create a Cell feature object from a matlab binary.
-
-        :param arr: the matrix object
-        :param file: the filename of the matlab binary
-        :param featurename: the name of the feature
-        :return: return a plate cell feature
-        """
-        featurename = str(featurename)
-        if featurename.endswith(".mat"):
-            featurename = featurename.replace(".mat", "")
-        try:
-            # number of images on the plate (usually 9 * 384)
-            nrow = len(arr)
-            # number of cells per image
-            rowlens = [len(x) for x in arr]
-            # maximum number of cells
-            m_ncol = max(rowlens)
-            # initialize empty matrix of NaNs
-            mat = numpy.full(shape=(nrow, m_ncol),
-                             fill_value=numpy.nan,
-                             dtype="float64")
-            # fill matrix
-            for i in range(len(arr)):
-                row = arr[i]
-                for j in range(len(row)):
-                    mat[i][j] = row[j]
-            return PlateCellFeature(mat, nrow, m_ncol,
-                                    file, rowlens, featurename)
-        except AssertionError:
-            logger.warn("Could not alloc feature %s of %s", featurename, file)
-        return None

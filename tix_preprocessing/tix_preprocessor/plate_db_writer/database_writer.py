@@ -19,19 +19,27 @@ __NA__ = "NA"
 
 
 class DatabaseWriter:
-    meta_table_create_statement = "CREATE TABLE IF NOT EXISTS meta" \
-                                  "(" \
-                                  "study varchar(40) NOT NULL, " \
-                                  "pathogen varchar(40) NOT NULL, " \
-                                  "library varchar(40) NOT NULL, " \
-                                  "design varchar(40) NOT NULL, " \
-                                  "screen varchar(40) NOT NULL, " \
-                                  "replicate integer NOT NULL, " \
-                                  "suffix varchar(40), " \
-                                  "feature_group varchar(40) NOT NULL, " \
-                                  "table_name varchar(300) NOT NULL, " \
-                                  "PRIMARY KEY(table_name)" \
-                                  ")"
+    __meta_table_create_statement__ = "CREATE TABLE IF NOT EXISTS meta" \
+                                      "(" \
+                                      "study varchar(40) NOT NULL, " \
+                                      "pathogen varchar(40) NOT NULL, " \
+                                      "library varchar(40) NOT NULL, " \
+                                      "design varchar(40) NOT NULL, " \
+                                      "screen varchar(40) NOT NULL, " \
+                                      "replicate integer NOT NULL, " \
+                                      "suffix varchar(40), " \
+                                      "feature_group varchar(40) NOT NULL, " \
+                                      "table_name varchar(300) NOT NULL, " \
+                                      "PRIMARY KEY(table_name)" \
+                                      ")"
+    __data_table_colname_statement__ = " (plate varchar(40) NOT NULL, " \
+                                       "gene varchar(40), " \
+                                       "sirna varchar(40), " \
+                                       "well_idx integer, " \
+                                       "well_type varchar(40), " \
+                                       "image_idx integer, " \
+                                       "object_idx integer, "
+    __data_table_end_statement__ = ", primary key(plate, gene, sirna, well_idx, image_idx, object_idx));"
 
     def __init__(self, folder, user=None, password=None, db=None):
         self.__screen_regex = re.compile(
@@ -69,16 +77,33 @@ class DatabaseWriter:
             logger.info("Creating meta table")
             self._execute(connection, meta_data_st)
 
-    def create_from_plate(self, plate_id):
+    def create_data_tables(self, study, pathogen, library, design, screen,
+                           replicate, suffix):
         """
-        Create the respective tables given a plate_id. The plate id has to
-        have a format as: '/GROUP_COSSART/LISTERIA_TEAM/LISTERIA-AU-CV2/VZ003-2E'
-        as it is given in the experiment file.
+        Create the respective tables given the full set of informations for
+        an experiment
 
-        :param plate_id: a plate id
+        :param study: the name of the study, e.g. infectx
+        :param pathogen: the name of the pathogen, e.g. bartonella
+        :param library: the name of the library, e.g. ambion
+        :param design: the kind of the library design, e.g. 'p' for pooled
+        :param screen: the level on which the experiment was performed on,
+        e.g. 'k' for kinome
+        :param replicate: the replicate number, e.g. 1
+        :param suffix: a random suffix, e.g. 1-pmol
         """
-        logger.error("to do")
-        pass
+        try:
+            with DBConnection(self.__user, self.__pw, self.__db) as connection:
+                for feature_group, feature_type in self.__db_headers.feature_types:
+                    st = self._create_data_table_statement(feature_group,
+                                                           feature_type, study,
+                                                           pathogen, library,
+                                                           design,
+                                                           screen, replicate,
+                                                           suffix)
+                    self._execute(connection, st)
+        except Exception as e:
+            logger.error(str(e))
 
     def insert_meta(self, study, pathogen, library, design,
                     screen, replicate, suffix):
@@ -95,14 +120,18 @@ class DatabaseWriter:
         :param suffix: a random suffix, e.g. 1-pmol
         """
 
-        with DBConnection(self.__user, self.__pw, self.__db) as connection:
-            for feature_group, feature_type_ in self.__db_headers.feature_types:
-                table_name = self.table_name(study, pathogen, library, design,
-                                             screen, replicate, suffix,
-                                             feature_group)
-                connection.insert_meta(connection, study, pathogen, library,
-                                      design, screen,
-                                      replicate, suffix, feature_group, table_name)
+        try:
+            with DBConnection(self.__user, self.__pw, self.__db) as connection:
+                for feature_group, feature_type_ in self.__db_headers.feature_types:
+                    table_name = self.table_name(study, pathogen, library, design,
+                                                 screen, replicate, suffix,
+                                                 feature_group)
+                    connection.insert_meta(study, pathogen, library,
+                                           design, screen,
+                                           replicate, suffix, feature_group,
+                                           table_name)
+        except Exception as e:
+            logger.error(str(e))
 
     def _run(self, do_create):
         meta_data_st = self._create_meta_table_statement()
@@ -120,7 +149,7 @@ class DatabaseWriter:
                 print(x)
 
     def _create_meta_table_statement(self):
-        return DatabaseWriter.meta_table_create_statement
+        return DatabaseWriter.__meta_table_create_statement__
 
     def _execute(self, connection, job):
         connection.execute(job)
@@ -136,20 +165,30 @@ class DatabaseWriter:
                 yield self._create_data_table_statement(
                     ftype, features, st, pa, lib, des, scr, rep, suf)
 
-    def _create_data_table_statement(
-            self, ftype, features, st, pa, lib, des, scr, rep, suf):
-        tbl = self.table_name(st, pa, lib, des, scr, rep, suf, ftype)
+    def _create_data_table_statement(self, feature_group, features, study,
+                                     pathogen, library, design, screen,
+                                     replicate, suffix):
+        """
+        Create the 'create table statement' for an experiment and feature group.
+
+        :param feature_group: the feature group, such as 'cell'
+        :param features: a list of features (with double values)
+        :param study: the name of the study, e.g. infectx
+        :param pathogen: the name of the pathogen, e.g. bartonella
+        :param library: the name of the library, e.g. ambion
+        :param design: the kind of the library design, e.g. 'p' for pooled
+        :param screen: the level on which the experiment was performed on,
+        e.g. 'k' for kinome
+        :param replicate: the replicate number, e.g. 1
+        :param suffix: a random suffix, e.g. 1-pmol
+        :return: returns the 'create data table statement'
+        """
+        tbl = self.table_name(study, pathogen, library, design, screen,
+                              replicate, suffix, feature_group)
         fe = (" double precision, ".join(features)) + " double precision"
         create_statement = "CREATE TABLE IF NOT EXISTS " + tbl
-        create_statement += " (plate varchar(40) NOT NULL, " \
-                            "gene varchar(40), " \
-                            "sirna varchar(40), " \
-                            "well_idx integer, " \
-                            "well_type varchar(40), " \
-                            "image_idx integer, " \
-                            "object_idx integer, "
-        create_statement += fe + ", primary key(plate, gene, sirna, well_idx, " \
-                                 " image_idx, object_idx));"
+        create_statement += DatabaseWriter.__data_table_colname_statement__
+        create_statement += fe + DatabaseWriter.__data_table_end_statement__
         return create_statement
 
     def table_name(self, study, pathogen, library, design, screen, replicate,

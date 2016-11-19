@@ -91,21 +91,21 @@ class Controller:
         logger.info("All's well that ends well")
 
     def _parse(self, plate):
-        ret = 0
         try:
             # download the plate files with a process lock
             down_ret_val = self.download_plate(plate)
             if down_ret_val != 0:
                 return -1
-            # parse the plate file names
+            # parse the plate file name into a list of file sets
             platefilesets = self.filesets(self._output_path + "/" + plate,
                                           self._output_path)
             if len(platefilesets) > 1:
                 logger.warn("Found multiple plate identifiers for: " + plate)
             # parse the files
             ret = self.parse_plate_file_sets(platefilesets)
-        except Exception:
-            logger.error("Found error parsing: " + str(plate))
+        except Exception as e:
+            logger.error("Found error parsing: " + str(plate) +
+                         ". Error:" + str(e))
             ret = -1
         return ret
 
@@ -130,15 +130,31 @@ class Controller:
             logger.warn("\tdownload failed with status: " + str(0))
         return ret
 
-    def filesets(self, pa, output_path):
-        return PlateFileSets(pa, output_path)
+    def filesets(self, folder, output_path):
+        """
+        Create a list of platefile sets contained in a folder. Recursively go
+        through all the folders and add the found matlab files into the
+        respective platefile set.
+
+        :param folder: the folder that is recursively went through
+        :param output_path: the output path where the platefile set is stored to
+        :return: returns a platefilesets object
+        """
+        return PlateFileSets(folder, output_path)
 
     def parse_plate_file_sets(self, platefilesets):
-        self._db_writer.create_meta_table()
-        for platefileset in platefilesets:
-            # todo
-            meta = platefileset.meta
-            self._db_writer.insert_meta(meta[0], meta[1], meta[2], meta[3],
-                                        meta[4], meta[5], meta[6])
-            #self._db_writer.create_from_plate(platefileset.table_name)
-        #self._parser.parse(platefilesets)
+        try:
+            self._db_writer.create_meta_table()
+            for platefileset in platefilesets:
+                meta = platefileset.meta
+                self._db_writer.insert_meta(meta[0], meta[1], meta[2], meta[3],
+                                            meta[4], meta[5], meta[6])
+                self._db_writer.create_data_tables(meta[0], meta[1], meta[2],
+                                                   meta[3], meta[4], meta[5],
+                                                   meta[6])
+                self._parser.parse(platefileset)
+            # TODO
+            # platefilesets.remove()
+        except Exception as e:
+            logger.error("Error: " + str(e))
+        return 0

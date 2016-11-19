@@ -3,3 +3,4 @@
 # __date__   = 16/11/16
 
 from .plate_file_sets import PlateFileSets
+from .plate_file_set import PlateFileSet

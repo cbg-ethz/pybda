@@ -9,7 +9,7 @@ import re
 from tix_preprocessor.utility import parse_plate_info, regex
 from tix_preprocessor.utility import parse_screen_details
 from ._plate_file import PlateFile
-from ._plate_file_set import PlateFileSet
+from .plate_file_set import PlateFileSet
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -20,15 +20,15 @@ class PlateFileSets:
     Class for keeping all the filenames of plates stored as a map.
 
     """
-    _feature_names_ = ["Batch_handles.", "Neighbors.",
-                       "Bacteria.SubObjectFlag.",
-                       "CometTails.", "DAPIFG.", "BlobBacteria.",
-                       "ExpandedNuclei."]
+    _feature_names_ = ["Batch_handles.", "Neighbors.", "Bacteria.SubObjectFlag.",
+                       "CometTails.", "DAPIFG.", "BlobBacteria.", "ExpandedNuclei."]
     # these are feature file names we dont use
     _skippable_features_starts = [x.lower() for x in _feature_names_]
+    # skip the features that contain on of those strings
     _skippable_features_contains = ["SubObjectFlag".lower()]
     # name of the file that has the sirna-entrez mapping information
     _image_ = "Image.".lower()
+    # name of the well index mappings
     _mapping_file_ = "Image.FileName_OrigDNA".lower()
     # the pattern for screen, replicate
     _setting_pattern_ = "(\w+)(\d+)"
@@ -70,18 +70,20 @@ class PlateFileSets:
 
         :param folder: the folder for which all the plates should get parsed
         """
-        # iterate over this array
+        # iterate over the array of files
         for basename, filename in self._find_files(folder):
             self._files.append(filename)
             if self._skip(basename):
                 continue
                 # decompose the file name
-            clss, st, pa, lib, des, scr, rep, suf, plate, feature \
-                    = self._parse_plate_name(filename)
-            # add the (classifier-platefileset) pair to the plate map
-            self._add_platefileset(clss, st, pa, lib, des, scr,
-                                   rep, suf, plate, self._outfolder)
-            self._add_platefile(filename, feature, clss)
+            self._parse_file_name(filename)
+
+    def _parse_file_name(self, filename):
+        clss, st, pa, lib, des, scr, rep, suf, plate, feature \
+            = self._parse_plate_name(filename)
+        self._add_platefileset(clss, st, pa, lib, des, scr,
+                               rep, suf, plate, self._outfolder)
+        self._add_platefile(filename, feature, clss)
 
     def _skip(self, basename):
         b = basename.lower()
@@ -128,8 +130,7 @@ class PlateFileSets:
         :param f: the file name
         :return: returns a list of feature names
         """
-        f = f.strip().lower()
-        screen, plate = parse_plate_info(f)
+        screen, plate = parse_plate_info(f.strip().lower())
         st, pa, lib, des, scr, rep, suf = parse_screen_details(screen)
         feature = (f.split("/")[-1]).replace(".mat", "")
         if suf != regex.__NA__:
