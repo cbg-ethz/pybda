@@ -2,9 +2,8 @@
 # __email__  = 'simon.dirmeier@bsse.ethz.ch'
 # __date__   = 17/11/16
 
-
+import re
 import logging
-
 import numpy
 
 from .plate_db_writer import DatabaseWriter
@@ -13,6 +12,9 @@ from .utility import load_matlab
 from ._plate_sirna_gene_mapping import PlateSirnaGeneMapping
 from ._plate_cell_features import PlateCellFeature
 
+logging.basicConfig(level=logging.INFO,
+                    format='[%(levelname)-1s/%(processName)-1s/%('
+                           'name)-1s]: %(message)s')
 logger = logging.getLogger(__name__)
 
 
@@ -21,13 +23,13 @@ class PlateParser:
     _meta_ = ["pathogen", "library_vendor", "library_type", "screen",
               "replicate", "plate", "sirna", "gene",
               "well", "welltype", "image", "cell_number"]
+    _well_regex = re.compile("(\w)(\d+)")
 
-    def __init__(self, layout, db=None):
+    def __init__(self, layout, db):
         self._layout = layout
-        if db is not None:
-            if not isinstance(db, DatabaseWriter):
-                logger.error("Please provide a DatabaseWriter object or None.")
-                exit(-1)
+        if not isinstance(db, DatabaseWriter):
+            logger.error("Please provide a DatabaseWriter object or None.")
+            exit(-1)
         self._db = db
 
     def parse(self, platefileset):
@@ -61,11 +63,15 @@ class PlateParser:
         features = {}
         logger.info("Parsing plate file set to memory: " +
                     str(plate_file_set.classifier))
+        k = 0
         for plate_file in plate_file_set:
+            if k == 10:
+                break
+            k += 1
             cf = self._parse_file(plate_file)
             if cf is None:
                 continue
-            self._add(features, cf, plate_file.featurename.split(".")[0])
+            self._add(features, cf, cf.feature_group)
         return features
 
     def _parse_file(self, plate_file):
@@ -107,8 +113,7 @@ class PlateParser:
             # maximum number of cells
             m_ncol = max(rowlens)
             # initialize empty matrix of NaNs
-            mat = numpy.full(shape=(nrow, m_ncol),
-                             fill_value=numpy.nan,
+            mat = numpy.full(shape=(nrow, m_ncol), fill_value=numpy.nan,
                              dtype="float64")
             # fill matrix
             for i in range(len(arr)):
@@ -159,7 +164,7 @@ class PlateParser:
 
     def _integrate_feature(self, platefileset, feature_group, features,
                            mapping):
-        features = sorted(features, key=lambda x: x.featurename.lower())
+        features = sorted(features, key=lambda x: x.short_name)
         pathogen = platefileset.pathogen
         library = platefileset.library
         replicate = platefileset.replicate
@@ -168,41 +173,37 @@ class PlateParser:
         study = platefileset.study
         plate = platefileset.plate
         suffix = platefileset.suffix
-        library_vendor, library_type = list(library)
-        layout = self._layout.get(pathogen, library, screen, replicate, plate)
+        layout = self._layout.get(pathogen, library, design, screen, replicate,
+                                  plate)
         if layout is None:
             logger.warn("Could not load layout for: " + platefileset.classifier)
             return
+        tablename = self._db.table_name(study, pathogen, library, design,
+                                        screen,
+                                        replicate, suffix, feature_group)
+        self._write_db(tablename, features, mapping, plate, layout)
 
-        if self._db is None:
-            filename = platefileset.outfile + "_" + feature_group + ".tsv"
-            self._write_file(filename, features, mapping, pathogen,
-                             library_vendor, library_type, screen, replicate,
-                             plate, layout)
-        else:
-            tablename = self._db.tablename(study, pathogen, library, design, screen, replicate,
-                   suffix, feature_group)
-            self._write_db(features, mapping, pathogen,
-                           library_vendor, library_type, screen, replicate,
-                           plate, layout)
-
-    def _write_db(self, features, mapping, pathogen,
-                  library_vendor, library_type, screen, replicate,
-                  plate, layout):
+    def _write_db(self, tablename, features, mapping, plate, layout):
         nimg = features[0].values.shape[0]
         assert nimg == len(mapping)
+        state = "INSERT INTO " + tablename + \
+                "( " + ", ".join([x.short_name for x in features]) + ") " + \
+                "VALUES"
+        dat = []
         for iimg in range(nimg):
             well = mapping[iimg]
+            pat = PlateParser._well_regex.match(well.lower())
+            row, col = pat.group(1), int(pat.group(2))
             for cell in range(features[0].ncells[iimg]):
                 vals = [features[p].values[iimg, cell] for p in
                         range(len(features))]
-                meta = [pathogen, library_vendor, library_type, screen,
-                        replicate, plate, layout.sirna(well),
-                        layout.gene(well), well, layout.welltype(well),
-                        iimg + 1, cell + 1]
-
-                print("\t".join(list(map(str, meta)) + list(map(str,
-                                                               vals))).lower() + "\n")
+                meta = [plate, layout.gene(well), layout.sirna(well), row,
+                        int(col), layout.welltype(well), iimg + 1, cell + 1]
+                dat.append(list(map(meta + vals, str)))
+                if len(dat) == 10000:
+                    self._db.insert_batch(state, dat)
+                    dat = []
+        self._db.insert_batch(state, dat)
         return 0
 
     def _write_file(self, filename, features, mapping, pathogen, library_vendor,

@@ -33,8 +33,8 @@ class MetaLayout:
     def _load(self):
         with open(self._meta_file, "r") as f:
             for entry in f.readlines():
-                entry = entry.upper()
-                if entry.startswith("BARCODE"):
+                entry = entry.lower()
+                if entry.startswith("barcode"):
                     continue
                 tokens = entry.strip().split("\t")
                 self._add(tokens)
@@ -42,12 +42,12 @@ class MetaLayout:
     def _add(self, tokens):
         bar, expr, pathogen, geneset, replicate, library, row, col, well, \
         well_type, gene, sirna = tokens
-        classifier = expr + "-" + bar
+        classifier = (expr + "-" + bar)
         if classifier not in self._meta:
             self._meta[classifier] = PlateLayout(classifier, geneset, library)
         self._meta[classifier].add(gene, sirna, well, well_type)
 
-    def get(self, pathogen, library, screen, replicate, plate):
+    def get(self, pathogen, library, design, screen, replicate, plate):
         """
         Get the layout for a specific plate.
 
@@ -59,8 +59,10 @@ class MetaLayout:
         :return: returns a PlateLayout
         """
 
-        cl = "-".join([pathogen, library, "".join([screen, replicate]),
-                       plate]).upper()
+        cl = "-".join([pathogen,
+                       "".join([library, design]),
+                       "".join([screen, replicate]),
+                       plate]).lower()
         if cl in self._meta:
             return self._meta[cl]
         logger.warn("Did not find " + cl + " in meta file")

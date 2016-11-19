@@ -35,11 +35,13 @@ class DatabaseWriter:
     __data_table_colname_statement__ = " (plate varchar(40) NOT NULL, " \
                                        "gene varchar(40), " \
                                        "sirna varchar(40), " \
-                                       "well_idx integer, " \
+                                       "row char(1), " \
+                                       "col integer, " \
                                        "well_type varchar(40), " \
                                        "image_idx integer, " \
                                        "object_idx integer, "
-    __data_table_end_statement__ = ", primary key(plate, gene, sirna, well_idx, image_idx, object_idx));"
+    __data_table_end_statement__ = ", primary key(plate, gene, sirna, row, " \
+                                   "col, image_idx, object_idx));"
 
     def __init__(self, folder, user=None, password=None, db=None):
         self.__screen_regex = re.compile(
@@ -104,6 +106,10 @@ class DatabaseWriter:
                     self._execute(connection, st)
         except Exception as e:
             logger.error(str(e))
+
+    def insert_batch(self, statement, data):
+        with DBConnection(self.__user, self.__pw, self.__db) as connection:
+            connection.insert_batch(statement, data)
 
     def insert_meta(self, study, pathogen, library, design,
                     screen, replicate, suffix):

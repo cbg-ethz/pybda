@@ -55,4 +55,4 @@ class PlateSirnaGeneMapping:
 
         if mat is None:
             return
-        self._mapping[i] = mat.group(1).upper()
+        self._mapping[i] = mat.group(1).lower()

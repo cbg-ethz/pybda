@@ -39,14 +39,20 @@ class DBConnection:
             cursor.execute(statement)
         self.__connection.commit()
 
-    def add_batch_meta(self, array):
-        logger.error('to do')
-        pass
-
     def insert_meta(self, study, pathogen, library, design, screen,
                     replicate, suffix, feature_group, table_name):
         with self.__connection.cursor() as cursor:
             cursor.execute(__insert_meta_statement__,
                            (study, pathogen, library, design, screen, replicate,
                             suffix, feature_group, table_name))
+        self.__connection.commit()
+
+    def insert_batch(self, statemet, batch):
+        s = ','.join((["%s"] * len(batch[0])))
+        with self.__connection.cursor() as cursor:
+            try:
+                arg = ','.join(cursor.mogrify("(" + s + ")", b) for b in batch)
+                cursor.execute(statemet, arg)
+            except Exception as e:
+                logger.error(str(e))
         self.__connection.commit()

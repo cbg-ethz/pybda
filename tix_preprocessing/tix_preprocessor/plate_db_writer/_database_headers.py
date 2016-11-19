@@ -11,7 +11,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 __skippable_features__ = [x.lower() for x in
                           ["comet", "image", "dapif", "neighbors",
-                           "expanded", "batch_handles"]]
+                           "expanded", "batch_handles",
+                           "bacteria.subobjectflag"]]
 
 
 class DatabaseHeaders:
