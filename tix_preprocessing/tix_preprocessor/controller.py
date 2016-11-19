@@ -62,7 +62,7 @@ class Controller:
         self._db_writer = DatabaseWriter(
             user=config.db_username, password=config.db_password,
             db=config.db_name, folder=config.plate_folder)
-        self._parser = PlateParser()
+        self._parser = PlateParser(self._layout, self._db_writer)
 
     def parse(self):
         """

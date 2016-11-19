@@ -21,6 +21,10 @@ class PlateParser:
               "replicate", "plate", "sirna", "gene",
               "well", "welltype", "image", "cell_number"]
 
+    def __init__(self, layout, db):
+        self._layout = layout
+        self._db = db
+
     def parse(self, platefileset):
         """
         Parse the PlateFileSets (i.e.: all parsed folders) into tsvs.
@@ -39,7 +43,7 @@ class PlateParser:
             return
         for k, v in features.items():
             for l in v:
-                print(k, v, l)
+                print(k, l)
         exit(1)
         # load the mapping file for the wells
         mapping = self._parse_plate_mapping(platefileset)
@@ -60,7 +64,7 @@ class PlateParser:
             cf = self._parse_file(plate_file)
             if cf is None:
                 continue
-            self._add(features, cf)
+            self._add(features, cf, plate_file.featurename.split(".")[0])
         return features
 
     def _parse_file(self, plate_file):
@@ -91,7 +95,7 @@ class PlateParser:
         :param featurename: the name of the feature
         :return: return a plate cell feature
         """
-        featurename = str(featurename)
+        featurename = str(featurename).lower()
         if featurename.endswith(".mat"):
             featurename = featurename.replace(".mat", "")
         try:
@@ -116,7 +120,7 @@ class PlateParser:
             logger.warn("Could not alloc feature %s of %s", featurename, file)
         return None
 
-    def _add(self, features, cf):
+    def _add(self, features, cf, feature_group):
         """
         Add a cell feature to a feature map
 
@@ -126,10 +130,9 @@ class PlateParser:
         # TODO: is this really enough?
         # this has to be changed for FEATURE TYPES
         # maybe compare all cell numbers and not only the max cell number
-        max_cells = str(cf.max_cells)
-        if max_cells not in features:
-            features[max_cells] = []
-        features[max_cells].append(cf)
+        if feature_group not in features:
+            features[feature_group] = []
+        features[feature_group].append(cf)
 
     def _parse_plate_mapping(self, plate_file_set):
         logger.info("Loading meta for plate file set: " + str(
@@ -142,7 +145,7 @@ class PlateParser:
         Iterate over all matlab files and create the final matrices
 
         :param platefileset: the platefile set
-        :param features: the parses feature map
+        :param features: the parsed feature map
 
         """
         logger.info("Integrating the different feature sets to matrices for "
@@ -150,6 +153,7 @@ class PlateParser:
         # since some features have different numbers of calls
         for k, v in features.items():
             self._integrate_feature(platefileset, k, v, mapping)
+            # TODO
             return 0
 
     def _integrate_feature(self, platefileset, max_ncells, features, mapping):
