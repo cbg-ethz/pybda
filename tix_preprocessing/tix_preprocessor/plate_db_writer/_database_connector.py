@@ -51,8 +51,7 @@ class DBConnection:
         s = ','.join((["%s"] * len(batch[0])))
         with self.__connection.cursor() as cursor:
             try:
-                arg = ','.join(cursor.mogrify("(" + s + ")", b) for b in batch)
-                cursor.execute(statemet, arg)
+                cursor.executemany(statemet, batch)
             except Exception as e:
                 logger.error(str(e))
         self.__connection.commit()
