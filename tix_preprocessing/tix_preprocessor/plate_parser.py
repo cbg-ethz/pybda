@@ -199,7 +199,7 @@ class PlateParser:
                         range(len(features))]
                 meta = [plate, layout.gene(well), layout.sirna(well), row,
                         int(col), layout.welltype(well), iimg + 1, cell + 1]
-                dat.append(list(map(meta + vals, str)))
+                dat.append(list(map(str, meta + vals)))
                 if len(dat) == 10000:
                     self._db.insert_batch(state, dat)
                     dat = []
