@@ -20,9 +20,8 @@ logger = logging.getLogger(__name__)
 
 class PlateParser:
     # meta information header for a single cell
-    _meta_ = ["pathogen", "library_vendor", "library_type", "screen",
-              "replicate", "plate", "sirna", "gene",
-              "well", "welltype", "image", "cell_number"]
+    _meta_ = ["plate", "gene", "sirna",
+              "row", "col", "well_type", "image_idx", "object_idx"]
     _well_regex = re.compile("(\w)(\d+)")
 
     def __init__(self, layout, db):
@@ -187,7 +186,9 @@ class PlateParser:
         nimg = features[0].values.shape[0]
         assert nimg == len(mapping)
         state = "INSERT INTO " + tablename + \
-                "( " + ", ".join([x.short_name for x in features]) + ") " + \
+                "( " + \
+                ", ".join(PlateParser._meta_) + ', '\
+                ", ".join([x.short_name for x in features]) + ") " + \
                 "VALUES (" + ', '.join(["%s"] * len(features)) + ")"
         dat = []
         for iimg in range(nimg):

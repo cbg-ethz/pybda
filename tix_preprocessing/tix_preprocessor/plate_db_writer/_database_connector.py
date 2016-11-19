@@ -48,7 +48,6 @@ class DBConnection:
         self.__connection.commit()
 
     def insert_batch(self, statemet, batch):
-        s = ','.join((["%s"] * len(batch[0])))
         with self.__connection.cursor() as cursor:
             try:
                 cursor.executemany(statemet, batch)
