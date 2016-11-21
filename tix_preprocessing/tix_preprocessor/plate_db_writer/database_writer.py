@@ -40,8 +40,7 @@ class DatabaseWriter:
                                        "well_type varchar(40), " \
                                        "image_idx integer, " \
                                        "object_idx integer, "
-    __data_table_end_statement__ = ", primary key(plate, gene, sirna, row, " \
-                                   "col, image_idx, object_idx));"
+    __data_table_end_statement__ = ");"
 
     def __init__(self, folder, user=None, password=None, db=None):
         self.__screen_regex = re.compile(

@@ -11,15 +11,13 @@ and parses them
 
 Collections of notebooks for the TIX data-analysis (this is not yet needed).
 
-#### DBM (1)
+#### Preprocessor
 
-This creates data-base instances for mySQL. Running ```tix_dbm``` will create
-one meta data-table and several screening data-tables with the real data.
+Python package for loading plate files into a postgreSQL database.
 
-#### Plate parser (2)
+#### To come: normalizer
 
-The ``plate parser`` takes a list of files and parses them info the data-base (this should be done in succession to the DBM).
-Probably a combination of both makes both sense.
+utility to normalize cells and drop correlated features
 
 ## Author
 
