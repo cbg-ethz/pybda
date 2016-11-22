@@ -6,9 +6,10 @@
 import logging
 import re
 
+import psycopg2
+
 from tix_preprocessor.utility import parse_screen_details
-from ._database_connector import DBConnection
-from ._database_headers import DatabaseHeaders
+from .database_headers import DatabaseHeaders
 
 logging.basicConfig(level=logging.INFO,
                     format='[%(levelname)-1s/%(processName)-1s/%('
@@ -41,6 +42,10 @@ class DatabaseWriter:
                                        "image_idx integer, " \
                                        "object_idx integer, "
     __data_table_end_statement__ = ");"
+    __insert_meta_statement__ = "INSERT INTO meta " \
+                                "(study, pathogen, library, design, screen, replicate, suffix, feature_group, table_name) " \
+                                "VALUES " \
+                                "(%s, %s, %s, %s, %s, %s, %s, %s, %s);"
 
     def __init__(self, folder, user=None, password=None, db=None):
         self.__screen_regex = re.compile(
@@ -50,6 +55,21 @@ class DatabaseWriter:
         self.__db = db
         self.__pw = password
         self.__db_headers = DatabaseHeaders(folder)
+
+    def __enter__(self):
+        logger.info("Connecting to db")
+        self.__connection = psycopg2.connect(
+            database=self.__db, user=self.__user, password=self.__pw)
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        logger.info("Closing connection to db")
+        self.__connection.close()
+
+    def execute(self, statement):
+        with self.__connection.cursor() as cursor:
+            cursor.execute(statement)
+        self.__connection.commit()
 
     def print(self):
         """
@@ -74,9 +94,10 @@ class DatabaseWriter:
         Create a meta data table.
         """
         meta_data_st = self._create_meta_table_statement()
-        with DBConnection(self.__user, self.__pw, self.__db) as connection:
-            logger.info("Creating meta table")
-            self._execute(connection, meta_data_st)
+        logger.info("Creating meta table")
+        with self.__connection.cursor as cursor:
+            cursor.execute(meta_data_st)
+        self.__connection.commit()
 
     def create_data_tables(self, study, pathogen, library, design, screen,
                            replicate, suffix):
@@ -94,21 +115,23 @@ class DatabaseWriter:
         :param suffix: a random suffix, e.g. 1-pmol
         """
         try:
-            with DBConnection(self.__user, self.__pw, self.__db) as connection:
+            with self.__connection.cursor() as cursor:
                 for feature_group, feature_type in self.__db_headers.feature_types:
-                    st = self._create_data_table_statement(feature_group,
-                                                           feature_type, study,
-                                                           pathogen, library,
-                                                           design,
-                                                           screen, replicate,
-                                                           suffix)
-                    self._execute(connection, st)
+                    st = self._create_data_table_statement(
+                        feature_group, feature_type, study, pathogen, library,
+                        design, screen, replicate, suffix)
+                    cursor.execute(st)
+            self.__connection.commit()
         except Exception as e:
             logger.error(str(e))
 
-    def insert_batch(self, statement, data):
-        with DBConnection(self.__user, self.__pw, self.__db) as connection:
-            connection.insert_batch(statement, data)
+    def insert_batch(self, statemet, batch):
+        with self.__connection.cursor() as cursor:
+            try:
+                cursor.executemany(statemet, batch)
+            except Exception as e:
+                logger.error(str(e))
+        self.__connection.commit()
 
     def insert_meta(self, study, pathogen, library, design,
                     screen, replicate, suffix):
@@ -124,17 +147,16 @@ class DatabaseWriter:
         :param replicate: the replicate number, e.g. 1
         :param suffix: a random suffix, e.g. 1-pmol
         """
-
         try:
-            with DBConnection(self.__user, self.__pw, self.__db) as connection:
+            with self.__connection.cursor() as cursor:
                 for feature_group, feature_type_ in self.__db_headers.feature_types:
-                    table_name = self.table_name(study, pathogen, library, design,
-                                                 screen, replicate, suffix,
-                                                 feature_group)
-                    connection.insert_meta(study, pathogen, library,
-                                           design, screen,
-                                           replicate, suffix, feature_group,
-                                           table_name)
+                    table_name = self.table_name(study, pathogen, library,
+                                                 design, screen, replicate,
+                                                 suffix, feature_group)
+                    cursor.execute(DatabaseWriter.__insert_meta_statement__,
+                                   (study, pathogen, library, design, screen,
+                                    replicate,
+                                    suffix, feature_group, table_name))
         except Exception as e:
             logger.error(str(e))
 
@@ -142,12 +164,13 @@ class DatabaseWriter:
         meta_data_st = self._create_meta_table_statement()
         data_tab_statements = self._create_data_table_statements()
         if do_create:
-            with DBConnection(self.__user, self.__pw, self.__db) as connection:
+            with self.__connection.cursor() as cursor:
                 logger.info("Creating meta table")
-                self._execute(connection, meta_data_st)
+                cursor.execute(meta_data_st)
                 logger.info("Creating data tables")
                 for x in data_tab_statements:
-                    self._execute(connection, x)
+                    cursor.execute(x)
+            self.__connection.commit()
         else:
             print(meta_data_st)
             for x in data_tab_statements:

@@ -7,7 +7,9 @@ import logging
 
 from tix_preprocessor.utility import parse_plate_info
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO,
+                    format='[%(levelname)-1s/%(processName)-1s/%('
+                           'name)-1s]: %(message)s')
 logger = logging.getLogger(__name__)
 __skippable_features__ = [x.lower() for x in
                           ["comet", "image", "dapif", "neighbors",
