@@ -1,5 +1,3 @@
 # __author__ = 'Simon Dirmeier'
 # __email__  = 'simon.dirmeier@bsse.ethz.ch'
-# __date__   = 16/11/16
-
-from .database_writer import DatabaseWriter
+# __date__   = 12.04.17
