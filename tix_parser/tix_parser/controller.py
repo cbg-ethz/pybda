@@ -49,7 +49,7 @@ class Controller:
         Iterate over the experiments, download the files, parse them and
         store to data-base.
 
-        """
+                    """
         exps = list(self._plate_list.plate_files)
         # use globals vars for process pool
         if self._multi_processing:
