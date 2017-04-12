@@ -8,7 +8,7 @@ import re
 
 import psycopg2
 
-from tix_preprocessor.utility import parse_screen_details
+from tix_parser.utility import parse_screen_details
 from .database_headers import DatabaseHeaders
 
 logging.basicConfig(level=logging.INFO,

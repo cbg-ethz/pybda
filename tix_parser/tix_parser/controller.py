@@ -34,18 +34,11 @@ class Controller:
         """
         Constructor for PlateParser.
 
-        :param experiment_meta: parsed experiment meta files
-        :param layout_meta: parsed layout meta
-        :param bee_loader: the full path with the script name that downloads
-         the data (e.g. /bla/..../BeeDataSetDownloader.sh)
-        :param output_path: the folder where all the plates get stored and
-        parsed to
-        :param username: the user name of the open bis instance
-        :param pw: the password of the open bis instance
+        :param config: a configuration for file parsing
+        :type config: 
         """
         if not isinstance(config, Config):
-            logger.error("Please provide a config object")
-            exit(-1)
+            raise ValueError("Please provide a config object")
         self._config = config
         self._output_path = config.output_path
         self._multi_processing = config.multi_processing
@@ -55,14 +48,14 @@ class Controller:
         # parse the folder into a map of (classifier-plate) pairs
         self._layout = MetaLayout(config.layout_file)
         # function to download data
-        self._downloader = PlateDownloader(
-            config.bee_loader, self._output_path,
-            config.bee_username, config.bee_password)
+        # self._downloader = PlateDownloader(
+        #     config.bee_loader, self._output_path,
+        #     config.bee_username, config.bee_password)
         # the connection to the database
-        self._db_writer = DatabaseWriter(
-            user=config.db_username, password=config.db_password,
-            db=config.db_name, folder=config.plate_folder)
-        self._parser = PlateParser(self._layout, self._db_writer)
+        # self._db_writer = DatabaseWriter(
+        #     user=config.db_username, password=config.db_password,
+        #     db=config.db_name, folder=config.plate_folder)
+        # self._parser = PlateParser(self._layout, self._db_writer)
 
     def parse(self):
         """
