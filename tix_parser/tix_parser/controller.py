@@ -102,26 +102,6 @@ class Controller:
             ret = -1
         return ret
 
-    def download_plate(self, plate_id):
-        """
-        Download a plate using the bee-data downloader.
-
-        :param plate_id: the full qualifier id of a plate
-        :return:
-        """
-        logger.info("Downloading: " + plate_id)
-        if self._multi_processing:
-            global lock
-            try:
-                lock.acquire()
-                ret = self._downloader.load(plate_id)
-            finally:
-                lock.release()
-        else:
-            ret = self._downloader.load(plate_id)
-        if ret != 0:
-            logger.warn("\tdownload failed with status: " + str(0))
-        return ret
 
     def filesets(self, folder, output_path):
         """
