@@ -2,12 +2,13 @@
 # __email__  = 'simon.dirmeier@bsse.ethz.ch'
 # __date__   = 23/09/16
 
+
 import logging
 import os
 import re
 
-from tix_preprocessor.utility import parse_plate_info, regex
-from tix_preprocessor.utility import parse_screen_details
+from tix_parser.utility import parse_plate_info, regex
+from tix_parser.utility import parse_screen_details
 from ._plate_file import PlateFile
 from .plate_file_set import PlateFileSet
 
@@ -22,8 +23,13 @@ class PlateFileSets:
     Class for keeping all the filenames of plates stored as a map.
 
     """
-    _feature_names_ = ["Batch_handles.", "Neighbors.", "Bacteria.SubObjectFlag.",
-                       "CometTails.", "DAPIFG.", "BlobBacteria.", "ExpandedNuclei."]
+    _feature_names_ = ["Batch_handles.",
+                       "Neighbors.",
+                       "Bacteria.SubObjectFlag.",
+                       "CometTails.",
+                       "DAPIFG.",
+                       "BlobBacteria.",
+                       "ExpandedNuclei."]
     # these are feature file names we dont use
     _skippable_features_starts = [x.lower() for x in _feature_names_]
     # skip the features that contain on of those strings
@@ -125,7 +131,8 @@ class PlateFileSets:
                 return True
         return False
 
-    def _parse_plate_name(self, f):
+    @staticmethod
+    def _parse_plate_name(f):
         """
         Decompose a filename into several features names.
 

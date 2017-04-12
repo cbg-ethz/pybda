@@ -6,7 +6,6 @@ import re
 import logging
 import numpy
 
-from .plate_db_writer import DatabaseWriter
 from .plate_file_set_generator import PlateFileSet
 from .utility import load_matlab
 from ._plate_sirna_gene_mapping import PlateSirnaGeneMapping
@@ -24,12 +23,8 @@ class PlateParser:
               "row", "col", "well_type", "image_idx", "object_idx"]
     _well_regex = re.compile("(\w)(\d+)")
 
-    def __init__(self, layout, db):
+    def __init__(self, layout):
         self._layout = layout
-        if not isinstance(db, DatabaseWriter):
-            logger.error("Please provide a DatabaseWriter object or None.")
-            exit(-1)
-        self._db = db
 
     def parse(self, platefileset):
         """
@@ -43,19 +38,15 @@ class PlateParser:
         if not isinstance(platefileset, PlateFileSet):
             logger.error("Please provide a PlateFileSets object.")
             return
-        # parse the feates to np arrays
         features = self._parse_plate_file_set(platefileset)
         if len(features) == 0:
             return
-        # load the mapping file for the wells
         mapping = self._parse_plate_mapping(platefileset)
         if len(mapping) == 0:
-            logger.warn("Mapping is none for plate-fileset: " +
+            logger.warning("Mapping is none for plate-fileset: " +
                         platefileset.classifier + ". Continuing to next set!")
             return
         self._integrate_platefileset(platefileset, features, mapping)
-        # todo
-        # platefilesets.remove()
         return 0
 
     def _parse_plate_file_set(self, plate_file_set):
@@ -67,7 +58,7 @@ class PlateParser:
             # TODO
             if k == 10:
                 break
-            #k += 1
+            k += 1
             cf = self._parse_file(plate_file)
             if cf is None:
                 continue
@@ -84,13 +75,13 @@ class PlateParser:
         featurename = plate_file.featurename
         file = plate_file.filename
         if file is None:
-            logger.warn("Could not parse: %s", file)
+            logger.warning("Could not parse: %s", file)
             return None
         matrix = None
         try:
             matrix = self._alloc(load_matlab(file), file, featurename)
         except ValueError or TypeError or AssertionError:
-            logger.warn("Could not parse: %s", file)
+            logger.warning("Could not parse: %s", file)
         return matrix
 
     def _alloc(self, arr, file, featurename):
@@ -113,7 +104,8 @@ class PlateParser:
             # maximum number of cells
             m_ncol = max(rowlens)
             # initialize empty matrix of NaNs
-            mat = numpy.full(shape=(nrow, m_ncol), fill_value=numpy.nan,
+            mat = numpy.full(shape=(nrow, m_ncol),
+                             fill_value=numpy.nan,
                              dtype="float64")
             # fill matrix
             for i in range(len(arr)):
@@ -123,7 +115,9 @@ class PlateParser:
             return PlateCellFeature(mat, nrow, m_ncol, file, rowlens,
                                     featurename)
         except AssertionError:
-            logger.warn("Could not alloc feature %s of %s", featurename, file)
+            logger.warning("Could not alloc feature %s of %s",
+                           featurename,
+                           file)
         return None
 
     def _add(self, features, cf, feature_group):
@@ -176,11 +170,13 @@ class PlateParser:
         layout = self._layout.get(pathogen, library, design, screen, replicate,
                                   plate)
         if layout is None:
-            logger.warn("Could not load layout for: " + platefileset.classifier)
+            logger.warning("Could not load layout for: " +
+                         platefileset.classifier)
             return
         tablename = self._db.table_name(study, pathogen, library, design,
                                         screen,
                                         replicate, suffix, feature_group)
+        # CHANGE
         self._write_db(tablename, features, mapping, plate, layout)
 
     def _write_db(self, tablename, features, mapping, plate, layout):
