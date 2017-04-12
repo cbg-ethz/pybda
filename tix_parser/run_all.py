@@ -14,9 +14,8 @@ import argparse
 import sys
 import logging
 
-
-from tix_preprocessor import Controller
-from tix_preprocessor import Config
+from tix_parser import Controller
+from tix_parser import Config
 
 
 def parse_options(args):
