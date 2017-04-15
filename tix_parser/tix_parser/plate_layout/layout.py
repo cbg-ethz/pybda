@@ -65,7 +65,7 @@ class MetaLayout:
                        plate]).lower()
         if cl in self._meta:
             return self._meta[cl]
-        logger.warn("Did not find " + cl + " in meta file")
+        logger.warning("Did not find " + cl + " in meta file")
         return None
 
 

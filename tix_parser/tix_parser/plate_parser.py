@@ -16,6 +16,8 @@ logging.basicConfig(level=logging.INFO,
                            'name)-1s]: %(message)s')
 logger = logging.getLogger(__name__)
 
+__NA__ = "NA"
+
 
 class PlateParser:
     # meta information header for a single cell
@@ -44,7 +46,7 @@ class PlateParser:
         mapping = self._parse_plate_mapping(platefileset)
         if len(mapping) == 0:
             logger.warning("Mapping is none for plate-fileset: " +
-                        platefileset.classifier + ". Continuing to next set!")
+                           platefileset.classifier + ". Continuing to next set!")
             return
         self._integrate_platefileset(platefileset, features, mapping)
         return 0
@@ -135,7 +137,8 @@ class PlateParser:
         features[feature_group].append(cf)
 
     def _parse_plate_mapping(self, plate_file_set):
-        logger.info("Loading meta for plate file set: " + str(plate_file_set.classifier))
+        logger.info("Loading meta for plate file set: " + str(
+            plate_file_set.classifier))
         mapp = PlateSirnaGeneMapping(plate_file_set)
         return mapp
 
@@ -153,6 +156,7 @@ class PlateParser:
         for k, v in features.items():
             self._integrate_feature(platefileset, k, v, mapping)
             # TODO left-tab
+            # what?
         return 0
 
     def _integrate_feature(self, platefileset, feature_group, features,
@@ -166,17 +170,17 @@ class PlateParser:
         study = platefileset.study
         plate = platefileset.plate
         suffix = platefileset.suffix
-        layout = self._layout.get(pathogen, library, design, screen, replicate,
-                                  plate)
+        layout = self._layout.get(pathogen, library, design,
+                                  screen, replicate, plate)
         if layout is None:
             logger.warning("Could not load layout for: " +
-                         platefileset.classifier)
+                           platefileset.classifier)
             return
-        tablename = self._db.table_name(study, pathogen, library, design,
-                                        screen,
-                                        replicate, suffix, feature_group)
+        flname = self._file_name(study, pathogen, library, design,
+                                     screen, replicate, suffix, plate,
+                                     feature_group)
         # CHANGE
-        self._write_db(tablename, features, mapping, plate, layout)
+        self._write_file(flname, features, mapping, plate, layout)
 
     def _write_db(self, tablename, features, mapping, plate, layout):
         nimg = features[0].values.shape[0]
@@ -185,7 +189,8 @@ class PlateParser:
                 " ( " + \
                 ", ".join(PlateParser._meta_) + ', ' + \
                 ", ".join([x.short_name for x in features]) + ") " + \
-                "VALUES (" + ', '.join(["%s"] * (len(PlateParser._meta_) + len(features))) + ");"
+                "VALUES (" + ', '.join(
+            ["%s"] * (len(PlateParser._meta_) + len(features))) + ");"
         dat = []
         for iimg in range(nimg):
             well = mapping[iimg]
@@ -224,3 +229,15 @@ class PlateParser:
                     f.write("\t".join(list(map(str, meta)) +
                                       list(map(str, vals))).lower() + "\n")
         return 0
+
+    def _file_name(self, study, pathogen, library, design, screen, replicate,
+                    suffix, plate, feature_group):
+        if suffix == __NA__:
+            tbl = "_".join(
+                [study, pathogen, library, design, screen, replicate, plate])
+        else:
+            tbl = "_".join(
+                [study, pathogen, library, design, screen, replicate, suffix,
+                 plate])
+        tbl += "_" + feature_group
+        return tbl
