@@ -229,3 +229,29 @@ class DatabaseWriter:
                 [study, pathogen, library, design, screen, replicate, suffix])
         tbl += "_" + feature_group
         return tbl
+
+    def _write_db(self, tablename, features, mapping, plate, layout):
+        nimg = features[0].values.shape[0]
+        assert nimg == len(mapping)
+        state = "INSERT INTO " + tablename + \
+                " ( " + \
+                ", ".join(PlateParser._meta_) + ', ' + \
+                ", ".join([x.short_name for x in features]) + ") " + \
+                "VALUES (" + ', '.join(
+            ["%s"] * (len(PlateParser._meta_) + len(features))) + ");"
+        dat = []
+        for iimg in range(nimg):
+            well = mapping[iimg]
+            pat = PlateParser._well_regex.match(well.lower())
+            row, col = pat.group(1), int(pat.group(2))
+            for cell in range(features[0].ncells[iimg]):
+                vals = [features[p].values[iimg, cell] for p in
+                        range(len(features))]
+                meta = [plate, layout.gene(well), layout.sirna(well), row,
+                        int(col), layout.welltype(well), iimg + 1, cell + 1]
+                dat.append(list(map(str, meta + vals)))
+                if len(dat) == 10000:
+                    self._db.insert_batch(state, dat)
+                    dat = []
+        self._db.insert_batch(state, dat)
+        return 0
