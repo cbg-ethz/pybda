@@ -19,8 +19,8 @@ logger = logging.getLogger(__name__)
 
 class PlateParser:
     # meta information header for a single cell
-    _meta_ = ["plate", "gene", "sirna",
-              "row", "col", "well_type", "image_idx", "object_idx"]
+    _meta_ = ["plate", "gene", "sirna", "row", "col", "well_type",
+              "image_idx", "object_idx"]
     _well_regex = re.compile("(\w)(\d+)")
 
     def __init__(self, layout):
@@ -135,8 +135,7 @@ class PlateParser:
         features[feature_group].append(cf)
 
     def _parse_plate_mapping(self, plate_file_set):
-        logger.info("Loading meta for plate file set: " + str(
-            plate_file_set.classifier))
+        logger.info("Loading meta for plate file set: " + str(plate_file_set.classifier))
         mapp = PlateSirnaGeneMapping(plate_file_set)
         return mapp
 

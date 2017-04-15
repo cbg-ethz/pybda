@@ -13,9 +13,9 @@ def sample(fl):
   random.shuffle(plates)
   for p in plates:
     line = p.split("\t")
-    if line[1] != "ScreeningPlate":
-        continue
     _, study, team, screen, plate = line[0].split('/')
+    if line[1] != "ScreeningPlate" and study != 'TARGETINFECTX':
+        continue
     try:
       li, sc = screen.split("-")[1:3]
       lv = list(sc)[0]

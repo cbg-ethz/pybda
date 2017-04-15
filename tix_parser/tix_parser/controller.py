@@ -94,11 +94,11 @@ class Controller:
         return PlateFileSets(folder, output_path)
 
     def parse_plate_file_sets(self, platefilesets):
+        if not isinstance(platefilesets, PlateFileSets):
+            raise TypeError("no PlateFileSets object given")
         try:
             for platefileset in platefilesets:
                 self._parser.parse(platefileset)
-                # TODO
-                # platefilesets.remove()
         except Exception as e:
             logger.error("Error: " + str(e))
         return 0
