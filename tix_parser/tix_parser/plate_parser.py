@@ -180,7 +180,8 @@ class PlateParser:
                                      screen, replicate, suffix, plate,
                                      feature_group)
         # CHANGE
-        self._write_file(flname, features, mapping, plate, layout)
+        self._write_file(flname, features, mapping, pathogen, library,
+                         design, screen, replicate, plate, layout)
 
     def _write_file(self, filename, features, mapping, pathogen, library_vendor,
                     library_type, screen, replicate, plate, layout):
