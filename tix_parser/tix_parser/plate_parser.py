@@ -21,7 +21,8 @@ __NA__ = "NA"
 
 class PlateParser:
     # meta information header for a single cell
-    _meta_ = ["plate", "gene", "sirna", "row", "col", "well_type",
+    _meta_ = ["plate", "gene", "sirna",
+              "row", "col", "well_type",
               "image_idx", "object_idx"]
     _well_regex = re.compile("(\w)(\d+)")
 
@@ -176,11 +177,7 @@ class PlateParser:
             logger.warning("Could not load layout for: " +
                            platefileset.classifier)
             return
-        flname = self._file_name(study, pathogen, library, design,
-                                     screen, replicate, suffix, plate,
-                                     feature_group)
-        # CHANGE
-        self._write_file(flname, features, mapping, pathogen, library,
+        self._write_file(features, mapping, pathogen, library,
                          design, screen, replicate, plate, layout)
 
     def _write_file(self, filename, features, mapping, pathogen, library_vendor,
@@ -204,15 +201,3 @@ class PlateParser:
                     f.write("\t".join(list(map(str, meta)) +
                                       list(map(str, vals))).lower() + "\n")
         return 0
-
-    def _file_name(self, study, pathogen, library, design, screen, replicate,
-                    suffix, plate, feature_group):
-        if suffix == __NA__:
-            tbl = "_".join(
-                [study, pathogen, library, design, screen, replicate, plate])
-        else:
-            tbl = "_".join(
-                [study, pathogen, library, design, screen, replicate, suffix,
-                 plate])
-        tbl += "_" + feature_group
-        return tbl
