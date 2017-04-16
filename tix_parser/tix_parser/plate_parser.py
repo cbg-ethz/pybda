@@ -21,9 +21,8 @@ __NA__ = "NA"
 
 class PlateParser:
     # meta information header for a single cell
-    _meta_ = ["plate", "gene", "sirna",
-              "row", "col", "well_type",
-              "image_idx", "object_idx"]
+    _meta_ = ["well", "gene", "sirna",
+              "well_type", "image_idx", "object_idx"]
     _well_regex = re.compile("(\w)(\d+)")
 
     def __init__(self, layout):
@@ -87,7 +86,8 @@ class PlateParser:
             logger.warning("Could not parse: %s", file)
         return matrix
 
-    def _alloc(self, arr, file, featurename):
+    @staticmethod
+    def _alloc(arr, file, featurename):
         """
         Create a Cell feature object from a matlab binary.
 
@@ -123,7 +123,8 @@ class PlateParser:
                            file)
         return None
 
-    def _add(self, features, cf, feature_group):
+    @staticmethod
+    def _add(features, cf, feature_group):
         """
         Add a cell feature to a feature map
 
@@ -137,9 +138,10 @@ class PlateParser:
             features[feature_group] = []
         features[feature_group].append(cf)
 
-    def _parse_plate_mapping(self, plate_file_set):
-        logger.info("Loading meta for plate file set: " + str(
-            plate_file_set.classifier))
+    @staticmethod
+    def _parse_plate_mapping(plate_file_set):
+        logger.info("Loading meta for plate file set: " +
+                    str(plate_file_set.classifier))
         mapp = PlateSirnaGeneMapping(plate_file_set)
         return mapp
 
@@ -153,35 +155,33 @@ class PlateParser:
         """
         logger.info("Integrating the different feature sets to matrices for "
                     "plate file set: " + str(platefileset.classifier))
-        # since some features have different numbers of calls
+        # since some features have different numbers of objects
         for k, v in features.items():
             self._integrate_feature(platefileset, k, v, mapping)
-            # TODO left-tab
-            # what?
         return 0
 
-    def _integrate_feature(self, platefileset, feature_group, features,
+    def _integrate_feature(self, pfs, feature_group, features,
                            mapping):
         features = sorted(features, key=lambda x: x.short_name)
-        pathogen = platefileset.pathogen
-        library = platefileset.library
-        replicate = platefileset.replicate
-        screen = platefileset.screen
-        design = platefileset.design
-        study = platefileset.study
-        plate = platefileset.plate
-        suffix = platefileset.suffix
+        pathogen = pfs.pathogen
+        library = pfs.library
+        replicate = pfs.replicate
+        screen = pfs.screen
+        design = pfs.design
+        study = pfs.study
+        plate = pfs.plate
+        suffix = pfs.suffix
         layout = self._layout.get(pathogen, library, design,
                                   screen, replicate, plate)
         if layout is None:
-            logger.warning("Could not load layout for: " +
-                           platefileset.classifier)
+            logger.warning("Could not load layout for: " + pfs.classifier)
             return
-        self._write_file(features, mapping, pathogen, library,
-                         design, screen, replicate, plate, layout)
+        filename = pfs.outfile + "_" + feature_group
+        self._write_file(filename, features, mapping, layout)
 
-    def _write_file(self, filename, features, mapping, pathogen, library_vendor,
-                    library_type, screen, replicate, plate, layout):
+    @staticmethod
+    def _write_file(filename, features, mapping, layout):
+        meta = [None] * len(PlateParser._meta_)
         logger.info("Writing to: " + filename)
         with open(filename, "w") as f:
             header = PlateParser._meta_ + \
@@ -191,13 +191,15 @@ class PlateParser:
             assert nimg == len(mapping)
             for iimg in range(nimg):
                 well = mapping[iimg]
+                meta[0] = well
+                meta[1] = layout.gene(well)
+                meta[2] = layout.sirna(well)
+                meta[3] = layout.welltype(well)
+                meta[4] = iimg + 1
                 for cell in range(features[0].ncells[iimg]):
                     vals = [features[p].values[iimg, cell] for p in
                             range(len(features))]
-                    meta = [pathogen, library_vendor, library_type, screen,
-                            replicate, plate, layout.sirna(well),
-                            layout.gene(well), well, layout.welltype(well),
-                            iimg + 1, cell + 1]
+                    meta[5] = cell + 1
                     f.write("\t".join(list(map(str, meta)) +
                                       list(map(str, vals))).lower() + "\n")
         return 0
