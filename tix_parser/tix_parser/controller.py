@@ -11,6 +11,7 @@ from .plate_parser import PlateParser
 from .plate_file_set_generator.plate_file_sets import PlateFileSets
 from .plate_list import PlateList
 from .plate_layout import MetaLayout
+import multiprocessing as mp
 
 logging.basicConfig(level=logging.INFO,
                     format='[%(levelname)-1s/%(processName)-1s/%(name)-1s]: %(message)s')
