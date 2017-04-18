@@ -8,3 +8,11 @@ plates, such that every
 * kinome/genome
 
 are contained in every combination.
+
+### Run
+
+Run the complete thing with:
+
+```sh
+python sample_plates.py ...
+```

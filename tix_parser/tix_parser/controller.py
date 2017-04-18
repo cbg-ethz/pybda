@@ -9,7 +9,7 @@ import logging
 from .config import Config
 from .plate_parser import PlateParser
 from .plate_file_set_generator.plate_file_sets import PlateFileSets
-from .plate_list import PlateList
+from ._plate_list import PlateList
 from .plate_layout import MetaLayout
 import multiprocessing as mp
 
@@ -52,7 +52,7 @@ class Controller:
         Iterate over the experiments, download the files, parse them and
         store to data-base.
 
-                    """
+        """
         exps = list(self._plate_list.plate_files)
         # use globals vars for process pool
         if self._multi_processing:
@@ -102,7 +102,8 @@ class Controller:
         try:
             for platefileset in platefilesets:
                 logger.info("Doing: " + " ".join(platefileset.meta))
-                self._parser.parse(platefileset)
+                pfs, features, mapping = self._parser.parse(platefileset)
+                self._writer.write(pfs, features, mapping)
         except Exception as e:
             logger.error("Error: " + str(e))
         return 0
