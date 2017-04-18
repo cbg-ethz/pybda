@@ -194,7 +194,7 @@ class PlateParser:
                 for cell in range(features[0].ncells[iimg]):
                     # this is critical
                     # prolly source of errors
-                    vals = [None] * len(features)
+                    vals = [__NA__] * len(features)
                     for p in range(len(features)):
                         try:
                             vals[p] = features[p].values[iimg, cell]
