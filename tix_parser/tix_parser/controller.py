@@ -2,6 +2,7 @@
 # __email__  = 'simon.dirmeier@bsse.ethz.ch'
 # __date__   = 22/09/16
 
+
 import multiprocessing as mp
 import logging
 
@@ -36,6 +37,7 @@ class Controller:
         self._output_path = config.output_path
         self._multi_processing = config.multi_processing
         # read the plate list files
+        # oly take files with regex pooled/unpooled genome/kinome
         self._plate_list = PlateList(
             config.plate_id_file,
             ".*\/\w+\-\w[P|U]\-[G|K]\d+\/.*"
@@ -98,8 +100,8 @@ class Controller:
             raise TypeError("no PlateFileSets object given")
         try:
             for platefileset in platefilesets:
-                print(" ".join(platefileset.meta))
-                #self._parser.parse(platefileset)
+                logger.info("Doing: " + " ".join(platefileset.meta))
+                self._parser.parse(platefileset)
         except Exception as e:
             logger.error("Error: " + str(e))
         return 0
