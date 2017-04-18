@@ -19,24 +19,24 @@ class PlateLayout(object):
 
     def add(self, gene, sirna, well, well_type):
         if well in self._well_layout:
-            logger.warn("Adding " + well + " multiple times to " +
+            logger.warning("Adding " + well + " multiple times to " +
                         self._classifier + " layout!")
         self._well_layout[well] = PlateWell(gene, sirna, well, well_type)
 
     def sirna(self, well):
         if well not in self._well_layout:
-            logger.warn("Could not find well:" + well)
+            logger.warning("Could not find well:" + well)
             return None
         return self._well_layout[well].sirna
 
     def welltype(self, well):
         if well not in self._well_layout:
-            logger.warn("Could not find well:" + well)
+            logger.warning("Could not find well:" + well)
             return None
         return self._well_layout[well].welltype
 
     def gene(self, well):
         if well not in self._well_layout:
-            logger.warn("Could not find well:" + well)
+            logger.warning("Could not find well:" + well)
             return None
         return self._well_layout[well].gene

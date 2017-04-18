@@ -7,7 +7,7 @@ import logging
 import numpy
 
 from .plate_file_set_generator import PlateFileSet
-from .utility import load_matlab
+from .utility import load_matlab, check_feature_group
 from ._plate_sirna_gene_mapping import PlateSirnaGeneMapping
 from ._plate_cell_features import PlateCellFeature
 
@@ -21,34 +21,32 @@ __NA__ = "NA"
 
 class PlateParser:
     # meta information header for a single cell
-    _meta_ = ["well", "gene", "sirna",
-              "well_type", "image_idx", "object_idx"]
+    _meta_ = ["well", "gene", "sirna", "well_type", "image_idx", "object_idx"]
     _well_regex = re.compile("(\w)(\d+)")
 
     def __init__(self, layout):
         self._layout = layout
 
-    def parse(self, platefileset):
+    def parse(self, pfs):
         """
         Parse the PlateFileSets (i.e.: all parsed folders) into tsvs.
 
         Iterate over the file sets and create matrices every platefileset
-        represents a plate so every platefileset is a single file
-
+        represents a plate so every platefileset is a single file.
         """
 
-        if not isinstance(platefileset, PlateFileSet):
+        if not isinstance(pfs, PlateFileSet):
             logger.error("Please provide a PlateFileSets object.")
             return
-        features = self._parse_plate_file_set(platefileset)
+        features = self._parse_plate_file_set(pfs)
         if len(features) == 0:
             return
-        mapping = self._parse_plate_mapping(platefileset)
+        mapping = self._parse_plate_mapping(pfs)
         if len(mapping) == 0:
             logger.warning("Mapping is none for plate-fileset: " +
-                           platefileset.classifier + ". Continuing to next set!")
+                           pfs.classifier + ". Continuing to next set!")
             return
-        self._integrate_platefileset(platefileset, features, mapping)
+        self._integrate_platefileset(pfs, features, mapping)
         return 0
 
     def _parse_plate_file_set(self, plate_file_set):
@@ -134,10 +132,9 @@ class PlateParser:
         features[feature_group].append(cf)
 
     @staticmethod
-    def _parse_plate_mapping(plate_file_set):
-        logger.info("Loading meta for plate file set: " +
-                    str(plate_file_set.classifier))
-        mapp = PlateSirnaGeneMapping(plate_file_set)
+    def _parse_plate_mapping(pfs):
+        logger.info("Loading meta for plate file set: " + str(pfs.classifier))
+        mapp = PlateSirnaGeneMapping(pfs)
         return mapp
 
     def _integrate_platefileset(self, platefileset, features, mapping):
@@ -163,19 +160,22 @@ class PlateParser:
         replicate = pfs.replicate
         screen = pfs.screen
         design = pfs.design
-        study = pfs.study
         plate = pfs.plate
-        suffix = pfs.suffix
         layout = self._layout.get(pathogen, library, design,
                                   screen, replicate, plate)
         if layout is None:
             logger.warning("Could not load layout for: " + pfs.classifier)
             return
         filename = pfs.outfile + "_" + feature_group
-        self._write_file(filename, features, mapping, layout)
+        try:
+            self._write_file(filename, features, mapping, layout)
+        except Exception as e:
+            logger.error("Could not integrate: " + filename)
+            logger.error(str(e))
 
     @staticmethod
     def _write_file(filename, features, mapping, layout):
+        check_feature_group(features)
         meta = [None] * len(PlateParser._meta_)
         logger.info("Writing to: " + filename)
         with open(filename, "w") as f:
@@ -192,9 +192,12 @@ class PlateParser:
                 meta[3] = layout.welltype(well)
                 meta[4] = iimg + 1
                 for cell in range(features[0].ncells[iimg]):
+                    # this is critical
+                    # prolly source of errors
                     vals = [features[p].values[iimg, cell] for p in
                             range(len(features))]
                     meta[5] = cell + 1
                     f.write("\t".join(list(map(str, meta)) +
                                       list(map(str, vals))).lower() + "\n")
         return 0
+
