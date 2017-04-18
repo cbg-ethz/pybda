@@ -98,7 +98,8 @@ class Controller:
             raise TypeError("no PlateFileSets object given")
         try:
             for platefileset in platefilesets:
-                self._parser.parse(platefileset)
+                print(" ".join(paltefileset.meta))
+#                self._parser.parse(platefileset)
         except Exception as e:
             logger.error("Error: " + str(e))
         return 0
