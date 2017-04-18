@@ -8,10 +8,10 @@ import logging
 
 from .config import Config
 from .plate_parser import PlateParser
+from .plate_writer import PlateWriter
 from .plate_file_set_generator.plate_file_sets import PlateFileSets
-from ._plate_list import PlateList
 from .plate_layout import MetaLayout
-import multiprocessing as mp
+from ._plate_list import PlateList
 
 logging.basicConfig(level=logging.INFO,
                     format='[%(levelname)-1s/%(processName)-1s/%(name)-1s]: %(message)s')
@@ -45,7 +45,8 @@ class Controller:
         )
         # parse the folder into a map of (classifier-plate) pairs
         self._layout = MetaLayout(config.layout_file)
-        self._parser = PlateParser(self._layout)
+        self._parser = PlateParser()
+        self._writer = PlateWriter(self._layout)
 
     def parse(self):
         """
@@ -103,7 +104,8 @@ class Controller:
             for platefileset in platefilesets:
                 logger.info("Doing: " + " ".join(platefileset.meta))
                 pfs, features, mapping = self._parser.parse(platefileset)
-                self._writer.write(pfs, features, mapping)
+                if pfs is not None:
+                    self._writer.write(pfs, features, mapping)
         except Exception as e:
             logger.error("Error: " + str(e))
         return 0

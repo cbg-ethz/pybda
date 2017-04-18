@@ -2,7 +2,7 @@
 # __email__  = 'simon.dirmeier@bsse.ethz.ch'
 # __date__   = 18.04.17
 
-
+import re
 import logging
 import numpy
 
@@ -17,23 +17,20 @@ __NA__ = "NA"
 
 
 class PlateWriter:
-    def _integrate_platefileset(self, platefileset, features, mapping):
-        """
-        Iterate over all matlab files and create the final matrices
+    def __init__(self, layout):
+        self._layout = layout
 
-        :param platefileset: the platefile set
-        :param features: the parsed feature map
+    _meta_ = ["well", "gene", "sirna", "well_type", "image_idx", "object_idx"]
+    _well_regex = re.compile("(\w)(\d+)")
 
-        """
+    def write(self, pfs, feature_groups, mapping):
         logger.info("Integrating the different feature sets to matrices for "
-                    "plate file set: " + str(platefileset.classifier))
-        # since some features have different numbers of objects
-        for k, v in features.items():
-            self._integrate_feature(platefileset, k, v, mapping)
+                    "plate file set: " + str(pfs.classifier))
+        for k, v in feature_groups.items():
+            self._write(pfs, k, v, mapping)
         return 0
 
-    def _integrate_feature(self, pfs, feature_group, features,
-                           mapping):
+    def _write(self, pfs, feature_group, features, mapping):
         features = sorted(features, key=lambda x: x.short_name)
         pathogen = pfs.pathogen
         library = pfs.library
@@ -41,8 +38,8 @@ class PlateWriter:
         screen = pfs.screen
         design = pfs.design
         plate = pfs.plate
-        layout = self._layout.get(pathogen, library, design,
-                                  screen, replicate, plate)
+        layout = self._layout.get(pathogen, library, design, screen,
+                                  replicate, plate)
         if layout is None:
             logger.warning("Could not load layout for: " + pfs.classifier)
             return
@@ -56,10 +53,10 @@ class PlateWriter:
     @staticmethod
     def _write_file(filename, features, mapping, layout):
         check_feature_group(features)
-        meta = [None] * len(PlateParser._meta_)
+        meta = [None] * len(PlateWriter._meta_)
         logger.info("Writing to: " + filename)
         with open(filename, "w") as f:
-            header = PlateParser._meta_ + \
+            header = PlateWriter._meta_ + \
                      [feat.featurename.lower() for feat in features]
             f.write("\t".join(header) + "\n")
             nimg = features[0].values.shape[0]

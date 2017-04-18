@@ -8,7 +8,7 @@ import logging
 import numpy
 
 from .plate_file_set_generator import PlateFileSet
-from .utility import load_matlab, check_feature_group
+from .utility import load_matlab
 from ._plate_sirna_gene_mapping import PlateSirnaGeneMapping
 from ._plate_cell_features import PlateCellFeature
 
@@ -21,13 +21,6 @@ __NA__ = "NA"
 
 
 class PlateParser:
-    # meta information header for a single cell
-    _meta_ = ["well", "gene", "sirna", "well_type", "image_idx", "object_idx"]
-    _well_regex = re.compile("(\w)(\d+)")
-
-    def __init__(self, layout):
-        self._layout = layout
-
     def parse(self, pfs):
         """
         Parse the PlateFileSets (i.e.: all parsed folders) into tsvs.
@@ -38,16 +31,15 @@ class PlateParser:
 
         if not isinstance(pfs, PlateFileSet):
             logger.error("Please provide a PlateFileSets object.")
-            return
+            return None, None, None
         features = self._parse_plate_file_set(pfs)
         if len(features) == 0:
-            return
+            return None, None, None
         mapping = self._parse_plate_mapping(pfs)
         if len(mapping) == 0:
             logger.warning("Mapping is none for plate-fileset: " +
                            pfs.classifier + ". Continuing to next set!")
-            return
-        self._integrate_platefileset(pfs, features, mapping)
+            return None, None, None
         return pfs, features, mapping
 
     def _parse_plate_file_set(self, plate_file_set):
@@ -82,14 +74,6 @@ class PlateParser:
 
     @staticmethod
     def _alloc(arr, file, featurename):
-        """
-        Create a Cell feature object from a matlab binary.
-
-        :param arr: the matrix object
-        :param file: the filename of the matlab binary
-        :param featurename: the name of the feature
-        :return: return a plate cell feature
-        """
         featurename = str(featurename).lower()
         if featurename.endswith(".mat"):
             featurename = featurename.replace(".mat", "")
@@ -113,21 +97,12 @@ class PlateParser:
                                     featurename)
         except AssertionError:
             logger.warning("Could not alloc feature %s of %s",
-                           featurename,
-                           file)
+                           featurename, file)
         return None
 
     @staticmethod
     def _add(features, cf, feature_group):
-        """
-        Add a cell feature to a feature map
-
-        :param features: the feature map
-        :param cf: the cell feature object
-        """
         # TODO: is this really enough?
-        # this has to be changed for FEATURE TYPES
-        # maybe compare all cell numbers and not only the max cell number
         if feature_group not in features:
             features[feature_group] = []
         features[feature_group].append(cf)
@@ -135,6 +110,5 @@ class PlateParser:
     @staticmethod
     def _parse_plate_mapping(pfs):
         logger.info("Loading meta for plate file set: " + str(pfs.classifier))
-        mapp = PlateSirnaGeneMapping(pfs)
-        return mapp
+        return PlateSirnaGeneMapping(pfs)
 
