@@ -199,9 +199,8 @@ class PlateParser:
                         try:
                             vals[p] = features[p].values[iimg, cell]
                         except IndexError:
-                            vals[p] = numpy.nan
+                            vals[p] = __NA__
                     meta[5] = cell + 1
                     f.write("\t".join(list(map(str, meta)) +
                                       list(map(str, vals))).lower() + "\n")
         return 0
-
