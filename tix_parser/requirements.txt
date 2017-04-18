@@ -1,4 +1,4 @@
 psycopg2
 numpy
 scipy
-yaml
+pyyaml
