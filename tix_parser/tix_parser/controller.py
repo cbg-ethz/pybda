@@ -62,9 +62,6 @@ class Controller:
             pool.join()
         else:
             for x in exps:
-                import re
-                if re.match(".*GROUP.*", x):
-                    continue
                 self._parse(x)
         logger.info("All's well that ends well")
 
