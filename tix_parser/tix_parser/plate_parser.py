@@ -86,7 +86,7 @@ class PlateParser:
             m_ncol = max(rowlens)
             # initialize empty matrix of NaNs
             mat = numpy.full(shape=(nrow, m_ncol),
-                             fill_value=numpy.nan,
+                             fill_value=numpy.Infinity,
                              dtype="float64")
             # fill matrix
             for i in range(len(arr)):

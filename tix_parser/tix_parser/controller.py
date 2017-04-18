@@ -107,5 +107,5 @@ class Controller:
                 if pfs is not None:
                     self._writer.write(pfs, features, mapping)
         except Exception as e:
-            logger.error("Error: " + str(e))
+            logger.error("Some error idk anythin can happen here: " + str(e))
         return 0
