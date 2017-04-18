@@ -194,8 +194,12 @@ class PlateParser:
                 for cell in range(features[0].ncells[iimg]):
                     # this is critical
                     # prolly source of errors
-                    vals = [features[p].values[iimg, cell] for p in
-                            range(len(features))]
+                    vals = [None] * len(features)
+                    for p in range(len(features)):
+                        try:
+                            vals[p] = features[p].values[iimg, cell]
+                        except IndexError:
+                            vals[p] = numpy.nan
                     meta[5] = cell + 1
                     f.write("\t".join(list(map(str, meta)) +
                                       list(map(str, vals))).lower() + "\n")
