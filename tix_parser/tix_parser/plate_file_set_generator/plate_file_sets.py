@@ -29,7 +29,9 @@ class PlateFileSets:
                        "CometTails.",
                        "DAPIFG.",
                        "BlobBacteria.",
-                       "ExpandedNuclei."]
+                       "ExpandedNuclei.",
+                       "VoronoiCells.",
+                       "IL8"]
     # these are feature file names we dont use
     _skippable_features_starts = [x.lower() for x in _feature_names_]
     # skip the features that contain on of those strings

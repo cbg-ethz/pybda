@@ -55,12 +55,7 @@ class PlateParser:
         features = {}
         logger.info("Parsing plate file set to memory: " +
                     str(plate_file_set.classifier))
-        k = 0
         for plate_file in plate_file_set:
-            # TODO
-            if k == 10:
-                break
-            k += 1
             cf = self._parse_file(plate_file)
             if cf is None:
                 continue
