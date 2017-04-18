@@ -39,6 +39,11 @@ class PlateFileSet:
         return len(self._files)
 
     @property
+    def meta(self):
+        return [self._study, self._pathogen, self._library, self._design,
+                self._screen, self._replicate, self._suffix, self.plate]
+
+    @property
     def pathogen(self):
         return self._pathogen
 
@@ -93,7 +98,3 @@ class PlateFileSet:
     def suffix(self):
         return self._suffix
 
-    @property
-    def meta(self):
-        return [self._study, self._pathogen, self._library, self._design,
-                self._screen, self._replicate, self._suffix]

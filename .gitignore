@@ -4,3 +4,4 @@ download_plates.sh
 .Rhistory
 .RData
 .Ruserdata
+__pycache__/
