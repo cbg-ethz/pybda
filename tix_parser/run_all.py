@@ -28,9 +28,8 @@ def parse_options(args):
 def main(args):
     c = Config(parse_options(args))
     log_file = c.output_path + "/log.txt"
-    logging.basicConfig(filename=log_file, level=logging.INFO,
-                        format='[%(levelname)-1s/%(processName)-1s/%('
-                               'name)-1s]: %(message)s')
+    logging.basicConfig(level=logging.INFO,
+                        format='[%(levelname)-1s/%(processName)-1s/%(name)-1s]: %(message)s')
     # create plate parser object and parse the single plates
     Controller(c).parse()
 

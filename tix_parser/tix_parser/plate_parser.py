@@ -91,8 +91,9 @@ class PlateParser:
             # fill matrix
             for i in range(len(arr)):
                 row = arr[i]
-                for j in range(len(row)):
-                    mat[i][j] = row[j]
+                mat[i][:len(row)] = row
+                # for j in range(len(row)):
+                #     mat[i][j] = row[j]
             return PlateCellFeature(mat, nrow, m_ncol, file, rowlens,
                                     featurename)
         except AssertionError:

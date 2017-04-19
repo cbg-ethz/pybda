@@ -69,8 +69,6 @@ class PlateWriter:
                 meta[3] = layout.welltype(well)
                 meta[4] = iimg + 1
                 for cell in range(features[0].ncells[iimg]):
-                    # this is critical
-                    # prolly source of errors
                     vals = [__NA__] * len(features)
                     for p in range(len(features)):
                         try:
