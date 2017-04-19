@@ -18,6 +18,7 @@ __NA__ = "NA"
 
 class PlateWriter:
     def __init__(self, layout):
+
         self._layout = layout
 
     _meta_ = ["well", "gene", "sirna", "well_type", "image_idx", "object_idx"]
@@ -53,9 +54,13 @@ class PlateWriter:
     @staticmethod
     def _write_file(filename, features, mapping, layout):
         check_feature_group(features)
-        meta = [__NA__] * len(PlateWriter._meta_)
+
         logger.info("Writing to: " + filename)
-        with open(filename, "w") as f:
+        meta = [__NA__] * len(PlateWriter._meta_)
+        meat_hash = {}
+
+        dat_file = filename + ".tsv"
+        with open(dat_file, "w") as f:
             header = PlateWriter._meta_ + \
                      [feat.featurename.lower() for feat in features]
             f.write("\t".join(header) + "\n")
@@ -68,6 +73,7 @@ class PlateWriter:
                 meta[2] = layout.sirna(well)
                 meta[3] = layout.welltype(well)
                 meta[4] = iimg + 1
+                meat_hash["\t".join(map(str, meta[:4]))] = 1
                 for cell in range(features[0].ncells[iimg]):
                     vals = [__NA__] * len(features)
                     for p in range(len(features)):
@@ -79,6 +85,14 @@ class PlateWriter:
                     try:
                         f.write("\t".join(list(map(str, meta)) +
                                           list(map(str, vals))).lower() + "\n")
-                    except Exception as e:
+                    except Exception:
                         f.write("\t".join([__NA__] * len(header)) + "\n")
+
+        meat_file = filename + "_meta.tsv"
+        with open(meat_file, "w") as meat:
+            for k, _ in meat_hash.items():
+                try:
+                    meat.write(k + "\n")
+                except Exception as e:
+                    logger.warning("Error writing to meta file: + ", meat_file)
         return 0
