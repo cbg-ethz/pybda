@@ -18,7 +18,8 @@ def check_feature_group(fg):
     for j, f in enumerate(fg):
         fj_cells = f.ncells
         for i, fj_cells_i in enumerate(fj_cells):
-            if f1_cells[i] != fj_cells_i:
-                logger.warning(
-                    "Cell numbers between feature {} and feature {} differ: {} vs. {}".format(
-                        fg[0].featurename, f.featurename, f1_cells[i], fj_cells_i))
+            try:
+                if f1_cells[i] != fj_cells_i:
+                    logger.warning("Cell numbers between feature {} and feature {} differ: {} vs. {}".format(fg[0].featurename, f.featurename, f1_cells[i], fj_cells_i))
+            except IndexError:
+                logger.warning("Cell array sizes differ: {} vs. {}".format(fg[0].featurename, f.featurename))

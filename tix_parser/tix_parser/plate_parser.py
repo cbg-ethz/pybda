@@ -62,13 +62,13 @@ class PlateParser:
         featurename = plate_file.featurename
         file = plate_file.filename
         if file is None:
-            logger.warning("Could not parse: %s", file)
+            logger.error("Could not find file: %s", file)
             return None
         matrix = None
         try:
             matrix = self._alloc(load_matlab(file), file, featurename)
-        except ValueError or TypeError or AssertionError:
-            logger.warning("Could not parse: %s", file)
+        except ValueError or TypeError or AssertionError as e:
+            logger.error("Could not parse: %s", file, " ->" + str(e))
         return matrix
 
     @staticmethod
@@ -85,9 +85,9 @@ class PlateParser:
                              dtype="float64")
             for i in range(len(arr)):
                 row = arr[i]
-                mat[i][:len(row)] = row
-            return PlateCellFeature(mat, n_row, max_n_col, file, row_lens,
-                                    f_name)
+                mat[i][:len(row)] = row.flatten()
+            return PlateCellFeature(mat, n_row, max_n_col,
+                                    file, row_lens, f_name)
         except AssertionError:
             logger.warning("Could not alloc feature %s of %s",
                            f_name, file)

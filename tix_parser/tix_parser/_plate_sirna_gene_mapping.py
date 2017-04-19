@@ -20,7 +20,7 @@ class PlateSirnaGeneMapping:
     def __init__(self, plate_file_set):
         if plate_file_set.mapping is not None:
             self._mapping = []
-            self._pattern = re.compile(".*\_w(\\w\\d+)\_s\d\_z\d.*tif")
+            self._pattern = re.compile(".*\_w(\\w\\d+)\_s\d\_z\d.*")
             self._load(plate_file_set)
 
     def __getitem__(self, item):

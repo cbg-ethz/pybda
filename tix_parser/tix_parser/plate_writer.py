@@ -53,7 +53,7 @@ class PlateWriter:
     @staticmethod
     def _write_file(filename, features, mapping, layout):
         check_feature_group(features)
-        meta = [None] * len(PlateWriter._meta_)
+        meta = [__NA__] * len(PlateWriter._meta_)
         logger.info("Writing to: " + filename)
         with open(filename, "w") as f:
             header = PlateWriter._meta_ + \
@@ -76,6 +76,9 @@ class PlateWriter:
                         except IndexError:
                             vals[p] = __NA__
                     meta[5] = cell + 1
-                    f.write("\t".join(list(map(str, meta)) +
-                                      list(map(str, vals))).lower() + "\n")
+                    try:
+                        f.write("\t".join(list(map(str, meta)) +
+                                          list(map(str, vals))).lower() + "\n")
+                    except Exception as e:
+                        f.write("\t".join([__NA__] * len(header)) + "\n")
         return 0
