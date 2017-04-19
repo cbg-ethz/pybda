@@ -3,7 +3,6 @@
 # __date__   = 17/11/16
 
 
-import re
 import logging
 import numpy
 
@@ -73,32 +72,25 @@ class PlateParser:
         return matrix
 
     @staticmethod
-    def _alloc(arr, file, featurename):
-        featurename = str(featurename).lower()
-        if featurename.endswith(".mat"):
-            featurename = featurename.replace(".mat", "")
+    def _alloc(arr, file, f_name):
+        f_name = str(f_name).lower()
+        if f_name.endswith(".mat"):
+            f_name = f_name.replace(".mat", "")
         try:
-            # number of images on the plate (usually 9 * 384)
-            nrow = len(arr)
-            # number of cells per image
-            rowlens = [len(x) for x in arr]
-            # maximum number of cells
-            m_ncol = max(rowlens)
-            # initialize empty matrix of NaNs
-            mat = numpy.full(shape=(nrow, m_ncol),
+            n_row = len(arr)
+            row_lens = [len(x) for x in arr]
+            max_n_col = max(row_lens)
+            mat = numpy.full(shape=(n_row, max_n_col),
                              fill_value=numpy.Infinity,
                              dtype="float64")
-            # fill matrix
             for i in range(len(arr)):
                 row = arr[i]
                 mat[i][:len(row)] = row
-                # for j in range(len(row)):
-                #     mat[i][j] = row[j]
-            return PlateCellFeature(mat, nrow, m_ncol, file, rowlens,
-                                    featurename)
+            return PlateCellFeature(mat, n_row, max_n_col, file, row_lens,
+                                    f_name)
         except AssertionError:
             logger.warning("Could not alloc feature %s of %s",
-                           featurename, file)
+                           f_name, file)
         return None
 
     @staticmethod
@@ -112,4 +104,3 @@ class PlateParser:
     def _parse_plate_mapping(pfs):
         logger.info("Loading meta for plate file set: " + str(pfs.classifier))
         return PlateSirnaGeneMapping(pfs)
-
