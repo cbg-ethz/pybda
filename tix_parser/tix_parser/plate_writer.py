@@ -72,7 +72,7 @@ class PlateWriter:
                 meta[2] = layout.sirna(well)
                 meta[3] = layout.welltype(well)
                 meta[4] = iimg + 1
-                meat_hash["\t".join(map(str, meta[:4]))] = 1
+                meat_hash[";".join(map(str, meta[:4]))] = 1
                 for cell in range(features[0].ncells[iimg]):
                     vals = [__NA__] * len(features)
                     for p in range(len(features)):
@@ -99,7 +99,7 @@ class PlateWriter:
         try:
             import yaml
             with open(meat_file, "w") as m:
-                yaml.dump(h, meat_file, default_flow_style=False)
+                yaml.dump(h, m, default_flow_style=False)
         except Exception as e:
             logger.error("Some IO-error writing to meta file: + ", meat_file)
             logger.error(str(e))

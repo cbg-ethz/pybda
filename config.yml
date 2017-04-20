@@ -2,4 +2,4 @@ layout_file: "/Users/simondi/PHD/data/data/target_infect_x/plate_layout_meta_fil
 plate_folder: "/Users/simondi/PHD/data/data/target_infect_x/screening_data"
 output_path: "/Users/simondi/PHD/data/data/target_infect_x/screening_data"
 plate_id_file: "/Users/simondi/PHD/data/data/target_infect_x/experiment_meta_files/experiment_meta_file_infecx_brucella_dp.tsv"
-multiprocessing: True
+multiprocessing: False
