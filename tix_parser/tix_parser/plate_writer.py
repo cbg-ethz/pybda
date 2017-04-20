@@ -51,18 +51,17 @@ class PlateWriter:
             logger.error("Could not integrate: " + filename)
             logger.error(str(e))
 
-    @staticmethod
-    def _write_file(filename, features, mapping, layout):
+    def _write_file(self, filename, features, mapping, layout):
         check_feature_group(features)
 
         logger.info("Writing to: " + filename)
         meta = [__NA__] * len(PlateWriter._meta_)
         meat_hash = {}
 
-        dat_file = filename + ".tsv"
+        feature_names = [feat.featurename.lower() for feat in features]
+        header = PlateWriter._meta_ + feature_names
+        dat_file = filename + "_data.tsv"
         with open(dat_file, "w") as f:
-            header = PlateWriter._meta_ + \
-                     [feat.featurename.lower() for feat in features]
             f.write("\t".join(header) + "\n")
             nimg = features[0].values.shape[0]
             assert nimg == len(mapping)
@@ -88,11 +87,19 @@ class PlateWriter:
                     except Exception:
                         f.write("\t".join([__NA__] * len(header)) + "\n")
 
-        meat_file = filename + "_meta.tsv"
-        with open(meat_file, "w") as meat:
-            for k, _ in meat_hash.items():
-                try:
-                    meat.write(k + "\n")
-                except Exception as e:
-                    logger.warning("Error writing to meta file: + ", meat_file)
+        self._write_meta(filename, meat_hash, feature_names)
+
         return 0
+
+    def _write_meta(self, filename, meat_hash, features):
+        h = {'elements': list(meat_hash.keys()),
+             'features': features}
+
+        meat_file = filename + "_meta.tsv"
+        try:
+            import yaml
+            with open(meat_file, "w") as m:
+                yaml.dump(h, meat_file, default_flow_style=False)
+        except Exception as e:
+            logger.error("Some IO-error writing to meta file: + ", meat_file)
+            logger.error(str(e))
