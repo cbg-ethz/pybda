@@ -60,10 +60,8 @@ class Controller:
             # number of cores we are using
             n_cores = mp.cpu_count() - 1
             logger.info("Going parallel with " + str(n_cores) + " cores!")
-            pool = mp.Pool(n_cores)
-            _ = pool.map_async(func=self._parse, iterable=exps)
-            pool.close()
-            pool.join()
+            pool = mp.Pool(processes=n_cores)
+            _ = pool.map(func=self._parse, iterable=exps)
         else:
             for x in exps:
                 self._parse(x)
