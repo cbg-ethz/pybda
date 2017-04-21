@@ -2,4 +2,4 @@ layout_file: "/home/simondi/beerenwinkel/simon/data/target_infect_x/plate_layout
 plate_folder: "/home/simondi/beerenwinkel/simon/data/target_infect_x/screening_data"
 output_path: "/home/simondi/beerenwinkel/simon/data/target_infect_x/screening_data"
 plate_id_file: "/home/simondi/beerenwinkel/simon/data/target_infect_x/experiment_meta_files/experiment_meta_file.tsv"
-multiprocessing: False
+multiprocessing: True
