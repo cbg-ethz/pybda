@@ -5,6 +5,7 @@
 import re
 import logging
 import numpy
+from pathlib import Path
 
 from .utility import check_feature_group
 
@@ -34,7 +35,7 @@ class PlateWriter:
     def _write(self, pfs, feature_group, features, mapping):
         features = sorted(features, key=lambda x: x.short_name)
         pathogen = pfs.pathogen
-        library = pfs.library
+        library   = pfs.library
         replicate = pfs.replicate
         screen = pfs.screen
         design = pfs.design
@@ -46,15 +47,17 @@ class PlateWriter:
             return
         filename = pfs.outfile + "_" + feature_group
         try:
-            self._write_file(filename, features, mapping, layout)
+            if not Path(filename).exists():
+                logger.info("Writing to: " + filename)
+                self._write_file(filename, features, mapping, layout)
+            else:
+                logger.info(filename + " already exists. Skipping")
         except Exception as e:
             logger.error("Could not integrate: " + filename)
             logger.error(str(e))
 
     def _write_file(self, filename, features, mapping, layout):
         check_feature_group(features)
-
-        logger.info("Writing to: " + filename)
         meta = [__NA__] * len(PlateWriter._meta_)
         meat_hash = {}
 
