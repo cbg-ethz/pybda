@@ -47,7 +47,7 @@ class PlateWriter:
             return
         filename = pfs.outfile + "_" + feature_group
         try:
-            if not Path(self._data_filename(filename)).exists():
+            if not Path(self.data_filename(filename)).exists():
                 logger.info("Writing to: " + filename)
                 self._write_file(filename, features, mapping, layout)
             else:
@@ -63,7 +63,7 @@ class PlateWriter:
 
         feature_names = [feat.featurename.lower() for feat in features]
         header = PlateWriter._meta_ + feature_names
-        dat_file = self._data_filename(filename)
+        dat_file = self.data_filename(filename)
         with open(dat_file, "w") as f:
             f.write("\t".join(header) + "\n")
             nimg = features[0].values.shape[0]
@@ -107,7 +107,8 @@ class PlateWriter:
             logger.error("Some IO-error writing to meta file: + ", meat_file)
             logger.error(str(e))
 
-    def _data_filename(self , filename):
+
+    def data_filename(self, filename):
         return filename + "_data.tsv"
 
     def _meta_filename(self, filename):

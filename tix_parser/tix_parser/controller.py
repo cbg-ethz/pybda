@@ -17,6 +17,8 @@ logging.basicConfig(level=logging.INFO,
                     format='[%(levelname)-1s/%(processName)-1s/%(name)-1s]: %(message)s')
 logger = mp.log_to_stderr()
 
+from pathlib import Path
+
 
 class Controller:
     """
@@ -24,6 +26,8 @@ class Controller:
     features.
 
     """
+
+    __FEATURES__ = ["bacteria", "cells", "nuclei"]
 
     def __init__(self, config):
         """
@@ -102,10 +106,21 @@ class Controller:
             raise TypeError("no PlateFileSets object given")
         try:
             for platefileset in platefilesets:
-                logger.info("Doing: " + " ".join(platefileset.meta))
-                pfs, features, mapping = self._parser.parse(platefileset)
-                if pfs is not None:
-                    self._writer.write(pfs, features, mapping)
+                # create a list of relevant files for the plateset
+                fls = [
+                    self._writer.data_filename(platefileset.outfile + "_" + x)
+                    for x in Controller.__FEATURES__
+                ]
+                # if all the files exist, we just skip the creation of the files
+                if any(not Path(x).exists() for x in fls):
+                    logger.info(
+                        "Doing: " + " ".join(platefileset.meta))
+                    pfs, features, mapping = self._parser.parse(platefileset)
+                    if pfs is not None:
+                        self._writer.write(pfs, features, mapping)
+                else:
+                    logger.info(" ".join(map(str, platefileset.meta)) +
+                                " already exists. Skipping.")
         except Exception as e:
             logger.error("Some error idk anythin can happen here: " + str(e))
         return 0
