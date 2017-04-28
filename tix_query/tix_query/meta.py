@@ -8,6 +8,14 @@ import os.path
 import yaml
 import pandas
 import re
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='[%(levelname)-1s/%(processName)-1s/%(name)-1s]: %(message)s'
+)
+
+logger = logging.getLogger(__name__)
 
 
 class Meta:
@@ -32,13 +40,27 @@ class Meta:
     def _read_meta_file(self, file):
         print(file)
         full_file = os.path.join(self._path, file)
-        # study, bacteria, screen, design, ome, replicate, plate, feature =
+        try:
+            study, bacteria, screen, design, ome, replicate, plate, feature = \
+                Meta._pattern_.match(file.replace("_meta.tsv", "")).groups()
+            with open(full_file, "r") as fh:
+                meta = yaml.load(fh)
+                self._add_to_meta(study,
+                                  bacteria,
+                                  screen,
+                                  design,
+                                  ome,
+                                  replicate,
+                                  plate,
+                                  feature,
+                                  meta)
+        except ValueError as e:
+            logger.error(
+                "Could not match meta file {}, with error {}".format(file, e)
+            )
 
-        s = Meta._pattern_.match(file.replace("_meta.tsv", ""))
-        print(s.groups())
-
-        k = 2
-        print (s)
-        # with open(full_file, "r") as fh:
-        #     meta = yaml.load(fh)
-        #     print(meta["features"])
+    def _add_to_meta(self,
+                     study, bacteria, screen,
+                     design, ome, replicate,
+                     plate, feature, meta):
+        pass
