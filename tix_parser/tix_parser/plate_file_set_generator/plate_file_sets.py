@@ -35,11 +35,9 @@ class PlateFileSets:
                        "PeriNuclei."]
     # these are feature file names we dont use
     _skippable_features_starts = [x.lower() for x in _feature_names_]
-    # skip the features that contain on of those strings
-    _skippable_features_contains = ["SubObjectFlag".lower()]
     # name of the file that has the sirna-entrez mapping information
     _image_ = "Image.".lower()
-    _subcell_ = re.compile(".*_subcell.*")
+    _skip_reg_ = [re.compile(".*_subcell.*"), re.compile(".*subobjectflag.*")]
     # name of the well index mappings
     _mapping_file_ = "Image.FileName_OrigDNA".lower()
     # the pattern for screen, replicate
@@ -133,8 +131,9 @@ class PlateFileSets:
         for skip in PlateFileSets._skippable_features_starts:
             if b.startswith(skip):
                 return True
-        if PlateFileSets._subcell_.match(b):
-            return True
+        for skip in PlateFileSets._skip_reg_:
+            if skip.match(b):
+                return True
         return False
 
     @staticmethod
