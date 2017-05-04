@@ -45,7 +45,7 @@ class Controller:
         # oly take files with regex pooled/unpooled genome/kinome
         self._plate_list = PlateList(
             config.plate_id_file,
-            ".*\/\w+\-\w[P|U]\-[G|K]\d+\/.*"
+            ".*\/\w+\-\w[P|U]\-[G|K]\d+(-\w+)*\/.*"
         )
         # parse the folder into a map of (classifier-plate) pairs
         self._layout = MetaLayout(config.layout_file)

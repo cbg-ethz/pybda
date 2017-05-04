@@ -39,7 +39,7 @@ class PlateParser:
             logger.warning("Mapping is none for plate-fileset: " +
                            pfs.classifier + ". Continuing to next set!")
             return None, None, None
-        return pfs, features, mapping
+        return pfs, add, mapping
 
     def _parse_plate_file_set(self, plate_file_set):
         features = {}
