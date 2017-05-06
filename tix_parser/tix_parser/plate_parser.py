@@ -39,7 +39,7 @@ class PlateParser:
             logger.warning("Mapping is none for plate-fileset: " +
                            pfs.classifier + ". Continuing to next set!")
             return None, None, None
-        return pfs, add, mapping
+        return pfs, features, mapping
 
     def _parse_plate_file_set(self, plate_file_set):
         features = {}
@@ -84,8 +84,11 @@ class PlateParser:
                              fill_value=numpy.Infinity,
                              dtype="float64")
             for i in range(len(arr)):
-                row = arr[i]
-                mat[i][:len(row)] = row.flatten()
+                try:
+                    row = arr[i]
+                    mat[i][:len(row)] = row.flatten()
+                except ValueError:
+                    mat[i][0] = numpy.Infinity
             return PlateCellFeature(mat, n_row, max_n_col,
                                     file, row_lens, f_name)
         except AssertionError:
