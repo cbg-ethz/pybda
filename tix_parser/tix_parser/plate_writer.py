@@ -35,7 +35,7 @@ class PlateWriter:
     def _write(self, pfs, feature_group, features, mapping):
         features = sorted(features, key=lambda x: x.short_name)
         pathogen = pfs.pathogen
-        library   = pfs.library
+        library = pfs.library
         replicate = pfs.replicate
         screen = pfs.screen
         design = pfs.design
