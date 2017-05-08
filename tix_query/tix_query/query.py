@@ -13,27 +13,26 @@ class Query:
     def query(self,
               study=None,
               pathogen=None,
+              library=None,
               sirna=None,
               gene=None,
               replicate=None,
-              design=None,
-              library=None,
               well=None,
               featureclass=None,
               sample=100):
-        return self.__meta.get(study=study,
-                               pathogen=pathogen,
+        return self.__meta.get(sample=sample,
                                sirna=sirna,
                                gene=gene,
-                               replicate=replicate,
-                               design=design,
-                               library=library,
                                well=well,
+                               study=study,
+                               pathogen=pathogen,
+                               replicate=replicate,
+                               library=library,
                                featureclass=featureclass)
 
 
 if __name__ == "__main__":
     path = "/Users/simondi/PROJECTS/target_infect_x_project/data/target_infect_x/screening_data"
     q = Query(path)
-    res = q.query(study="infectx", gene="abcc5")
+    res = q.query(study="infectx")
     print(res)

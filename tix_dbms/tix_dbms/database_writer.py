@@ -91,10 +91,10 @@ class DatabaseWriter:
 
     def create_meta_table(self):
         """
-        Create a meta data table.
+        Create a meta data filesets.
         """
         meta_data_st = self._create_meta_table_statement()
-        logger.info("Creating meta table")
+        logger.info("Creating meta filesets")
         with self.__connection.cursor as cursor:
             cursor.execute(meta_data_st)
         self.__connection.commit()
@@ -136,7 +136,7 @@ class DatabaseWriter:
     def insert_meta(self, study, pathogen, library, design,
                     screen, replicate, suffix):
         """
-        Insert meta information into the meta table
+        Insert meta information into the meta filesets
 
         :param study: the name of the study, e.g. infectx
         :param pathogen: the name of the pathogen, e.g. bartonella
@@ -165,7 +165,7 @@ class DatabaseWriter:
         data_tab_statements = self._create_data_table_statements()
         if do_create:
             with self.__connection.cursor() as cursor:
-                logger.info("Creating meta table")
+                logger.info("Creating meta filesets")
                 cursor.execute(meta_data_st)
                 logger.info("Creating data tables")
                 for x in data_tab_statements:
@@ -197,7 +197,7 @@ class DatabaseWriter:
                                      pathogen, library, design, screen,
                                      replicate, suffix):
         """
-        Create the 'create table statement' for an experiment and feature group.
+        Create the 'create filesets statement' for an experiment and feature group.
 
         :param feature_group: the feature group, such as 'cell'
         :param features: a list of features (with double values)
@@ -209,7 +209,7 @@ class DatabaseWriter:
         e.g. 'k' for kinome
         :param replicate: the replicate number, e.g. 1
         :param suffix: a random suffix, e.g. 1-pmol
-        :return: returns the 'create data table statement'
+        :return: returns the 'create data filesets statement'
         """
         tbl = self.table_name(study, pathogen, library, design, screen,
                               replicate, suffix, feature_group)
