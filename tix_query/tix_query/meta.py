@@ -9,6 +9,7 @@ import yaml
 import re
 import logging
 
+from tix_query.tix_query._global import FILE_FEATURES_PATTERNS
 from tix_query.tix_query.result_set import ResultSet
 from tix_query.tix_query.filesets import table_file_sets
 from tix_query.tix_query.filesets.table_file import TableFile
@@ -21,11 +22,9 @@ logger = logging.getLogger(__name__)
 
 
 class Meta:
-    _file_features_pattern_ = re.compile(
-      "(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\d+)-(.*)_(\w+)")
     _features_ = "features"
     _elements_ = "elements"
-    _sample_ =  "sample"
+    _sample_ = "sample"
 
     def __init__(self, path):
         if not Path(path).is_dir():
@@ -80,7 +79,7 @@ class Meta:
             # parse file name meta information
             study, bacteria, library, design,\
             ome, replicate, plate, feature = \
-                Meta._file_features_pattern_ \
+                FILE_FEATURES_PATTERNS \
                     .match(file.replace("_meta.tsv", "")) \
                     .groups()
 

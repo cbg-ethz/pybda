@@ -34,5 +34,5 @@ class Query:
 if __name__ == "__main__":
     path = "/Users/simondi/PROJECTS/target_infect_x_project/data/target_infect_x/screening_data"
     q = Query(path)
-    res = q.query(study="infectx")
-    print(res)
+    res = q.query(study="infectx", well="a01")
+    res.dump()
