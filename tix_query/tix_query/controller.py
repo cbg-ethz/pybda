@@ -20,11 +20,11 @@ class Controller:
     _elements_ = "elements"
     _sample_ = "sample"
 
-    def __init__(self, path):
+    def __init__(self):
         # filesets of meta files
         self._table = table_file_sets.TableFileSets()
 
-    def get(self, sample=None, **kwargs):
+    def query(self, sample=None, **kwargs):
         """
         Get a lazy file result set from some filtering criteria and a fixed 
         sample size.

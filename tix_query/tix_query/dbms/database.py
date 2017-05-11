@@ -23,13 +23,8 @@ class DBMS:
     _features_ = "features"
     _elements_ = "elements"
     _sample_ = "sample"
-    _gsw_ = [
-        x for x in [GENE, SIRNA, WELL]
-    ]
-    _descr = [
-        x for x in
-        [STUDY, PATHOGEN, LIBRARY, DESIGN, REPLICATE, PLATE]
-    ]
+    _gsw_ = [GENE, SIRNA, WELL]
+    _descr = {STUDY, PATHOGEN, LIBRARY, DESIGN, REPLICATE, PLATE}
 
     def __init__(self):
         pass
@@ -47,8 +42,34 @@ class DBMS:
         logger.info("Closing connection to db")
         self.__connection.close()
 
+    def query(self, **kwargs):
+        q = self._build_meta_query(**kwargs)
+        logger.info(q)
+        res = self._query(q)
+        for x in res:
+            print(x)
+        print(len(res))
+
+    def _query(self, q):
+        with self.__connection.cursor() as cursor:
+            cursor.execute(q)
+            res = cursor.fetchall()
+        self.__connection.commit()
+        return res
+
+    def _build_meta_query(self, **kwargs):
+        s = "SELECT * FROM meta WHERE "
+        ar = []
+        for k, v in kwargs.items():
+            if v is not None:
+                if k in DBMS._descr:
+                    ar.append("{}='{}'".format(k, v))
+        s += " and ".join(ar) + ";"
+        return s
+
+
     def insert(self, path):
-        self.create_dbs()
+        self._create_dbs()
         fls = list(filter(
           lambda x: x.endswith("_meta.tsv"), [f for f in os.listdir(path)]
         ))
@@ -57,14 +78,14 @@ class DBMS:
             if i % 100 == 0:
                 logger.info("Doing file {} of {}".format(i, le))
             self._insert(path, file)
-        self.create_indexes()
+        self._create_indexes()
 
     def _do(self, f):
         with self.__connection.cursor() as cursor:
             cursor.execute(f)
         self.__connection.commit()
 
-    def create_dbs(self):
+    def _create_dbs(self):
         self._do(self._create_meta_table())
         for col in [GENE, SIRNA, WELL]:
             tb = self._create_table_name(col)
@@ -95,7 +116,7 @@ class DBMS:
         logger.info(s)
         return s
 
-    def create_indexes(self):
+    def _create_indexes(self):
         self._do(self._create_meta_index())
         for col in [GENE, SIRNA, WELL]:
             tb = self._create_table_index(col)

@@ -1,47 +1,20 @@
 # __author__ = 'Simon Dirmeier'
 # __email__  = 'simon.dirmeier@bsse.ethz.ch'
 # __date__   = 28.04.17
-
-
-from tix_query.tix_query._global import GENE, SIRNA, WELL
-from tix_query.tix_query._global import PLATE, REPLICATE, DESIGN
-from tix_query.tix_query._global import LIBRARY, PATHOGEN, STUDY
+from tix_query.tix_query.dbms.database import DBMS
 
 
 class TableFileSets:
     def __init__(self):
-        self._gsw_ = [
-            TableFileSets._key_map(x) for x in [GENE, SIRNA, WELL]
-        ]
-        self._descr = [
-            TableFileSets._key_map(x) for x in
-            [STUDY, PATHOGEN, LIBRARY, DESIGN, REPLICATE, PLATE]
-        ]
-
         # map of maps that hold file pointers
         # map - (1:n) -> [_gene_map , ...] - (1:m) -> filename
-        self._map = {}
         self._file_set = set()
-        li = self._gsw_ + self._descr
-        for m in li:
-            self._map[m] = {}
 
     def __repr__(self):
         return self.__str__()
 
     def __str__(self):
-        import random
-        ret = ""
-        for m in self._gsw_ + self._descr:
-            ret += "\n" + m + "\n" + "------------\n"
-            i = 0
-            for k, v in self._map[m].items():
-                if i == 10:
-                    break
-                i += 1
-                fls = [x.filename for x in random.sample(v, min(5, len(v)))]
-                ret += ": ".join([k, "(" + ", ".join(fls) + ")"]) + "\n"
-        return ret
+        return "TODO"
 
     def filter(self, **kwargs):
         """
@@ -61,19 +34,9 @@ class TableFileSets:
         :return: returns a set of TableFile
          :rtype: set(TableFile)
         """
-        res = self._file_set.copy()
-        for k, v in kwargs.items():
-            k = str(k)
-            if v is not None:
-                key = self._key_map(k)
-                v = str(v)
-                if key not in self._map:
-                    raise ValueError(key + " is not a valid lookup key")
-                if v in self._map[key]:
-                    res = res & self._map[key][v]
-                else:
-                    return set()
-        return res
+
+        with DBMS() as d:
+            res = d.query(**kwargs)
 
     def add_to_fileset(self, file):
         """
