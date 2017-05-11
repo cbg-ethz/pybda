@@ -11,7 +11,9 @@ import yaml
 
 from tix_query.tix_query._global import GENE, SIRNA, WELL, LIBRARY, DESIGN
 from tix_query.tix_query._global import REPLICATE, PLATE, STUDY, PATHOGEN
+from tix_query.tix_query._global import FEATURECLASS
 from tix_query.tix_query._global import FILE_FEATURES_PATTERNS
+from tix_query.tix_query.filesets.table_file import TableFile
 
 logging.basicConfig(
   level=logging.INFO,
@@ -24,7 +26,7 @@ class DBMS:
     _elements_ = "elements"
     _sample_ = "sample"
     _gsw_ = [GENE, SIRNA, WELL]
-    _descr = {STUDY, PATHOGEN, LIBRARY, DESIGN, REPLICATE, PLATE}
+    _descr = [STUDY, PATHOGEN, LIBRARY, DESIGN, REPLICATE, PLATE, FEATURECLASS]
 
     def __init__(self):
         pass
@@ -55,10 +57,16 @@ class DBMS:
             cursor.execute(q)
             res = cursor.fetchall()
         self.__connection.commit()
+        fls = set()
+        for x in res:
+        # TODO
+        #path, filename =
+            #/fls.add(TableFile())
+            pass
         return res
 
     def _build_meta_query(self, **kwargs):
-        s = "SELECT * FROM meta WHERE "
+        s = "SELECT filename FROM meta WHERE "
         ar = []
         for k, v in kwargs.items():
             if v is not None:
@@ -66,7 +74,6 @@ class DBMS:
                     ar.append("{}='{}'".format(k, v))
         s += " and ".join(ar) + ";"
         return s
-
 
     def insert(self, path):
         self._create_dbs()
@@ -96,7 +103,7 @@ class DBMS:
         s = "CREATE TABLE IF NOT EXISTS meta " + \
             "(" + \
             "id serial, "
-        for col in [STUDY, PATHOGEN, LIBRARY, DESIGN, REPLICATE, PLATE]:
+        for col in DBMS._descr:
             s += "{} varchar(100) NOT NULL, ".format(col)
         s += "filename varchar(1000) NOT NULL, " + \
              "PRIMARY KEY(id)" + \
@@ -149,11 +156,12 @@ class DBMS:
                                        library,
                                        design,
                                        replicate,
-                                       plate)
+                                       plate,
+                                       feature)
             # read the meta file
             with open(filename, "r") as fh:
                 meta = yaml.load(fh)
-            self._insert_meta(filename, meta[DBMS._elements_])
+            self._insert_meta(filename, meta)
         except ValueError as e:
             logger.error("Could not match meta file {} and value {}"
                          .format(file, e, file))
@@ -165,7 +173,8 @@ class DBMS:
                               library,
                               design,
                               replicate,
-                              plate):
+                              plate,
+                              featurclass):
         with self.__connection.cursor() as cursor:
             ins = self._insert_meta_into_statement(file,
                                                    study,
@@ -173,7 +182,8 @@ class DBMS:
                                                    library,
                                                    design,
                                                    replicate,
-                                                   plate)
+                                                   plate,
+                                                   featurclass)
             cursor.execute(ins)
         self.__connection.commit()
 
@@ -184,7 +194,8 @@ class DBMS:
                                     library,
                                     design,
                                     replicate,
-                                    plate):
+                                    plate,
+                                    featureclass):
         return "INSERT INTO meta " \
                "({}, {}, {}, {}, {}, {}, {}) ".format(STUDY,
                                                       PATHOGEN,
@@ -192,6 +203,7 @@ class DBMS:
                                                       DESIGN,
                                                       REPLICATE,
                                                       PLATE,
+                                                      FEATURECLASS,
                                                       "filename") + \
                "VALUES (" + \
                "'{}', '{}', '{}', '{}', '{}', '{}', '{}');".format(study,
@@ -199,9 +211,15 @@ class DBMS:
                                                                    library,
                                                                    design,
                                                                    replicate,
-                                                                   plate, file)
+                                                                   plate,
+                                                                   featureclass,
+                                                                   file)
 
     def _insert_meta(self, file, meta):
+        self._insert_elements(file, meta[DBMS._elements_])
+        self._insert_features(file, meta[DBMS._features_])
+
+    def _insert_elements(self, file, meta):
         with self.__connection.cursor() as cursor:
             for element in meta:
                 try:
@@ -212,14 +230,16 @@ class DBMS:
                 except ValueError as e:
                     logger.error("Could not match element {} and error {}"
                                  .format(element, e))
-        self.__connection.commit()
+            self.__connection.commit()
+
+    def _insert_features(self, file, param):
+        # TODO
 
     @staticmethod
     def _insert_into_statement(k, v, file):
         s = "INSERT INTO {} ({}, filename) VALUES('{}', '{}')" \
             .format(k, k, v, file)
         return s
-
 
 if __name__ == "__main__":
     import sys

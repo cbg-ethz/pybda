@@ -14,6 +14,7 @@ LIBRARY = "library"
 DESIGN = "design"
 REPLICATE = "replicate"
 PLATE = "plate"
+FEATURECLASS = "featureclass"
 
 FILE_FEATURES_PATTERNS = re.compile(
       "(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\d+)-(.*)_(\w+)")
