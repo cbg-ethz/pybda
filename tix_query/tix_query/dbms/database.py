@@ -20,6 +20,9 @@ logger = logging.getLogger(__name__)
 
 
 class DBMS:
+    _features_ = "features"
+    _elements_ = "elements"
+    _sample_ = "sample"
     _gsw_ = [
         x for x in [GENE, SIRNA, WELL]
     ]
@@ -46,14 +49,72 @@ class DBMS:
 
     def insert(self, path):
         self.create_dbs()
-        fls = filter(
-          lambda x: x.endswith("_meta.tsv"),
-          [os.path.join(path, f) for f in os.listdir(path)]
-        )
-        # for file in fls:
-        #     self._insert(file)
+        fls = list(filter(
+          lambda x: x.endswith("_meta.tsv"), [f for f in os.listdir(path)]
+        ))
+        le = len(fls)
+        for i, file in enumerate(fls):
+            if i % 100 == 0:
+                logger.info("Doing file {} of {}".format(i, le))
+            self._insert(path, file)
+        self.create_indexes()
 
-    def _insert(self, file):
+    def _do(self, f):
+        with self.__connection.cursor() as cursor:
+            cursor.execute(f)
+        self.__connection.commit()
+
+    def create_dbs(self):
+        self._do(self._create_meta_table())
+        for col in [GENE, SIRNA, WELL]:
+            tb = self._create_table_name(col)
+            self._do(tb)
+
+    @staticmethod
+    def _create_meta_table():
+        s = "CREATE TABLE IF NOT EXISTS meta " + \
+            "(" + \
+            "id serial, "
+        for col in [STUDY, PATHOGEN, LIBRARY, DESIGN, REPLICATE, PLATE]:
+            s += "{} varchar(100) NOT NULL, ".format(col)
+        s += "filename varchar(1000) NOT NULL, " + \
+             "PRIMARY KEY(id)" + \
+             ");"
+        logger.info(s)
+        return s
+
+    @staticmethod
+    def _create_table_name(t):
+        s = "CREATE TABLE IF NOT EXISTS {} ".format(t) + \
+            "(" + \
+            "id serial, " + \
+            "{} varchar(100) NOT NULL, ".format(t) + \
+            "filename varchar(1000) NOT NULL, " + \
+            "PRIMARY KEY(id)" + \
+            ");"
+        logger.info(s)
+        return s
+
+    def create_indexes(self):
+        self._do(self._create_meta_index())
+        for col in [GENE, SIRNA, WELL]:
+            tb = self._create_table_index(col)
+            self._do(tb)
+
+    def _create_meta_index(self):
+        s = "CREATE INDEX meta_index ON meta (" + \
+            ", ".join([STUDY, PATHOGEN, LIBRARY, DESIGN, REPLICATE, PLATE]) + \
+            ")"
+        logger.info(s)
+        return s
+
+    def _create_table_index(self, t):
+        s = "CREATE INDEX {}_index ON {} ({});".format(t, t, t)
+        logger.info(s)
+        return s
+
+    def _insert(self, path, file):
+        filename = os.path.join(path, file)
         try:
             # parse file name meta information
             study, bacteria, library, design, \
@@ -61,32 +122,82 @@ class DBMS:
                 FILE_FEATURES_PATTERNS \
                     .match(file.replace("_meta.tsv", "")) \
                     .groups()
-            #
-            # # read the meta file
-            # with open(file, "r") as fh:
-            #     meta = yaml.load(fh)
-
-
+            self._insert_file_suffixes(filename,
+                                       study,
+                                       bacteria,
+                                       library,
+                                       design,
+                                       replicate,
+                                       plate)
+            # read the meta file
+            with open(filename, "r") as fh:
+                meta = yaml.load(fh)
+            self._insert_meta(filename, meta[DBMS._elements_])
         except ValueError as e:
             logger.error("Could not match meta file {} and value {}"
                          .format(file, e, file))
 
-    def create_dbs(self):
-        tbs = [GENE, SIRNA, WELL, LIBRARY, DESIGN,
-               REPLICATE, PLATE, STUDY, PATHOGEN]
+    def _insert_file_suffixes(self,
+                              file,
+                              study,
+                              bacteria,
+                              library,
+                              design,
+                              replicate,
+                              plate):
         with self.__connection.cursor() as cursor:
-            for t in tbs:
-                cursor.execute(self._create_table_name(t))
+            ins = self._insert_meta_into_statement(file,
+                                                   study,
+                                                   bacteria,
+                                                   library,
+                                                   design,
+                                                   replicate,
+                                                   plate)
+            cursor.execute(ins)
         self.__connection.commit()
 
-    def _create_table_name(self, t):
-        return "CREATE TABLE IF NOT EXISTS " + t + \
-               "(" \
-               "id integer NOT NULL, " + \
-               t + " varchar(40) NOT NULL, " + \
-               "filename varchar(100) NOT NULL, " + \
-               "PRIMARY KEY(id)" + \
-               ")"
+    @staticmethod
+    def _insert_meta_into_statement(file,
+                                    study,
+                                    bacteria,
+                                    library,
+                                    design,
+                                    replicate,
+                                    plate):
+        return "INSERT INTO meta " \
+               "({}, {}, {}, {}, {}, {}, {}) ".format(STUDY,
+                                                      PATHOGEN,
+                                                      LIBRARY,
+                                                      DESIGN,
+                                                      REPLICATE,
+                                                      PLATE,
+                                                      "filename") + \
+               "VALUES (" + \
+               "'{}', '{}', '{}', '{}', '{}', '{}', '{}');".format(study,
+                                                                   bacteria,
+                                                                   library,
+                                                                   design,
+                                                                   replicate,
+                                                                   plate, file)
+
+    def _insert_meta(self, file, meta):
+        with self.__connection.cursor() as cursor:
+            for element in meta:
+                try:
+                    well, gene, sirna = element.split(";")[:3]
+                    for k, v in {WELL: well, GENE: gene, SIRNA: sirna}.items():
+                        ins = self._insert_into_statement(k, v, file)
+                        cursor.execute(ins)
+                except ValueError as e:
+                    logger.error("Could not match element {} and error {}"
+                                 .format(element, e))
+        self.__connection.commit()
+
+    @staticmethod
+    def _insert_into_statement(k, v, file):
+        s = "INSERT INTO {} ({}, filename) VALUES('{}', '{}')" \
+            .format(k, k, v, file)
+        return s
 
 
 if __name__ == "__main__":

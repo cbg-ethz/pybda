@@ -73,11 +73,12 @@ class Meta:
         :param file: a meta file
         """
 
+        logger.info("Reading file: " + file)
         # paste file name with paste
         full_file = os.path.join(self._path, file)
         try:
             # parse file name meta information
-            study, bacteria, library, design,\
+            study, bacteria, library, design, \
             ome, replicate, plate, feature = \
                 FILE_FEATURES_PATTERNS \
                     .match(file.replace("_meta.tsv", "")) \
@@ -124,4 +125,3 @@ class Meta:
             except Exception as e:
                 logger.error("Could not match element {} and error {}"
                              .format(element, e))
-
