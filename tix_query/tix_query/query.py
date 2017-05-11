@@ -3,12 +3,12 @@
 # __date__   = 24.04.17
 
 
-from tix_query.tix_query.meta import Meta
+from tix_query.tix_query.controller import Controller
 
 
 class Query:
     def __init__(self, path):
-        self.__meta = Meta(path)
+        self.__meta = Controller(path)
 
     def query(self,
               study=None,
