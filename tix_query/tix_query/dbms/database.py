@@ -201,6 +201,6 @@ class DBMS:
 
 
 if __name__ == "__main__":
-    path = "/Users/simondi/PROJECTS/target_infect_x_project/data/target_infect_x/screening_data"
+    import sys
     with DBMS() as d:
-        d.insert(path)
+        d.insert(sys.argv[1])

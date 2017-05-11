@@ -14,25 +14,28 @@ class Query:
               study=None,
               pathogen=None,
               library=None,
-              sirna=None,
-              gene=None,
+              design=None,
               replicate=None,
+              plate=None,
+              gene=None,
+              sirna=None,
               well=None,
               featureclass=None,
               sample=100):
         return self.__meta.get(sample=sample,
-                               sirna=sirna,
-                               gene=gene,
-                               well=well,
                                study=study,
                                pathogen=pathogen,
-                               replicate=replicate,
                                library=library,
+                               design=design,
+                               replicate=replicate,
+                               plate=plate,
+                               gene=gene,
+                               sirna=sirna,
+                               well=well,
                                featureclass=featureclass)
 
 
 if __name__ == "__main__":
-    path = "/Users/simondi/PROJECTS/target_infect_x_project/data/target_infect_x/screening_data"
-    q = Query(path)
+    q = Query()
     res = q.query(study="infectx", well="a01")
     res.dump()

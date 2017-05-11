@@ -8,11 +8,11 @@ import os.path
 import yaml
 import re
 import logging
-
 from tix_query.tix_query._global import FILE_FEATURES_PATTERNS
 from tix_query.tix_query.result_set import ResultSet
 from tix_query.tix_query.filesets import table_file_sets
 from tix_query.tix_query.filesets.table_file import TableFile
+
 
 logging.basicConfig(
   level=logging.INFO,
