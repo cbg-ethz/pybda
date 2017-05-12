@@ -24,7 +24,7 @@ class Controller:
         # filesets of meta files
         self._table = table_file_sets.TableFileSets()
 
-    def query(self, sample=None, **kwargs):
+    def query(self,  **kwargs):
         """
         Get a lazy file result set from some filtering criteria and a fixed 
         sample size.
@@ -35,4 +35,4 @@ class Controller:
         :return: 
         """
         fls = self._table.filter(**kwargs)
-        return ResultSet(fls, sample, **kwargs)
+        return ResultSet(fls, **kwargs)

@@ -9,10 +9,10 @@ import os
 import psycopg2
 import yaml
 
-from tix_query.tix_query._global import FEATURECLASS, FEATURES, ELEMENTS
-from tix_query.tix_query._global import FILE_FEATURES_PATTERNS
-from tix_query.tix_query._global import GENE, SIRNA, WELL, LIBRARY, DESIGN
-from tix_query.tix_query._global import REPLICATE, PLATE, STUDY, PATHOGEN
+from tix_query.tix_query.globals import FEATURECLASS, FEATURES, ELEMENTS
+from tix_query.tix_query.globals import FILE_FEATURES_PATTERNS
+from tix_query.tix_query.globals import GENE, SIRNA, WELL, LIBRARY, DESIGN
+from tix_query.tix_query.globals import REPLICATE, PLATE, STUDY, PATHOGEN
 
 logging.basicConfig(
   level=logging.INFO,
@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 class DatabaseInserter:
     _gsw_ = [GENE, SIRNA, WELL]
-    _descr = [STUDY, PATHOGEN, LIBRARY, DESIGN, REPLICATE, PLATE, FEATURECLASS]
+    _descr_ = [STUDY, PATHOGEN, LIBRARY, DESIGN, REPLICATE, PLATE, FEATURECLASS]
 
     def __init__(self, connection):
         self.__connection = connection
@@ -39,8 +39,7 @@ class DatabaseInserter:
             if i % 100 == 0:
                 logger.info("Doing file {} of {}".format(i, le))
             self._insert(path, file)
-            break
-            # self._create_indexes()
+        self._create_indexes()
 
     def _insert_file_suffixes(self, file, study, bacteria, library,
                               design, replicate, plate, featureclass):
@@ -143,7 +142,7 @@ class DatabaseInserter:
         s = "CREATE TABLE IF NOT EXISTS meta " + \
             "(" + \
             "id serial, "
-        for col in DatabaseInserter._descr:
+        for col in DatabaseInserter._descr_:
             s += "{} varchar(100) NOT NULL, ".format(col)
         s += "filename varchar(1000) NOT NULL, " + \
              "PRIMARY KEY(id)" + \
@@ -170,9 +169,8 @@ class DatabaseInserter:
             self._do(tb)
 
     def _create_meta_index(self):
-        s = "CREATE INDEX meta_index ON meta (" + \
-            ", ".join([STUDY, PATHOGEN, LIBRARY, DESIGN, REPLICATE, PLATE]) + \
-            ")"
+        s = "CREATE INDEX meta_index ON meta ({});"\
+            .format(", ".join(DatabaseInserter._descr_))
         logger.info(s)
         return s
 

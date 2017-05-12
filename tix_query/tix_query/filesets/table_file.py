@@ -3,18 +3,25 @@
 # __date__   = 28.04.17
 
 
+import re
+
+from tix_query.tix_query.globals import FEATURECLASS
+from tix_query.tix_query.globals import GENE, SIRNA, LIBRARY, DESIGN
+from tix_query.tix_query.globals import REPLICATE, PLATE, STUDY, PATHOGEN
+
 class TableFile:
-    def __init__(self, path, filename, feature_class, feature_list):
-        self._path = path
-        self._filename = filename.replace("_meta.tsv", "_data.tsv")
-        self._feature_class = feature_class
-        self._feature_list = feature_list
+    def __init__(self, filename, **kwargs):
+        f = filename.replace("_meta.tsv", "")
+        self._filename = f + "_data.tsv"
+        self._feature_class = f.split("_")[-1]
+        self._feature_list_table = f.split("/")[-1].replace("-", "_")
+        self._filter = kwargs
 
     def __repr__(self):
         return self.__str__()
 
     def __str__(self):
-        return self._filename
+        return "Tablefile: " + self._feature_list_table
 
     def __eq__(self, other):
         if not isinstance(other, TableFile):

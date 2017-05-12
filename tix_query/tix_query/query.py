@@ -37,5 +37,6 @@ class Query:
 
 if __name__ == "__main__":
     q = Query()
-    res = q.query(study="infectx", well="a01", library="d", replicate=1)
+    res = q.query(study="infectx", well="a01", library="d", replicate=1, featureclass="cells",
+                  gene="atp6v1a", sirna="l-017590-01")
     res.dump()

@@ -34,10 +34,11 @@ class TableFileSets:
          }
         
         :return: returns a set of TableFile
-         :rtype: set(TableFile)
+        :rtype: set(TableFile)
         """
 
         with DBMS() as d:
             res = d.query(**kwargs)
+        return res
 
 
