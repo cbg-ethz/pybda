@@ -6,6 +6,7 @@
 import logging
 import os
 
+import psycopg2
 import yaml
 
 from tix_query.tix_query._global import FEATURECLASS, FEATURES, ELEMENTS
@@ -34,86 +35,65 @@ class DatabaseInserter:
           )
         )
         le = len(fls)
-
         for i, file in enumerate(fls):
             if i % 100 == 0:
                 logger.info("Doing file {} of {}".format(i, le))
             self._insert(path, file)
-        self._create_indexes()
+            break
+            # self._create_indexes()
+
+    def _insert_file_suffixes(self, file, study, bacteria, library,
+                              design, replicate, plate, featureclass):
+        with self.__connection.cursor() as cursor:
+            ins = self._insert_meta_into_statement(
+              file, study, bacteria, library, design,
+              replicate, plate, featureclass
+            )
+            cursor.execute(ins)
+        self.__connection.commit()
 
     def _insert(self, path, file):
         filename = os.path.join(path, file)
         try:
             # parse file name meta information
-            study, bacteria, library, design, \
-            ome, replicate, plate, feature = \
-                FILE_FEATURES_PATTERNS \
-                    .match(file.replace("_meta.tsv", "")) \
-                    .groups()
-            self._insert_file_suffixes(filename,
-                                       study,
-                                       bacteria,
-                                       library,
-                                       design,
-                                       replicate,
-                                       plate,
-                                       feature)
+            ma = FILE_FEATURES_PATTERNS.match(file.replace("_meta.tsv", ""))
+            stu, pat, lib, des, ome, rep, pl, feature = ma.groups()
+            self._insert_file_suffixes(
+              filename, stu, pat, lib,
+              des, rep, pl, feature
+            )
+
             # read the meta file
             with open(filename, "r") as fh:
                 meta = yaml.load(fh)
             self._insert_meta(filename, meta)
+
         except ValueError as e:
             logger.error("Could not match meta file {} and value {}"
                          .format(file, e, file))
 
-    def _insert_file_suffixes(self,
-                              file,
-                              study,
-                              bacteria,
-                              library,
-                              design,
-                              replicate,
-                              plate,
-                              featurclass):
-        with self.__connection.cursor() as cursor:
-            ins = self._insert_meta_into_statement(file,
-                                                   study,
-                                                   bacteria,
-                                                   library,
-                                                   design,
-                                                   replicate,
-                                                   plate,
-                                                   featurclass)
-            cursor.execute(ins)
-        self.__connection.commit()
-
     @staticmethod
-    def _insert_meta_into_statement(file,
-                                    study,
-                                    bacteria,
-                                    library,
-                                    design,
-                                    replicate,
-                                    plate,
-                                    featureclass):
+    def _insert_meta_into_statement(
+      file, study, bacteria, library,
+      design, replicate, plate, featureclass):
         return "INSERT INTO meta " \
-               "({}, {}, {}, {}, {}, {}, {}) ".format(STUDY,
-                                                      PATHOGEN,
-                                                      LIBRARY,
-                                                      DESIGN,
-                                                      REPLICATE,
-                                                      PLATE,
-                                                      FEATURECLASS,
-                                                      "filename") + \
+               "({}, {}, {}, {}, {}, {}, {}, {}) ".format(STUDY,
+                                                          PATHOGEN,
+                                                          LIBRARY,
+                                                          DESIGN,
+                                                          REPLICATE,
+                                                          PLATE,
+                                                          FEATURECLASS,
+                                                          "filename") + \
                "VALUES (" + \
-               "'{}', '{}', '{}', '{}', '{}', '{}', '{}');".format(study,
-                                                                   bacteria,
-                                                                   library,
-                                                                   design,
-                                                                   replicate,
-                                                                   plate,
-                                                                   featureclass,
-                                                                   file)
+               "'{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}');".format(study,
+                                                                         bacteria,
+                                                                         library,
+                                                                         design,
+                                                                         replicate,
+                                                                         plate,
+                                                                         featureclass,
+                                                                         file)
 
     def _insert_meta(self, file, meta):
         self._insert_elements(file, meta[ELEMENTS])
@@ -132,16 +112,20 @@ class DatabaseInserter:
                                  .format(element, e))
         self.__connection.commit()
 
-    def _insert_features(self, file, param):
-        # TODO
-        pass
+    def _insert_features(self, file, meta):
+        tab = file.replace("_meta.tsv", "").split("/")[-1].replace("-", "_")
+        if not self._exists(tab):
+            self._create_file_feature_table(tab)
+            with self.__connection.cursor() as c:
+                for x in meta:
+                    c.execute("INSERT INTO {} VALUES ('{}')".format(tab, x))
+            self.__connection.commit()
 
     @staticmethod
     def _insert_into_statement(k, v, file):
         s = "INSERT INTO {} ({}, filename) VALUES('{}', '{}')" \
             .format(k, k, v, file)
         return s
-
 
     def _do(self, f):
         with self.__connection.cursor() as cursor:
@@ -196,3 +180,18 @@ class DatabaseInserter:
         s = "CREATE INDEX {}_index ON {} ({});".format(t, t, t)
         logger.info(s)
         return s
+
+    def _create_file_feature_table(self, tab):
+        s = "CREATE TABLE IF NOT EXISTS {}".format(tab) + \
+            " (feature varchar(1000) NOT NULL, " + \
+            "PRIMARY KEY(feature));"
+        self._do(s)
+
+    def _exists(self, tab):
+        s = "SELECT EXISTS(SELECT * FROM information_schema.tables" \
+            " WHERE table_name = '{}');".format(tab)
+        with self.__connection.cursor() as c:
+            c.execute(s)
+            bol = c.fetchall()
+        self.__connection.commit()
+        return bol[0][0]

@@ -43,6 +43,5 @@ class DBMS:
 
 if __name__ == "__main__":
     import sys
-
     with DBMS() as d:
         d.insert(sys.argv[1])
