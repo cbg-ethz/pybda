@@ -2,12 +2,14 @@
 # __email__  = 'simon.dirmeier@bsse.ethz.ch'
 # __date__   = 08.05.17
 
+
 import logging
 import os
+
+import numpy as np
 import pandas
 
 from tix_query.tix_query.globals import WELL, GENE, SIRNA, SAMPLE
-from tix_query.tix_query.io import IO
 
 logging.basicConfig(
   level=logging.INFO,
@@ -15,28 +17,40 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def mask(df, key, value):
+    return df[df[key] == value]
+pandas.DataFrame.mask = mask
+
 class ResultSet:
     _filter_attributes_ = [GENE, SIRNA, WELL, SAMPLE]
+    _sar_ = ".*"
 
     def __init__(self, files, sample, **kwargs):
         self._tablefile_set = files
         self._sample = sample
         self._filters = self._set_filter(**kwargs)
-        self._lambda_filter = lambda x: all(f in x for f in self._filters)
 
     def dump(self, fh=None):
-        with IO(fh) as handle:
-            for tablefile in self._tablefile_set:
-                self._dump(handle, tablefile)
+            for i, tablefile in enumerate(self._tablefile_set):
+                self._dump(fh, i, tablefile)
 
-    def _dump(self, handle, tablefile):
+    def _dump(self, fh, i, tablefile):
         if os.path.isfile(tablefile.filename):
-            with open(tablefile.filename, "r") as fh:
-                lines = filter(self._lambda_filter, fh.readlines())
-                for line in lines:
-                    # todo sampling
-                    # maybe with pandas and group by
-                    handle.print(line)
+            data = pandas.read_csv(tablefile.filename, sep="\t", header=0)
+            data = data[
+                data.well.str.contains(self.__getattribute__("_" + WELL)) &
+                data.gene.str.contains(self.__getattribute__("_" + GENE)) &
+                data.sirna.str.contains(self.__getattribute__("_" + SIRNA))
+            ]
+            if self.__getattribute__("_" + SAMPLE) != ResultSet._sar_:
+                sample = self.__getattribute__("_" + SAMPLE)
+                print("taking samplie", sample)
+                fn = lambda obj: obj.loc[np.random.choice(obj.index, sample, False), :]
+                data.groupby([WELL, GENE, SIRNA]).apply(fn)
+            if i == 0:
+                data.to_csv(fh, sep="\t", mode="a")
+            else:
+                data.to_csv(fh, sep="\t", mode="a", header=False)
         else:
             logger.warning("Could not find file: {}".format(tablefile))
 
@@ -44,6 +58,9 @@ class ResultSet:
         fls = []
         for k, v in kwargs.items():
             if k in ResultSet._filter_attributes_:
-                self.__setattr__("_" + k, v)
+                if v is not None:
+                    self.__setattr__("_" + k, v)
+                else:
+                    self.__setattr__("_" + k, ResultSet._sar_)
                 fls.append(v)
         return fls
