@@ -4,6 +4,7 @@
 
 import logging
 import os
+import pandas
 
 from tix_query.tix_query.globals import WELL, GENE, SIRNA, SAMPLE
 from tix_query.tix_query.io import IO
