@@ -1,3 +1,4 @@
+rnai-query/
 ^config*.yml
 .idea
 download_plates.sh

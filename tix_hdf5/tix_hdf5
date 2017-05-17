@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [ ! -f  "target/tix_hdf5-standalone.jar" ]
+then
+    mvn clean package
+fi
+
+java -jar target/tix_hdf5-standalone.jar
