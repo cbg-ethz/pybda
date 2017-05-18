@@ -29,7 +29,8 @@
 
     <scm>
         <connection>scm:git:git://github.com/dirmeier/tix_hdf5.git</connection>
-        <developerConnection>scm:git:ssh://github.com:dirmeier/artifactID.git</developerConnection>
+        <developerConnection>scm:git:ssh://github.com:dirmeier/artifactID.git
+        </developerConnection>
         <url>https://github.com/dirmeier/tix_hdf5/tree/master</url>
     </scm>
 
@@ -44,6 +45,15 @@
             <groupId>org.hdfgroup</groupId>
             <artifactId>hdf-java</artifactId>
             <version>2.6.1</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.ethz.bsse</groupId>
+            <artifactId>sis</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>
+                ${project.basedir}/src/main/resources/sis-jhdf5-batteries_included.jar
+            </systemPath>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -73,9 +83,9 @@
                 <executions>
                     <execution>
                         <id>attach-sources</id>
-                            <goals>
-                                <goal>jar-no-fork</goal>
-                            </goals>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
@@ -83,7 +93,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.10.4</version>
-                 <executions>
+                <executions>
                     <execution>
                         <id>attach-javadocs</id>
                         <goals>
@@ -96,7 +106,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.5</version>
-                 <configuration>
+                <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
                 </configuration>
@@ -108,23 +118,23 @@
                 <executions>
                     <execution>
                         <phase>package</phase>
-                            <goals>
-                                <goal>single</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                    <configuration>
-                        <finalName>tix_hdf5-standalone</finalName>
-                        <appendAssemblyId>false</appendAssemblyId>
-                         <archive>
-                            <manifest>
-                                <mainClass>ch.ethz.bsse.Main</mainClass>
-                            </manifest>
-                        </archive>
-                        <descriptorRefs>
-                            <descriptorRef>jar-with-dependencies</descriptorRef>
-                        </descriptorRefs>
-                    </configuration>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <finalName>tix_hdf5-standalone</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
+                    <archive>
+                        <manifest>
+                            <mainClass>ch.ethz.bsse.Main</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -141,7 +151,8 @@
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>2.17</version>
                 <configuration>
-                    <configLocation>config/checkstyle/checkstyle.xml</configLocation>
+                    <configLocation>config/checkstyle/checkstyle.xml
+                    </configLocation>
                     <consoleOutput>true</consoleOutput>
                     <failsOnError>false</failsOnError>
                 </configuration>

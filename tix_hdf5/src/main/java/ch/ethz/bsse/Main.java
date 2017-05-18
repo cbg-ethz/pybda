@@ -23,50 +23,45 @@
 package ch.ethz.bsse;
 
 
-import ncsa.hdf.hdf5lib.H5;
-import ncsa.hdf.hdf5lib.HDF5Constants;
+import ch.systemsx.cisd.hdf5.HDF5Factory;
+import ch.systemsx.cisd.hdf5.IHDF5SimpleWriter;
+import ch.systemsx.cisd.hdf5.IHDF5Writer;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * @author Simon Dirmeier {@literal simon.dirmeier@bsse.ethz.ch}
  */
 public final class Main
 {
-
-    static final String FILENAME = "~/Desktop/H5_CreateFile.h5";
-
-    public static void main(String[] args)
+    public static void main(String[] args) throws IOException
     {
-        Main.createFile();
-    }
+        float[] mydata = new float[100000];
+        IHDF5Writer writer = HDF5Factory.open("/Users/simondi/Desktop/bla.h5");
 
-    private static void createFile()
-    {
-        int file_id = -1;
-
-        // Create a new file using default properties.
-        try
+        Path p = Paths.get("/Users/simondi/Desktop/bla.tsv");
+        try (BufferedWriter bW = Files.newBufferedWriter(p))
         {
-            file_id = H5.H5Fcreate(FILENAME,
-                                   HDF5Constants.H5F_ACC_TRUNC,
-                                   HDF5Constants.H5P_DEFAULT,
-                                   HDF5Constants.H5P_DEFAULT);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
+            for (int i = 0; i < 10000; i++)
+            {
+                writer.writeFloatArray("mydata" + String.valueOf(i), mydata);
+                for (float aMydata : mydata)
+                {
+                    bW.write(aMydata + " ");
+                }
+                bW.write("\n");
+            }
         }
 
-        // Close the file.
-        try
-        {
-            if (file_id >= 0)
-                H5.H5Fclose(file_id);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
+        writer.close();
+
+
 
     }
-
 }
