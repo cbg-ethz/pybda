@@ -1,3 +1,4 @@
+rnai-utilities/
 rnai-query/
 ^config*.yml
 .idea
