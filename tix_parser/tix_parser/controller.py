@@ -113,8 +113,7 @@ class Controller:
                 ]
                 # if all the files exist, we just skip the creation of the files
                 if any(not Path(x).exists() for x in fls):
-                    logger.info(
-                        "Doing: " + " ".join(platefileset.meta))
+                    logger.info("Doing: " + " ".join(platefileset.meta))
                     pfs, features, mapping = self._parser.parse(platefileset)
                     if pfs is not None:
                         self._writer.write(pfs, features, mapping)

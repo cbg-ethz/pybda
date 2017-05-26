@@ -40,7 +40,7 @@ class PlateWriter:
         screen = pfs.screen
         design = pfs.design
         plate = pfs.plate
-        layout = self._layout.filter(pathogen, library, design, screen,
+        layout = self._layout.get(pathogen, library, design, screen,
                                      replicate, plate)
         if layout is None:
             logger.warning("Could not load layout for: " + pfs.classifier)
@@ -106,7 +106,6 @@ class PlateWriter:
         except Exception as e:
             logger.error("Some IO-error writing to meta file: + ", meat_file)
             logger.error(str(e))
-
 
     def data_filename(self, filename):
         return filename + "_data.tsv"
