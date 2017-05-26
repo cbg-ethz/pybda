@@ -1,4 +1,0 @@
-psycopg2
-numpy
-scipy
-pyyaml
