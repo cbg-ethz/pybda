@@ -22,13 +22,17 @@ from pyspark.ml.feature import VectorAssembler, PCA
 from pyspark.ml.clustering import KMeans
 from pyspark.ml.linalg import SparseVector, VectorUDT, Vector, Vectors
 
-conf = pyspark.SparkConf().setAppName("app")
-sc = pyspark.SparkContext(conf=conf)
+# conf = pyspark.SparkConf().setAppName("app")
+# sc = pyspark.SparkContext(conf=conf)
 
 #sj = sparkjob.sparkjob(ncores=4)
 #sj.wait_to_start()
 #sc = sj.start_spark()
-spark = pyspark.sql.SparkSession(sc)
+# spark = pyspark.sql.SparkSession(sc)
+.builder \
+    .appName("PythonPi") \
+    .getOrCreate()
+
 
 file_name = "/cluster/home/simondi/simondi/tix/data/screening_data/cells_sample_10.tsv"
 
