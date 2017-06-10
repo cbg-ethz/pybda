@@ -10,8 +10,8 @@ from sklearn import manifold
 import findspark
 from sparkhpc import sparkjob
 
-spark_path = "/cluster/home/simondi/spark/"
-findspark.init(spark_path)
+#spark_path = "/cluster/home/simondi/spark/"
+#findspark.init(spark_path)
 
 import pyspark
 from pyspark.sql.window import Window
@@ -22,9 +22,12 @@ from pyspark.ml.feature import VectorAssembler, PCA
 from pyspark.ml.clustering import KMeans
 from pyspark.ml.linalg import SparseVector, VectorUDT, Vector, Vectors
 
-sj = sparkjob.sparkjob(ncores=4)
-sj.wait_to_start()
-sc = sj.start_spark()
+conf = pyspark.SparkConf().setAppName("app")
+sc = pyspark.SparkContext(conf=conf)
+
+#sj = sparkjob.sparkjob(ncores=4)
+#sj.wait_to_start()
+#sc = sj.start_spark()
 spark = pyspark.sql.SparkSession(sc)
 
 file_name = "/cluster/home/simondi/simondi/tix/data/screening_data/cells_sample_10.tsv"
