@@ -1,3 +1,6 @@
+metastore_db
+ssh_errors
+spark-warehouse
 .ipynb_checkpoints/
 job
 sparkcluster-*.log
