@@ -2,6 +2,11 @@
 
 Collections of scripts for the data analysis using pyspark.
 
+## Starting the sparkcluster
+
+This is exactly how Rok describes it in the tutorials. ** DONT FORGET LOADING JAVA BEFORE**
+
+
 ## Remote hpcnotebook
 
 * Open a browser and change to SOCKS proxy port 9999.
