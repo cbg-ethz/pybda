@@ -15,7 +15,6 @@ if is_cluster:
 else:
     file_name = "/Users/simondi/PHD/data/data/target_infect_x/screening_data_subset/cells_sample_10.tsv"
 
-file_name= "/Users/simondi/PHD/data/data/target_infect_x/screening_data_subset/cells_sample_10_100lines.tsv"
 
 df = pandas.read_csv(file_name, sep="\t", header=0)
 
