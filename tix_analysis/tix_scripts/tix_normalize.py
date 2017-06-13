@@ -1,9 +1,20 @@
 #!/usr/bin/env python
 
+import os
 import sys
 import pandas
-import os
 import numpy
+import findspark
+
+import pyspark
+from pyspark.sql.window import Window
+import pyspark.sql.functions as func
+
+from pyspark.rdd import reduce
+from pyspark.sql.types import DoubleType
+from pyspark.ml.feature import VectorAssembler, PCA
+from pyspark.ml.clustering import KMeans
+from pyspark.ml.linalg import SparseVector, VectorUDT, Vector, Vectors
 
 if os.path.isdir("/cluster/home/simondi/spark/"):
     is_cluster = True
@@ -15,13 +26,27 @@ if is_cluster:
 else:
     file_name = "/Users/simondi/PHD/data/data/target_infect_x/screening_data_subset/cells_sample_10.tsv"
 
-file_name= "/Users/simondi/PHD/data/data/target_infect_x/screening_data_subset/cells_sample_10_100lines.tsv"
+#file_name = "/Users/simondi/PHD/data/data/target_infect_x/screening_data_subset/cells_sample_10_100lines.tsv"
 
-df = pandas.read_csv(file_name, sep="\t", header=0)
+conf = pyspark.SparkConf().setMaster("local[*]") \
+    .setAppName("test") \
+    .set("spark.driver.memory", "2G") \
+    .set("spark.executor.memory", "2G")
+sc = pyspark.SparkContext(conf=conf)
+spark = pyspark.sql.SparkSession(sc)
 
-old_cols = df.columns
+df = spark.read.csv(path=file_name, sep="\t", header='true')
+df.cache()
+
+old_cols = df.schema.names
 new_cols = list(map(lambda x: x.replace(".", "_"), old_cols))
-df.columns = new_cols
+df = reduce(
+    lambda data, idx: data.withColumnRenamed(old_cols[idx], new_cols[idx]),
+    range(len(new_cols)), df)
+for i, x in enumerate(new_cols):
+    if x.startswith("cells"):
+        df = df.withColumn(x, df[x].cast("double"))
+
 
 def z_score_w(col, w):
     avg = func.avg(col).over(w)
@@ -29,54 +54,14 @@ def z_score_w(col, w):
     return (col - avg) / sd
 
 
+w = Window().partitionBy(["study", "pathogen"]).rowsBetween(-sys.maxsize,
+                                                            sys.maxsize)
 for x in df.columns:
     if x.startswith("cells"):
         df = df.withColumn(x, z_score_w(df[x], w))
 
-df = df.na.fill(value=0)
+df.write.csv(file_name.replace(".tsv", "") + "_normalized_tsv",
+             sep="\t", header=True, mode="overwrite")
 
-X = df.sample(fraction=.01, withReplacement=False)
-
-assembler = VectorAssembler(
-  inputCols=[x for x in X.columns if x.startswith("cells")],
-  outputCol='features')
-X = assembler.transform(X)
-X.cache()
-
-kmeans = KMeans(k=5, seed=23)
-model = kmeans.fit(X)
-
-X = X.toPandas()
-
-X_index = [i for i, x in enumerate(X.columns) if x.startswith("cells")]
-
-tsne = manifold.TSNE(n_components=2, init='pca', random_state=23)
-trans_data = tsne.fit_transform(X.values[:, X_index])
-
-transe = pandas.DataFrame(trans_data)
-transe["pathogen"] = X["pathogen"]
-transe["design"] = X["design"]
-transe["cluster"] = model.summary.cluster.toPandas()["prediction"]
-transe.columns = ['a', 'b', 'pathogen', 'design', "kmeans"]
-
-
-def plot(dat, grp):
-    fig, ax = matplotlib.pyplot.subplots()
-    matplotlib.pyplot.rc(
-      'axes', prop_cycle=(matplotlib.pyplot.cycler('color',
-                                                   ['r', 'g', 'b',
-                                                    'y', 'm'])))
-    ax.margins(0.05)
-    groups = dat.groupby(grp)
-    for name, group in groups:
-        ax.plot(group.a, group.b, marker='o', linestyle='', ms=3, label=name)
-    ax.legend()
-    pp = PdfPages("plots/clustering_by_" + grp + ".pdf")
-    matplotlib.pyplot.savefig(pp, format='pdf')
-    pp.close()
-
-
-plot(transe, "pathogen")
-plot(transe, "kmeans")
-
+df.write.parquet(file_name.replace(".tsv", "") + "_normalized_parquet", mode="overwrite")
 sc.stop()
