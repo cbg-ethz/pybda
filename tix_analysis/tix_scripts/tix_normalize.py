@@ -25,15 +25,16 @@ if is_cluster:
     file_name = "/cluster/home/simondi/simondi/tix/data/screening_data/cells_sample_10.tsv"
 else:
     file_name = "/Users/simondi/PHD/data/data/target_infect_x/screening_data_subset/cells_sample_10.tsv"
-
+#
 #file_name = "/Users/simondi/PHD/data/data/target_infect_x/screening_data_subset/cells_sample_10_100lines.tsv"
-
-conf = pyspark.SparkConf().setMaster("local[*]") \
-    .setAppName("test") \
-    .set("spark.driver.memory", "2G") \
-    .set("spark.executor.memory", "2G")
+#
+conf = pyspark.SparkConf()
 sc = pyspark.SparkContext(conf=conf)
 spark = pyspark.sql.SparkSession(sc)
+
+#file_name = "/cluster/home/simondi/simondi/tix/data/screening_data/cells_sample_10_100_lines.tsv"
+
+#spark = pyspark.sql.SparkSession.builder.appName("test").getOrCreate()
 
 df = spark.read.csv(path=file_name, sep="\t", header='true')
 df.cache()
@@ -64,4 +65,5 @@ df.write.csv(file_name.replace(".tsv", "") + "_normalized_tsv",
              sep="\t", header=True, mode="overwrite")
 
 df.write.parquet(file_name.replace(".tsv", "") + "_normalized_parquet", mode="overwrite")
-sc.stop()
+#sc.stop()
+spark.stop()
