@@ -6,6 +6,14 @@ import pandas
 import numpy
 import findspark
 
+if os.path.isdir("/cluster/home/simondi/spark/"):
+    is_cluster = True
+else:
+    is_cluster = False
+
+#if not is_cluster:
+#    findspark.init("/usr/local/spark/spark")
+    
 import pyspark
 from pyspark.sql.window import Window
 import pyspark.sql.functions as func
@@ -15,20 +23,18 @@ from pyspark.sql.types import DoubleType
 from pyspark.ml.feature import VectorAssembler, PCA
 from pyspark.ml.clustering import KMeans
 from pyspark.ml.linalg import SparseVector, VectorUDT, Vector, Vectors
-
-if os.path.isdir("/cluster/home/simondi/spark/"):
-    is_cluster = True
-else:
-    is_cluster = False
-
+    
 if is_cluster:
+    conf = pyspark.SparkConf()
     file_name = "/cluster/home/simondi/simondi/tix/data/screening_data/cells_sample_10.tsv"
 else:
-    file_name = "/Users/simondi/PHD/data/data/target_infect_x/screening_data_subset/cells_sample_10.tsv"
-#
+ #   conf = pyspark.SparkConf().setMaster("local").set("spark.driver.memory", "10G").set("spark.executor.memory", "5G")
+    conf = pyspark.SparkConf()
+    file_name = "/Users/simondi/PHD/data/data/target_infect_x/screening_data_subset/cells_sample_10.tsv"    
+    
 #file_name = "/Users/simondi/PHD/data/data/target_infect_x/screening_data_subset/cells_sample_10_100lines.tsv"
 #
-conf = pyspark.SparkConf()
+
 sc = pyspark.SparkContext(conf=conf)
 spark = pyspark.sql.SparkSession(sc)
 
@@ -61,9 +67,11 @@ for x in df.columns:
     if x.startswith("cells"):
         df = df.withColumn(x, z_score_w(df[x], w))
 
-df.write.csv(file_name.replace(".tsv", "") + "_normalized_tsv",
-             sep="\t", header=True, mode="overwrite")
+#df.write.csv(file_name.replace(".tsv", "") + "_normalized_tsv",
+#             sep="\t", header=True, mode="overwrite")
 
 df.write.parquet(file_name.replace(".tsv", "") + "_normalized_parquet", mode="overwrite")
+#df.toPandas().to_csv(file_name.replace(".tsv", "") + "_normalized.tsv", sep="\t", header=True, index=False)
+
 #sc.stop()
 spark.stop()

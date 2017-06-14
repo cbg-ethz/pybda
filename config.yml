@@ -1,5 +1,5 @@
 layout_file: "/Users/simondi/PHD/data/data/target_infect_x/plate_layout_meta_files/target_infect_x_library_layouts_beautified.tsv"
 plate_folder: "/Users/simondi/PHD/data/data/target_infect_x/screening_data"
 output_path: "/Users/simondi/PHD/data/data/target_infect_x/screening_data"
-plate_id_file: "/Users/simondi/PHD/data/data/target_infect_x/experiment_meta_files/experiment_meta_file_infecx_adeno.tsv"
+plate_id_file: "/Users/simondi/PHD/data/data/target_infect_x/experiment_meta_files/experiment_meta_file_test.tsv"
 multiprocessing: False
