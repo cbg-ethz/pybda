@@ -1,3 +1,4 @@
+plots/
 metastore_db
 ssh_errors
 spark-warehouse
