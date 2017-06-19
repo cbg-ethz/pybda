@@ -1,5 +1,6 @@
 import uuid
 import pandas
+import numpy
 import sklearn
 from sklearn.ensemble import RandomForestRegressor
 
@@ -30,37 +31,44 @@ def load_data():
 
 data = load_data()
 
-n = 100
+msk = numpy.random.rand(len(data)) < 0.9
+
+train = data[msk]
+test = data[~msk]
+
+n = 10
 rf = RandomForestRegressor(n_estimators=n, max_features='sqrt')
 
 feature_cols = [x for x in data.columns.values if x.startswith("cells")]
-trees = rf.fit(X=data.loc[:, feature_cols], y=data.loc[:, "infection"])
-
-# In[10]:
-
-zippedf = [(x, y) for x, y in zip(feature_cols, trees.feature_importances_)]
-
-# In[26]:
-
-zippedf = sorted(zippedf, key=lambda x: -x[1])
-
-# In[15]:
-
-uid = str(uuid.uuid1())
-flout = "/Users/simondi/PROJECTS/target_infect_x_project/src/tix_util/tix_analysis/results/importance"
-
-# In[24]:
-
-flout = flout + "_trees_" + str(n) + "_" + uid + ".txt"
-
-# In[27]:
-
-with open(flout, 'w') as fh:
-    for z in zippedf:
-        fh.write(z[0] + "\t" + "{0:.2f}".format(z[1]) + "\n")
+trees = rf.fit(X=train.loc[:, feature_cols], y=train.loc[:, "infection"])
 
 
-# In[ ]:
+score = trees.score(X=test.loc[:,feature_cols], y=test.loc[:,"infection"])
+print(score)
+
+# zippedf = [(x, y) for x, y in zip(feature_cols, trees.feature_importances_)]
+#
+# # In[26]:
+#
+# zippedf = sorted(zippedf, key=lambda x: -x[1])
+#
+# # In[15]:
+#
+# uid = str(uuid.uuid1())
+# flout = "/Users/simondi/PROJECTS/target_infect_x_project/src/tix_util/tix_analysis/results/importance"
+#
+# # In[24]:
+#
+# flout = flout + "_trees_" + str(n) + "_" + uid + ".txt"
+#
+# # In[27]:
+#
+# with open(flout, 'w') as fh:
+#     for z in zippedf:
+#         fh.write(z[0] + "\t" + "{0:.2f}".format(z[1]) + "\n")
+#
+#
+# # In[ ]:
 
 
 
