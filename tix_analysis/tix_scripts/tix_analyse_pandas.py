@@ -48,25 +48,22 @@ def load_data():
 
 def get_models():
     pca = sklearn.decomposition.PCA(n_components=2)
-    lle_h = sklearn.manifold.LocallyLinearEmbedding(10, n_components=2,
-                                                    method='hessian')
-    lle_m = sklearn.manifold.LocallyLinearEmbedding(10, n_components=2,
-                                                    method='modified')
-    lle_s = sklearn.manifold.LocallyLinearEmbedding(10, n_components=2,
-                                                    method='standard')
-    lle_l = sklearn.manifold.LocallyLinearEmbedding(10, n_components=2,
-                                                    method='ltsa')
+    ica = sklearn.decomposition.FastICA(n_components=2)
+    fa = sklearn.decomposition.FactorAnalysis(n_components=2, max_iter=2000)
+    kpca = sklearn.decomposition.KernelPCA(n_components=2, kernel="rbf")
     mds = sklearn.manifold.MDS(n_init=1, max_iter=100, n_components=2)
     lda = LinearDiscriminantAnalysis(n_components=2)
-    iso = sklearn.manifold.Isomap(30, n_components=2)
+    iso = sklearn.manifold.Isomap(10, n_components=2)
     spec = sklearn.manifold.SpectralEmbedding(n_components=2, random_state=0,
                                               eigen_solver="arpack")
 
     models = {
+        "ica": ica,
+        "fa": fa,
         "pca": pca,
+        "kpca": kpca,
         # "lle_hessian": lle_h,
         # "lle_modified": lle_m,
-        "lle": lle_s,
         # "lle_ltsa": lle_l,
         "mds": mds,
         "lda": lda,
@@ -100,17 +97,30 @@ def plot(X, X_, fls, uni):
     uid = str(uuid.uuid1())
     if os.path.isdir("/cluster/home/simondi/spark/"):
         plt.savefig(
+<<<<<<< HEAD
           "/cluster/home/simondi/PROJECTS/tix-util/tix_analysis/plots/scatter_" + fls + "_" + uni + "_" +  uid  +  ".png",
           dpi=720)
     else:
         plt.savefig(
           "/Users/simondi/PROJECTS/target_infect_x_project/src/tix_util/tix_analysis/plots/scatter_" + fls + "_" + uni + "_" +  uid  + ".png",
+=======
+          "/cluster/home/simondi/PROJECTS/tix-util/tix_analysis/plots/scatter_" + fls + "_" + uni + "_" +uid+ ".png",
+          dpi=720)
+    else:
+        plt.savefig(
+          "/Users/simondi/PROJECTS/target_infect_x_project/src/tix_util/tix_analysis/plots/scatter_" + fls + "_" + uni +  "_" +uid+ ".png",
+>>>>>>> 9e65e1e61e3c9ff589549228ee108145508912da
           dpi=720)
 
 
 @click.command()
 @click.option('--model', help='The person to greet.', default="pca",
-              type=click.Choice(["pca", "lle", "mds", "lda", "iso", "spec"]))
+              type=click.Choice(
+                ["pca", "lle",
+                 "mds", "lda",
+                 "iso", "spec",
+                 "ica", "kpca",
+                 "fa"]))
 def run(model):
     print("Doing", model)
     mod = get_models()[model]
@@ -122,6 +132,10 @@ def run(model):
     if mod is not None:
         X_ = mod.fit_transform(X.loc[:, feature_cols_idxs])
         plot(X, X_, model, "pathogen")
+        plot(X, X_, model, "gene")
+        plot(X, X_, model, "gene")
+        plot(X, X_, model, "gene")
+        plot(X, X_, model, "gene")
         plot(X, X_, model, "gene")
     else:
         print("Model was none")
