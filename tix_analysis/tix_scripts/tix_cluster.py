@@ -4,72 +4,49 @@ import os
 import sys
 import pandas
 import numpy
-import findspark
-
-if os.path.isdir("/cluster/home/simondi/spark/"):
-    is_cluster = True
-else:
-    is_cluster = False
-
 import pyspark
 from pyspark.sql.window import Window
 import pyspark.sql.functions as func
 
 from pyspark.rdd import reduce
 from pyspark.sql.types import DoubleType
-from pyspark.ml.feature import VectorAssembler, PCA
-from pyspark.ml.clustering import KMeans
+from pyspark.ml.feature import VectorAssembler
+from pyspark.ml.clustering import BisectingKMeans
 from pyspark.ml.linalg import SparseVector, VectorUDT, Vector, Vectors
 
-if is_cluster:
-    conf = pyspark.SparkConf()
-    file_name = "/cluster/home/simondi/simondi/tix/data/screening_data/cells_sample_10.tsv"
-else:
-    #   conf = pyspark.SparkConf().setMaster("local").set("spark.driver.memory", "10G").set("spark.executor.memory", "5G")
-    conf = pyspark.SparkConf()
-    file_name = "/Users/simondi/PHD/data/data/target_infect_x/screening_data_subset/cells_sample_10.tsv"
 
-# file_name = "/Users/simondi/PHD/data/data/target_infect_x/screening_data_subset/cells_sample_10_100lines.tsv"
-#
+file_name = "/cluster/home/simondi/simondi/tix/data/screening_data/cells_sample_10.tsv"
 
+conf = pyspark.SparkConf()
 sc = pyspark.SparkContext(conf=conf)
 spark = pyspark.sql.SparkSession(sc)
 
-# file_name = "/cluster/home/simondi/simondi/tix/data/screening_data/cells_sample_10_100_lines.tsv"
-
-# spark = pyspark.sql.SparkSession.builder.appName("test").getOrCreate()
 
 df = spark.read.csv(path=file_name, sep="\t", header='true')
 df.cache()
-
 old_cols = df.schema.names
 new_cols = list(map(lambda x: x.replace(".", "_"), old_cols))
+
 df = reduce(
   lambda data, idx: data.withColumnRenamed(old_cols[idx], new_cols[idx]),
   range(len(new_cols)), df)
+
 for i, x in enumerate(new_cols):
     if x.startswith("cells"):
         df = df.withColumn(x, df[x].cast("double"))
 
+feature_columns = [x for x in df.columns if x.startswith("cells")]
+assembler = VectorAssembler(inputCols=feature_columns,
+                            outputCol='features')
 
-def z_score_w(col, w):
-    avg = func.avg(col).over(w)
-    sd = func.stddev(col).over(w)
-    return (col - avg) / sd
+df = assembler.transform(df)
 
+km = BisectingKMeans.setK(5).setSeed(23)
+model = km.fit(df)
 
-w = Window().partitionBy(["study", "pathogen"]).rowsBetween(-sys.maxsize,
-                                                            sys.maxsize)
-for x in df.columns:
-    if x.startswith("cells"):
-        df = df.withColumn(x, z_score_w(df[x], w))
+print("Cluster Centers: ")
+centers = model.clusterCenters()
+for center in centers:
+    print(center)
 
-# df.write.csv(file_name.replace(".tsv", "") + "_normalized_tsv",
-#             sep="\t", header=True, mode="overwrite")
-
-df.write.parquet(file_name.replace(".tsv", "") + "_normalized_parquet",
-                 mode="overwrite")
-# df.toPandas().to_csv(file_name.replace(".tsv", "") + "_normalized.tsv", sep="\t", header=True, index=False)
-
-# sc.stop()
 spark.stop()
