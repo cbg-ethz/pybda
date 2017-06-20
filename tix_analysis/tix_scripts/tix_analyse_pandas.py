@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import uuid
 import pandas
 import numpy
 from random import shuffle
@@ -10,6 +11,7 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 import sklearn.manifold
 
 import matplotlib
+matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import matplotlib.cm as cmx
@@ -95,13 +97,14 @@ def plot(X, X_, fls, uni):
 
         plt.legend()
 
+    uid = str(uuid.uuid1())
     if os.path.isdir("/cluster/home/simondi/spark/"):
         plt.savefig(
-          "/cluster/home/simondi/PROJECTS/tix-util/tix_analysis/plots/scatter_" + fls + "_" + uni + ".png",
+          "/cluster/home/simondi/PROJECTS/tix-util/tix_analysis/plots/scatter_" + fls + "_" + uni + "_" +  uid  +  ".png",
           dpi=720)
     else:
         plt.savefig(
-          "/Users/simondi/PROJECTS/target_infect_x_project/src/tix_util/tix_analysis/plots/scatter_" + fls + "_" + uni + ".png",
+          "/Users/simondi/PROJECTS/target_infect_x_project/src/tix_util/tix_analysis/plots/scatter_" + fls + "_" + uni + "_" +  uid  + ".png",
           dpi=720)
 
 

@@ -29,6 +29,17 @@ This is exactly how Rok describes it in the tutorials. ** DONT FORGET LOADING JA
   hpcnotebook launch
 ```
 
+## Sparkcluster
+
+
+```sh
+  module load java
+  module load open_mpi
+	sparkcluster .... start
+	sparkcluster launch
+```
+
+
 ## Author
 
 * Simon Dirmeier <a href="mailto:simon.dirmeier@gmx.de">simon.dirmeier@gmx.de</a>
