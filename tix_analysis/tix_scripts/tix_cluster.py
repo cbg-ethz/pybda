@@ -4,6 +4,9 @@ import os
 import sys
 import pandas
 import numpy
+
+import findspark
+
 import pyspark
 from pyspark.sql.window import Window
 import pyspark.sql.functions as func
@@ -35,14 +38,14 @@ for i, x in enumerate(new_cols):
     if x.startswith("cells"):
         df = df.withColumn(x, df[x].cast("double"))
 
-feature_columns = [x for x in df.columns if x.startswith("cells")]
-assembler = VectorAssembler(inputCols=feature_columns,
-                            outputCol='features')
+df = df.fillna(0)
 
-df = assembler.transform(df)
+feature_columns = [x for x in df.columns if x.startswith("cells")]
+assembler = VectorAssembler(inputCols=feature_columns,outputCol='features')
+data = assembler.transform(df)
 
 km = BisectingKMeans().setK(5).setSeed(23)
-model = km.fit(df)
+model = km.fit(data)
 
 print("Cluster Centers: ")
 centers = model.clusterCenters()
