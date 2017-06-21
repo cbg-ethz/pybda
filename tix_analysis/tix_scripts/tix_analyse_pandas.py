@@ -11,6 +11,7 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 import sklearn.manifold
 
 import matplotlib
+matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import matplotlib.cm as cmx
@@ -96,11 +97,19 @@ def plot(X, X_, fls, uni):
     uid = str(uuid.uuid1())
     if os.path.isdir("/cluster/home/simondi/spark/"):
         plt.savefig(
+<<<<<<< HEAD
+          "/cluster/home/simondi/PROJECTS/tix-util/tix_analysis/plots/scatter_" + fls + "_" + uni + "_" +  uid  +  ".png",
+          dpi=720)
+    else:
+        plt.savefig(
+          "/Users/simondi/PROJECTS/target_infect_x_project/src/tix_util/tix_analysis/plots/scatter_" + fls + "_" + uni + "_" +  uid  + ".png",
+=======
           "/cluster/home/simondi/PROJECTS/tix-util/tix_analysis/plots/scatter_" + fls + "_" + uni + "_" +uid+ ".png",
           dpi=720)
     else:
         plt.savefig(
           "/Users/simondi/PROJECTS/target_infect_x_project/src/tix_util/tix_analysis/plots/scatter_" + fls + "_" + uni +  "_" +uid+ ".png",
+>>>>>>> 9e65e1e61e3c9ff589549228ee108145508912da
           dpi=720)
 
 

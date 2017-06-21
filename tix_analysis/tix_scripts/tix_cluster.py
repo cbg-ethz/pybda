@@ -6,7 +6,6 @@ import pandas
 import numpy
 
 import findspark
-findspark.init("/usr/local/spark/spark")
 
 import pyspark
 from pyspark.sql.window import Window
@@ -19,7 +18,7 @@ from pyspark.ml.clustering import BisectingKMeans
 from pyspark.ml.linalg import SparseVector, VectorUDT, Vector, Vectors
 
 
-file_name = "/cluster/home/simondi/simondi/tix/data/screening_data/cells_sample_10.tsv"
+file_name = "/cluster/home/simondi/simondi/tix/data/screening_data/cells_sample_1000.tsv"
 
 conf = pyspark.SparkConf()
 sc = pyspark.SparkContext(conf=conf)
