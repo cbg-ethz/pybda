@@ -15,7 +15,7 @@ from pyspark.ml.clustering import BisectingKMeans
 from pyspark.ml.linalg import SparseVector, VectorUDT, Vector, Vectors
 
 
-file_name = "/cluster/home/simondi/simondi/tix/data/screening_data/cells_sample_10.tsv"
+file_name = "/cluster/home/simondi/simondi/tix/data/screening_data/cells_sample_1000.tsv"
 
 conf = pyspark.SparkConf()
 sc = pyspark.SparkContext(conf=conf)
@@ -41,7 +41,7 @@ assembler = VectorAssembler(inputCols=feature_columns,
 
 df = assembler.transform(df)
 
-km = BisectingKMeans.setK(5).setSeed(23)
+km = BisectingKMeans().setK(5).setSeed(23)
 model = km.fit(df)
 
 print("Cluster Centers: ")
