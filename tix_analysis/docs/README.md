@@ -39,6 +39,12 @@ Options to submit:
     spark = pyspark.sql.SparkSession(sc)
   ```
 
+```
+
+```
+
  ```¬
+
+
     /usr/local/spark/spark/bin/spark-submit --master spark://10.205.18.36:7077  --driver-memory 10G ./tix_scripts/tix_normalize.py¬
  ```
