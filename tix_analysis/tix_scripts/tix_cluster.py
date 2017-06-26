@@ -20,13 +20,14 @@ from pyspark.ml.linalg import SparseVector, VectorUDT, Vector, Vectors
 
 file_name = "/cluster/home/simondi/simondi/tix/data/screening_data/cells_sample_10.tsv"
 
+pyspark.StorageLevel(True, True, False, False, 1)
+
 conf = pyspark.SparkConf()
 sc = pyspark.SparkContext(conf=conf)
 spark = pyspark.sql.SparkSession(sc)
 
 
 df = spark.read.csv(path=file_name, sep="\t", header='true')
-df.cache()
 old_cols = df.schema.names
 new_cols = list(map(lambda x: x.replace(".", "_"), old_cols))
 
@@ -43,7 +44,6 @@ df = df.fillna(0)
 feature_columns = [x for x in df.columns if x.startswith("cells")]
 assembler = VectorAssembler(inputCols=feature_columns,outputCol='features')
 data = assembler.transform(df)
-data.cache()
 
 km = BisectingKMeans().setK(5).setSeed(23)
 model = km.fit(data)
