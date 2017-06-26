@@ -26,6 +26,7 @@ This is exactly how Rok describes it in the tutorials. ** DONT FORGET LOADING JA
 
 ```sh
   module load java
+  module load open_mpi
   hpcnotebook launch
 ```
 
@@ -82,6 +83,52 @@ Options to submit:
  ```¬
     /usr/local/spark/spark/bin/spark-submit --master spark://10.205.18.36:7077  --driver-memory 10G ./tix_scripts/tix_normalize.py¬
  ```
+
+## Submission
+
+
+```bash
+  sparkcluster start  --memory-per-executor 10000 --memory-per-core 1000 10
+
+  sparkcluster launch --memory 5G --cores-per-executor 10
+  sparkcluster launch --memory 500G --cores-per-executor 20
+  sparkcluster launch --timeout 10 --memory 500G --cores-per-executor 20
+
+  /cluster/home/simondi/spark/bin/spark-submit  --master spark://10.205.0.132:7077  tix_cluster.py
+
+  #working: no memory at all: only executors
+  /cluster/home/simondi/spark/bin/spark-submit  --master spark://10.205.0
+  .134:7077  --num-executors 2 --executor-cores 10  tix_scripts/tix_cluster.py
+```
+
+```
+  sparkcluster start --memory-per-executor 15000 --memory-per-core 10000
+    --walltime 4:00 --cores-per-executor 1  20
+
+   # DO NOT GO OVER LIMITS
+  sparkcluster launch --memory 190G --timeout 1000 --cores-per-executor 2
+
+  # DO NOT GO OVER LIMTITS
+  /cluster/home/simondi/spark/bin/spark-submit  --master spark://10.205.0.129:7078
+    --num-executors 20 --executor-cores 1  tix_scripts/tix_cluster.py
+```
+
+```
+    # take all memory: give one core per executor
+ sparkcluster launch --timeout 10 --memory 100G --cores-per-executor 1
+
+```
+
+# Working solution for SINGLE core: how is this extended to many?
+
+```
+    # seems to work: single core exe
+     sparkcluster start --memory-per-executor 15000 --memory-per-core 10000 --walltime 4:00 --cores-per-executor 1  20
+    sparkcluster launch --memory 190G --timeout 10
+
+    /cluster/home/simondi/spark/bin/spark-submit  --master spark://10.205.0.129:7078
+       --num-executors 20 --executor-cores 1  --total-executor-cores 20
+      tix_scripts/tix_cluster.py
 
 
 ## Author
