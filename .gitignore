@@ -1,8 +1,6 @@
 job
 sparkcluster-*
 *hs_err*
-rnai-utilities/
-rnai-query/
 ^config*.yml
 .idea
 download_plates.sh
@@ -11,3 +9,11 @@ download_plates.sh
 .RData
 .Ruserdata
 __pycache__/
+plots/
+results/
+metastore_db
+ssh_errors
+spark-warehouse
+.ipynb_checkpoints/
+job
+*.pyc
