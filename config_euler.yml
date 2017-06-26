@@ -1,5 +1,0 @@
-layout_file: "/home/simondi/beerenwinkel/simon/data/target_infect_x/plate_layout_meta_files/target_infect_x_library_layouts_beautified.tsv"
-plate_folder: "/home/simondi/beerenwinkel/simon/data/target_infect_x/screening_data"
-output_path: "/home/simondi/beerenwinkel/simon/data/target_infect_x/screening_data"
-plate_id_file: "/home/simondi/beerenwinkel/simon/data/target_infect_x/experiment_meta_files/experiment_meta_file_infecx_brucella.tsv"
-multiprocessing: False
