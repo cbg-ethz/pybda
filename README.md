@@ -1,23 +1,48 @@
-<h1 align="center"> tix utility </h1>
+<h1 align="center"> tix-analysis </h1>
 
-Collection of utiliy scripts and stuff for the TIX data.
+[![Project Status](http://www.repostatus.org/badges/latest/wip.svg)](http://www.repostatus.org/#wip)
 
-#### Aggregate parser
+Analysis of big RNAi data-sets in Python.
 
-This only takes the aggregate files from the tix wiki (now in ``/Users/simondi/PHD/data/data/target_infect_x/plate_layout_meta_files``)
-and parses them
+## Introduction
+
+This repository contains `python` modules, `Jupyter notebooks` and other utility scripts for anlaysis of big image-based single-cell RNAi data-sets.
+The methods depend on `Spark` for distributed high-performance resources. 
+
+## Dependencies
+
+You need to have `Python >= 3` installed, as well as a recent `Spark` installation in your `$HOME` folder. 
+Otherwise a softlink should also suffice.
+
+Install the required packages using:
+
+```bash
+  pip install -r requirements.txt
+```
+
+That should be all you need. 
+
+## Files and folders
+
+#### Docs
+
+Collection of documentation files how to run `Spark`.
+
+#### _test_notebooks
+
+Random tests.
 
 #### Notebooks
 
-Collections of notebooks for the TIX data-analysis (this is not yet needed).
+Main analysis pipelines for testing with `Spark`. This is mainly for testing `Spark` with a REPL.
 
-#### Preprocessor
+#### Scripts
 
-Python package for loading plate files into a postgreSQL database.
+Main `Spark` data analysis scripts. These files are the main result files.
 
-#### To come: normalizer
+#### Util
 
-utility to normalize cells and drop correlated features
+Files for parsing and other minor things.
 
 ## Author
 
