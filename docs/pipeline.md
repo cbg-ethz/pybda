@@ -36,3 +36,5 @@ For this analysis we decided to exlcude the following plates:
 
 * all quiagen plates (different features)
 * all bartonella plates (has invasomes)
+* brucella-qu-g1-h28[123]-13 (missing online)
+* salmonella-dp-g1-dz{01-57}-2e (missing online)
