@@ -9,8 +9,11 @@ from functools import reduce
 @click.command()
 @click.argument("file", type=str)
 def run(file):
+    """
+    Compute screen sets and their feature overlaps.
+    """
     sets = _feature_sets(file)
-    max_set = _max_set(sets)
+    _max_set(sets)
 
 
 def _feature_sets(file):
@@ -20,6 +23,10 @@ def _feature_sets(file):
             feature_set = line.strip().split("\t")
             screen, features = feature_set[0].split("#")[1].lower(), \
                                feature_set[1].lower().split(",")
+            features = list(filter(lambda x: x.startswith("cell") or
+                                        x.startswith("perinuc") or
+                                        x.startswith("nucle"),
+                              features))
             sets[screen] = sorted(features)
     return sets
 
@@ -49,8 +56,8 @@ def _max_set(sets):
             screens.remove(remove_screen)
         print(str(run) + "\t" +
               ",".join(screens) + "\t" + str(len(screens)) + "\t" +
-              ",".join(max_set) + "\t" + str(len(max_set)))
-
+              ",".join(max_set) + "\t" + str(len(max_set)) + "\tremoved:" +
+              remove_screen)
 
 if __name__ == '__main__':
     run()

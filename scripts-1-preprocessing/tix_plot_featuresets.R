@@ -10,7 +10,8 @@ ggthemr("fresh", "scientific")
 options(stringsAsFactors=FALSE)
 
 dir <- "/Users/simondi/PROJECTS/target_infect_x_project/"
-plot.name     <- paste(dir, "plots/feature_overlaph.eps", sep="/")
+file.overlap.plot     <- paste(dir, "plots/feature_overlap.eps", sep="/")
+file.histogram.plot     <- paste(dir, "plots/feature_histogram.eps", sep="/")
 file.features <- paste(dir, "results/features_per_plate_set/features.log", sep="/")
 file.overlaps <- paste(dir, "results/features_per_plate_set/feature_overlap.tsv", sep="/")
 file.maxsets  <- paste(dir, "results/features_per_plate_set/feature_max_sets.tsv", sep="/")
@@ -67,14 +68,14 @@ plot.heatmap <- function()
     ggplot2::theme_bw() +
     ggplot2::theme(text         = element_text(size = 8, family = "Helvetica"),
                    axis.text.x  = ggplot2::element_blank(),
-                   axis.text.y  = ggplot2::element_text(size=9),
+                   axis.text.y  = ggplot2::element_text(size=12),
                    axis.title   = ggplot2::element_blank(),
                    axis.ticks   = ggplot2::element_blank(),
-                   legend.title = element_text(size=12),
-                   legend.text  = element_text(size=12)) +
+                   legend.title = element_text(size=15),
+                   legend.text  = element_text(size=15)) +
     guides(fill = guide_legend("Jaccard"))
 
-  ggsave(plot.name)
+  ggsave(file.overlap.plot)
 }
 
 plot.maxsets <- function()
@@ -87,10 +88,33 @@ plot.maxsets <- function()
   for (i in 1:length(linn))
   {
     spl          <- stringr::str_split(linn[i], "\t")
-    set.size     <- spl[[1]][2]
-    feature.size <- spl[[1]][4]
+    set.size     <- spl[[1]][3]
+    feature.size <- spl[[1]][5]
     els[[set.size]] <- feature.size
   }
 
+  set.frame <- data.frame("screens"  = names(els),
+                          "features" = as.integer(unname(unlist(els))))
 
+  set.frame$screens <- factor(set.frame$screens, levels=rev(set.frame$screens))
+
+  ggplot2::ggplot(set.frame) +
+    geom_bar(aes(screens, features), stat="identity") +
+    ggplot2::scale_x_discrete(expand = c(0,0)
+                              ,
+                              breaks = c(1, seq(5, 50, by=5), max(as.integer(set.frame$screens)))
+                              ) +
+    ggplot2::theme(text         = element_text(size = 8, family = "Helvetica")) +
+    guides(fill = guide_legend("Jaccard")) +
+    xlab("#screens") +
+    ylab("#features of intersect") +
+    ggplot2::theme(text         = element_text(size = 8, family = "Helvetica"),
+                   axis.text.x  = ggplot2::element_text(size=15),
+                   axis.text.y  = ggplot2::element_text(size=15),
+                   axis.title   = ggplot2::element_text(size=15))
+
+  ggsave(file.histogram.plot)
 }
+
+plot.heatmap()
+plot.maxsets()
