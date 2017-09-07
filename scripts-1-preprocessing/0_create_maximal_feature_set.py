@@ -5,6 +5,7 @@ import click
 import itertools
 from functools import reduce
 
+
 @click.command()
 @click.argument("file", type=str)
 def run(file):
@@ -24,10 +25,14 @@ def _feature_sets(file):
 
 
 def _max_set(sets):
+    run = 1
     screens = list(sets.keys())
     max_set = set.intersection(*(set(sets[key]) for key in screens))
-    print(",".join(screens) + "\t" + ",".join(max_set))
+    print(str(run) + "\t" +
+          ",".join(screens) + "\t" + str(len(screens)) + "\t" +
+          ",".join(max_set) + "\t" + str(len(max_set)))
     while len(screens) > 1:
+        run += 1
         remove_screen = ""
         for screen in screens:
             curr_screens = screens.copy()
@@ -42,7 +47,9 @@ def _max_set(sets):
                                 key=lambda x: x[1])[0]
         if remove_screen in screens:
             screens.remove(remove_screen)
-        print(",".join(screens) + "\t" + str(len(max_set)) + "\t" + ",".join(max_set))
+        print(str(run) + "\t" +
+              ",".join(screens) + "\t" + str(len(screens)) + "\t" +
+              ",".join(max_set) + "\t" + str(len(max_set)))
 
 
 if __name__ == '__main__':
