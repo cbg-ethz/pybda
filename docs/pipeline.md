@@ -2,7 +2,7 @@
 
 This document describes the steps taken for the data analysis of the *TargetInfectX* project.
 
-## Preprocessing
+## Parsing
 
 We first downloaded the complete data-set using the `BeeDataDownloader`. Subsequently we do some preprocessing using our in-house python tool `rnaitutilities`.
 
@@ -38,3 +38,35 @@ For this analysis we decided to exlcude the following plates:
 * all bartonella plates (has invasomes)
 * brucella-qu-g1-h28[123]-13 (missing online)
 * salmonella-dp-g1-dz{01-57}-2e (missing online)
+
+
+## Preprocessing
+
+Next the parsed data's meta information are stored in a indexed data-based in
+order to quickly retrieve plate information.
+  
+```python
+  rnai-query insert 
+   --db /cluster/home/simondi/simondi/data/tix/database/tix_index.db 
+   /cluster/home/simondi/simondi/data/tix/screening_data
+``` 
+
+From this we can readily query data to receive a final data-set:
+
+```python
+  rnai-query query 
+   --db ../database/tix_index.db 
+   /cluster/home/simondi/simondi/data/tix/query_data/all.tsv
+```
+   
+We created data-sets using the following queries:
+
+* all data, no filtering,
+* no quiagen libraries.
+
+Having the data, we still need to normalize it, which we do using Spark:
+
+```python
+  rnai-preprocess ...
+```
+
