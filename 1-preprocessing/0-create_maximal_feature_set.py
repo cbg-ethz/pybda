@@ -7,11 +7,12 @@ from functools import reduce
 
 
 @click.command()
-@click.argument("file", type=str)
+@click.argument("file", type=str, help="A file computed from `rnai-parse featuresets`")
 def run(file):
     """
     Compute screen sets and their feature overlaps.
     """
+
     sets = _feature_sets(file)
     _max_set(sets)
 
