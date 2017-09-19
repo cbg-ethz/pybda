@@ -49,7 +49,6 @@ def _normalize(lines, header):
     #    df[feature_column] = numpy.log(df[feature_column])
     # z-score
     for feature_column in feature_columns:
-
         df[feature_column] = (df[feature_column] -
                               numpy.nanmean(df[feature_column], )) / \
                              (numpy.nanstd(df[feature_column]) + 0.00000001)
@@ -92,6 +91,8 @@ def normalize(spark, file_name):
                     run += 1
                 else:
                     lines.append(st)
+        dat = _normalize(lines[:run], header)
+        _write(fw, dat, False)
 
 
 if __name__ == '__main__':
