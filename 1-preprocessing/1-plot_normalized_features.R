@@ -34,17 +34,20 @@ plot.densities <- function()
   frame <- rbindlist(list(unnorm.frame, norm.frame))
   colors <- viridisLite::magma(57)
 
-  g <- ggplot(frame) +
-    facet_grid(Normalized ~ ., scales="free") +
+  frame$Normalized <- factor(frame$Normalized, levels=c("Unnormalized", "Normalized"))
+
+  g <-
+    ggplot(frame) +
+    facet_grid(. ~ Normalized, scales = "free") +
     ylab("Density") +
     xlab("Feature range") +
     hrbrthemes::theme_ipsum_rc()
   for (i in seq(feature.cols))
   {
     new.g <- g +
-      geom_density(data=frame, aes(frame[[ feature.cols[i] ]]), alpha=1) +
-      labs(title="Feature density",
-           subtitle=paste0("Comparing feature densities between normalized and unnormalized feature: ", feature.cols[i])) +
+      geom_histogram(data=frame, aes(frame[[ feature.cols[i] ]]), bins=150) +
+      labs(title=paste0("Feature density: ", feature.cols[i]),
+           subtitle=paste0("Comparing feature densities between normalized and unnormalized features"))
     ggsave(paste(file.overlap.plot, feature.cols[i], ".eps", sep="_"), new.g)
   }
 }

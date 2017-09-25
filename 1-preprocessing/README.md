@@ -12,4 +12,5 @@ above.
 
 ## 1
 
-* `1-normalize_plates.py` ...
+* `1-plot_normalized_features.R` generates some plots of normalized vs 
+unnormalized features after calling `rnai-normalize.py ...`. 
