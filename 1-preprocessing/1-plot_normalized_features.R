@@ -14,7 +14,7 @@ options(stringsAsFactors=FALSE)
 dir <- "/Users/simondi/PROJECTS/target_infect_x_project/"
 file.overlap.plot     <- paste(dir, "plots/mock_normalisation_plot", sep="/")
 mock.unnormalized <- paste(dir, "data/target_infect_x/query_data/sample_10_mock.tsv", sep="/")
-mock.normalized <- paste(dir, "data/target_infect_x/query_data/sample_10_mock_normalize.tsv", sep="/")
+mock.normalized <- paste(dir, "data/target_infect_x/query_data/sample_10_mock_normalized.tsv", sep="/")
 
 
 plot.densities <- function()

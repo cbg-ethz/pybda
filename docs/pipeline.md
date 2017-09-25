@@ -32,7 +32,8 @@ Furthermore, to see which feature-sets make most sense to take, we can compute p
   rnai-parse featuresets /cluster/home/simondi/PROJECTS/config_leonhard.yml
 ```
 
-For this analysis we decided to exlcude the following plates:
+For this analysis we decided to use different combinates the following 
+plates:
 
 * all quiagen plates (different features)
 * all bartonella plates (has invasomes)
@@ -62,11 +63,13 @@ From this we can readily query data to receive a final data-set:
 We created data-sets using the following queries:
 
 * all data, no filtering,
-* no quiagen libraries.
+* no quiagen libraries,
+* some others.
 
 Having the data, we still need to normalize it, which we do using Spark:
 
 ```python
-  rnai-preprocess ...
+  rnai-normalize /cluster/home/simondi/simondi/data/tix/query_data/all.tsv
 ```
 
+This computes the `z-score` over all plates.

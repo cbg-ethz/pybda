@@ -1,22 +1,3 @@
-#!/usr/bin/env python
-
-import os
-import sys
-import pandas
-import numpy
-
-import findspark
-
-import pyspark
-from pyspark.sql.window import Window
-import pyspark.sql.functions as func
-
-from pyspark.rdd import reduce
-from pyspark.sql.types import DoubleType
-from pyspark.ml.feature import VectorAssembler
-from pyspark.ml.clustering import BisectingKMeans
-from pyspark.ml.linalg import SparseVector, VectorUDT, Vector, Vectors
-
 
 file_name = "/cluster/home/simondi/simondi/tix/data/screening_data/cells_sample_10.tsv"
 
