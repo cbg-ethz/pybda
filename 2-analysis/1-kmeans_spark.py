@@ -1,33 +1,28 @@
-import os
-import sys
-
-import logging
-import pandas
-import numpy
 import argparse
-
+import logging
+import pathlib
+import re
+import sys
+import glob
 
 import matplotlib.pyplot as plt
-import pathlib
-
 import pyspark
-from pyspark.sql.window import Window
-import pyspark.sql.functions as func
-from pyspark.rdd import reduce
-from pyspark.sql.types import DoubleType
-from pyspark.ml.feature import VectorAssembler
 from pyspark.ml.clustering import KMeansModel, KMeans
-from pyspark.ml.linalg import SparseVector, VectorUDT, Vector, Vectors
-
+from pyspark.ml.feature import VectorAssembler
+from pyspark.rdd import reduce
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.WARN)
 
 
 def read_args(args):
     parser = argparse.ArgumentParser(description='Cluster an RNAi dataset.')
 
-    subparsers = parser.add_subparsers(help='sub-command help')
+    subparsers = parser.add_subparsers(dest='subparser_name')
+    subparsers.required = True
+    parser_p = subparsers.add_parser(
+      'plot', help='plot some clustering results')
+    parser_p.set_defaults(which="plot")
     parser_f = subparsers.add_parser(
       'fit', help='fit some k means models to determine the best')
     parser_f.set_defaults(which='fit')
@@ -43,18 +38,28 @@ def read_args(args):
                         type=str,
                         help='the file you want to cluster',
                         required=True,
-                        metavar="input file")
-    parser_t.add_argument('K',
+                        metavar="input-file")
+    parser_t.add_argument('-k',
                           type=int,
                           help='numbers of clusters',
-                          required=True)
+                          required=True,
+                          metavar="cluster-count")
+    parser_f.add_argument('-k',
+                          type=int,
+                          help='numbers of clusters',
+                          required=True,
+                          metavar="cluster-count")
     opts = parser.parse_args(args)
 
     return opts.f, opts.o, opts.which, opts
 
 
-def model_path(outpath, k):
-    return outpath + "/kmeans_fit_" + str(k)
+def model_path(outpath):
+    return outpath + "/kmeans_fit_"
+
+
+def k_model_path(outpath):
+    return model_path(outpath) + str(k)
 
 
 def data_path(file_name):
@@ -62,11 +67,14 @@ def data_path(file_name):
 
 
 def read_parquet_data(file_name):
+    logger.info("Reading parquet: {}".format(file_name))
     return spark.read.parquet(file_name)
 
 
 def write_parquet_data(file_name, data):
+    logger.info("Writing parquet: {}".format(file_name))
     data.write.parquet(file_name, mode="overwrite")
+
 
 def get_frame(file_name):
     parquet_file = data_path(file_name)
@@ -80,9 +88,10 @@ def get_frame(file_name):
     df = reduce(
       lambda data, idx: data.withColumnRenamed(old_cols[idx], new_cols[idx]),
       range(len(new_cols)), df)
-    feature_columns = filter(
+    feature_columns = list(filter(
       lambda x: any(x.startswith(f) for f in ["cells", "perin", "nucle"]),
-      df.columns)
+      df.columns))
+    print(feature_columns)
     for x in feature_columns:
         df = df.withColumn(x, df[x].cast("double"))
     df = df.fillna(0)
@@ -95,8 +104,17 @@ def get_frame(file_name):
     return data
 
 
-def plot(kmean_fits, outpath):
+def plot_cluster(file_name, outpath):
+    data = read_parquet_data(data_path(file_name))
+    mpaths = glob.glob(model_path(outpath) + "*")
     plotfile = outpath + "/kmeans_performance.eps"
+
+    kmean_fits = []
+    for mpath in mpaths:
+        K = re.match(".*_(\d+)$", mpath).group(1)
+        logger.info("Loading model for K={}".format(K))
+        model = KMeansModel.load(mpath)
+        kmean_fits.append((K, model, model.computeCost(data)))
 
     ks = [x[0] for x in kmean_fits]
     mses = [x[2] for x in kmean_fits]
@@ -124,20 +142,15 @@ def plot(kmean_fits, outpath):
     plt.savefig(plotfile, bbox_inches="tight")
 
 
-def fit_cluster(file_name, outpath):
+def fit_cluster(file_name, K, outpath):
     data = get_frame(file_name)
     if not pathlib.Path(outpath).is_dir():
         logger.error("Directory doesnt exist: {}".format(outpath))
         return
-    # try several kmean_fits
-    kmean_fits = []
-    for k in range(2, 11):
-        km = KMeans().setK(k).setSeed(23)
-        model = km.fit(data)
-        model.write().overwrite().save(model_path(outpath, k))
-        kmean_fits.append((k, model, model.computeCost(data)))
-
-    plot(kmean_fits, outpath)
+    logger.info("Clustering with K: {}".format(K))
+    km = KMeans().setK(K).setSeed(23)
+    model = km.fit(data)
+    model.write().overwrite().save(k_model_path(outpath, K))
 
 
 def transform_cluster(file_name, k, outpath):
@@ -145,29 +158,37 @@ def transform_cluster(file_name, k, outpath):
     if not pathlib.Path(outpath).is_dir():
         logger.error("Directory doesnt exist: {}".format(cpath))
         return
-    mpath = model_path(outpath, k)
+    mpath = k_model_path(outpath, k)
     if not pathlib.Path(outpath).is_dir():
         logger.error("Directory doesnt exist: {}".format(mpath))
         return
+
     data = read_parquet_data(cpath)
-    model = KMeansModel.load(data)
-    model.transform(data)
+    model = KMeansModel.load(mpath)
+    data = model.transform(data)
+
     write_parquet_data(cpath, data)
 
 
 if __name__ == "__main__":
+    file_name, outpath, which, opts = read_args(sys.argv[1:])
+    if not file_name.endswith(".tsv"):
+        logger.error("Please provide a tsv file: " + file_name)
+        exit(0)
+    if not pathlib.Path(outpath).is_dir():
+        logger.error("Please provide an existing path: " + outpath)
+        exit(0)
     pyspark.StorageLevel(True, True, False, False, 1)
     conf = pyspark.SparkConf()
     sc = pyspark.SparkContext(conf=conf)
     spark = pyspark.sql.SparkSession(sc)
 
-    file_name, outpath, which, opts = read_args(sys.argv[1:])
-    if not file_name.endswith(".tsv"):
-        raise ValueError("Please provide a tsv file: " + file_name)
     if which == "transform":
         transform_cluster(file_name, opts.K, outpath)
     elif which == "fit":
-        fit_cluster(file_name, outpath)
+        fit_cluster(file_name, opts.K,  outpath)
+    elif which == "plot":
+        plot_cluster(file_name, outpath)
     else:
         logger.error("Wrong which chosen: " + which)
 
