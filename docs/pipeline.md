@@ -32,6 +32,17 @@ Furthermore, to see which feature-sets make most sense to take, we can compute p
   rnai-parse featuresets /cluster/home/simondi/PROJECTS/config_leonhard.yml
 ```
 
+We can have a look at the feature sets using scripts in `1-preprocessing`, 
+such as:
+
+```bash
+  0-create_maximal_feature_sets.R ...
+  0-plot_featuresets.R ...
+```
+which will create plots and data for which features/screens we should use best.
+**NOTE**: I manually modified the output from `rnai-parse featuresets` to 
+load it into `R`.
+
 For this analysis we decided to use different combinates the following 
 plates:
 
@@ -46,7 +57,7 @@ plates:
 Next the parsed data's meta information are stored in a indexed data-based in
 order to quickly retrieve plate information.
   
-```python
+```bash
   rnai-query insert 
    --db /cluster/home/simondi/simondi/data/tix/database/tix_index.db 
    /cluster/home/simondi/simondi/data/tix/screening_data
@@ -54,7 +65,7 @@ order to quickly retrieve plate information.
 
 From this we can readily query data to receive a final data-set:
 
-```python
+```bash
   rnai-query query 
    --db ../database/tix_index.db 
    /cluster/home/simondi/simondi/data/tix/query_data/all.tsv
@@ -68,8 +79,42 @@ We created data-sets using the following queries:
 
 Having the data, we still need to normalize it, which we do using Spark:
 
-```python
+```bash
   rnai-normalize /cluster/home/simondi/simondi/data/tix/query_data/all.tsv
 ```
 
+You can check the distributions of the normalized data with:
+
+```bash
+  1-plot_normalized_features.R
+```
+
 This computes the `z-score` over all plates.
+
+## Analysis
+
+The first step of the analysis is clustering of single cells using
+
+```bash
+    1-kmeans_spark.py 
+```
+
+The input file and output folder should be always the same, for example
+ *cells_sample_10_100lines.tsv* as input and some folder *out* as output.
+ 
+First run the script using `fit` on a couple of different cluster centers`k`s, 
+then plot the results to determine how many cluster centers you need and 
+finally transform the data with the respective `k`.
+
+The job has been submitted locally using:
+ 
+```bash
+  spark-submit --master "local[*]" --driver-memory 3G --executor-memory 6G 1-kmeans_spark.py 
+```
+
+The job has been submitted on Leonhard using:
+
+
+```bash
+
+```
