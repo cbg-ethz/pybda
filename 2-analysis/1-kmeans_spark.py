@@ -5,6 +5,8 @@ import re
 import sys
 import glob
 
+import numpy
+
 import matplotlib.pyplot as plt
 import pyspark
 from pyspark.ml.clustering import KMeansModel, KMeans
@@ -91,8 +93,8 @@ def k_transform_path(outpath, filename, k):
     return k_path(transform_path(outpath, filename), k)
 
 
-def k_performance_plot_path(outpath, file_name):
-    return plot_path(outpath, "performance", file_name) + ".eps"
+def k_performance_plot_path(outpath, file_name, type):
+    return plot_path(outpath, "performance_{}".format(type), file_name) + ".eps"
 
 
 def data_path(file_name):
@@ -146,26 +148,46 @@ def get_frame(file_name):
     return data
 
 
-def plot_cluster(file_name, outpath):
-    logger.info("Plotting cluster for: {}".format(file_name))
-    data = read_parquet_data(data_path(file_name))
-    mpaths = glob.glob(model_path(outpath, file_name) + "*[0-9]")
-    plotfile = k_performance_plot_path(outpath, file_name)
-
+def get_kmean_fit_statistics(mpaths, data):
     kmean_fits = []
     for mpath in mpaths:
         try:
             K = int(re.match(".*_K(\d+)$", mpath).group(1))
             logger.info("Loading model for K={}".format(K))
             model = KMeansModel.load(mpath)
-            kmean_fits.append((K, model, model.computeCost(data)))
+            rss = model.computeCost(data)
+            aic = 2 * K - 2 * numpy.log(1 / rss)
+            bic = numpy.log(data.count()) * K - 2 * numpy.log(1 / rss)
+            kmean_fits.append((
+                K,  model,  rss,  aic,  bic
+            ))
         except AttributeError as e:
             logger.error(
-                "Could not load model {}, due to: {}".format(mpath, str(e)))
+              "Could not load model {}, due to: {}".format(mpath, str(e)))
     kmean_fits.sort(key=lambda x: x[0])
+
+    return kmean_fits
+
+
+def plot_cluster(file_name, outpath):
+    logger.info("Plotting cluster for: {}".format(file_name))
+    data = read_parquet_data(data_path(file_name))
+    mpaths = glob.glob(model_path(outpath, file_name) + "*[0-9]")
+
+    kmean_fits = get_kmean_fit_statistics(mpaths, data)
 
     ks = [x[0] for x in kmean_fits]
     mses = [x[2] for x in kmean_fits]
+    plot(ks, mses, "RSS", outpath, file_name)
+    aics = [x[3] for x in kmean_fits]
+    plot(ks, aics, "AIC", outpath, file_name)
+    bics = [x[4] for x in kmean_fits]
+    plot(ks, bics, "BIC", outpath, file_name)
+
+
+def plot(ks, score, axis_label, outpath, file_name):
+
+    plotfile = k_performance_plot_path(outpath, file_name, axis_label)
 
     font = {'weight': 'normal',
             'family': 'sans-serif',
@@ -180,10 +202,10 @@ def plot_cluster(file_name, outpath):
     ax.spines["right"].set_visible(False)
     ax.spines["left"].set_visible(True)
 
-    ax.plot(ks, mses, "black")
-    ax.plot(ks, mses, "or")
+    ax.plot(ks, score, "black")
+    ax.plot(ks, score, "or")
     plt.xlabel('K', fontsize=15)
-    plt.ylabel('RSS', fontsize=15)
+    plt.ylabel(axis_label, fontsize=15)
     plt.title('')
     ax.grid(True)
     logger.info("Saving plot to: {}".format(plotfile))

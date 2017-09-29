@@ -95,8 +95,15 @@ This computes the `z-score` over all plates.
 
 The first step of the analysis is clustering of single cells using
 
-```bash
-    1-kmeans_spark.py 
+```bash 
+    for in {2..10};
+    do 
+    spark-submit --master "local[*]" --driver-memory 3G --executor-memory 6G \
+                 1-kmeans_spark.py \ 
+                 -o ~/Desktop/test_ba \ 
+                 -f /Users/simondi/PHD/data/data/target_infect_x/query_data/cells_sample_10_normalized_cut_100.tsv \
+                 fit -k $i;
+  done
 ```
 
 The input file and output folder should be always the same, for example
@@ -116,5 +123,6 @@ The job has been submitted on Leonhard using:
 
 
 ```bash
-
+  module load jdk/8u92
+  module load openmpi/2.1.0ps
 ```
