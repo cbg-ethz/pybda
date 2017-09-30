@@ -116,6 +116,12 @@ def write_tsv_data(file_name, data):
     data.write.csv(file_name, mode="overwrite", header=True, sep="\t")
 
 
+def get_feature_columns(data):
+    return list(filter(
+      lambda x: any(x.startswith(f) for f in ["cells", "perin", "nucle"]),
+      data.columns))
+
+
 def get_frame(file_name):
     parquet_file = data_path(file_name)
 
@@ -132,9 +138,7 @@ def get_frame(file_name):
     df = reduce(
       lambda data, idx: data.withColumnRenamed(old_cols[idx], new_cols[idx]),
       range(len(new_cols)), df)
-    feature_columns = list(filter(
-      lambda x: any(x.startswith(f) for f in ["cells", "perin", "nucle"]),
-      df.columns))
+    feature_columns = get_feature_columns(df)
     for x in feature_columns:
         df = df.withColumn(x, df[x].cast("double"))
     df = df.fillna(0)
@@ -156,10 +160,12 @@ def get_kmean_fit_statistics(mpaths, data):
             logger.info("Loading model for K={}".format(K))
             model = KMeansModel.load(mpath)
             rss = model.computeCost(data)
-            aic = 2 * K - 2 * numpy.log(1 / rss)
-            bic = numpy.log(data.count()) * K - 2 * numpy.log(1 / rss)
+            aic = rss + 2 * K * len(get_feature_columns(data))
+            bic = rss + .5 * numpy.log(data.count()) * K * \
+                        len(get_feature_columns(data))
+
             kmean_fits.append((
-                K,  model,  rss,  aic,  bic
+                K, model, rss, aic, bic
             ))
         except AttributeError as e:
             logger.error(
@@ -186,14 +192,13 @@ def plot_cluster(file_name, outpath):
 
 
 def plot(ks, score, axis_label, outpath, file_name):
-
     plotfile = k_performance_plot_path(outpath, file_name, axis_label)
 
     font = {'weight': 'normal',
             'family': 'sans-serif',
             'size': 14}
     plt.rc('font', **font)
-
+    plt.figure()
     ax = plt.subplot(111)
     plt.tick_params(axis="both", which="both", bottom="off", top="off",
                     labelbottom="on", left="off", right="off", labelleft="on")
