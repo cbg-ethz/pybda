@@ -10,11 +10,12 @@ ggthemr("fresh", "scientific")
 options(stringsAsFactors=FALSE)
 
 dir <- "/Users/simondi/PROJECTS/target_infect_x_project/"
-file.overlap.plot     <- paste(dir, "plots/feature_overlap.eps", sep="/")
-file.histogram.plot     <- paste(dir, "plots/feature_histogram.eps", sep="/")
-file.features <- paste(dir, "results/features_per_plate_set/features.log", sep="/")
-file.overlaps <- paste(dir, "results/features_per_plate_set/feature_overlap.tsv", sep="/")
-file.maxsets  <- paste(dir, "results/features_per_plate_set/feature_max_sets.tsv", sep="/")
+file.features <- paste(dir, "results/1-preprocessing/0-features/features.log", sep="/")
+file.maxsets  <- paste(dir, "results/1-preprocessing/0-features/feature_max_sets.tsv", sep="/")
+
+file.overlap.plot   <- paste(dir, "results/1-preprocessing/0-features/feature_overlap.eps", sep="/")
+file.histogram.plot <- paste(dir, "results/1-preprocessing/0-features/feature_histogram.eps", sep="/")
+file.overlaps       <- paste(dir, "results/1-preprocessing/0-features/feature_overlap.tsv", sep="/")
 
 
 plot.heatmap <- function()
