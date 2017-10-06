@@ -8,7 +8,7 @@ We first downloaded the complete data-set using the `BeeDataDownloader`. Subsequ
 
 First we check for the correct number of downloads:
 
-```python 
+```bash
   rnai-parse checkdownload /cluster/home/simondi/PROJECTS/config_leonhard.yml
 ```
 
@@ -16,19 +16,19 @@ This should give some files that are **not** downloaded. These are indeed **empt
 
 Afterwards we parse the files using:
 
-```python
+```bash
   rnai-parse parse /cluster/home/simondi/PROJECTS/config_leonhard.yml
 ```
 
 Having parsed all files, we can check fif everything went as expected by creating a download report:
 
-```python
+```bash
   rnai-parse report /cluster/home/simondi/PROJECTS/config_leonhard.yml
 ```
 
 Furthermore, to see which feature-sets make most sense to take, we can compute pairwise Jaccard indexes between the feature sets using:
 
-```python
+```bash
   rnai-parse featuresets /cluster/home/simondi/PROJECTS/config_leonhard.yml
 ```
 
@@ -36,20 +36,26 @@ We can have a look at the feature sets using scripts in `1-preprocessing`,
 such as:
 
 ```bash
-  0-create_maximal_feature_sets.R ...
-  0-plot_featuresets.R ...
+  0-create_maximal_feature_sets.R features.log
+  1-plot_featuresets.R feature_sets_max.tsv
 ```
+
 which will create plots and data for which features/screens we should use best.
 **NOTE**: I manually modified the output from `rnai-parse featuresets` to 
 load it into `R`.
 
-For this analysis we decided to use different combinates the following 
-plates:
+For this analysis we looked at the results from `1-plot_featuresets.R` and found that
+the best trade off between number of features and number of screens is 256. 
+Thus we used: 
 
-* all quiagen plates (different features)
-* all bartonella plates (has invasomes)
-* brucella-qu-g1-h28[123]-13 (missing online)
-* salmonella-dp-g1-dz{01-57}-2e (missing online)
+```bash
+  2-extract_plates_from_screens.py experiment_meta_file.tsv \
+                                   feature_sets_max.tsv \
+                                   250
+```
+
+which prints the screens for which the number of features is at least 250. Of these 
+we take the maximal number of screens.
 
 
 ## Preprocessing
@@ -59,16 +65,16 @@ order to quickly retrieve plate information.
   
 ```bash
   rnai-query insert 
-   --db /cluster/home/simondi/simondi/data/tix/database/tix_index.db 
-   /cluster/home/simondi/simondi/data/tix/screening_data
+             --db /cluster/home/simondi/simondi/data/tix/database/tix_index.db 
+             /cluster/home/simondi/simondi/data/tix/screening_data
 ``` 
 
 From this we can readily query data to receive a final data-set:
 
 ```bash
   rnai-query query 
-   --db ../database/tix_index.db 
-   /cluster/home/simondi/simondi/data/tix/query_data/all.tsv
+             --db ../database/tix_index.db 
+             --plates 
 ```
    
 We created data-sets using the following queries:

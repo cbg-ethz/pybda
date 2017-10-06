@@ -11,7 +11,7 @@ from functools import reduce
 def run(file):
     """
     Compute screen sets and their feature overlaps on a file computed from
-    `rnai-parse featuresets`.
+    `rnai-parse featuresets` (features.log).
     """
 
     sets = _feature_sets(file)
@@ -26,23 +26,25 @@ def _feature_sets(file):
             screen, features = feature_set[0].split("#")[1].lower(), \
                                feature_set[1].lower().split(",")
             features = list(filter(lambda x: x.startswith("cell") or
-                                             x.startswith("perinuc") or
-                                             x.startswith("nucle"),
-                                   features))
+                                        x.startswith("perinuc") or
+                                        x.startswith("nucle"),
+                              features))
             sets[screen] = sorted(features)
     return sets
 
 
 def _max_set(sets):
+    run = 1
     screens = list(sets.keys())
     max_set = set.intersection(*(set(sets[key]) for key in screens))
-    print("Set size\tScreens\tScreen size\tFeaturesets\tRemoved")
+    print("Feature_size\tFeatures\tScreens\tScreen_size\tRemoved")
     print(str(len(max_set)) + "\t" +
+          ",".join(max_set) + "\t" +
           ",".join(screens) + "\t" +
           str(len(screens)) + "\t" +
-          ",".join(max_set) + "\t" +
           "")
     while len(screens) > 1:
+        run += 1
         remove_screen = ""
         for screen in screens:
             curr_screens = screens.copy()
@@ -58,11 +60,10 @@ def _max_set(sets):
         if remove_screen in screens:
             screens.remove(remove_screen)
         print(str(len(max_set)) + "\t" +
+              ",".join(max_set) + "\t" +
               ",".join(screens) + "\t" +
               str(len(screens)) + "\t" +
-              ",".join(max_set) + "\t" +
-              remove_screen)
-
+              "")
 
 if __name__ == '__main__':
     run()
