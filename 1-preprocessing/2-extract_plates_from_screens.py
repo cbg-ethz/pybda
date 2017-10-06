@@ -21,7 +21,7 @@ def run(plate_mapping, feature_sets, size):
     Print the plates for specific screeps for a given feature set size.\n
     PLATE-MAPPING is a file that maps plates to their screens (experiment_meta_file.tsv).
     FEATURE-SETS is the result from `0-create_maximal_feature_sets.py` (feature_sets_max.tsv).
-    SIZE is the number of features for all screens.
+    SIZE is the  minimal number of features for all screens you wanna get.
     """
 
     plates(plate_mapping, feature_sets, size)
@@ -29,7 +29,7 @@ def run(plate_mapping, feature_sets, size):
 
 def _read_mapping(plate_mapping):
     mapping = {}
-    reg = re.compile("(.*-\w+)\d.*")
+    reg = re.compile("(.*-[A|D|Q][P|U]-[K|G]+).*".lower())
     with open(plate_mapping, "r") as fh:
         for l in fh.readlines():
             if l.startswith("PLATENAME"):
@@ -41,8 +41,8 @@ def _read_mapping(plate_mapping):
                 if screen not in mapping:
                     mapping[screen] = set()
                 mapping[screen].add(plate)
-            except AttributeError as e:
-                logger.error("Missed {}".format(plate))
+            except AttributeError:
+                logger.error("Missed {}: {}".format(tokens[3], plate))
     return mapping
 
 
@@ -84,11 +84,12 @@ def plates(plate_mapping_file, feature_set_file, size):
     plate_set = set()
     for screen in screens:
         if screen not in mapping:
-            logger.warning("Coudt not find screen {}".format(screen))
+            logger.warning("Could not find screen {}".format(screen))
         else:
+            print("Screen {}".format(screen))
             plate_set |= set(mapping[screen])
     for plate in sorted(list(plate_set)):
-        print(plate)
+        print("Plate {}".format(plate))
 
 
 if __name__ == '__main__':

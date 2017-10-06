@@ -63,7 +63,7 @@ def _max_set(sets):
               ",".join(max_set) + "\t" +
               ",".join(screens) + "\t" +
               str(len(screens)) + "\t" +
-              "")
+              remove_screen)
 
 if __name__ == '__main__':
     run()
