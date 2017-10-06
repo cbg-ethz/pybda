@@ -1,7 +1,11 @@
 #!/usr/bin/env python
-from functools import reduce
 
+import logging
+import re
 import click
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 FEATURE_SIZE = "feature_size"
 SCREEN_SIZE = "screen_size"
@@ -25,15 +29,20 @@ def run(plate_mapping, feature_sets, size):
 
 def _read_mapping(plate_mapping):
     mapping = {}
+    reg = re.compile("(.*-\w+)\d.*")
     with open(plate_mapping, "r") as fh:
         for l in fh.readlines():
             if l.startswith("PLATENAME"):
                 continue
             plate = l.strip().split("\t")[0].lower()
-            screen = plate.split("/")[2]
-            if screen not in mapping:
-                mapping[screen] = set()
-            mapping[screen].add(plate)
+            tokens = plate.split("/")
+            try:
+                screen = tokens[1] + "-" + reg.match(tokens[3]).group(1)
+                if screen not in mapping:
+                    mapping[screen] = set()
+                mapping[screen].add(plate)
+            except AttributeError as e:
+                logger.error("Missed {}".format(plate))
     return mapping
 
 
@@ -55,15 +64,31 @@ def _read_feature_sets(feature_sets):
     return fs
 
 
-def plates(plate_mapping, feature_sets, size):
-    mapping = _read_mapping(plate_mapping)
-    feature_sets = _read_feature_sets(feature_sets)
-    sets = max(
-      filter(lambda x: x[FEATURE_SIZE] >= size, feature_sets),
-      key=lambda x: x[SCREEN_SIZE]
-    )
-    screens = sets[SCREENS].split(",")
-    print(sets)
+def _get_screens(feature_sets, size):
+    feature_sets_filtered = filter(
+      lambda x: x[FEATURE_SIZE] >= size, feature_sets)
+    feature_set_best = max(feature_sets_filtered,
+                           key=lambda x: x[SCREEN_SIZE])
+    screens = feature_set_best[SCREENS].split(",")
+    return screens
+
+
+def plates(plate_mapping_file, feature_set_file, size):
+    # screen -> plate mapping
+    mapping = _read_mapping(plate_mapping_file)
+    # feature set list consisting of feature sets, max size, etc.
+    feature_sets = _read_feature_sets(feature_set_file)
+    # the screen ids that fit the size criteria
+    screens = _get_screens(feature_sets, size)
+    # get the respective plates
+    plate_set = set()
+    for screen in screens:
+        if screen not in mapping:
+            logger.warning("Coudt not find screen {}".format(screen))
+        else:
+            plate_set |= set(mapping[screen])
+    for plate in sorted(list(plate_set)):
+        print(plate)
 
 
 if __name__ == '__main__':
