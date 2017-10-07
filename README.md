@@ -24,25 +24,13 @@ That should be all you need.
 
 ## Files and folders
 
+#### Numbered folders
+
+This is the pipeline followed for analysis. Check out the folders' `README.md`s.
+
 #### Docs
 
-Collection of documentation files how to run `Spark`.
-
-#### _test_notebooks
-
-Random tests.
-
-#### Notebooks
-
-Main analysis pipelines for testing with `Spark`. This is mainly for testing `Spark` with a REPL.
-
-#### Scripts
-
-Main `Spark` data analysis scripts. These files are the main result files.
-
-#### Util
-
-Files for parsing and other minor things.
+Collection of documentation files how to run `Spark` and the summary of the analysis (`pipeline`).
 
 ## Author
 

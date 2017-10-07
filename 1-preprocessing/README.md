@@ -39,3 +39,4 @@ The last file (`feature_database_query.tsv`) can be used with `rnai-query` to ge
 ```bash
   5-rnai_query.sh NUM_CELLS
 ```
+This also normalized the data which are now ready for use.
