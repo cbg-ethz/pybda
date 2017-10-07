@@ -102,8 +102,8 @@ This computes the `z-score` over all plates.
 The first step of the analysis is clustering of single cells using
 
 ```bash 
-    for in {2..10};
-    do 
+  for in {2..10};
+  do 
     spark-submit --master "local[*]" --driver-memory 3G --executor-memory 6G \
                  1-kmeans_spark.py \ 
                  -o ~/Desktop/test_ba \ 
@@ -125,10 +125,19 @@ The job has been submitted locally using:
   spark-submit --master "local[*]" --driver-memory 3G --executor-memory 6G 1-kmeans_spark.py 
 ```
 
-The job has been submitted on Leonhard using:
-
-
+  The job is submitted on a grid using:
 ```bash
   module load jdk/8u92
   module load openmpi/2.1.0
+  
+  ./1a-start_cluster.sh
+  ./1b-launch_cluster.sh
+  
+  # get master
+  sparkcluster info
+   
+  ./1c-kmeans-fit.py spark:master K
+  ./1d-kmeans-plot.py spark:master
+  ./1e-kmeans-transform.py spark:master K
+```
 ```

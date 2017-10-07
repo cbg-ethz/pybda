@@ -32,5 +32,10 @@ Parses the file created above:
 
 Query the database and write result to file (since the API does not work with such a large plate list)
 ```bash
-  4-get_file_sets_from_db.sh feature_plate_names.tsv feature_database_query.tsv
+  4-get_file_sets_from_db.sh feature_plate_names.tsv  feature_database_query.tsv
+```
+
+The last file (`feature_database_query.tsv`) can be used with `rnai-query` to get the data from the database.
+```bash
+  rnai-query query --from-file feature_database_query.tsv
 ```

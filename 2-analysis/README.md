@@ -56,3 +56,5 @@ The job is submitted on a grid using:
   ./1d-kmeans-plot.py spark:master
   ./1e-kmeans-transform.py spark:master K
 ```
+
+**Note that mpi and java needs to be loaded on every shell session.**
