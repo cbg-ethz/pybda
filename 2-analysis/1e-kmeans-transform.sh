@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-
 if [ $# -ne 2 ]
 then
   echo -e "Usage: ./$0 spark:master K"

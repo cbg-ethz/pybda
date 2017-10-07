@@ -1,1 +1,0 @@
-bsub -o ~/bsub/load_optimal_10.log -e ~/bsub/load_optimal_10.err -q normal.120h -M 200000 -n1 -R "rusage[mem=200000]" rnai-query query --db ~/simondi/data/tix/database/tix_index.db --from-file /cluster/home/simondi/PROJECTS/tix-util/results/1-preprocessing/0-features/feature_database_query_head.tsv --sample 10  ~/simondi/data/tix/query_data/all_optimal_set_10.tsv

@@ -37,5 +37,5 @@ Query the database and write result to file (since the API does not work with su
 
 The last file (`feature_database_query.tsv`) can be used with `rnai-query` to get the data from the database.
 ```bash
-  rnai-query query --from-file feature_database_query.tsv
+  5-rnai_query.sh NUM_CELLS
 ```
