@@ -53,4 +53,5 @@ The job is submitted on a grid using:
   sparkcluster info
    
   ./1c-kmeans-fit.py spark:master K
+  ./1d-kmeans-fit.py spark:master
 ```
