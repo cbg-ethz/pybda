@@ -2,3 +2,4 @@ statsmodels>=0.8.0
 ipython>=4.1.1
 scipy>=0.18.0
 numpy>=1.11.1
+matplotlib>=2.0.2

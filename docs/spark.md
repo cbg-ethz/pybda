@@ -1,11 +1,5 @@
 <h1 align="center"> tix notebooks </h1>
 
-Collections of scripts for the data analysis using pyspark.
-
-## Starting the sparkcluster
-
-This is exactly how Rok describes it in the tutorials. ** DONT FORGET LOADING JAVA BEFORE**
-
 
 ## Remote hpcnotebook
 
@@ -68,9 +62,9 @@ Options to submit:
     spark = pyspark.sql.SparkSession(sc)
   ```
 
- ```¬
+```bash
     /usr/local/spark/spark/bin/spark-submit --driver-memory 10G ./tix_scripts/tix_normalize.py¬
- ```
+```
 
 3.
 
@@ -123,8 +117,9 @@ Options to submit:
 
 ```
     # seems to work: single core exe
-     sparkcluster start --memory-per-executor 15000 --memory-per-core 10000 --walltime 4:00 --cores-per-executor 1  20
-    sparkcluster launch --memory 190G --timeout 10
+     sparkcluster start --memory-per-executor 15000 --memory-per-core 10000  --walltime 4:00 --cores-per-executor 1 20 
+     
+     sparkcluster launch --memory 190G --timeout 10
 
     /cluster/home/simondi/spark/bin/spark-submit  --master spark://10.205.0.129:7078
        --num-executors 20 --executor-cores 1  --total-executor-cores 20

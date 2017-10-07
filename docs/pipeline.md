@@ -130,5 +130,5 @@ The job has been submitted on Leonhard using:
 
 ```bash
   module load jdk/8u92
-  module load openmpi/2.1.0ps
+  module load openmpi/2.1.0
 ```
