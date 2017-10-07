@@ -6,8 +6,10 @@ import sys
 import glob
 
 import numpy
-
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+
 import pyspark
 from pyspark.ml.clustering import KMeansModel, KMeans
 from pyspark.ml.feature import VectorAssembler
