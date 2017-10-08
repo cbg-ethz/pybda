@@ -1,4 +1,4 @@
-## Tix preprocessing
+## Tix feature preprocessing
 
 Check out `pipeline.md`, too.
 

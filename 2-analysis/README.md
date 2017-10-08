@@ -41,7 +41,7 @@ The clustering can be done like this locally:
                transform -k BEST_K_FROM_PLOT
 ```
 
-The job is submitted on a grid using:
+**Note that mpi and java needs to be loaded on every shell session.** The job is submitted on a grid using:
 ```bash
   module load jdk/8u92
   module load openmpi/2.1.0
@@ -55,6 +55,5 @@ The job is submitted on a grid using:
   ./1c-kmeans-fit.py spark:master K
   ./1d-kmeans-plot.py spark:master
   ./1e-kmeans-transform.py spark:master K
+  ./1f-kmeans-statistics.py spark:master K
 ```
-
-**Note that mpi and java needs to be loaded on every shell session.**

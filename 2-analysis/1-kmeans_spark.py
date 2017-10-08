@@ -4,13 +4,13 @@ import pathlib
 import re
 import sys
 import glob
+import pyspark
 
 import numpy
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-import pyspark
 from pyspark.ml.clustering import KMeansModel, KMeans
 from pyspark.ml.feature import VectorAssembler
 from pyspark.rdd import reduce
@@ -93,6 +93,10 @@ def k_model_path(outpath, filename, k):
 
 def k_transform_path(outpath, filename, k):
     return k_path(transform_path(outpath, filename), k)
+
+
+def k_transform_centers_path(outpath, file_name, k):
+    return k_transform_path(outpath, file_name , k) + "-cluster_centers.tsv"
 
 
 def k_performance_plot_path(outpath, file_name, type):
@@ -242,15 +246,23 @@ def transform_cluster(file_name, k, outpath):
     logger.info("Loading/clustering KMeansModel with k={}".format(k))
     data = read_parquet_data(cpath)
     model = KMeansModel.load(mpath)
-    # transform data and selecti
+
+    copath = k_transform_centers_path(outpath, file_name, k)
+    print(copath)
+    logger.info("Writing cluster centers to: {}".format(copath))
+    with open(copath, "w") as fh:
+        fh.write("#Clustercenters\n")
+        for center in model.clusterCenters():
+            fh.write("\t".join(map(str, center)) + '\n')
+
+    # transform data and select
     data = model.transform(data).select(
       "study", "pathogen", "library", "design", "replicate",
       "plate", "well", "gene", "sirna", "well_type",
-      "image_idx", "object_idx", "prediction")
-
+      "image_idx", "object_idx", "prediction", "features")
     logger.info("Writing clustered data to parquet")
     opath = k_transform_path(outpath, file_name, k)
-    write_tsv_data(opath, data)
+    write_parquet_data(opath, data)
 
 
 def loggername(which, outpath, file_name, k=None):
