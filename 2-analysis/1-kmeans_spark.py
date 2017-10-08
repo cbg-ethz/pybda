@@ -248,7 +248,6 @@ def transform_cluster(file_name, k, outpath):
     model = KMeansModel.load(mpath)
 
     copath = k_transform_centers_path(outpath, file_name, k)
-    print(copath)
     logger.info("Writing cluster centers to: {}".format(copath))
     with open(copath, "w") as fh:
         fh.write("#Clustercenters\n")
@@ -261,7 +260,9 @@ def transform_cluster(file_name, k, outpath):
       "plate", "well", "gene", "sirna", "well_type",
       "image_idx", "object_idx", "prediction", "features")
     logger.info("Writing clustered data to parquet")
+
     opath = k_transform_path(outpath, file_name, k)
+    print(path)
     write_parquet_data(opath, data)
 
 
