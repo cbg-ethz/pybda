@@ -78,13 +78,13 @@ run <- function()
   opt_parser <- OptionParser(option_list=option_list)
   opt        <- parse_args(opt_parser)
 
+  algos <- c("gs", "iamb", "mmpc", "hc", "tabu", "chowliu")
   if (is.null(opt$algorithm))
   {
     print_help(opt_parser)
-    stop("Please provide correct arguments")
+    stop(paste("Please provide correct arguments:", paste(algos, sep="/", collapse="/")))
   }
   algo <- opt$algorithm
-  algos <- c("gs", "iamb", "mmpc", "hc", "tabu", "chowliu")
   if (algo %in% algos)
   {
     stop(paste("Algorithm", algo, "does not exist!"))
