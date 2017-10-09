@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 from pyspark.ml.feature import PCA
 from pyspark.ml.linalg import Vector, Vectors
 from pyspark.sql.window import Window
+from pyspark.ml.feature import StandardScaler
 from pyspark.sql.functions import row_number
 
 logger = logging.getLogger(__name__)
@@ -68,25 +69,37 @@ def transform_pca(folder):
     logger.info("Loading/clustering Kmeans clustering")
     data = read_parquet_data(folder)
 
-    pca = PCA(k=2, inputCol="features", outputCol="pcs")
+    scaler = StandardScaler(inputCol="features",
+                            outputCol="scaledFeatures",
+                            withStd=True,
+                            withMean=True)
+    scalerModel = scaler.fit(data)
+    data = scalerModel.transform(data)
+
+    pca = PCA(k=2, inputCol="scaledFeatures", outputCol="pcs")
+
     model = pca.fit(data)
     data = model.transform(data)
     opath = pca_transform_path(folder)
     write_parquet_data(opath, data)
 
-    data_small = data.withColumn("row_num", row_number().over(
-        Window.partitionBy(["pathogen", "gene", "sirna"]).orderBy("gene")))
-    data_small = data_small.filter("row_num <= 10")
+    data = data.withColumn(
+      "row_num",
+      row_number().over(Window.partitionBy(["pathogen", "gene"])
+                        .orderBy(["pathogen", "gene"])))
+
+    data_small = data.filter("row_num <= 10")
     data_small = data_small.select(
       ["pathogen", "gene", "sirna", "prediction", "pcs"]).toPandas()
-    data_small[['pc1', 'pc2']] = pandas.DataFrame(data_small.pcs.values.tolist())
+    data_small[['pc1', 'pc2']] = pandas.DataFrame(
+        data_small.pcs.values.tolist())
     del data_small['pcs']
     opandname = pca_transform_tsv_path(folder)
     write_pandas_tsv(opandname, data_small)
 
 
 def loggername(outpath):
-    name =  pca_transform_path(outpath)
+    name = pca_transform_path(outpath)
     return name + ".log"
 
 
