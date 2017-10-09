@@ -1,6 +1,5 @@
 #!/usr/bin/env Rscript
 
-
 suppressMessages(library(dplyr, quietly=T))
 suppressMessages(library(tibble, quietly=T))
 suppressMessages(library(stringr, quietly=T))
@@ -17,6 +16,7 @@ if (!dir.exists(dir))
 }
 file.in        <- list.files(dir, pattern="-.tsv", full.names=TRUE)
 file.in.header <- list.files(dir, pattern="header.tsv", full.names=TRUE)
+rds.file <- list.files(dir, pattern=".rds", full.names=TRUE)
 
 bn.learn <- function(algo)
 {
@@ -33,7 +33,7 @@ bn.learn <- function(algo)
   colnames(full.tbl)[startsWith(colnames(full.tbl), "Feature_")] <- header
   for (he in header)
   {
-    full.tbl[he] <- factor(cut(full.tbl[[he]], 1000, labels=FALSE))
+    full.tbl[he] <- factor(cut(full.tbl[[he]], 100, labels=FALSE))
   }
   learn.tb <- full.tbl %>% dplyr::select(-prediction, -pc1, -pc2)
   learn.tb$pathogen <- factor(learn.tb$pathogen)
