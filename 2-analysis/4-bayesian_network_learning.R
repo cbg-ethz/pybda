@@ -1,19 +1,12 @@
-library(dplyr)
-library(dtplyr)
-library(tibble)
-library(stringr)
-library(data.table)
-library(bnlearn)
-library(optparse)
+#!/usr/bin/env Rscript
 
-library(ggplot2)
-library(hrbrthemes)
-library(ggthemr)
-library(viridis)
-library(cowplot)
 
-hrbrthemes::import_roboto_condensed()
-extrafont::loadfonts()
+suppressMessages(library(dplyr, quietly=T))
+suppressMessages(library(tibble, quietly=T))
+suppressMessages(library(stringr, quietly=T))
+suppressMessages(library(readr, quietly=T))
+suppressMessages(library(bnlearn, quietly=T))
+suppressMessages(library(optparse, quietly=T))
 
 options(stringsAsFactors=FALSE)
 
@@ -28,8 +21,6 @@ file.in.header <- list.files(dir, pattern="header.tsv", full.names=TRUE)
 bn.learn <- function(algo)
 {
 
-  message(paste("Learning network with", algo, "!"))
-
   full.tbl <- readr::read_tsv(file.in, col_names=TRUE) %>% as_tibble
   header <-
      readr::read_tsv(file.in.header, col_names=FALSE) %>%
@@ -42,7 +33,6 @@ bn.learn <- function(algo)
   colnames(full.tbl)[startsWith(colnames(full.tbl), "Feature_")] <- header
   for (he in header)
   {
-    print(he)
     full.tbl[he] <- factor(cut(full.tbl[[he]], 1000, labels=FALSE))
   }
   learn.tb <- full.tbl %>% dplyr::select(-prediction, -pc1, -pc2)
@@ -55,6 +45,7 @@ bn.learn <- function(algo)
   learn.tb$perinuclei.children_cells_count <- NULL
   learn.tb$nuclei.children_perinuclei_count <- NULL
 
+  message(paste("Learning network with", algo, "!"))
   net <- switch(
       algo,
       "gs"      = bnlearn::gs(as.data.frame(learn.tb)),
@@ -66,8 +57,8 @@ bn.learn <- function(algo)
     )
     net <- bnlearn::gs(as.data.frame(learn.tb))
 
-    out.net <- sub(".tsv", paste0("-", algo, "-net.rds"),  file.in)
-    saveRDS(net, file=out.net)
+  out.net <- sub(".tsv", paste0("-", algo, "-net.rds"),  file.in)
+  saveRDS(net, file=out.net)
 }
 
 run <- function()
@@ -85,9 +76,9 @@ run <- function()
     stop(paste("Please provide correct arguments:", paste(algos, sep="/", collapse="/")))
   }
   algo <- opt$algorithm
-  if (algo %in% algos)
+  if (!(algo %in% algos))
   {
-    stop(paste("Algorithm", algo, "does not exist!"))
+    stop(paste("Algorithm", algo, "does not exist.", "Please provide correct arguments:", paste(algos, sep="/", collapse="/")))
   }
 
   bn.learn(algo)
