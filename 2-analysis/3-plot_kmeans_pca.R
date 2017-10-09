@@ -11,7 +11,7 @@ hrbrthemes::import_roboto_condensed()
 extrafont::loadfonts()
 
 options(stringsAsFactors=FALSE)
-http://127.0.0.1:41251/graphics/plot_zoom_png?width=1920&height=1155
+
 dir <- "/Users/simondi/PROJECTS/target_infect_x_project/results/2-analysis/2-pca/"
 file.in   <- list.files(dir, pattern="sample.tsv", full.names=TRUE)
 file.in.var   <- list.files(dir, pattern="variance.tsv", full.names=TRUE)
@@ -34,7 +34,7 @@ plot.single.cells <- function()
   a <- ggplot2::ggplot(tbl2) +
     xlab(paste("Explained variance:", sprintf("%1.3f", vars[1]))) +
     ylab(paste("Explained variance:", sprintf("%1.3f", vars[2]))) +
-   hrbrthemes::theme_ipsum_rc() +
+    hrbrthemes::theme_ipsum_rc() +
     ggplot2::theme(axis.text.x  = ggplot2::element_text( size=18),
                    axis.text.y  = ggplot2::element_text(size=18),
                    axis.title.x   = ggplot2::element_text(size=20),
