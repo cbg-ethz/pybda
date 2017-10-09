@@ -47,6 +47,10 @@ def pca_transform_tsv_path(folder):
     return pca_transform_path(folder) + "_sample.tsv"
 
 
+def pca_transform_variance_path(folder):
+    return pca_transform_path(folder) + "_explained_variance.tsv"
+
+
 def read_parquet_data(file_name):
     logger.info("Reading parquet: {}".format(file_name))
     return spark.read.parquet(file_name)
@@ -82,6 +86,13 @@ def transform_pca(folder):
     data = model.transform(data)
     opath = pca_transform_path(folder)
     write_parquet_data(opath, data)
+
+    varpath = pca_transform_variance_path(folder)
+    logger.info("Writing variances to: {}".format(varpath))
+    with open(varpath, "w") as fh:
+        fh.write("#Explained variance\n")
+        fh.write("\t".join(map(str, model.explainedVariance)) + "\n")
+
 
     data = data.withColumn(
       "row_num",
