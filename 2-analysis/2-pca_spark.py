@@ -88,14 +88,13 @@ def transform_pca(folder):
       row_number().over(Window.partitionBy(["pathogen", "gene"])
                         .orderBy(["pathogen", "gene"])))
 
-    data_small = data.filter("row_num <= 10")
-    data_small = data_small.select(
+    data = data.filter("row_num <= 10")
+    datap = data_small.select(
       ["pathogen", "gene", "sirna", "prediction", "pcs"]).toPandas()
-    data_small[['pc1', 'pc2']] = pandas.DataFrame(
-        data_small.pcs.values.tolist())
-    del data_small['pcs']
+    datap[['pc1', 'pc2']] = pandas.DataFrame(datap.pcs.values.tolist())
+    del datap['pcs']
     opandname = pca_transform_tsv_path(folder)
-    write_pandas_tsv(opandname, data_small)
+    write_pandas_tsv(opandname, datap)
 
 
 def loggername(outpath):
