@@ -115,7 +115,8 @@ def transform_pca(folder):
         range(len(datap.loc[0, "scaledFeatures"]))]
     datap[['pc1', 'pc2']] = pandas.DataFrame(datap.pcs.values.tolist())
     del datap['pcs']
-    datap[new_feature_names] = pandas.DataFrame(datap.scaledFeatures.values.tolist())
+    datap[new_feature_names] = pandas.DataFrame(
+      datap.scaledFeatures.values.tolist())
     del datap['scaledFeatures']
 
     opandname = pca_transform_tsv_path(folder)
