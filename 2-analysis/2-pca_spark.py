@@ -73,10 +73,11 @@ def transform_pca(folder):
     data = model.transform(data)
     opath = pca_transform_path(folder)
     write_parquet_data(opath, data)
-
+    
     data_small = data.withColumn("row_num", row_number().over(
         Window.partitionBy(["pathogen", "gene", "sirna"]).orderBy("gene")))
-    data_small = data_small.filter("row_num <= 10")
+    del data
+    data_small = data_small.filter("row_num <= 5")
     data_small = data_small.select(
       ["pathogen", "gene", "sirna", "prediction", "pcs"]).toPandas()
     data_small[['pc1', 'pc2']] = pandas.DataFrame(data_small.pcs.values.tolist())
