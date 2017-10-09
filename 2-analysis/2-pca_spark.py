@@ -130,9 +130,10 @@ def run():
     sc = pyspark.SparkContext(conf=conf)
     global spark
     spark = pyspark.sql.SparkSession(sc)
-
-    transform_pca(folder)
-
+    try:
+      transform_pca(folder)
+    except Exception as e:
+        logger.error("Random exception: {}".format(str(e)))
     spark.stop()
 
 
