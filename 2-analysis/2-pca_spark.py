@@ -28,7 +28,8 @@ def read_args(args):
     parser = argparse.ArgumentParser(description='PCA on a clustered dataset.')
     parser.add_argument('-f',
                         type=str,
-                        help='the folder where the clustered/transformed data lie',
+                        help='the folder where the clustered/transformed data lie,'
+                             ' i.e. kmeans_transform-*_K005',
                         required=True,
                         metavar="input-folder")
 

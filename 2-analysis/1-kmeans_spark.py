@@ -44,7 +44,9 @@ def read_args(args):
                         metavar="output-folder")
     parser.add_argument('-f',
                         type=str,
-                        help='the file you want to cluster',
+                        help='the file you want to cluster, i.e. a file derived '
+                             'from rnai-query like '
+                             'cells_sample_10_normalized_cut_100.tsv',
                         required=True,
                         metavar="input-file")
     parser_t.add_argument('-k',

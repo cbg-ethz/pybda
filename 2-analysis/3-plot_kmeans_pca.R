@@ -10,12 +10,13 @@ hrbrthemes::import_roboto_condensed()
 
 options(stringsAsFactors=FALSE)
 
-fl <- "~/Desktop/test_ba/pca_transform-cells_sample_10_normalized_cut_100_K005_sample.tsv"
-fl.plot.out <- ""
+dir <- "/Users/simondi/PROJECTS/target_infect_x_project/results/2-analysis/2-pca/"
+file.in <- list.files(dir, pattern=".tsv", full.names=TRUE)
+plot.out  <- paste(dir, "pca_plot.eps", sep="/")
 
-
-plot.maxsets <- function()
+plot.single.cells <- function()
 {
+
   tbl <- readr::read_tsv(fl, col_names=TRUE)
 
    a <- ggplot2::ggplot(tbl) +
