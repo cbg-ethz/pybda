@@ -45,7 +45,7 @@ def pca_transform_path(folder):
 
 
 def pca_transform_tsv_path(folder):
-    return pca_transform_path(folder) + "_sample-{}-.tsv".format(uuid.UUID())
+    return pca_transform_path(folder) + "_sample-{}.tsv".format(uuid.uuid4())
 
 
 def pca_transform_variance_path(folder):
@@ -71,11 +71,12 @@ def transform_pca(folder):
         logger.error("Directory doesnt exist: {}".format(folder))
         return
 
-    logger.info("Loading/clustering Kmeans clustering")
+    logger.info("Loading Kmeans clustering")
     data = read_parquet_data(folder)
 
     opath = pca_transform_path(folder)
     if not pathlib.Path(opath).is_dir():
+        logger.info("Standardizing data")
         scaler = StandardScaler(inputCol="features",
                                 outputCol="scaledFeatures",
                                 withStd=True,
@@ -83,10 +84,11 @@ def transform_pca(folder):
         scalerModel = scaler.fit(data)
         data = scalerModel.transform(data)
 
+        logger.info("Doping PCA")
         pca = PCA(k=2, inputCol="scaledFeatures", outputCol="pcs")
         model = pca.fit(data)
         data = model.transform(data)
-
+        logger.info("Writing to: {}".format(opath))
         write_parquet_data(opath, data)
 
         varpath = pca_transform_variance_path(folder)
@@ -102,7 +104,9 @@ def transform_pca(folder):
       row_number().over(
         Window.partitionBy(["pathogen", "gene"]).orderBy(["pathogen", "gene"])))
 
-    data = data.filter("row_num <= 10")
+    genes = [i.gene for i in data.select("gene").distinct().sample(False, fraction=.5).limit(100).collect()]
+    data = data.where(data.gene.isin(genes))
+    data = data.filter("row_num <= 100")
     datap = data.select(
       ["pathogen", "gene", "sirna", "prediction", "pcs", "scaledFeatures"]) \
         .toPandas()
@@ -110,11 +114,12 @@ def transform_pca(folder):
         "Feature_{}".format(x) for x in
         range(len(datap.loc[0, "scaledFeatures"]))]
     datap[['pc1', 'pc2']] = pandas.DataFrame(datap.pcs.values.tolist())
-    datap[new_feature_names] = pandas.DataFrame(
-      datap.scaledFeatures.values.tolist())
     del datap['pcs']
+    datap[new_feature_names] = pandas.DataFrame(datap.scaledFeatures.values.tolist())
     del datap['scaledFeatures']
+
     opandname = pca_transform_tsv_path(folder)
+    logger.info("Writing sample table to: {}".format(opandname))
     write_pandas_tsv(opandname, datap)
 
 
