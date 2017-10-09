@@ -89,7 +89,7 @@ def transform_pca(folder):
                         .orderBy(["pathogen", "gene"])))
 
     data = data.filter("row_num <= 10")
-    datap = data_small.select(
+    datap = data.select(
       ["pathogen", "gene", "sirna", "prediction", "pcs"]).toPandas()
     datap[['pc1', 'pc2']] = pandas.DataFrame(datap.pcs.values.tolist())
     del datap['pcs']
