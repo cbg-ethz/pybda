@@ -3,6 +3,7 @@ import logging
 import pathlib
 import re
 import sys
+import uuid
 import pandas
 import pyspark
 
@@ -44,7 +45,7 @@ def pca_transform_path(folder):
 
 
 def pca_transform_tsv_path(folder):
-    return pca_transform_path(folder) + "_sample.tsv"
+    return pca_transform_path(folder) + "_sample-{}-.tsv".format(uuid.UUID())
 
 
 def pca_transform_variance_path(folder):
@@ -73,37 +74,46 @@ def transform_pca(folder):
     logger.info("Loading/clustering Kmeans clustering")
     data = read_parquet_data(folder)
 
-    scaler = StandardScaler(inputCol="features",
-                            outputCol="scaledFeatures",
-                            withStd=True,
-                            withMean=True)
-    scalerModel = scaler.fit(data)
-    data = scalerModel.transform(data)
-
-    pca = PCA(k=2, inputCol="scaledFeatures", outputCol="pcs")
-
-    model = pca.fit(data)
-    data = model.transform(data)
     opath = pca_transform_path(folder)
-    write_parquet_data(opath, data)
+    if not pathlib.Path(opath).is_dir():
+        scaler = StandardScaler(inputCol="features",
+                                outputCol="scaledFeatures",
+                                withStd=True,
+                                withMean=True)
+        scalerModel = scaler.fit(data)
+        data = scalerModel.transform(data)
 
-    varpath = pca_transform_variance_path(folder)
-    logger.info("Writing variances to: {}".format(varpath))
-    with open(varpath, "w") as fh:
-        fh.write("#Explained variance\n")
-        fh.write("\t".join(map(str, model.explainedVariance)) + "\n")
+        pca = PCA(k=2, inputCol="scaledFeatures", outputCol="pcs")
+        model = pca.fit(data)
+        data = model.transform(data)
 
+        write_parquet_data(opath, data)
+
+        varpath = pca_transform_variance_path(folder)
+        logger.info("Writing variances to: {}".format(varpath))
+        with open(varpath, "w") as fh:
+            fh.write("#Explained variance\n")
+            fh.write("\t".join(map(str, model.explainedVariance)) + "\n")
+    else:
+        data = read_parquet_data(opath)
 
     data = data.withColumn(
       "row_num",
-      row_number().over(Window.partitionBy(["pathogen", "gene"])
-                        .orderBy(["pathogen", "gene"])))
+      row_number().over(
+        Window.partitionBy(["pathogen", "gene"]).orderBy(["pathogen", "gene"])))
 
     data = data.filter("row_num <= 10")
     datap = data.select(
-      ["pathogen", "gene", "sirna", "prediction", "pcs"]).toPandas()
+      ["pathogen", "gene", "sirna", "prediction", "pcs", "scaledFeatures"]) \
+        .toPandas()
+    new_feature_names = [
+        "Feature_{}".format(x) for x in
+        range(len(datap.loc[0, "scaledFeatures"]))]
     datap[['pc1', 'pc2']] = pandas.DataFrame(datap.pcs.values.tolist())
+    datap[new_feature_names] = pandas.DataFrame(
+      datap.scaledFeatures.values.tolist())
     del datap['pcs']
+    del datap['scaledFeatures']
     opandname = pca_transform_tsv_path(folder)
     write_pandas_tsv(opandname, datap)
 
@@ -131,7 +141,7 @@ def run():
     global spark
     spark = pyspark.sql.SparkSession(sc)
     try:
-      transform_pca(folder)
+        transform_pca(folder)
     except Exception as e:
         logger.error("Random exception: {}".format(str(e)))
     spark.stop()
