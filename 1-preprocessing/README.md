@@ -9,17 +9,17 @@ Mentioned files are found in the `results` folder.
 The entry to this part is `features.log` which been created using `rnai-parse featuresets`.
 Some manual processing has been to, e.g., to create the file `feature_overlap.tsv` (see `result` folder).
 
-Create the feature sets created from calling `rnai-parse featuresets` 
+Create the feature sets created from calling `rnai-parse featuresets`
 ```bash
   0-create_maximal_feature_sets.py features.log >  feature_sets_max.tsv
 ```
 
 Create plots (`feature_overlap.eps` and `feature_histogram.eps`) from the files created during the step
 ```bash
-  Rscript 1-plot_featuresets.R
+  ./1-plot_featuresets.R
 ```
- 
-Print ths plates with maximal feature sets:
+
+Print the plates with maximal feature sets:
 ```bash
   2-extract_plates_from_screens experiment_meta_file.tsv feature_sets_max.tsv 250 > feature_plates_and_screens.tsv
 ```

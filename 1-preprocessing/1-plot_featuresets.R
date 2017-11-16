@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 
 library(dplyr)
 library(dtplyr)
@@ -16,11 +17,11 @@ options(stringsAsFactors=FALSE)
 
 dir <- "/Users/simondi/PROJECTS/target_infect_x_project/"
 file.features <- paste(dir, "results/1-preprocessing/0-features/current_analysis/featuresets_feature_files.tsv", sep="/")
-file.maxsets  <- paste(dir, "results/1-preprocessing/0-features/feature_sets_max.tsv", sep="/")
+file.maxsets  <- paste(dir, "results/1-preprocessing/0-features/current_analysis/feature_sets_max.tsv", sep="/")
 
-file.overlap.plot   <- paste(dir, "results/1-preprocessing/0-features/feature_overlap.eps", sep="/")
-file.histogram.plot <- paste(dir, "results/1-preprocessing/0-features/feature_histogram.eps", sep="/")
-file.overlaps       <- paste(dir, "results/1-preprocessing/0-features/feature_overlap.tsv", sep="/")
+file.overlap.plot   <- paste(dir, "results/1-preprocessing/0-features/current_analysis/feature_overlap.eps", sep="/")
+file.histogram.plot <- paste(dir, "results/1-preprocessing/0-features/current_analysis/feature_histogram.eps", sep="/")
+file.overlaps       <- paste(dir, "results/1-preprocessing/0-features/current_analysis/feature_overlap.tsv", sep="/")
 
 
 plot.heatmap <- function()
