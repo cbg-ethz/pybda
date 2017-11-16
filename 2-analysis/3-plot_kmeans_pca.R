@@ -13,7 +13,7 @@ extrafont::loadfonts()
 options(stringsAsFactors=FALSE)
 
 dir <- "/Users/simondi/PROJECTS/target_infect_x_project/results/2-analysis/2-pca/"
-file.in   <- list.files(dir, pattern="sample.tsv", full.names=TRUE)
+file.in   <- list.files(dir, pattern="-.tsv", full.names=TRUE)
 file.in.var   <- list.files(dir, pattern="variance.tsv", full.names=TRUE)
 plot.out  <- sub(".tsv", "-scatter_plot", file.in)
 
@@ -27,8 +27,8 @@ plot.single.cells <- function()
 
   gprs <- group_indices(full.tbl, gene)
   full.tbl <- full.tbl %>% dplyr::mutate(g = gprs)
-  tbl <- full.tbl %>% dplyr::filter(g %in% sample(gprs, 50, replace=FALSE))
-  tbl2 <- tbl %>% dplyr::group_by(pathogen, gene)  %>% ungroup
+  tbl <- full.tbl %>% dplyr::filter(g %in% sample(gprs, 100, replace=FALSE))
+  tbl2 <- tbl %>% dplyr::group_by(pathogen, gene)  %>% sample_n(10) %>% ungroup
   tbl2$prediction <- factor(tbl2$prediction, labels=seq(unique(tbl2$prediction)))
 
   a <- ggplot2::ggplot(tbl2) +
@@ -46,6 +46,7 @@ plot.single.cells <- function()
       scale_color_viridis(discrete=T, guide=FALSE) +
       labs(title="PCA colored by cluster")
   ggsave(paste(plot.out, "clustering.eps", sep="-"))
+  ggsave(paste(plot.out, "clustering.png", sep="-"), dpi=450)
 
   pathogen.plt <-
     a + geom_point(aes(pc1, pc2, color=pathogen, shape=prediction), size=1, stroke=1) +
@@ -53,6 +54,7 @@ plot.single.cells <- function()
     scale_shape_manual(name="Cluster", values=1:nlevels(tbl2$prediction)) +
     labs(title="PCA colored by pathogen")
   ggsave(paste(plot.out, "pathogen.eps", sep="-"))
+  ggsave(paste(plot.out, "pathogen.png", sep="-"), dpi=450)
 
   gene.plt <-
     a + geom_point(aes(pc1, pc2, color=gene, shape=prediction), size=1, stroke=1) +
@@ -60,6 +62,7 @@ plot.single.cells <- function()
     scale_shape_manual(name="Cluster", values=1:nlevels(tbl2$prediction)) +
     labs(title="PCA colored by gene")
    ggsave(paste(plot.out, "genes.eps", sep="-"))
+   ggsave(paste(plot.out, "genes.png", sep="-"), dpi=450)
 }
 
 plot.singlecells()

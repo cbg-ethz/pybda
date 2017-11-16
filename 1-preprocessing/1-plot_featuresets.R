@@ -1,4 +1,6 @@
+
 library(dplyr)
+library(dtplyr)
 library(tibble)
 library(data.table)
 library(stringr)
@@ -6,13 +8,14 @@ library(reshape2)
 library(ggplot2)
 library(hrbrthemes)
 library(ggthemr)
+
 ggthemr("fresh", "scientific")
 hrbrthemes::import_roboto_condensed()
 
 options(stringsAsFactors=FALSE)
 
 dir <- "/Users/simondi/PROJECTS/target_infect_x_project/"
-file.features <- paste(dir, "results/1-preprocessing/0-features/features.log", sep="/")
+file.features <- paste(dir, "results/1-preprocessing/0-features/current_analysis/featuresets_feature_files.tsv", sep="/")
 file.maxsets  <- paste(dir, "results/1-preprocessing/0-features/feature_sets_max.tsv", sep="/")
 
 file.overlap.plot   <- paste(dir, "results/1-preprocessing/0-features/feature_overlap.eps", sep="/")
