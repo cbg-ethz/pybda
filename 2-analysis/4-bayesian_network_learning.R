@@ -16,7 +16,14 @@ if (!dir.exists(dir))
 }
 file.in        <- list.files(dir, pattern="-.tsv", full.names=TRUE)
 file.in.header <- list.files(dir, pattern="header.tsv", full.names=TRUE)
-rds.file <- list.files(dir, pattern=".rds", full.names=TRUE)
+
+bn.plot <- function()
+{
+  dir <- "/Users/simondi/PROJECTS/target_infect_x_project/results/2-analysis/3-bn/"
+  rds.files <- list.files(dir, pattern=".rds", full.names=TRUE)
+  bns <- lapply(rds.files, readRDS)
+  pl <- plot(bns[[2]])
+}
 
 bn.learn <- function(algo)
 {
