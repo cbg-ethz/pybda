@@ -33,7 +33,7 @@ bn.learn <- function(algo)
   colnames(full.tbl)[startsWith(colnames(full.tbl), "Feature_")] <- header
   for (he in header)
   {
-    full.tbl[he] <- factor(cut(full.tbl[[he]], 100, labels=FALSE))
+    full.tbl[he] <- factor(cut(full.tbl[[he]], 1000, labels=FALSE))
   }
   learn.tb <- full.tbl %>% dplyr::select(-prediction, -pc1, -pc2)
   learn.tb$pathogen <- factor(learn.tb$pathogen)
@@ -55,7 +55,6 @@ bn.learn <- function(algo)
       "tabu"    = bnlearn::tabu(as.data.frame(learn.tb)),
       "chowliu" = bnlearn::chow.liu(as.data.frame(learn.tb))
     )
-    net <- bnlearn::gs(as.data.frame(learn.tb))
 
   out.net <- sub(".tsv", paste0("-", algo, "-net.rds"),  file.in)
   saveRDS(net, file=out.net)
