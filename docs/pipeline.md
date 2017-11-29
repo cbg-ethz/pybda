@@ -101,8 +101,8 @@ The clustering can be done like this locally:
   do
     spark-submit --master "local[*]" --driver-memory 3G --executor-memory 6G 
                  1-kmeans_spark.py 
-                 -o ~/Desktop/test_ba 
-                 -f ../cells_sample_10_normalized_cut_100.tsv 
+                 -o ./1-clustering/ 
+                 -f ./query_data/cells_sample_10_normalized_cut_100.tsv 
                  fit -k ${i}
   done
                
@@ -120,12 +120,13 @@ The clustering can be done like this locally:
 ```
 
 **Note that mpi and java needs to be loaded on every shell session.** The job is submitted on a grid using:
+
 ```bash
   module load jdk/8u92
   module load openmpi/2.1.0
   
   ./1a-start_cluster.sh
-  ./1b-launch_cluster.sh
+  ./1b-launch_cluster.sh & 
   
   # get master
   sparkcluster info
