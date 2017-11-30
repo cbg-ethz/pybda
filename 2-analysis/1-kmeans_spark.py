@@ -168,9 +168,9 @@ def get_kmean_fit_statistics(mpaths, data):
             logger.info("Loading model for K={}".format(K))
             model = KMeansModel.load(mpath)
             rss = model.computeCost(data)
+            N = data.count()
             aic = rss + 2 * K * len(get_feature_columns(data))
-            bic = rss + .5 * numpy.log(data.count()) * K * \
-                        len(get_feature_columns(data))
+            bic = N * numpy.log(rss / N) + K * numpy.log(N)
 
             kmean_fits.append((
                 K, model, rss, aic, bic
