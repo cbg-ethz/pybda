@@ -2,9 +2,12 @@ import argparse
 import logging
 import pathlib
 import sys
-import pyspark
 import numpy
 import scipy
+import pyspark
+import pandas
+from scipy import linalg
+
 from pyspark.rdd import reduce
 import pyspark.sql.functions as func
 import pyspark.mllib.linalg.distributed
@@ -100,13 +103,14 @@ def fit(X, var, n_components):
 
     ll = old_ll = -numpy.inf
     llconst = P * numpy.log(2. * numpy.pi) + n_components
+    logliks = []
 
     psi = numpy.ones(P, dtype=numpy.float64)
     nsqrt = numpy.sqrt(N)
 
     for i in range(MAX_ITER):
         sqrt_psi = numpy.sqrt(psi) + DELTA
-        s, V, unexp_var = svd(tilde(X, sqrt_psi, nsqrt), 2)
+        s, V, unexp_var = svd(tilde(X, sqrt_psi, nsqrt), n_components)
         s = s ** 2
         # factor updated
         W = numpy.sqrt(numpy.maximum(s - 1., 0.))[:, numpy.newaxis] * V
@@ -115,26 +119,29 @@ def fit(X, var, n_components):
         ll = llconst + numpy.sum(numpy.log(s))
         ll += unexp_var + numpy.sum(numpy.log(psi))
         ll *= -N / 2.
+        logliks.append(ll)
+
         # variance update
         psi = numpy.maximum(var - numpy.sum(W ** 2, axis=0), DELTA)
         if numpy.abs(ll - old_ll) < 0.001:
             break
         old_ll = ll
 
-    return W, ll, psi
+    return W, logliks, psi
 
 
-def transform(X, W, ll, psi):
+def transform(X, W, psi):
     Ih = numpy.eye(len(W))
     Wpsi = W / psi
     cov_z = scipy.linalg.inv(Ih + numpy.dot(Wpsi, W.T))
     tmp = numpy.dot(Wpsi.T, cov_z)
     tmp_dense = DenseMatrix(
       numRows=tmp.shape[0], numCols=tmp.shape[1], values=tmp.flatten())
-    X = X.multiply(tmp_dense)
 
-    X = spark.createDataFrame(X.rows.mape(lambda x: (x,)))
+    X = X.multiply(tmp_dense)
+    X = spark.createDataFrame(X.rows.map(lambda x: (x,)))
     X = X.withColumnRenamed("_1", "features")
+
     return X
 
 
@@ -142,15 +149,16 @@ def fa(file_name, outpath):
     if not pathlib.Path(file_name).is_file():
         logger.error("File doesnt exist: {}".format(file_name))
         return
-    if not pathlib.Path(outpath).is_dir():
-        logger.error("Directory doesnt exist: {}".format(outpath))
+    if pathlib.Path(outpath).is_file():
+        logger.error("Not a path: {}".format(outpath))
         return
 
     data = get_frame(file_name)
+    features = get_feature_columns(data)
     X, means, var = process_data(data)
     X = RowMatrix(X.rows.map(lambda x: x - means))
     W, ll, psi = fit(X, var, 10)
-    X = transform(X, W, ll, psi)
+    X = transform(X, W, psi)
 
     X = X.withColumn('row_index', func.monotonically_increasing_id())
     data = data.withColumn('row_index', func.monotonically_increasing_id())
@@ -159,6 +167,13 @@ def fa(file_name, outpath):
     del X
 
     write_parquet_data(outpath, data)
+
+    W = pandas.DataFrame(data=W)
+    W.columns = features
+    W.to_csv(outpath + "_factors.tsv", sep="\t", index=False)
+
+    L = pandas.DataFrame(data=ll)
+    L.to_csv(outpath + "_likelihood.tsv", sep="\t", index=False)
 
 
 def run():
@@ -175,7 +190,10 @@ def run():
     global spark
     spark = pyspark.sql.SparkSession(sc)
 
-    fa(file_name, outpath)
+    try:
+        fa(file_name, outpath)
+    except Exception as e:
+        logger.error("Some error: {}".format(str(e)))
 
     spark.stop()
 

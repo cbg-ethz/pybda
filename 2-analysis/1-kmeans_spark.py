@@ -130,36 +130,6 @@ def get_feature_columns(data):
       data.columns))
 
 
-def get_frame(file_name):
-    parquet_file = data_path(file_name)
-
-    # check if data has been loaded before
-    if pathlib.Path(parquet_file).exists():
-        logger.info("Parquet file exists already: {}".format(file_name))
-        return read_parquet_data(parquet_file)
-
-    logger.info("Reading: {} and writing parquet".format(file_name))
-    # if not read the file and parse some oclumns
-    df = spark.read.csv(path=file_name, sep="\t", header='true')
-    old_cols = df.columns
-    new_cols = list(map(lambda x: x.replace(".", "_"), old_cols))
-    df = reduce(
-      lambda data, idx: data.withColumnRenamed(old_cols[idx], new_cols[idx]),
-      range(len(new_cols)), df)
-    feature_columns = get_feature_columns(df)
-    for x in feature_columns:
-        df = df.withColumn(x, df[x].cast("double"))
-    df = df.fillna(0)
-    # add a DenseVector column to the frame
-    assembler = VectorAssembler(inputCols=feature_columns, outputCol='features')
-    data = assembler.transform(df)
-
-    # save the frame
-    write_parquet_data(parquet_file, data)
-
-    return data
-
-
 def get_kmean_fit_statistics(mpaths, data):
     kmean_fits = []
     for mpath in mpaths:
@@ -172,9 +142,8 @@ def get_kmean_fit_statistics(mpaths, data):
             bic = rss + .5 * numpy.log(data.count()) * K * \
                         len(get_feature_columns(data))
 
-            kmean_fits.append((
-                K, model, rss, aic, bic
-            ))
+            kmean_fits.append((K, model, rss, aic, bic))
+
         except AttributeError as e:
             logger.error(
               "Could not load model {}, due to: {}".format(mpath, str(e)))

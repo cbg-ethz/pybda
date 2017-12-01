@@ -116,7 +116,7 @@ The clustering can be done like this locally:
     spark-submit --master "local[*]" --driver-memory 3G --executor-memory 6G 
                  1-kmeans_spark.py 
                  -o ./1-clustering/ 
-                 -f ./query_data/cells_sample_10_normalized_cut_100.tsv 
+                 -f ./query_data/cells_sample_10_normalized_cut_100_factors
                  fit -k ${i}
   done
                
