@@ -8,6 +8,7 @@ import pyspark
 
 import numpy
 import matplotlib
+
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
@@ -25,7 +26,6 @@ spark = None
 
 def read_args(args):
     parser = argparse.ArgumentParser(description='Cluster an RNAi dataset.')
-
     subparsers = parser.add_subparsers(dest='subparser_name')
     subparsers.required = True
     parser_p = subparsers.add_parser(
@@ -44,11 +44,13 @@ def read_args(args):
                         metavar="output-folder")
     parser.add_argument('-f',
                         type=str,
-                        help='the file you want to cluster, i.e. a file derived '
+                        help='the file or filder you want to cluster, i.e. a file derived '
                              'from rnai-query like '
-                             'cells_sample_10_normalized_cut_100.tsv',
+                             'cells_sample_10_normalized_cut_100.tsv or '
+                             'cells_sample_10_normalized_cut_100_factors. If it '
+                             'is a folder we assume it is a parquet.',
                         required=True,
-                        metavar="input-file")
+                        metavar="input")
     parser_t.add_argument('-k',
                           type=int,
                           help='numbers of clusters',
@@ -65,7 +67,7 @@ def read_args(args):
 
 
 def file_suffix(file_name):
-    suff = re.match(".*/(.*).tsv", file_name).group(1)
+    suff = re.match(".*/(.*)(.tsv)*", file_name).group(1)
     return suff
 
 
@@ -98,7 +100,7 @@ def k_transform_path(outpath, filename, k):
 
 
 def k_transform_centers_path(outpath, file_name, k):
-    return k_transform_path(outpath, file_name , k) + "-cluster_centers.tsv"
+    return k_transform_path(outpath, file_name, k) + "-cluster_centers.tsv"
 
 
 def k_performance_plot_path(outpath, file_name, type):
@@ -131,11 +133,16 @@ def get_feature_columns(data):
 
 
 def get_frame(file_name):
-    parquet_file = data_path(file_name)
+    if pathlib.Path(file_name).is_dir():
+        logger.info("Fileis a dictionary. Assuming parquet file: {}".format(
+          file_name))
+        return read_parquet_data(file_name)
 
+    parquet_file = data_path(file_name)
     # check if data has been loaded before
     if pathlib.Path(parquet_file).exists():
-        logger.info("Parquet file exists already: {}".format(file_name))
+        logger.info("Parquet file exists already using parquet file: {}".format(
+            file_name))
         return read_parquet_data(parquet_file)
 
     logger.info("Reading: {} and writing parquet".format(file_name))
@@ -172,21 +179,27 @@ def get_kmean_fit_statistics(mpaths, data):
             aic = rss + 2 * K * len(get_feature_columns(data))
             bic = N * numpy.log(rss / N) + K * numpy.log(N)
 
-            kmean_fits.append((
-                K, model, rss, aic, bic
-            ))
+            kmean_fits.append((K, model, rss, aic, bic))
+
         except AttributeError as e:
             logger.error(
               "Could not load model {}, due to: {}".format(mpath, str(e)))
     kmean_fits.sort(key=lambda x: x[0])
-
+    print(kmean_fits)
     return kmean_fits
 
 
 def plot_cluster(file_name, outpath):
     logger.info("Plotting cluster for: {}".format(file_name))
-    data = read_parquet_data(data_path(file_name))
-    mpaths = glob.glob(model_path(outpath, file_name) + "*[0-9]")
+    data = get_frame(file_name)
+    mpaths = [x for x in
+              glob.glob(model_path(outpath, file_name) + "*K[0-1000]*") if
+              pathlib.Path(x).is_dir()]
+
+    print("\n\n\n")
+    print(mpaths)
+    print(model_path(outpath, file_name))
+    print("\n\n\n")
 
     kmean_fits = get_kmean_fit_statistics(mpaths, data)
 
@@ -280,8 +293,8 @@ def loggername(which, outpath, file_name, k=None):
 def run():
     # check files
     file_name, outpath, which, opts = read_args(sys.argv[1:])
-    if not file_name.endswith(".tsv"):
-        logger.error("Please provide a tsv file: " + file_name)
+    if not pathlib.Path(file_name).exists():
+        logger.error("Please provide a tfile: " + file_name)
         return
     if not pathlib.Path(outpath).is_dir():
         logger.error("Outpath does not exist: " + outpath)

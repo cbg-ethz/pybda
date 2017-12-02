@@ -1,3 +1,5 @@
+1-clustering
+query_data
 derby.log
 spark-warehouse/*
 sparkcluster-*

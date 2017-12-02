@@ -23,6 +23,7 @@ logger.setLevel(logging.INFO)
 frmtr = logging.Formatter(
   '[%(levelname)-1s/%(processName)-1s/%(name)-1s]: %(message)s')
 
+
 spark = None
 
 
