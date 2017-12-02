@@ -11,6 +11,8 @@ from scipy import linalg
 from pyspark.rdd import reduce
 import pyspark.sql.functions as func
 import pyspark.mllib.linalg.distributed
+from pyspark.sql.functions import udf
+from pyspark.ml.linalg import VectorUDT
 from pyspark.mllib.linalg.distributed import RowMatrix, DenseMatrix
 from pyspark.mllib.stat import Statistics
 
@@ -138,9 +140,12 @@ def transform(X, W, psi):
     tmp_dense = DenseMatrix(
       numRows=tmp.shape[0], numCols=tmp.shape[1], values=tmp.flatten())
 
+    as_ml = udf(lambda v: v.asML() if v is not None else None, VectorUDT())
+
     X = X.multiply(tmp_dense)
     X = spark.createDataFrame(X.rows.map(lambda x: (x,)))
     X = X.withColumnRenamed("_1", "features")
+    X = X.withColumn("features", as_ml("features"))
 
     return X
 
