@@ -99,6 +99,22 @@ The clustering can be done like this locally:
                -f ./query_data/cells_sample_10_normalized_cut_100.tsv               
 ```
 
+**Note that mpi and java needs to be loaded on every shell session.** The job is submitted on a grid using:
+
+```bash
+    module load jdk/8u92
+    module load openmpi/2.1.0
+        
+    ./1a-start_cluster.sh
+    ./1b-launch_cluster.sh & 
+  
+    # get master
+    sparkcluster info
+    
+    ./1c-factor_analysis.sh MASTER
+```
+
+
 ### Clustering
 
 `1-kmeans_spark.py` clusters data generated using `rnai-query`. The respective
