@@ -9,7 +9,6 @@ library(cowplot)
 
 theme <- ggthemr("fresh", "scientific")
 hrbrthemes::import_roboto_condensed()
-extrafont::loadfonts()
 
 options(stringsAsFactors=FALSE)
 
@@ -23,12 +22,13 @@ plot.likelihood <- function()
 
   full.tbl <- readr::read_tsv(likelhood.file, col_names=FALSE) %>%
     as.tbl %>%
-    dplyr::mutate(Iteration=0:n()) %>%
+    dplyr::mutate(Iteration=0:(n()-1)) %>%
     as.data.frame
   full.tbl$X1 <- -full.tbl$X1
   full.tbl <- full.tbl[-1,]
 
-  plt <- ggplot2::ggplot(full.tbl, aes(x=Iteration, y=X1)) +
+  plt <-
+    ggplot2::ggplot(full.tbl, aes(x=Iteration, y=X1)) +
     ggplot2::geom_line(size=1.5) +
     xlab("Iteration") +
     ylab(expression(paste("-\u2113(", theta, ")"))) +
@@ -40,7 +40,7 @@ plot.likelihood <- function()
                    axis.title.y   = ggplot2::element_text(size=20),
                    panel.grid.major.x = element_line(colour = 'black', linetype = 'dotted'))
 
-  ggsave(plt, paste(plotout, "_likelihood_path.eps", sep="-"))
+  ggsave(paste(plotout, "likelihood_path.png", sep="-"), dpi=720)
 
 }
 
@@ -69,8 +69,10 @@ plot.factors <- function()
                    axis.title.x   = ggplot2::element_text(size=20),
                    axis.title.y   = ggplot2::element_text(size=20),
                    panel.grid.major.x = element_line(colour = 'black', linetype = 'dotted'))
-  ggsave(plt, paste(plotout, "_variance_explained.eps", sep="-"))
+  ggsave(paste(plotout, "variance_explained.eps", sep="-"), dpi=720)
 
+
+  X <- data.frame(Feature=rownames(full.tbl), Factor1=full.tbl[,1], Factor2=full.tbl[,2])
   plt <-
     ggplot2::ggplot(X, aes(x=Factor1, y=Factor2)) +
     ggplot2::geom_text(aes(label = Feature), size=2) +
@@ -85,10 +87,9 @@ plot.factors <- function()
                    axis.title.y   = ggplot2::element_text(size=20),
                    panel.grid.major.x = element_line(colour = 'black', linetype = 'dotted'))
 
-  ggsave(plt, paste(plotout, "_biplot.eps", sep="-"))
-
-
+  ggsave(paste(plotout, "biplot.png", sep="-") , dpi=720)
 
 }
 
-plot.likelihood
+plot.likelihood()
+plot.factors()
