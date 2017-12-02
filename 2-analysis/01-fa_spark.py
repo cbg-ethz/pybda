@@ -114,9 +114,11 @@ def fit(X, var, n_components):
         sqrt_psi = numpy.sqrt(psi) + DELTA
         s, V, unexp_var = svd(tilde(X, sqrt_psi, nsqrt), n_components)
         s = s ** 2
+
         # factor updated
         W = numpy.sqrt(numpy.maximum(s - 1., 0.))[:, numpy.newaxis] * V
         W *= sqrt_psi
+
         # loglik update
         ll = llconst + numpy.sum(numpy.log(s))
         ll += unexp_var + numpy.sum(numpy.log(psi))
@@ -158,11 +160,13 @@ def fa(file_name, outpath):
         logger.error("Not a path: {}".format(outpath))
         return
 
+    ncomp = 15
+
     data = get_frame(file_name)
     features = get_feature_columns(data)
     X, means, var = process_data(data)
     X = RowMatrix(X.rows.map(lambda x: x - means))
-    W, ll, psi = fit(X, var, 10)
+    W, ll, psi = fit(X, var, ncomp)
     X = transform(X, W, psi)
 
     X = X.withColumn('row_index', func.monotonically_increasing_id())
