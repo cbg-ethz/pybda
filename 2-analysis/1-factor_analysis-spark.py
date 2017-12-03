@@ -164,6 +164,7 @@ def fa(file_name, outpath):
 
     data = get_frame(file_name)
     features = get_feature_columns(data)
+
     X, means, var = process_data(data)
     X = RowMatrix(X.rows.map(lambda x: x - means))
     W, ll, psi = fit(X, var, ncomp)

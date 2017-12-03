@@ -94,7 +94,7 @@ The respective `1-factor_analysis*` files are for testing.
 The clustering can be done like this locally:
 ```bash
   spark-submit --master "local[*]" --driver-memory 3G --executor-memory 6G 
-               1-fa_spark.py 
+               1-factor_analysis-spark.py 
                -o ./query_data/cells_sample_10_normalized_cut_100_factors
                -f ./query_data/cells_sample_10_normalized_cut_100.tsv               
 ```
@@ -105,13 +105,13 @@ The clustering can be done like this locally:
     module load jdk/8u92
     module load openmpi/2.1.0
         
-    ./1a-start_cluster.sh
-    ./1b-launch_cluster.sh & 
+    ./0a-start_cluster.sh
+    ./0b-launch_cluster.sh & 
   
     # get master
     sparkcluster info
     
-    ./1c-factor_analysis.sh MASTER
+    ./1a-factor_analysis.sh MASTER&
 ```
 
 

@@ -258,6 +258,8 @@ def transform_cluster(file_name, k, outpath):
         logger.error("Directory doesnt exist: {}".format(mpath))
         return
 
+    logger.info("Loading data: {}".format(cpath))
+    logger.info("Loading model: {}".format(mpath))
     logger.info("Loading/clustering KMeansModel with k={}".format(k))
     data = read_parquet_data(cpath)
     model = KMeansModel.load(mpath)
@@ -277,7 +279,6 @@ def transform_cluster(file_name, k, outpath):
     logger.info("Writing clustered data to parquet")
 
     opath = k_transform_path(outpath, file_name, k)
-    print(path)
     write_parquet_data(opath, data)
 
 
