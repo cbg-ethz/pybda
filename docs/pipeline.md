@@ -144,17 +144,17 @@ The clustering can be done like this locally:
                
   spark-submit --master "local[*]" --driver-memory 3G --executor-memory 6G 
                1-kmeans_spark.py 
-               -o ./1-clustering/ 
+               -o ./2-clustering/ 
                -f ./query_data/cells_sample_10_normalized_cut_100.tsv 
                transform -k BEST_K_FROM_PLOT
                
   spark-submit --master "local[*]" --driver-memory 3G --executor-memory 6G 
                2-pca_spark.py                
-               -f ./1-clustering/kmeans_transform-cells_sample_10_normalized_cut_100_K005
+               -f ./2-clustering/kmeans_transform-cells_sample_10_normalized_cut_100_K005
     
   spark-submit --master "local[*]" --driver-memory 3G --executor-memory 6G 
-                3-cluster_statistics-spark.py                
-                -f ./1-clustering/pca_transform-cells_sample_10_normalized_cut_100_K005
+                2-kmeans_statistics-spark.py                 
+                -f ./2-clustering/test/kmeans_transform-cells_sample_10_normalized_cut_100_factors_K005
 ```
 
 **Note that mpi and java needs to be loaded on every shell session.** The job is submitted on a grid using:

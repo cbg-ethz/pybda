@@ -10,7 +10,6 @@ logger.setLevel(logging.INFO)
 frmtr = logging.Formatter(
   '[%(levelname)-1s/%(processName)-1s/%(name)-1s]: %(message)s')
 
-
 spark = None
 
 
@@ -20,7 +19,7 @@ def read_args(args):
     parser.add_argument('-f',
                         type=str,
                         help='the folder where the pca data lie,'
-                             ' i.e. pca_transform-*_K005',
+                             ' i.e. transform-*_K005',
                         required=True, metavar="input-folder")
 
     opts = parser.parse_args(args)
@@ -41,6 +40,15 @@ def write_pandas_tsv(file_name, data):
     data.to_csv(file_name, sep="\t", index=False)
 
 
+def count_statistics(data, folder, what):
+    dnts = data.groupby(what).count()
+    dnts = dnts.select(what + ["count"]).dropDuplicates().toPandas()
+
+    outfile = folder + "_" + "_".join(what) + "_count.tsv"
+    logger.info("Writing sample table to: {}".format(outfile))
+    write_pandas_tsv(outfile, dnts)
+
+
 def statistics(folder):
     if not pathlib.Path(folder).is_dir():
         logger.error("Directory doesnt exist: {}".format(folder))
@@ -49,13 +57,15 @@ def statistics(folder):
     logger.info("Loading PCA/Kmeans clustering")
     data = read_parquet_data(folder)
 
-    count_gene_pred_data = data.groupby(["gene", "prediction"]).count()
-    count_gene_pred_data = count_gene_pred_data.select(
-      ["gene", "prediction", "count"]).dropDuplicates().toPandas()
+    count_statistics(data, folder, ["gene", "prediction"])
+    count_statistics(data, folder, ["sirna", "prediction"])
+    count_statistics(data, folder, ["pathogen", "prediction"])
 
-    outfile = folder + "_gene_prediction_count.tsv"
-    logger.info("Writing sample table to: {}".format(outfile))
-    write_pandas_tsv(outfile, count_gene_pred_data)
+    for i in range(5):
+        pred = "prediction={}".format(i)
+        data_i = data.filter(pred)
+        data_i.toPandas().to_csv(
+          "{}_{}.tsv".format(folder, i), sep="\t", index=0)
 
 
 def run():
