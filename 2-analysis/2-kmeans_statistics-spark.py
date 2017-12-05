@@ -64,9 +64,9 @@ def _from(el):
                             dtype=numpy.float64, sep=",")
 
 
-def compute_silhouettes(outfiles):
+def compute_silhouettes(outfiles, folder):
     K = len(outfiles)
-    out_silhouette = outfiles + "silhouette.tsv"
+    out_silhouette = folder + "_silhouette.tsv"
     with open(out_silhouette, "w") as ot:
         ot.write("#Cluster\tSilhouette\n")
         for i in range(K):
