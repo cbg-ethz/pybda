@@ -1,5 +1,7 @@
 1-fa
-1-clustering
+1-fa/*
+2-clustering
+2-clustering/*
 query_data
 derby.log
 spark-warehouse/*
