@@ -4,6 +4,7 @@ import sys
 import pandas
 import pathlib
 import pyspark
+import numpy
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -49,6 +50,62 @@ def count_statistics(data, folder, what):
     write_pandas_tsv(outfile, dnts)
 
 
+def write_clusters(data, folder):
+    file_names = []
+    for i in range(5):
+        data_i = data.filter("prediction={}".format(i))
+        outfile = "{}_{}.tsv".format(folder, i)
+        data_i.toPandas().to_csv(outfile, sep="\t", index=0)
+    return file_names
+
+
+def _from(el):
+    return numpy.fromstring(el.replace("[", "").replace("]", ""),
+                            dtype=numpy.float64, sep=",")
+
+
+def compute_silhouettes(outfiles):
+    K = len(outfiles)
+    out_silhouette = outfiles + "silhouette.tsv"
+    with open(out_silhouette, "w") as ot:
+        ot.write("#Cluster\tSilhouette\n")
+        for i in range(K):
+            _compute_silhouette(outfiles, i, K, ot)
+
+
+def _compute_silhouette(outfiles, i, K, ot):
+    cnt = 0
+    with open(outfiles[i], "r") as f1:
+        for l1 in f1.readlines():
+            if l1.startswith("study"):
+                continue
+            if cnt == 10000:
+                return
+            cnt += 1
+            el1 = l1.split("\t")
+            f1 = _from(el1[-1])
+            min_distance = min(
+              [_mean_distance(j, f1, outfiles) for j in range(K) if j != i])
+            within_distance = _mean_distance(i, f1, outfiles)
+            silhouette = (min_distance - within_distance) / max((min_distance, within_distance))
+            ot.write("{}\t{}".format(i, silhouette))
+
+
+def _mean_distance(j, f1, outfiles):
+    distance = 0
+    cnt = 0
+    with open(outfiles[j], "r") as f2:
+        for l2 in f2.readlines():
+            if l2.startswith("study"):
+                continue
+            f2 = _from(l2.split("\t")[-1])
+            distance += numpy.sqrt((f1 - f2) ** 2)
+            cnt += 1
+            if cnt == 10000:
+                return distance / cnt
+    return distance / cnt
+
+
 def statistics(folder):
     if not pathlib.Path(folder).is_dir():
         logger.error("Directory doesnt exist: {}".format(folder))
@@ -61,11 +118,8 @@ def statistics(folder):
     count_statistics(data, folder, ["sirna", "prediction"])
     count_statistics(data, folder, ["pathogen", "prediction"])
 
-    for i in range(5):
-        pred = "prediction={}".format(i)
-        data_i = data.filter(pred)
-        data_i.toPandas().to_csv(
-          "{}_{}.tsv".format(folder, i), sep="\t", index=0)
+    outfile_names = write_clusters(data, folder)
+    compute_silhouettes(outfile_names, folder)
 
 
 def run():
