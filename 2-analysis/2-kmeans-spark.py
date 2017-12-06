@@ -5,7 +5,7 @@ import re
 import sys
 import glob
 import pyspark
-
+import pandas
 import numpy
 import matplotlib
 
@@ -193,13 +193,11 @@ def plot_cluster(file_name, outpath):
     logger.info("Plotting cluster for: {}".format(file_name))
     data = get_frame(file_name)
     mpaths = [x for x in
-              glob.glob(model_path(outpath, file_name) + "*K[0-1000]*") if
+              glob.glob(model_path(outpath, file_name) + "*K*") if
               pathlib.Path(x).is_dir()]
 
-    print("\n\n\n")
-    print(mpaths)
-    print(model_path(outpath, file_name))
-    print("\n\n\n")
+    logger.info("Mpath: {}".format("\n".join(mpaths)))
+    logger.info("Models path:  {}".format(model_path(outpath, file_name)))
 
     kmean_fits = get_kmean_fit_statistics(mpaths, data)
 
@@ -214,6 +212,9 @@ def plot_cluster(file_name, outpath):
 
 def plot(ks, score, axis_label, outpath, file_name):
     plotfile = k_performance_plot_path(outpath, file_name, axis_label)
+
+    statistics_file = plotfile.replace("eps", "tsv")
+    pandas.DataFrame(data={ "index": ks, "stat": score }).to_csv(statistics_file, sep="\t", index=0)
 
     font = {'weight': 'normal',
             'family': 'sans-serif',
