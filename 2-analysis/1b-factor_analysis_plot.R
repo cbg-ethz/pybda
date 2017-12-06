@@ -18,7 +18,8 @@ likelhood.file <- list.files(dir, pattern="likelihood.tsv", full.names=TRUE)
 factors.file   <- list.files(dir, pattern="factors.tsv", full.names=TRUE)
 plotout <- sub(".tsv", "",likelhood.file)
 
-plot.likelihood <- function(){
+plot.likelihood <- function()
+{
   hrbrthemes::import_roboto_condensed()
   full.tbl <- readr::read_tsv(likelhood.file, col_names=FALSE) %>%
     as.tbl %>%
