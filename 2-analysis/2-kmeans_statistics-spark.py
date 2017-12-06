@@ -8,6 +8,9 @@ import numpy
 import scipy
 from scipy import spatial
 
+from functools import partial
+import multiprocessing as mp
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 frmtr = logging.Formatter(
@@ -70,33 +73,38 @@ def compute_silhouettes(outfiles, folder):
     K = len(outfiles)
     out_silhouette = folder + "_silhouette.tsv"
     with open(out_silhouette, "w") as ot:
-        ot.write("#Cluster\tSilhouette\n")
+        ot.write("#Cluster\tNeighbor\tSilhouette\n")
         for i in range(K):
-            print("\n\n\n\nbuuuuKKKKK\n\n\n\n")
             _compute_silhouette(outfiles, i, K, ot)
 
 
 def _compute_silhouette(outfiles, i, K, ot):
     cnt = 0
-    print("\n\n\n\nbuuuu\n\n\n\n")
     with open(outfiles[i], "r") as f1:
         for l1 in f1.readlines():
             if l1.startswith("study"):
                 continue
-            if cnt == 10000:
+            if cnt == 100000:
                 return
             cnt += 1
             el1 = l1.split("\t")
-            print("\n\n\n\nbuuuu2\n\n\n\n")
             f1 = _from(el1[-1])
-            min_distance = numpy.min([_mean_distance(j, f1, outfiles) for j in range(K) if j != i])
-            print("\n\n\n\nbuuuu3\n\n\n\n")
+            min_cluster, min_distance = mp_min_distance(i, K, f1, outfiles)
             within_distance = _mean_distance(i, f1, outfiles)
-            print("\n\n\n\nbuuuu4\n\n\n\n")
-            print(min_distance, within_distance)
-            silhouette = (min_distance - within_distance) / numpy.max((min_distance, within_distance))
-            print("\n\n\n\nbuuuu5\n\n\n\n")
-            ot.write("{}\t{}".format(i, silhouette))
+            silhouette = (min_distance - within_distance) / numpy.max(
+              (min_distance, within_distance))
+            ot.write("{}\t{}\t{}".format(i, min_cluster, silhouette) + "\n")
+
+
+def mp_min_distance(i, K, f1, outfiles):
+    n_cores = mp.cpu_count() - 1
+    itr = [j for j in range(K) if j != i]
+    p = mp.Pool(n_cores)
+    distances = p.map(partial(_mean_distance, f1=f1, outfiles=outfiles), itr)
+    p.close()
+    p.join()
+    arg = itr[numpy.argmin(distances)]
+    return arg, distances[arg]
 
 
 def _mean_distance(j, f1, outfiles):
@@ -109,8 +117,8 @@ def _mean_distance(j, f1, outfiles):
             f2 = _from(l2.split("\t")[-1])
             distance += scipy.spatial.distance.euclidean(f1, f2)
             cnt += 1
-            if cnt == 10000:
-                return distance / cnt
+            if cnt == 100000:
+                return numpy.mean(distance)
     return numpy.mean(distance)
 
 
@@ -121,7 +129,8 @@ def statistics(folder):
 
     logger.info("Loading PCA/Kmeans clustering")
     data = read_parquet_data(folder)
-    cluster_counts = numpy.array(data.select("prediction").dropDuplicates().collect()).flatten()
+    cluster_counts = numpy.array(
+        data.select("prediction").dropDuplicates().collect()).flatten()
     count_statistics(data, folder, ["gene", "prediction"])
     count_statistics(data, folder, ["sirna", "prediction"])
     count_statistics(data, folder, ["pathogen", "prediction"])
