@@ -48,10 +48,15 @@ def write_pandas_tsv(file_name, data):
 
 def count_statistics(data, folder, what):
     dnts = data.groupby(what).count()
-    dnts = dnts.select(what + ["count"]).dropDuplicates().toPandas()
-    outfile = folder + "_" + "_".join(what) + "_count.tsv"
+    dnts = dnts.select(what + ["count"]).dropDuplicates()
+    print("\n\n\n\n\n\n")
+    print(dnts.count())
+    print("\n\n\n\n\n\nn\n")
+    #dnts = dnts.toPandas()
+    outfile = folder + "_" + "_".join(what) + "_count"
     logger.info("Writing sample table to: {}".format(outfile))
-    write_pandas_tsv(outfile, dnts)
+    #write_pandas_tsv(outfile, dnts)
+    dnts.write.csv(path=outfile, sep="\t", header=True)
 
 
 def write_clusters(data, folder, cluster_counts):
@@ -84,7 +89,7 @@ def _compute_silhouette(outfiles, i, K, ot):
         for l1 in f1.readlines():
             if l1.startswith("study"):
                 continue
-            if cnt == 100000:
+            if cnt == 10000:
                 return
             cnt += 1
             el1 = l1.split("\t")
@@ -117,7 +122,7 @@ def _mean_distance(j, f1, outfiles):
             f2 = _from(l2.split("\t")[-1])
             distance += scipy.spatial.distance.euclidean(f1, f2)
             cnt += 1
-            if cnt == 100000:
+            if cnt == 1000:
                 return numpy.mean(distance)
     return numpy.mean(distance)
 
@@ -131,9 +136,10 @@ def statistics(folder):
     data = read_parquet_data(folder)
     cluster_counts = numpy.array(
         data.select("prediction").dropDuplicates().collect()).flatten()
-    count_statistics(data, folder, ["gene", "prediction"])
-    count_statistics(data, folder, ["sirna", "prediction"])
-    count_statistics(data, folder, ["pathogen", "prediction"])
+    #count_statistics(data, folder, ["gene", "prediction"])
+    #count_statistics(data, folder, ["sirna", "prediction"])
+    #count_statistics(data, folder, ["pathogen", "prediction"])
+    #count_statistics(data, folder, ["gene", "pathogen", "prediction"])
 
     outfile_names = write_clusters(data, folder, cluster_counts)
     compute_silhouettes(outfile_names, folder)
