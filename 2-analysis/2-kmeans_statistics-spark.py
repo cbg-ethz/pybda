@@ -5,6 +5,8 @@ import pandas
 import pathlib
 import pyspark
 import numpy
+import re
+import glob
 import scipy
 from scipy import spatial
 
@@ -74,13 +76,17 @@ def _from(el):
                             dtype=numpy.float64, sep=",")
 
 
-def compute_silhouettes(outfiles, folder):
-    K = len(outfiles)
+def compute_silhouettes(folder):
+
+    reg = re.compile(".*K\d+\_\d+.tsv")
+    files = [x for x in glob.glob(folder+"*") if x.endswith(".tsv")]
+    files = [x for x in files if reg.match(x) is not None]
     out_silhouette = folder + "_silhouette.tsv"
+    K = len(files)
     with open(out_silhouette, "w") as ot:
         ot.write("#Cluster\tNeighbor\tSilhouette\n")
         for i in range(K):
-            _compute_silhouette(outfiles, i, K, ot)
+            _compute_silhouette(files, i, K, ot)
 
 
 def _compute_silhouette(outfiles, i, K, ot):
@@ -141,8 +147,8 @@ def statistics(folder):
     #count_statistics(data, folder, ["pathogen", "prediction"])
     #count_statistics(data, folder, ["gene", "pathogen", "prediction"])
 
-    outfile_names = write_clusters(data, folder, cluster_counts)
-    compute_silhouettes(outfile_names, folder)
+    #write_clusters(data, folder, cluster_counts)
+    compute_silhouettes(folder)
 
 
 def run():

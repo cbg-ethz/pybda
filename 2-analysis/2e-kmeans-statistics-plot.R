@@ -40,10 +40,9 @@ analyse.gene.pathogen.prediction <- function(gene.pred.folder)
     geom_histogram(aes(x=Frequency, y=Density), stat="identity") +
     hrbrthemes::theme_ipsum_rc() +
     ylab("Density") +
-    xlab("Relative Frequency of single-cells mapping to same cluster") +
+    xlab("Relative frequency of single-cells mapping to same cluster") +
     geom_vline(data=dat, aes(xintercept=fre), color="red", lwd=1) +
     geom_text(aes(x=fre, y=.15), label=paste0("Mean=", round(fre, 3)), hjust=-.25) +
-    labs(title="Frequency of same genes mapping to same cluster") +
     ggplot2::theme(axis.text.x  = ggplot2::element_text( size=18),
                    axis.text.y  = ggplot2::element_text(size=18),
                    plot.caption  = ggplot2::element_text(size=14),
@@ -52,7 +51,7 @@ analyse.gene.pathogen.prediction <- function(gene.pred.folder)
   #plt
 
   ggsave(filename=paste0(gene.pred.folder, "_frequencies.eps"), plot=plt, device="eps", width=12, height=7)
-  ggsave(filename=paste0(gene.pred.folder, "_frequencies.png"), plot=plt, device="png", width=12, height=7, dpi=720)
+  ggsave(filename=paste0(gene.pred.folder, "_frequencies.png"), plot=plt, device="png", width=12, height=7, dpi=1080)
 
   dat
 
