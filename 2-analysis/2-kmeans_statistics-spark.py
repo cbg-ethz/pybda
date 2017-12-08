@@ -72,7 +72,6 @@ def write_clusters(data, folder, cluster_counts):
 
 
 def compute_silhouettes(folder):
-
     reg = re.compile(".*K\d+\_\d+.tsv")
     files = [x for x in glob.glob(folder+"*") if x.endswith(".tsv")]
     files = [x for x in files if reg.match(x) is not None]
@@ -99,7 +98,7 @@ def _compute_silhouette(outfiles, i, K, ot):
 
 
 def mp_min_distance(i, K, np_i, outfiles):
-    n_cores = mp.cpu_count() - 1
+    n_cores = mp.cpu_count()
     itr = numpy.array([j for j in range(K) if j != i])
     p = mp.Pool(n_cores)
     distances = p.map(partial(_mean_distance, np=np_i, outfiles=outfiles), itr)
@@ -127,7 +126,7 @@ def statistics(folder):
         return
 
     logger.info("Loading PCA/Kmeans clustering")
-    data = read_parquet_data(folder)
+    #data = read_parquet_data(folder)
     #cluster_counts = numpy.array(
     #    data.select("prediction").dropDuplicates().collect()).flatten()
 
