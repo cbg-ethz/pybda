@@ -134,15 +134,15 @@ def statistics(folder):
 
     logger.info("Loading PCA/Kmeans clustering")
     data = read_parquet_data(folder)
-    cluster_counts = numpy.array(
-        data.select("prediction").dropDuplicates().collect()).flatten()
+    #cluster_counts = numpy.array(
+    #    data.select("prediction").dropDuplicates().collect()).flatten()
     #count_statistics(data, folder, ["gene", "prediction"])
     #count_statistics(data, folder, ["sirna", "prediction"])
     #count_statistics(data, folder, ["pathogen", "prediction"])
     #count_statistics(data, folder, ["gene", "pathogen", "prediction"])
-
-    outfile_names = write_clusters(data, folder, cluster_counts)
-    compute_silhouettes(outfile_names, folder)
+    count_statistics(data, folder, ["sirna", "pathogen", "prediction"])
+    #outfile_names = write_clusters(data, folder, cluster_counts)
+    #compute_silhouettes(outfile_names, folder)
 
 
 def run():
