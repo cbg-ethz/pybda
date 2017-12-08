@@ -71,11 +71,6 @@ def write_clusters(data, folder, cluster_counts):
     return file_names
 
 
-def _from(el):
-    return numpy.fromstring(el.replace("[", "").replace("]", ""),
-                            dtype=numpy.float64, sep=",")
-
-
 def compute_silhouettes(folder):
 
     reg = re.compile(".*K\d+\_\d+.tsv")
@@ -89,49 +84,41 @@ def compute_silhouettes(folder):
             _compute_silhouette(files, i, K, ot)
 
 
+def read_matrix(fl):
+    matr = pandas.read_csv(fl, sep="\t", nrows=1000, usecols=["features"])
+    return matr["features"].str.split(",", expand=True).as_matrix().astype(numpy.float64)
+
+
 def _compute_silhouette(outfiles, i, K, ot):
-    cnt = 0
-    print("\n\n\nPURZO\n\n\n")
-    with open(outfiles[i], "r") as f1:
-        for l1 in f1.readlines():
-            if l1.startswith("study"):
-                continue
-            if cnt == 10000:
-                return
-            cnt += 1
-            el1 = l1.split("\t")
-            f1 = _from(el1[-1])
-            min_cluster, min_distance = mp_min_distance(i, K, f1, outfiles)
-            within_distance = _mean_distance(i, f1, outfiles)
-            silhouette = (min_distance - within_distance) / numpy.max(
-              (min_distance, within_distance))
-            ot.write("{}\t{}\t{}".format(i, min_cluster, silhouette) + "\n")
+    np_i = read_matrix(outfiles[i])
+    min_cluster, min_distance = mp_min_distance(i, K, np_i, outfiles)
+    within_distance = _mean_distance(i, np_i, outfiles)
+    silhouette = (min_distance - within_distance) / numpy.maximum(min_distance, within_distance)
+    for clust, sil in zip(min_cluster, silhouette):
+        ot.write("{}\t{}\t{}".format(i, clust, sil) + "\n")
 
 
-def mp_min_distance(i, K, f1, outfiles):
+def mp_min_distance(i, K, np_i, outfiles):
     n_cores = mp.cpu_count() - 1
-    itr = [j for j in range(K) if j != i]
+    itr = numpy.array([j for j in range(K) if j != i])
     p = mp.Pool(n_cores)
-    distances = p.map(partial(_mean_distance, f1=f1, outfiles=outfiles), itr)
+    distances = p.map(partial(_mean_distance, np=np_i, outfiles=outfiles), itr)
     p.close()
     p.join()
-    arg = itr[numpy.argmin(distances)]
-    return arg, distances[arg]
+    distances = numpy.vstack(distances).T
+    argmins = numpy.argmin(distances, axis=1)
+    min_distances = numpy.min(distances, axis=1)
+    arg = itr[argmins]
+    return arg, min_distances
 
 
-def _mean_distance(j, f1, outfiles):
+def _mean_distance(j, np, outfiles):
+    """Computes distances between np array and np_j"""
     distance = 0
     cnt = 0
-    with open(outfiles[j], "r") as f2:
-        for l2 in f2.readlines():
-            if l2.startswith("study"):
-                continue
-            f2 = _from(l2.split("\t")[-1])
-            distance += scipy.spatial.distance.euclidean(f1, f2)
-            cnt += 1
-            if cnt == 1000:
-                return numpy.mean(distance)
-    return numpy.mean(distance)
+    np_j = read_matrix(outfiles[j])
+    distances = scipy.spatial.distance.cdist(np, np_j)
+    return numpy.mean(distances, axis=1)
 
 
 def statistics(folder):
@@ -143,13 +130,13 @@ def statistics(folder):
     data = read_parquet_data(folder)
     #cluster_counts = numpy.array(
     #    data.select("prediction").dropDuplicates().collect()).flatten()
-    
+
     #count_statistics(data, folder, ["gene", "prediction"])
     #count_statistics(data, folder, ["sirna", "prediction"])
     #count_statistics(data, folder, ["pathogen", "prediction"])
     #count_statistics(data, folder, ["gene", "pathogen", "prediction"])
     #count_statistics(data, folder, ["sirna", "pathogen", "prediction"])
-    
+
     #write_clusters(data, folder, cluster_counts)
     compute_silhouettes(folder)
 
