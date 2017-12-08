@@ -91,6 +91,7 @@ def compute_silhouettes(folder):
 
 def _compute_silhouette(outfiles, i, K, ot):
     cnt = 0
+    print("\n\n\nPURZO\n\n\n")
     with open(outfiles[i], "r") as f1:
         for l1 in f1.readlines():
             if l1.startswith("study"):
