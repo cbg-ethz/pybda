@@ -138,58 +138,6 @@ write.table <- function(gene.pred.folder)
     plot.oras(best.clusters, dat)
 }
 
-plot.oras <- function(best.clusters, dat)
-{
-  pre <- dat %>% dplyr::filter(prediction %in% best.clusters$prediction)
-  genes         <- dat %>% dplyr::select(gene) %>% unique()
-
-  oras <- list()
-  for (i in best.clusters$prediction)
-  {
-    cluster1genes <- dplyr::filter(dat, prediction==i) %>% dplyr::select(gene) %>% unique()
-    oras[[paste(i)]] <- ora(cluster1genes$gene, genes$gene)
-  }
-
-  oras.flast <- rbindlist(lapply(1:length(oras), function(e) data.table(Index=e,  oras[[e]]$summary[1:10, ])))
-  oras.flast <- as.data.table(oras.flast)
-  res <- filter(oras.flast,  Qvalue <= .05) %>% dplyr::select(Index, Term, Qvalue) %>% as.data.table
-  res <- tidyr::spread(res, Index, Qvalue)
-}
-
-.to.entrez <-function(dat)
-{
-  frame.hugo <- AnnotationDbi::toTable(org.Hs.eg.db::org.Hs.egSYMBOL) %>%
-    as.data.table
-  dat <- dplyr::left_join(data.table(symbol=toupper(dat)), frame.hugo, by="symbol")
-
-  dat
-}
-
-ora <- function(genes, universe)
-{
-  library(GOstats)
-  hit.list <- .to.entrez(genes)
-  universe <- .to.entrez(universe)
-  GOparams <- new("GOHyperGParams",
-                  geneIds = unique(hit.list),
-                  universeGeneIds = unique(universe),
-                  annotation="hgu95av2.db",
-                  ontology="BP",
-                  pvalueCutoff=0.05,
-                  conditional=TRUE,
-                  testDirection="over")
-  ora <- GOstats::hyperGTest(GOparams)
-
-  test.count <- length(ora@pvalue.order)
-  summ <- summary(ora)
-  pvals <- c(summ$Pvalue, rep(1, test.count - nrow(summ)))
-  qvals <- p.adjust(pvals, method="BH")
-  summ$Qvalue <- qvals[1:nrow(summ)]
-  li <- list(ora=ora, summary=summ)
-
-  li
-}
-
 plot.bic <- function(bic.file)
 {
   fl <- readr::read_tsv(bic.file, col_names=TRUE)
