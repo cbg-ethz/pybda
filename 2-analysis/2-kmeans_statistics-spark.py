@@ -51,28 +51,26 @@ def write_pandas_tsv(file_name, data):
 def count_statistics(data, folder, what):
     dnts = data.groupby(what).count()
     dnts = dnts.select(what + ["count"]).dropDuplicates()
-    print("\n\n\n\n\n\n")
-    print(dnts.count())
-    print("\n\n\n\n\n\nn\n")
-    #dnts = dnts.toPandas()
     outfile = folder + "_" + "_".join(what) + "_count"
     logger.info("Writing sample table to: {}".format(outfile))
-    #write_pandas_tsv(outfile, dnts)
     dnts.write.csv(path=outfile, sep="\t", header=True)
 
 
 def write_clusters(data, folder, cluster_counts):
     file_names = [""] * len(cluster_counts)
     for i in cluster_counts:
+        if i not in [2382, 13066, 10069,  4618, 8602]:
+            continue
         data_i = data.filter("prediction={}".format(i))
         outfile = "{}_{}.tsv".format(folder, i)
+        if pathlib.Path(outfile).is_file():
+            continue
         file_names[i] = outfile
         data_i.toPandas().sample(frac=1).to_csv(outfile, sep="\t", index=0)
     return file_names
 
 
 def compute_silhouettes(folder):
-
     reg = re.compile(".*K\d+\_\d+.tsv")
     files = [x for x in glob.glob(folder+"*") if x.endswith(".tsv")]
     files = [x for x in files if reg.match(x) is not None]
@@ -99,12 +97,9 @@ def _compute_silhouette(outfiles, i, K, ot):
 
 
 def mp_min_distance(i, K, np_i, outfiles):
-    n_cores = mp.cpu_count() - 1
+    n_cores = mp.cpu_count()
     itr = numpy.array([j for j in range(K) if j != i])
-    p = mp.Pool(n_cores)
-    distances = p.map(partial(_mean_distance, np=np_i, outfiles=outfiles), itr)
-    p.close()
-    p.join()
+    distances = [_mean_distance(i, np_i, outfiles) for i in itr]
     distances = numpy.vstack(distances).T
     argmins = numpy.argmin(distances, axis=1)
     min_distances = numpy.min(distances, axis=1)
@@ -128,8 +123,8 @@ def statistics(folder):
 
     logger.info("Loading PCA/Kmeans clustering")
     data = read_parquet_data(folder)
-    #cluster_counts = numpy.array(
-    #    data.select("prediction").dropDuplicates().collect()).flatten()
+    cluster_counts = numpy.array(
+        data.select("prediction").dropDuplicates().collect()).flatten()
 
     #count_statistics(data, folder, ["gene", "prediction"])
     #count_statistics(data, folder, ["sirna", "prediction"])
@@ -137,8 +132,8 @@ def statistics(folder):
     #count_statistics(data, folder, ["gene", "pathogen", "prediction"])
     #count_statistics(data, folder, ["sirna", "pathogen", "prediction"])
 
-    #write_clusters(data, folder, cluster_counts)
-    compute_silhouettes(folder)
+    write_clusters(data, folder, cluster_counts)
+    #compute_silhouettes(folder)
 
 
 def run():
