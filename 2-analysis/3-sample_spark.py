@@ -28,17 +28,21 @@ spark = None
 
 
 def read_args(args):
-    parser = argparse.ArgumentParser(description='PCA on a clustered dataset.')
+    parser = argparse.ArgumentParser(description='Sample gens from clustered dataset.')
     parser.add_argument('-f',
                         type=str,
                         help='the folder where the clustered/transformed data lie,'
                              ' i.e. kmeans_transform-*_K005',
                         required=True,
                         metavar="input-folder")
-
+    parser.add_argument('-g',
+                        type=str,
+                        help='comma separated list of genes',
+                        required=True,
+                        metavar="input-folder")
     opts = parser.parse_args(args)
 
-    return opts.f, opts
+    return opts.f, opts.g, opts
 
 
 def pca_transform_path(folder):
@@ -67,7 +71,7 @@ def write_pandas_tsv(file_name, data):
     data.to_csv(file_name, sep="\t", index=False)
 
 
-def transform_pca(folder):
+def sample(folder, genes):
     if not pathlib.Path(folder).is_dir():
         logger.error("Directory doesnt exist: {}".format(folder))
         return
@@ -75,54 +79,9 @@ def transform_pca(folder):
     logger.info("Loading Kmeans clustering")
     data = read_parquet_data(folder)
 
-    opath = pca_transform_path(folder)
-    if not pathlib.Path(opath).is_dir():
-        logger.info("Standardizing data")
-        scaler = StandardScaler(inputCol="features",
-                                outputCol="scaledFeatures",
-                                withStd=True,
-                                withMean=True)
-        scalerModel = scaler.fit(data)
-        data = scalerModel.transform(data)
-
-        logger.info("Doping PCA")
-        pca = PCA(k=2, inputCol="scaledFeatures", outputCol="pcs")
-        model = pca.fit(data)
-        data = model.transform(data)
-        logger.info("Writing to: {}".format(opath))
-        write_parquet_data(opath, data)
-
-        varpath = pca_transform_variance_path(folder)
-        logger.info("Writing variances to: {}".format(varpath))
-        with open(varpath, "w") as fh:
-            fh.write("#Explained variance\n")
-            fh.write("\t".join(map(str, model.explainedVariance)) + "\n")
-    else:
-        data = read_parquet_data(opath)
-
-    data = data.withColumn(
-      "row_num",
-      row_number().over(
-        Window.partitionBy(["pathogen", "gene"]).orderBy(["pathogen", "gene"])))
-
-    genes = [i.gene for i in data.select("gene").distinct().sample(False, fraction=.5).limit(100).collect()]
-    data = data.where(data.gene.isin(genes))
-    data = data.filter("row_num <= 100")
-    datap = data.select(
-      ["pathogen", "gene", "sirna", "prediction", "pcs", "scaledFeatures"]) \
-        .toPandas()
-    new_feature_names = [
-        "Feature_{}".format(x) for x in
-        range(len(datap.loc[0, "scaledFeatures"]))]
-    datap[['pc1', 'pc2']] = pandas.DataFrame(datap.pcs.values.tolist())
-    del datap['pcs']
-    datap[new_feature_names] = pandas.DataFrame(
-      datap.scaledFeatures.values.tolist())
-    del datap['scaledFeatures']
-
-    opandname = pca_transform_tsv_path(folder)
-    logger.info("Writing sample table to: {}".format(opandname))
-    write_pandas_tsv(opandname, datap)
+    opath = folder + "_sampled_genes.tsv
+    data = data.where(data.gene.isin(genes.split(",")))
+    write_pandas_tsv(opath, data)
 
 
 def loggername(outpath):
@@ -132,7 +91,7 @@ def loggername(outpath):
 
 def run():
     # check files
-    folder, opts = read_args(sys.argv[1:])
+    folder, genes, opts = read_args(sys.argv[1:])
     if not pathlib.Path(folder).is_dir():
         logger.error("Folder does not exist: " + folder)
         return
@@ -148,7 +107,7 @@ def run():
     global spark
     spark = pyspark.sql.SparkSession(sc)
     try:
-        transform_pca(folder)
+        sample(folder, genes, clusters)
     except Exception as e:
         logger.error("Random exception: {}".format(str(e)))
     spark.stop()
