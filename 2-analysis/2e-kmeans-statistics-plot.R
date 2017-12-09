@@ -1,5 +1,6 @@
 library(dplyr)
 library(dtplyr)
+library(tidyr)
 library(data.table)
 library(tibble)
 library(ggplot2)
@@ -106,7 +107,7 @@ write.table <- function(gene.pred.folder)
     ungroup
 
   dat <- dplyr::left_join(dat, gene.pathogen.combinations, by=c("gene", "pathogen"))
-  dat <- dplyr::mutate(dat, Frequency=count/n)
+  dat <- dplyr::mutate(dat, Frequency=count/n) %>% arrange(-Frequency)
 
   D <-
       dplyr::filter(dat, gene %in% c("mock", "none", "cdc42", "met", "mtor", "alk", "ilk", "rip4k", "pik3r3", "igf2r", "gak", "ulk1", "ntpcr", "etnk1", "wnk1", "tgfbr1")) %>%
@@ -128,7 +129,7 @@ write.table <- function(gene.pred.folder)
       dplyr::summarize(MaxFrequenctInBucket=freq[1]) %>% arrange(-MaxFrequenctInBucket) %>% .[1:20]
 
     best.clusters <- dat %>% dplyr::filter(!gene  %in% c("ran", "allstarsdeath", "allstars hs cell death sirna")) %>%
-        select(prediction) %>% unique %>% .[1:5]
+        dplyr::select(prediction) %>% unique %>% .[1:5]
 
     fwrite(D, paste0(gene.pred.folder, "_sample_genes_frequency_ramo.tsv"))
     fwrite(best.genes, paste0(gene.pred.folder, "_sample_genes_frequency_best.tsv"))
@@ -137,11 +138,8 @@ write.table <- function(gene.pred.folder)
     plot.oras(best.clusters, dat)
 }
 
-
 plot.oras <- function(best.clusters, dat)
 {
-
-
   pre <- dat %>% dplyr::filter(prediction %in% best.clusters$prediction)
   genes         <- dat %>% dplyr::select(gene) %>% unique()
 
@@ -153,8 +151,9 @@ plot.oras <- function(best.clusters, dat)
   }
 
   oras.flast <- rbindlist(lapply(1:length(oras), function(e) data.table(Index=e,  oras[[e]]$summary[1:10, ])))
-  oras.flast <- oras.flast %>% as.data.frame
-  oras.flast <- oras.flast[oras.flast$Qvalue <= .05,c("Index", "GOBPID", "Term")]
+  oras.flast <- as.data.table(oras.flast)
+  res <- filter(oras.flast,  Qvalue <= .05) %>% dplyr::select(Index, Term, Qvalue) %>% as.data.table
+  res <- tidyr::spread(res, Index, Qvalue)
 }
 
 .to.entrez <-function(dat)
