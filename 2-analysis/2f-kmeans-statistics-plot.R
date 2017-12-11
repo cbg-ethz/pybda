@@ -44,7 +44,6 @@ analyse.gene.pathogen.prediction <- function(gene.pred.folder)
     scale_x_continuous(limits=c(0, 0.05), breaks=seq(0, 0.05, by=0.01)) +
     ylab("Density") +
     xlab("Relative frequency of single-cells mapping to same cluster") +
-    labs(caption="The plot shows the relative frequency if single-cells of the same\ngenetic knockdown and pathogen map to the same cluster.") +
     geom_vline(data=dat, aes(xintercept=fre), color="red", lwd=1) +
     geom_text(aes(x=fre, y=.15), label=paste0("Mean=", round(fre, 3)), hjust=-.25) +
     ggplot2::theme(axis.text.x  = ggplot2::element_text( size=18),
@@ -161,7 +160,13 @@ plot.bic <- function(bic.file)
 
 }
 
-plot.bic(bic.file)
-analyse.gene.pathogen.prediction(gene.pred.folder)
-silhouette.plot(silhouette.file)
-write.table(gene.pred.folder)
+
+ora <- function(ora)
+{
+
+}
+
+#plot.bic(bic.file)
+#analyse.gene.pathogen.prediction(gene.pred.folder)
+#silhouette.plot(silhouette.file)
+#write.table(gene.pred.folder)
