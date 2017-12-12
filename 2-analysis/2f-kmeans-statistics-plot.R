@@ -19,6 +19,8 @@ bic.file         <- list.files(dir, pattern="BIC.*.tsv", full.names=TRUE)
 gene.pred.folder <- list.files(dir, pattern="gene_pathogen_prediction_count$", full.names=TRUE)
 #sirna.pred.folder <- list.files(dir, pattern="sirna_pathogen_prediction_count$", full.names=TRUE)
 silhouette.file <- list.files(dir, pattern="silhouette", full.names=TRUE)
+cluster.centers.file <- list.files(dir, pattern="cluster_centers", full.names=TRUE)
+cluster.files       <-list.files(paste(dir, "clusters", sep="/"), full.names=TRUE)
 
 analyse.gene.pathogen.prediction <- function(gene.pred.folder)
 {
@@ -157,12 +159,6 @@ plot.bic <- function(bic.file)
 
   ggsave(filename=sub(".tsv", ".eps", bic.file), plt, width=12, height=7)
   ggsave(filename=sub(".tsv", ".png", bic.file), plt, width=12, height=7, dpi=1080)
-
-}
-
-
-ora <- function(ora)
-{
 
 }
 
