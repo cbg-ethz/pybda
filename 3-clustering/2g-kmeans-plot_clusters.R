@@ -172,4 +172,6 @@ plot.sampled.genes <- function(sampled.genes.file)
   ggsave(paste(plot.out, "genes.png", sep="-"), dpi=450)
 }
 
-#plot.sampled.genes()
+plot.best.clusters()
+plot.sampled.genes(gene.pred.folder)
+plot.oras(gene.pred.folder)
