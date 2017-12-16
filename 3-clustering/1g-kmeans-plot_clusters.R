@@ -16,11 +16,11 @@ options(stringsAsFactors=FALSE)
 
 dir <- "/Users/simondi/PROJECTS/target_infect_x_project/results/2-analysis/2-clustering/current/"
 
-best.clusters.file  <- list.files(dir, pattern="best_clusters", full.names=TRUE)
-cluster.files       <-list.files(paste(dir, "clusters", sep="/"), full.names=TRUE)
+best.clusters.file   <- list.files(dir, pattern="best_clusters", full.names=TRUE)
+cluster.files        <-list.files(paste(dir, "clusters", sep="/"), full.names=TRUE)
 cluster.centers.file <- list.files(dir, pattern="cluster_centers", full.names=TRUE)
-gene.pred.folder <- list.files(dir, pattern="gene_pathogen_prediction_count$", full.names=TRUE)
-best.clusters <- readr::read_tsv(best.clusters.file, col_names=TRUE) %>% as.tbl
+gene.pred.folder     <- list.files(dir, pattern="gene_pathogen_prediction_count$", full.names=TRUE)
+best.clusters        <- readr::read_tsv(best.clusters.file, col_names=TRUE) %>% as.tbl
 
 
 plot.oras <- function(gene.pred.folder)

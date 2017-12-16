@@ -109,7 +109,10 @@ write.table <- function(gene.pred.folder)
   dat <- dplyr::mutate(dat, Frequency=count/n) %>% arrange(-Frequency)
 
   D <-
-      dplyr::filter(dat, gene %in% c("mock", "none", "cdc42", "met", "mtor", "alk", "ilk", "rip4k", "pik3r3", "igf2r", "gak", "ulk1", "ntpcr", "etnk1", "wnk1", "tgfbr1")) %>%
+      dplyr::filter(dat, gene %in% c("mock", "none", "cdc42", "met", "mtor",
+                                     "alk", "ilk", "rip4k", "pik3r3", "igf2r",
+                                     "gak", "ulk1", "ntpcr", "etnk1", "wnk1",
+                                     "tgfbr1")) %>%
       dplyr::group_by(gene, prediction) %>%
       dplyr::summarize(n=n()) %>%
       dplyr::group_by(gene) %>%
@@ -118,23 +121,24 @@ write.table <- function(gene.pred.folder)
       arrange(-cnt) %>%
       dplyr::summarize(MaxFrequenctInBucket=freq[1])
 
-    best.genes <- dat %>% dplyr::filter(!gene  %in% c("ran", "allstarsdeath", "allstars hs cell death sirna")) %>%
+    best.genes <- dat %>% dplyr::filter(!gene  %in% c("ran", "allstarsdeath",
+                                                      "allstars hs cell death sirna")) %>%
       dplyr::group_by(gene, prediction) %>%
       dplyr::summarize(n=n()) %>%
       dplyr::group_by(gene) %>%
       dplyr::summarize(freqstr=paste0(n, "/" , n()), freq=n/n(), cnt=n()) %>%
       dplyr::group_by(gene) %>%
       arrange(-cnt) %>%
-      dplyr::summarize(MaxFrequenctInBucket=freq[1]) %>% arrange(-MaxFrequenctInBucket) %>% .[1:20]
+      dplyr::summarize(MaxFrequenctInBucket=freq[1]) %>%
+      arrange(-MaxFrequenctInBucket) %>% .[1:20]
 
-    best.clusters <- dat %>% dplyr::filter(!gene  %in% c("ran", "allstarsdeath", "allstars hs cell death sirna")) %>%
+    best.clusters <- dat %>% dplyr::filter(!gene  %in%
+            c("ran", "allstarsdeath", "allstars hs cell death sirna")) %>%
         dplyr::select(prediction) %>% unique %>% .[1:5]
 
     fwrite(D, paste0(gene.pred.folder, "_sample_genes_frequency_ramo.tsv"))
     fwrite(best.genes, paste0(gene.pred.folder, "_sample_genes_frequency_best.tsv"))
     fwrite(best.clusters, paste0(gene.pred.folder, "_best_clusters.tsv"))
-
-    plot.oras(best.clusters, dat)
 }
 
 plot.bic <- function(bic.file)
