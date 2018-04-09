@@ -8,5 +8,8 @@ fi
 
 while read line;
 do
-  rnai-query print --db /Users/simondi/PHD/data/data/target_infect_x/database/tix_index.db --plate ${line} ${2}
+  rnai-query query \
+    --plate ${line}
+    /Users/simondi/PHD/data/data/target_infect_x/database/tix_index.db \
+    ${2}
 done < $1
