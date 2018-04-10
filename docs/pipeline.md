@@ -2,6 +2,11 @@
 
 This document describes the steps taken for the data analysis of the *TargetInfectX* project.
 
+## Installation information
+
+- sparkhpc
+- spark
+- `sparksubmit` in bashrc
 ## Parsing
 
 We first downloaded the complete data-set using the `BeeDataDownloader`.
