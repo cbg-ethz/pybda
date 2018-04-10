@@ -10,13 +10,14 @@ library(ggrepel)
 
 theme <- ggthemr("fresh", "scientific")
 hrbrthemes::import_roboto_condensed()
-
 options(stringsAsFactors=FALSE)
+
 
 dir <- "./1-fa/current/"
 likelhood.file <- list.files(dir, pattern="likelihood.tsv", full.names=TRUE)
 factors.file   <- list.files(dir, pattern="factors.tsv", full.names=TRUE)
 plotout <- sub(".tsv", "",likelhood.file)
+
 
 plot.likelihood <- function()
 {

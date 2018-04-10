@@ -124,14 +124,14 @@ def statistics(folder):
     cluster_counts = numpy.array(
         data.select("prediction").dropDuplicates().collect()).flatten()
 
-    #count_statistics(data, folder, ["gene", "prediction"])
-    #count_statistics(data, folder, ["sirna", "prediction"])
-    #count_statistics(data, folder, ["pathogen", "prediction"])
-    #count_statistics(data, folder, ["gene", "pathogen", "prediction"])
-    #count_statistics(data, folder, ["sirna", "pathogen", "prediction"])
+    count_statistics(data, folder, ["gene", "prediction"])
+    count_statistics(data, folder, ["sirna", "prediction"])
+    count_statistics(data, folder, ["pathogen", "prediction"])
+    count_statistics(data, folder, ["gene", "pathogen", "prediction"])
+    count_statistics(data, folder, ["sirna", "pathogen", "prediction"])
 
     write_clusters(data, folder, cluster_counts)
-    #compute_silhouettes(folder)
+    compute_silhouettes(folder)
 
 
 def run():

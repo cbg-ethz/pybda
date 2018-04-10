@@ -51,10 +51,10 @@ def _max_set(sets, out):
     with open(out, "w") as of:
         of.write("Feature_size\tFeatures\tScreens\tScreen_size\tRemoved\n")
         of.write(str(len(max_set)) + "\t" +
-              ",".join(max_set) + "\t" +
-              ",".join(plates) + "\t" +
-              str(len(plates)) + "\t" +
-              "\n")
+                 ",".join(max_set) + "\t" +
+                 ",".join(plates) + "\t" +
+                 str(len(plates)) + "\t" +
+                 "\n")
         while len(plates) > 1:
             run += 1
             remove_screen = ""
@@ -72,10 +72,10 @@ def _max_set(sets, out):
             if remove_screen in plates:
                 plates.remove(remove_screen)
                 of.write(str(len(max_set)) + "\t" +
-                  ",".join(max_set) + "\t" +
-                  ",".join(plates) + "\t" +
-                  str(len(plates)) + "\t" +
-                  remove_screen + "\n")
+                         ",".join(max_set) + "\t" +
+                         ",".join(plates) + "\t" +
+                         str(len(plates)) + "\t" +
+                         remove_screen + "\n")
 
 
 if __name__ == '__main__':
