@@ -78,8 +78,16 @@ Query the database and write result to file (since the API does not work with su
 
 The last file (`feature_dbq_x.tsv`) can be used with `rnai-query compose` to get the data from the database (from *leonhard*):
 ```bash
-  ./5-rnai_query.sh 100/1000 feature_dbq_250.tsv
+  ./5-rnai_query.sh 10/100/1000 feature_dbq_250.tsv
 ```
+
+After that you should lpot the reults of `rnai-query` to make sure your data is approximately Gaussian.
+I recommend to do querying on only 10 cells, too, such that plotting is easier
+```bash
+  ./6-plot_feature_distribution.R100/1000 feature_dbq_250.tsv
+```
+
+
 
 **This creates the data also normalizes them which are now ready for use.**
 
