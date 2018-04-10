@@ -134,7 +134,7 @@ def get_feature_columns(data):
 
 def get_frame(file_name):
     if pathlib.Path(file_name).is_dir():
-        logger.info("Fileis a dictionary. Assuming parquet file: {}".format(
+        logger.info("File is a dictionary. Assuming parquet file: {}".format(
           file_name))
         return read_parquet_data(file_name)
 

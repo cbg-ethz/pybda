@@ -1,14 +1,13 @@
-
-
 import argparse
 import logging
-import pathlib
+import subprocess
 import sys
-import numpy
-import scipy
-import pyspark
 import pandas
+import numpy
+import pyspark
+from pyspark.ml.linalg import Vectors
 
+logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 frmtr = logging.Formatter(
@@ -18,10 +17,11 @@ spark = None
 
 
 def read_args(args):
-    parser = argparse.ArgumentParser(description='Convert a pqrquet folder to a tsv')
+    parser = argparse.ArgumentParser(
+      description='Convert a pqrquet folder to a tsv')
     parser.add_argument('-o',
                         type=str,
-                        help='output folder',
+                        help='outfile',
                         required=True,
                         metavar="output-folder")
     parser.add_argument('-f',
@@ -40,17 +40,19 @@ def read_parquet_data(file_name):
 
 
 def write_tsv_data(outpath, data):
-    logger.info("Writing tsvt: {}".format(outpath))
-    data.write.csv(path=outpath, sep="\t", header=True)
+    logger.info("Writing tsv: {}".format(outpath))
+    if not outpath.endswith(".tsv"):
+        outpath += ".tsv"
+    data = data.select("features").toPandas()
+    data.to_csv(outpath, sep="\t", index=False, header=False)
+    subprocess.run(['sed', '-i', "''", 's/\[//g', outpath])
+    subprocess.run(['sed', '-i', "''", 's/\]//g', outpath])
+    subprocess.run(['sed', '-i', "''", "s/\,/\t/g", outpath])
 
 
 def run():
     # check files
     file_name, outpath, opts = read_args(sys.argv[1:])
-    if not file_name.endswith(".tsv"):
-        logger.error("Please provide a tsv file: " + file_name)
-        return
-
     # spark settings
     pyspark.StorageLevel(True, True, False, False, 1)
     conf = pyspark.SparkConf()

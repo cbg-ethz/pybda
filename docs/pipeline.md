@@ -92,8 +92,6 @@ I recommend to do querying on only 10 cells, too, such that plotting is easier
   ./6-plot_feature_distribution.R100/1000 feature_dbq_250.tsv
 ```
 
-
-
 **This creates the data also normalizes them which are now ready for use.**
 
 ## Dimension reduction
@@ -105,7 +103,7 @@ The input file is a data set created using `rnai-query compose` (see above). The
 
 **Note that mpi and java needs to be loaded on every shell session.** The job is submitted on a grid using:
 
-The clustering can be done like this locally:
+The factor analysis can be done like this locally:
 ```bash
   spark-submit --master "local[*]" --driver-memory 3G --executor-memory 6G
                1-factor_analysis-spark.py
@@ -132,6 +130,14 @@ Afterwards the results can be visualized using:
 
 ```bash
     Rscript 1b-factor_analysis_plot.R
+```
+If you also want to visualize the distribution of the components it makes sense
+to run the factor analysis on a smaller data set,for instance with only 10 cells
+and then run the following:
+
+```bash
+    3-parquet_to_tsv.sh
+    4-plot_feature_distributions.R
 ```
 
 ## Analysis
