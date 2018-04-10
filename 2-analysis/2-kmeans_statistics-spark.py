@@ -59,12 +59,10 @@ def count_statistics(data, folder, what):
 def write_clusters(data, folder, cluster_counts):
     file_names = [""] * len(cluster_counts)
     for i in cluster_counts:
-        if i not in [2382, 13066, 10069,  4618, 8602]:
-            continue
-        data_i = data.filter("prediction={}".format(i))
         outfile = "{}_{}.tsv".format(folder, i)
         if pathlib.Path(outfile).is_file():
             continue
+        data_i = data.filter("prediction={}".format(i))
         file_names[i] = outfile
         data_i.toPandas().sample(frac=1).to_csv(outfile, sep="\t", index=0)
     return file_names
