@@ -79,7 +79,7 @@ def sample(folder, genes):
     logger.info("Loading Kmeans clustering")
     data = read_parquet_data(folder)
 
-    opath = folder + "_sampled_genes.tsv
+    opath = folder + "_sampled_genes.tsv"
     data = data.where(data.gene.isin(genes.split(",")))
     write_pandas_tsv(opath, data)
 

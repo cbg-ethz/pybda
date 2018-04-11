@@ -25,6 +25,7 @@ plot.distributions <- function()
   cols         <- colnames(fr)
   feature.idxs <- which(stringr::str_detect(cols, "cells|nuclei|peri"))
   if (!dir.exists(out.dir)) dir.create(out.dir)
+
   for (col in cols[feature.idxs]) {
     cl <- fr[ ,get(col)]
     cl.var  <- var(cl, na.rm=T)

@@ -59,7 +59,7 @@ def count_statistics(data, folder, what):
 def write_clusters(data, folder, cluster_counts):
     file_names = [""] * len(cluster_counts)
     for i in cluster_counts:
-        if i not in [2382, 13066, 10069,  4618, 8602]:
+        if i not in [2382, 13066, 10069, 4618, 8602]:
             continue
         data_i = data.filter("prediction={}".format(i))
         outfile = "{}_{}.tsv".format(folder, i)
@@ -72,7 +72,7 @@ def write_clusters(data, folder, cluster_counts):
 
 def compute_silhouettes(folder):
     reg = re.compile(".*K\d+\_\d+.tsv")
-    files = [x for x in glob.glob(folder+"*") if x.endswith(".tsv")]
+    files = [x for x in glob.glob(folder + "*") if x.endswith(".tsv")]
     files = [x for x in files if reg.match(x) is not None]
     out_silhouette = folder + "_silhouette.tsv"
     K = len(files)
@@ -84,14 +84,16 @@ def compute_silhouettes(folder):
 
 def read_matrix(fl):
     matr = pandas.read_csv(fl, sep="\t", nrows=1000, usecols=["features"])
-    return matr["features"].str.split(",", expand=True).as_matrix().astype(numpy.float64)
+    return matr["features"].str.split(",", expand=True).as_matrix().astype(
+        numpy.float64)
 
 
 def _compute_silhouette(outfiles, i, K, ot):
     np_i = read_matrix(outfiles[i])
     min_cluster, min_distance = mp_min_distance(i, K, np_i, outfiles)
     within_distance = _mean_distance(i, np_i, outfiles)
-    silhouette = (min_distance - within_distance) / numpy.maximum(min_distance, within_distance)
+    silhouette = (min_distance - within_distance) / numpy.maximum(min_distance,
+                                                                  within_distance)
     for clust, sil in zip(min_cluster, silhouette):
         ot.write("{}\t{}\t{}".format(i, clust, sil) + "\n")
 
@@ -124,7 +126,7 @@ def statistics(folder):
     logger.info("Loading PCA/Kmeans clustering")
     data = read_parquet_data(folder)
     cluster_counts = numpy.array(
-        data.select("prediction").dropDuplicates().collect()).flatten()
+      data.select("prediction").dropDuplicates().collect()).flatten()
 
     count_statistics(data, folder, ["gene", "prediction"])
     count_statistics(data, folder, ["sirna", "prediction"])
