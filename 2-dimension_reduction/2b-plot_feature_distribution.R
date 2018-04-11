@@ -14,15 +14,16 @@ hrbrthemes::import_roboto_condensed()
 
 options(stringsAsFactors=FALSE)
 
-data.dir  <- "/Users/simondi/PHD/data/data/target_infect_x/query_data/"
+
+data.dir  <- "/Users/simondi/PROJECTS/target_infect_x_project/results/2-analysis/1-fa/current/"
 out.dir   <- "/Users/simondi/PROJECTS/target_infect_x_project/results/2-analysis/1-fa/current/feature_distributions/"
-data.file <- paste(data.dir, "cells_sample_10_normalized_cut_100_factors.tsv", sep="/")
+data.file <- paste(data.dir, "all_optimal_from_file_feature_dbq_250_cells_100_sample.tsv", sep="/")
 
 
 plot.distributions <- function()
 {
-  fr           <- fread(data.file, sep="\t")
-  colnames(fr) <- paste("Factor", seq(ncol(fr)))
+  fr           <- fread(data.file, sep=",")
+  colnames(fr) <- paste0("factor_", seq(ncol(fr)))
   cols         <- colnames(fr)
   if (!dir.exists(out.dir)) dir.create(out.dir)
 
