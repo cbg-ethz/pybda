@@ -44,8 +44,10 @@ def write_tsv_data(outpath, data):
     if not outpath.endswith(".tsv"):
         outpath += ".tsv"
     data_row_cnt = data.count()
-    sample_ratio = min(100000 / data_row_cnt, 1)
-    data = data.sample(False, sample_ratio, seed=23).select("features").toPandas()
+    sample_ratio = float(min(100000 / data_row_cnt, 1))
+    data = data\
+        .sample(withReplacement=False, fraction=sample_ratio, seed=23)\
+        .select("features").toPandas()
     data.to_csv(outpath, sep="\t", index=False, header=False)
     subprocess.run(['sed', '-i', "''", 's/\[//g', outpath])
     subprocess.run(['sed', '-i', "''", 's/\]//g', outpath])
