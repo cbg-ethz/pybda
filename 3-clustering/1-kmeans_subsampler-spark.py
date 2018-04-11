@@ -45,26 +45,9 @@ def read_args(args):
     return opts.f, opts.g, opts
 
 
-def pca_transform_path(folder):
-    return folder.replace("kmeans_transform-", "pca_transform-")
-
-
-def pca_transform_tsv_path(folder):
-    return pca_transform_path(folder) + "_sample-{}.tsv".format(uuid.uuid4())
-
-
-def pca_transform_variance_path(folder):
-    return pca_transform_path(folder) + "_explained_variance.tsv"
-
-
 def read_parquet_data(file_name):
     logger.info("Reading parquet: {}".format(file_name))
     return spark.read.parquet(file_name)
-
-
-def write_parquet_data(file_name, data):
-    logger.info("Writing parquet: {}".format(file_name))
-    data.write.parquet(file_name, mode="overwrite")
 
 
 def write_pandas_tsv(file_name, data):
@@ -78,15 +61,9 @@ def sample(folder, genes):
 
     logger.info("Loading Kmeans clustering")
     data = read_parquet_data(folder)
-
     opath = folder + "_sampled_genes.tsv"
     data = data.where(data.gene.isin(genes.split(",")))
-    write_pandas_tsv(opath, data)
-
-
-def loggername(outpath):
-    name = pca_transform_path(outpath)
-    return name + ".log"
+    write_pandas_tsv(opath, data.toPandas())
 
 
 def run():
@@ -96,10 +73,6 @@ def run():
         logger.error("Folder does not exist: " + folder)
         return
 
-    hdlr = logging.FileHandler(loggername(folder))
-    hdlr.setFormatter(frmtr)
-    logger.addHandler(hdlr)
-
     # spark settings
     pyspark.StorageLevel(True, True, False, False, 1)
     conf = pyspark.SparkConf()
@@ -107,7 +80,7 @@ def run():
     global spark
     spark = pyspark.sql.SparkSession(sc)
     try:
-        sample(folder, genes, clusters)
+        sample(folder, genes)
     except Exception as e:
         logger.error("Random exception: {}".format(str(e)))
     spark.stop()
