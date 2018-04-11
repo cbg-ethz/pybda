@@ -2,6 +2,11 @@
 
 This document describes the steps taken for the data analysis of the *TargetInfectX* project.
 
+## Installation information
+
+- sparkhpc
+- spark
+- `sparksubmit` in bashrc
 ## Parsing
 
 We first downloaded the complete data-set using the `BeeDataDownloader`.
@@ -78,7 +83,13 @@ Query the database and write result to file (since the API does not work with su
 
 The last file (`feature_dbq_x.tsv`) can be used with `rnai-query compose` to get the data from the database (from *leonhard*):
 ```bash
-  ./5-rnai_query.sh 100/1000 feature_dbq_250.tsv
+  ./5-rnai_query.sh 10/100/1000 feature_dbq_250.tsv
+```
+
+After that you should lpot the reults of `rnai-query` to make sure your data is approximately Gaussian.
+I recommend to do querying on only 10 cells, too, such that plotting is easier
+```bash
+  ./6-plot_feature_distribution.R100/1000 feature_dbq_250.tsv
 ```
 
 **This creates the data also normalizes them which are now ready for use.**
@@ -92,7 +103,7 @@ The input file is a data set created using `rnai-query compose` (see above). The
 
 **Note that mpi and java needs to be loaded on every shell session.** The job is submitted on a grid using:
 
-The clustering can be done like this locally:
+The factor analysis can be done like this locally:
 ```bash
   spark-submit --master "local[*]" --driver-memory 3G --executor-memory 6G
                1-factor_analysis-spark.py
@@ -119,6 +130,14 @@ Afterwards the results can be visualized using:
 
 ```bash
     Rscript 1b-factor_analysis_plot.R
+```
+If you also want to visualize the distribution of the components it makes sense
+to run the factor analysis on a smaller data set,for instance with only 10 cells
+and then run the following:
+
+```bash
+    3-parquet_to_tsv.sh
+    4-plot_feature_distributions.R
 ```
 
 ## Analysis
