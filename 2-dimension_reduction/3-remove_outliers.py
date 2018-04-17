@@ -35,7 +35,7 @@ def read_args(args):
                              "data (e.g. FA/kPCA/PCA folder). A column called "
                              "'features' of type 'DenseVector' is expected",
                         required=True,
-                        metavar="input-file")
+                        metavar="input-folder")
     opts = parser.parse_args(args)
 
     return opts.f, opts.o, opts
@@ -92,6 +92,7 @@ def get_precision_matrix(X):
 
 def remove_outliers_(data):
     precision = get_precision_matrix(center(data))
+
     def maha(col):
         def maha_(v):
             arr = v.toArray()
@@ -101,22 +102,22 @@ def remove_outliers_(data):
 
     data = data.withColumn("maha", maha(col("features")))
     quant = stats.chi2.ppf(q=.975, df=precision.shape[0])
-
+    print("asdasd\n\n\n\n\n\n\n\n")
+    logger.info("DataFrame rowcount before removal: {}".format(data.count()))
     data = data.filter(data.maha < quant)
+    logger.info("DataFrame rowcount after removal: {}".format(data.count()))
     return data
 
 
 def remove_outliers(infolder, outpath):
     if not pathlib.Path(infolder).is_dir():
         raise ValueError("infolder is not a directory")
-    if not pathlib.Path(outpath).is_dir():
-        raise ValueError("outpath is not a directory")
 
     data = read_parquet_data(infolder)
     check_columns(data)
 
     data = remove_outliers_(data)
-    return data
+    write_parquet_data(outpath, data)
 
 
 def run():
@@ -129,6 +130,12 @@ def run():
     sc = pyspark.SparkContext(conf=conf)
     global spark
     spark = pyspark.sql.SparkSession(sc)
+
+    if outpath.endswith("/"):
+        outpath = outpath[:-1   ]
+    hdlr = logging.FileHandler(outpath + ".log")
+    hdlr.setFormatter(frmtr)
+    logger.addHandler(hdlr)
 
     try:
         remove_outliers(infolder, outpath)

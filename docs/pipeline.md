@@ -136,9 +136,37 @@ to run the factor analysis on a smaller data set,for instance with only 10 cells
 and then run the following:
 
 ```bash
-    3-parquet_to_tsv.sh
-    4-plot_feature_distributions.R
+    2a-parquet_to_tsv.sh
+    2b-plot_feature_distributions.R
 ```
+
+Finally we remove some outliers. As before we are assuming **GAUSSIAN** features, 
+so the output of `2b-plot_feature_distributions.R` should be approximately normal 
+(or whatever).
+
+Locally you would call:
+```bash
+  spark-submit --master "local[*]" --driver-memory 3G --executor-memory 6G
+               3-outlier_removal.py
+               -o ./query_data/cells_sample_10_normalized_cut_100_factors
+               -f ./query_data/cells_sample_10_normalized_cut_100.tsv
+```
+
+On leonhard this is the command to be executed:
+
+```bash
+    module load jdk/8u92
+    module load openmpi/2.1.0
+
+    ./0a-start_cluster.sh
+    ./0b-launch_cluster.sh &
+
+    # get master
+    sparkcluster info
+
+    ./3a-remove_outliers.sh MASTER &
+```
+
 
 ## Analysis
 
