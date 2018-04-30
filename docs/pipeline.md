@@ -184,28 +184,28 @@ The clustering can be done like this locally:
 ```bash
   for i in {2..15};
   do
-    spark-submit --master "local[*]" --driver-memory 3G --executor-memory 6G
-                 1-kmeans_spark.py
-                 -o ./2-clustering/test
-                 -f ./query_data/cells_sample_10_normalized_cut_100_factors
+    spark-submit --master "local[*]" --driver-memory 3G --executor-memory 6G \ 
+                 1-kmeans_spark.py \
+                 -o ./1-clustering/test \
+                 -f ./query_data/cells_sample_10_normalized_cut_100_factors \
                  fit -k ${i}
   done
 
-  spark-submit --master "local[*]" --driver-memory 3G --executor-memory 6G
-              1-kmeans_spark.py
-              -o ./2-clustering/test
-              -f ./query_data/cells_sample_10_normalized_cut_100_factors
-              plot
+  spark-submit --master "local[*]" --driver-memory 3G --executor-memory 6G \ 
+               1-kmeans_spark.py \
+               -o ./1-clustering/test \
+               -f ./query_data/cells_sample_10_normalized_cut_100_factors \
+               plot
 
-  spark-submit --master "local[*]" --driver-memory 3G --executor-memory 6G
-               1-kmeans_spark.py
-               -o ./2-clustering/test
-               -f ./query_data/cells_sample_10_normalized_cut_100_factors  
+  spark-submit --master "local[*]" --driver-memory 3G --executor-memory 6G \ 
+               1-kmeans_spark.py \
+               -o ./1-clustering/test \
+               -f ./query_data/cells_sample_10_normalized_cut_100_factors \  
                transform -k BEST_K_FROM_PLOT
 
-  spark-submit --master "local[*]" --driver-memory 3G --executor-memory 6G
-                1-kmeans_statistics-spark.py
-                -f ./2-clustering/test/kmeans_transform-cells_sample_10_normalized_cut_100_factors_K005
+  spark-submit --master "local[*]" --driver-memory 3G --executor-memory 6G \
+                1-kmeans_statistics-spark.py \
+                -f ./1-clustering/test/kmeans_transform-cells_sample_10_normalized_cut_100_factors_K005
 
 ```
 
