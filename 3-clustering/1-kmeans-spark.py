@@ -248,6 +248,11 @@ def fit_cluster(file_name, K, outpath):
     logger.info("Writing cluster fit to: {}".format(clustout))
     model.write().overwrite().save(clustout)
 
+    clust_sizes = model.summary.clusterSizes
+    thefile = open(clustout + "_clusterSizes.tsv", 'w')
+    for c in clust_sizes:
+        thefile.write("{}\n".format(c))
+
 
 def transform_cluster(file_name, k, outpath):
     cpath = data_path(file_name)
