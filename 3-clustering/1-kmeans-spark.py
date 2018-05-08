@@ -306,6 +306,9 @@ def loggername(which, outpath, file_name, k=None):
 def run():
     # check files
     file_name, outpath, which, opts = read_args(sys.argv[1:])
+    if not pathlib.Path(file_name).exists():
+        logger.error("Please provide a file: " + file_name)
+        return
     if not pathlib.Path(outpath).is_dir():
         logger.error("Outpath does not exist: " + outpath)
         return
