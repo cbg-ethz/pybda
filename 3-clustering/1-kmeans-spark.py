@@ -196,6 +196,12 @@ def plot_cluster(file_name, outpath):
               glob.glob(model_path(outpath, file_name) + "*K*") if
               pathlib.Path(x).is_dir()]
 
+
+    print("\n\n\n\n\n\n\n\n\n\n\n")
+    print(mpaths)
+    print("\n\n\n\n\n\n\n\n\n\n\n")
+
+
     logger.info("Mpath: {}".format("\n".join(mpaths)))
     logger.info("Models path:  {}".format(model_path(outpath, file_name)))
 
@@ -300,9 +306,6 @@ def loggername(which, outpath, file_name, k=None):
 def run():
     # check files
     file_name, outpath, which, opts = read_args(sys.argv[1:])
-    if not pathlib.Path(file_name).exists():
-        logger.error("Please provide a tfile: " + file_name)
-        return
     if not pathlib.Path(outpath).is_dir():
         logger.error("Outpath does not exist: " + outpath)
         return
