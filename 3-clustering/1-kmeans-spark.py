@@ -171,15 +171,18 @@ def get_kmean_fit_statistics(mpaths, data):
     kmean_fits = []
     for mpath in mpaths:
         try:
+            # parameteres
             K = int(re.match(".*_K(\d+)$", mpath).group(1))
             logger.info("Loading model for K={}".format(K))
             model = KMeansModel.load(mpath)
             rss = model.computeCost(data)
             N = data.count()
-            aic = rss + 2 * K * len(get_feature_columns(data))
+            P = 10
+            bic_3 = rss + numpy.log(N) * K * P
+            bic_2 =  N + N * numpy.log(2 * numpy.pi) + N * numpy.log(rss/N) + numpy.log(N) * (K + 1)
             bic = N * numpy.log(rss / N) + K * numpy.log(N)
 
-            kmean_fits.append((K, model, rss, aic, bic))
+            kmean_fits.append((K, model, bic, bic_2, bic_3))
 
         except AttributeError as e:
             logger.error(
@@ -196,24 +199,18 @@ def plot_cluster(file_name, outpath):
               glob.glob(model_path(outpath, file_name) + "*K*") if
               pathlib.Path(x).is_dir()]
 
-
-    print("\n\n\n\n\n\n\n\n\n\n\n")
-    print(mpaths)
-    print("\n\n\n\n\n\n\n\n\n\n\n")
-
-
     logger.info("Mpath: {}".format("\n".join(mpaths)))
     logger.info("Models path:  {}".format(model_path(outpath, file_name)))
 
     kmean_fits = get_kmean_fit_statistics(mpaths, data)
 
     ks = [x[0] for x in kmean_fits]
-    mses = [x[2] for x in kmean_fits]
-    plot(ks, mses, "RSS", outpath, file_name)
-    aics = [x[3] for x in kmean_fits]
-    plot(ks, aics, "AIC", outpath, file_name)
-    bics = [x[4] for x in kmean_fits]
-    plot(ks, bics, "BIC", outpath, file_name)
+    bic = [x[2] for x in kmean_fits]
+    plot(ks, mses, "BIC", outpath, file_name)
+    bic2 = [x[3] for x in kmean_fits]
+    plot(ks, aics, "BIC 2", outpath, file_name)
+    bic3 = [x[4] for x in kmean_fits]
+    plot(ks, bics, "BIC 3", outpath, file_name)
 
 
 def plot(ks, score, axis_label, outpath, file_name):

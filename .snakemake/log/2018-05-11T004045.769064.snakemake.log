@@ -1,0 +1,28 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	bwa_map
+	1
+
+rule bwa_map:
+    input: data/genome.fa, data/samples/A.fastq
+    output: mapped_reads/A.bam
+    jobid: 0
+
+Error in rule bwa_map:
+    jobid: 0
+    output: mapped_reads/A.bam
+
+RuleException:
+CalledProcessError in line 8 of /Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/Snakefile:
+Command ' set -euo pipefail;  bwa mem data/genome.fa data/samples/A.fastq | samtools view -Sb - > mapped_reads/A.bam ' returned non-zero exit status 127.
+  File "/Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/Snakefile", line 8, in __rule_bwa_map
+  File "/Users/simondi/anaconda3/envs/py36/lib/python3.6/concurrent/futures/thread.py", line 56, in run
+Removing output files of failed job bwa_map since they might be corrupted:
+mapped_reads/A.bam
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: /Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/.snakemake/log/2018-05-11T004045.769064.snakemake.log

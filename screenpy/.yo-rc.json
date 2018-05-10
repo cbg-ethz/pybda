@@ -1,9 +1,0 @@
-{
-  "generator-python-bones": {
-    "user": "Simon Dirmeier",
-    "email": "simon.dirmeier@bsse.ethz.ch",
-    "projectID": "screenpy",
-    "desc": "Analysis of big data perturbation screens.",
-    "githubuser": "dirmeier"
-  }
-}
