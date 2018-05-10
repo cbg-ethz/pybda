@@ -1,8 +1,22 @@
-rule bwa_map:
+configfile: "config.yaml"
+
+rule all:
     input:
-        "data/genome.fa",
-        "data/samples/A.fastq"
+    	expand("{sample}/dimension-reduction", sample=config["outfolder"]),
+      	expand("{sample}/outlier-removal", sample=config["outfolder"])
+
+rule dimred:
+    input:
+        expand("{sample}", sample=config["samples"])
     output:
-        "mapped_reads/A.bam"
+        expand("{sample}/dimension-reduction", sample=config["outfolder"])
     shell:
-        "bwa mem {input} | samtools view -Sb - > {output}"
+        "cat {input} > {output}"
+
+rule outliers:
+    input:
+        expand("{sample}/dimension-reduction", sample=config["outfolder"]),
+    output:
+        expand("{sample}/outlier-removal", sample=config["outfolder"])
+    shell:
+        "cat {input} > {output}"
