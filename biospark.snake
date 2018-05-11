@@ -1,0 +1,61 @@
+configfile: "config.yaml"
+
+rule all:
+    input:
+    	expand("{outfolder}/fa.log", outfolder=config["outfolder"]),
+    	expand("{outfolder}/fa-sample.log", outfolder=config["outfolder"]),
+    	expand("{outfolder}/fa-sample-distribution.log", outfolder=config["outfolder"]),
+      	expand("{outfolder}/outlier-removal.log", outfolder=config["outfolder"]),
+      	expand("{outfolder}/kmeans-fit.log", outfolder=config["outfolder"]),
+      	expand("{outfolder}/kmeans-plot.log", outfolder=config["outfolder"]),
+      	expand("{outfolder}/kmeans-transform.log", outfolder=config["outfolder"])
+
+rule fa:
+    input:
+        expand("{sample}", sample=config["samples"])
+    output:
+        expand("{outfolder}/fa.log", outfolder=config["outfolder"])
+    shell:
+        "cat {input} > {output}"
+
+rule fa_sample:
+    input:
+        expand("{outfolder}/fa.log", outfolder=config["outfolder"]),
+    output:
+        expand("{outfolder}/fa-sample.log", outfolder=config["outfolder"])
+    shell:
+        "cat {input} > {output}"
+
+rule fa_sample_plot:
+    input:
+        expand("{outfolder}/fa-sample.log", outfolder=config["outfolder"]),
+    output:
+        expand("{outfolder}/fa-sample-distribution.log", outfolder=config["outfolder"])
+    shell:
+        "cat {input} > {output}"
+
+rule outliers:
+    input:
+        expand("{outfolder}/fa.log", outfolder=config["outfolder"]),
+    output:
+        expand("{outfolder}/outlier-removal.log", outfolder=config["outfolder"])
+    shell:
+        "cat {input} > {output}"
+
+rule clustering_fit:
+	input:
+		expand("{outfolder}/outlier-removal.log", outfolder=config["outfolder"])
+	output:
+		expand("{outfolder}/kmeans-fit.log", outfolder=config["outfolder"])
+	shell:
+		"echo {config[spark]} > {output}"
+
+rule clustering_transform:
+	input:
+		expand("{outfolder}/kmeans-fit.log", outfolder=config["outfolder"])
+	output:
+		transform=expand("{outfolder}/kmeans-transform.log", outfolder=config["outfolder"]),
+		plot=expand("{outfolder}/kmeans-plot.log", outfolder=config["outfolder"])
+	run:
+		shell("cat {input} > {output.plot}"),
+		shell("cat {input} > {output.transform}")

@@ -1,0 +1,25 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	1	clustering
+	2
+
+localrule clustering:
+    input: data/outlier-removal
+    output: data/kmeans-2, data/kmeans-5, data/kmeans-10
+    jobid: 2
+
+Waiting at most 5 seconds for missing files.
+MissingOutputException in line 25 of /Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/Snakefile:
+Missing files after 5 seconds:
+data/kmeans-2
+data/kmeans-5
+data/kmeans-10
+This might be due to filesystem latency. If that is the case, consider to increase the wait time with --latency-wait.
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: /Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/.snakemake/log/2018-05-11T013748.392754.snakemake.log

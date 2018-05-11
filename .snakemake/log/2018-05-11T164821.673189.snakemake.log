@@ -1,0 +1,2 @@
+SyntaxError in line 49 of /Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/Snakefile:
+Command must be given as string after the shell keyword. (Snakefile, line 49)

@@ -1,0 +1,4 @@
+Building DAG of jobs...
+WildcardError in line 8 of /Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/Snakefile:
+Wildcards in params cannot be determined from output files:
+'sample'

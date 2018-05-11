@@ -1,0 +1,25 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	1	clustering
+	2
+
+rule clustering:
+    input: data/outlier-removal
+    output: data/kmeans-2
+    jobid: 2
+
+Finished job 2.
+1 of 2 steps (50%) done
+
+localrule all:
+    input: data/dimension-reduction, data/outlier-removal, data/kmeans-2
+    jobid: 0
+
+Finished job 0.
+2 of 2 steps (100%) done
+Complete log: /Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/.snakemake/log/2018-05-11T021942.010992.snakemake.log
