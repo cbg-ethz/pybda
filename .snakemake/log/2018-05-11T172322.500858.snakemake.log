@@ -1,0 +1,3 @@
+WildcardError in line 62 of /Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/Snakefile:
+No values given for wildcard 'center'.
+  File "/Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/Snakefile", line 62, in <module>

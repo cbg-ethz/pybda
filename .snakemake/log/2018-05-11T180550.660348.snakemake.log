@@ -1,0 +1,48 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	1	clustering_fit
+	1	clustering_plot
+	1	fa
+	1	fa_sample
+	1	fa_sample_plot
+	1	outliers
+	7
+
+rule fa:
+    input: README.md
+    output: data/fa
+    jobid: 2
+
+Finished job 2.
+1 of 7 steps (14%) done
+
+rule outliers:
+    input: data/fa
+    output: data/outlier-removal
+    jobid: 4
+
+Finished job 4.
+2 of 7 steps (29%) done
+
+rule clustering_fit:
+    input: data/outlier-removal
+    output: data/kmeans-2,3,4,5,6
+    jobid: 5
+
+Error in rule clustering_fit:
+    jobid: 5
+    output: data/kmeans-2,3,4,5,6
+
+RuleException:
+NameError in line 52 of /Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/Snakefile:
+The name 'spark' is unknown in this context. Please make sure that you defined that variable. Also note that braces not used for variable access have to be escaped by repeating them, i.e. {{print $1}}
+  File "/Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/Snakefile", line 52, in __rule_clustering_fit
+  File "/Users/simondi/anaconda3/envs/py36/lib/python3.6/concurrent/futures/thread.py", line 56, in run
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: /Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/.snakemake/log/2018-05-11T180550.660348.snakemake.log
