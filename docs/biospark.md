@@ -28,7 +28,19 @@ Here, you only need to change the infile parameter, the folder where you want to
 
 In order for `biospark` to work you need to have a working *standalone spark environment* already set up and running. This part needs to be done by the user. You can find a good introduction [here](https://spark.apache.org/docs/latest/spark-standalone.html).
 
-If you started your local cluster, you will receive the IP of the master, fo instance something like: `spark://5.6.7.8:7077`.
+If you started your local spark context, you will receive the IP of the master, fo instance something like: `spark://5.6.7.8:7077`.
+
+#### Local environment
+
+On a laptop you would start the spark environment using:
+
+```bash
+$SPARK_HOME/sbin/start-master.sh
+```
+
+#### Cluster environment
+
+
 
 ### Running
 
