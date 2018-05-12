@@ -40,7 +40,12 @@ $SPARK_HOME/sbin/start-master.sh
 
 #### Cluster environment
 
+If you are working on a cluster, I recommend using `sparkhpc` to start a cluster. You can use the provided scripts to start a cluster. **Make sure to have a working `openmpi` and `java` installed**.
 
+```bash
+./0a-start-cluster.sh &
+./0b-launch-cluster.sh &
+```
 
 ### Running
 
