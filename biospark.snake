@@ -16,7 +16,9 @@ rule fa:
     output:
         expand("{outfolder}/fa.log", outfolder=config["outfolder"])
     shell:
-        "cat {input} > {output}"
+        """
+        spark-submit -f {input} -o {output}
+        """
 
 rule fa_sample:
     input:
