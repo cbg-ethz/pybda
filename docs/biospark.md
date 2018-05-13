@@ -4,8 +4,9 @@
 
 ## Dependencies
 
-Make sure to have `spark >= 2.2.0` and all the dependencies given in `requirements.txt`
-installed.
+Make sure to have `spark >= 2.2.0` and all the dependencies given in `requirements.txt` installed.
+
+# TODO: add r requirements
 
 ## Usage
 
@@ -14,12 +15,14 @@ installed.
 We start by configuring the config file `biospark.config`:
 
 ```bash
-infile:
-    - data/single_cell_samples.tsv
-outfolder:
-    - data
-centers:
-    - 2,3,4,5,6
+spark: /usr/local/spark/spark/bin/spark-submit
+infile: data/single_cell_samples.tsv
+outfolder: data
+factors: 15
+centers: 2,5,10
+sparkparams:
+  - "--driver-memory=3G"
+  - "--executor-memory=6G"
 ```
 
 Here, you only need to change the infile parameter, the folder where you want to save the results and the number of cluster centers we want to test.
@@ -36,6 +39,7 @@ On a laptop you would start the spark environment using:
 
 ```bash
 $SPARK_HOME/sbin/start-master.sh
+$SPARK_HOME/sbin/start-slave.sh <sparkip>
 ```
 
 #### Cluster environment
@@ -52,7 +56,7 @@ If you are working on a cluster, I recommend using `sparkhpc` to start a cluster
 Once you started the cluster, you start `snakemake`:
 
 ```bash
-snakemake -s biospark.snake --config spark=IP
+snakemake -s biospark.snake --configfile biospark-local.config --config sparkip= <sparkip>
 ```
 
 That is it! This will create all required files in the data directory,

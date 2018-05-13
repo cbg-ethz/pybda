@@ -1,0 +1,21 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Job counts:
+	count	jobs
+	1	fa
+	1
+[Errno 66] Directory not empty: 'data/fa'
+Terminating processes on user request, this might take some time.
+Error in rule fa:
+    jobid: 0
+    output: data/fa
+
+RuleException:
+CalledProcessError in line 26 of /Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/biospark.snake:
+Command ' set -euo pipefail;  /usr/local/spark/spark/bin/spark-submit --master spark://bs-mbpr134.d.ethz.ch:7077                               --driver-memory=3G --executor-memory=6G                               2-dimension_reduction/1-factor_analysis-spark.py                               -c 15                               -f data/single_cell_samples.tsv                               -o data/fa ' returned non-zero exit status 130.
+  File "/Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/biospark.snake", line 26, in __rule_fa
+  File "/Users/simondi/anaconda3/envs/py36/lib/python3.6/concurrent/futures/thread.py", line 56, in run
+Removing output files of failed job fa since they might be corrupted:
+data/fa
+[Errno 66] Directory not empty: 'data/fa'
+Complete log: /Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/.snakemake/log/2018-05-13T011237.438333.snakemake.log

@@ -1,0 +1,4 @@
+Building DAG of jobs...
+MissingInputException in line 12 of /Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/biospark.snake:
+Missing input files for rule fa:
+data/single_cell_samples.tsv

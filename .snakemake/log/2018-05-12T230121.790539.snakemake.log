@@ -1,0 +1,3 @@
+WorkflowError in line 1 of /Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/biospark.snake:
+Config file config.yaml not found.
+  File "/Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/biospark.snake", line 1, in <module>

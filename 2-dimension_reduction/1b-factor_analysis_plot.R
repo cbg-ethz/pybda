@@ -7,19 +7,14 @@ library(ggthemr)
 library(viridis)
 library(cowplot)
 library(ggrepel)
+library(argparse)
 
 theme <- ggthemr("fresh", "scientific")
 hrbrthemes::import_roboto_condensed()
 options(stringsAsFactors=FALSE)
 
 
-dir <- "./1-fa/current/"
-likelhood.file <- list.files(dir, pattern="likelihood.tsv", full.names=TRUE)
-factors.file   <- list.files(dir, pattern="factors.tsv", full.names=TRUE)
-plotout <- sub(".tsv", "",likelhood.file)
-
-
-plot.likelihood <- function()
+plot.likelihood <- function(plotout, likelhood.file)
 {
   hrbrthemes::import_roboto_condensed()
   full.tbl <- readr::read_tsv(likelhood.file, col_names=FALSE) %>%
@@ -43,17 +38,19 @@ plot.likelihood <- function()
                    axis.title.y   = ggplot2::element_text(size=20),
                    panel.grid.major.x = element_line(colour = 'black', linetype = 'dotted'))
 
-  ggsave(paste(plotout, "likelihood_path.png", sep="-"), dpi=720)
+  ggsave(paste0(plotout, ".png"), dpi=720)
 
 }
 
-plot.factors <- function()
+
+plot.factors <- function(plotout, factors.file)
 {
 
   hrbrthemes::import_roboto_condensed()
   full.tbl <- readr::read_tsv(factors.file, col_names=TRUE) %>%
-    as.data.frame %>%
-    as.matrix %>% t
+    as.data.frame() %>%
+    as.matrix() %>%
+     t()
 
   P <- nrow(full.tbl)
   C <- ncol(full.tbl)
@@ -101,5 +98,13 @@ plot.factors <- function()
 
 }
 
-plot.likelihood()
-plot.factors()
+
+(run <- function() {
+  dir <- commandArgs(trailing=TRUE)[1]
+  likelhood.file <- list.files(dir, pattern="likelihood.tsv", full.names=TRUE)
+  factors.file   <- list.files(dir, pattern="factors.tsv", full.names=TRUE)
+  plotout <- sub(".tsv", "", likelhood.file)
+
+  plot.likelihood(paste0(dir, "/fa-likelihood_path"), likelhood.file)
+  plot.factors(paste0(dir, "/fa-factors"), factors.file)
+})()

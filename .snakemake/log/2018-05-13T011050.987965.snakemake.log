@@ -1,0 +1,7 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Job counts:
+	count	jobs
+	1	fa
+	1
+Complete log: /Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/.snakemake/log/2018-05-13T011050.987965.snakemake.log

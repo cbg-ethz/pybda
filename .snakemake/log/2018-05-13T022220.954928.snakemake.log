@@ -1,0 +1,28 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	1	clustering_transform
+	1	fa_plot
+	3
+
+rule fa_plot:
+    input: data/fa
+    output: data/fa-likelihood_path.png, data/fa-factors-variance_explained.png, data/fa-factors-biplot.png
+    jobid: 1
+
+Error in rule fa_plot:
+    jobid: 1
+    output: data/fa-likelihood_path.png, data/fa-factors-variance_explained.png, data/fa-factors-biplot.png
+
+RuleException:
+CalledProcessError in line 44 of /Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/biospark.snake:
+Command ' set -euo pipefail;  2-dimension_reduction/1b-factor_analysis_plot.R config['outfolder'] ' returned non-zero exit status 1.
+  File "/Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/biospark.snake", line 44, in __rule_fa_plot
+  File "/Users/simondi/anaconda3/envs/py36/lib/python3.6/concurrent/futures/thread.py", line 56, in run
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: /Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/.snakemake/log/2018-05-13T022220.954928.snakemake.log
