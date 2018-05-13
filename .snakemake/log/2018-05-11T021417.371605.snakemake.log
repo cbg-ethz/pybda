@@ -1,6 +1,0 @@
-Building DAG of jobs...
-MissingInputException in line 3 of /Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/Snakefile:
-Missing input files for rule all:
-data/kmeans-10
-data/kmeans-2
-data/kmeans-5

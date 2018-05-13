@@ -1,4 +1,0 @@
-Building DAG of jobs...
-MissingInputException in line 43 of /Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/biospark.snake:
-Missing input files for rule outliers:
-data/fa.log

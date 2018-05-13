@@ -1,2 +1,0 @@
-SyntaxError in line 34 of /Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/Snakefile:
-Multiple run or shell keywords in rule clustering. (Snakefile, line 34)

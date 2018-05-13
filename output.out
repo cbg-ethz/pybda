@@ -1,0 +1,21 @@
+Traceback (most recent call last):
+  File "/Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/3-clustering/1-kmeans-spark.py", line 344, in <module>
+    run()
+  File "/Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/3-clustering/1-kmeans-spark.py", line 333, in run
+    fit_cluster(file_name, opts.k, outpath)
+  File "/Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/3-clustering/1-kmeans-spark.py", line 244, in fit_cluster
+    data = get_frame(file_name)
+  File "/Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/3-clustering/1-kmeans-spark.py", line 137, in get_frame
+    return read_parquet_data(file_name)
+  File "/Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/3-clustering/1-kmeans-spark.py", line 114, in read_parquet_data
+    return spark.read.parquet(file_name)
+  File "/usr/local/spark/spark/python/lib/pyspark.zip/pyspark/sql/readwriter.py", line 291, in parquet
+  File "/usr/local/spark/spark/python/lib/py4j-0.10.4-src.zip/py4j/java_gateway.py", line 1131, in __call__
+  File "/usr/local/spark/spark/python/lib/py4j-0.10.4-src.zip/py4j/java_gateway.py", line 883, in send_command
+  File "/usr/local/spark/spark/python/lib/py4j-0.10.4-src.zip/py4j/java_gateway.py", line 1028, in send_command
+  File "/Users/simondi/anaconda3/envs/py36/lib/python3.6/socket.py", line 586, in readinto
+    return self._sock.recv_into(b)
+  File "/usr/local/spark/spark/python/lib/pyspark.zip/pyspark/context.py", line 237, in signal_handler
+KeyboardInterrupt
+Starting clustering with K=2
+Finished clustering with K=2
