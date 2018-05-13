@@ -1,0 +1,8 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Job counts:
+	count	jobs
+	1	fa
+	1
+[Errno 66] Directory not empty: 'data/fa'
+Complete log: /Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/.snakemake/log/2018-05-13T020832.130022.snakemake.log

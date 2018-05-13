@@ -1,0 +1,10 @@
+[INFO/MainProcess/__main__]: Initializing pyspark context
+[INFO/MainProcess/__main__]: Reading: data/single_cell_samples.tsv
+[INFO/MainProcess/__main__]: Running factor analysis ...
+[INFO/MainProcess/__main__]: 	computing data statistics
+[INFO/MainProcess/__main__]: 	computing factor analysis
+[INFO/MainProcess/__main__]: 	transforming data
+[INFO/MainProcess/__main__]: Writing parquet: data/fa
+[INFO/MainProcess/__main__]: 	writing factor to data
+[INFO/MainProcess/__main__]: 	writing likelihood profile
+[INFO/MainProcess/__main__]: Stopping pyspark context

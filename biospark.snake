@@ -1,32 +1,70 @@
-configfile: "config.yaml"
-
 rule all:
     input:
+      expand("{outfolder}/fa", outfolder=config["outfolder"]),
       expand("{outfolder}/fa.log", outfolder=config["outfolder"]),
+      expand("{outfolder}/fa_likelihood.tsv", outfolder=config["outfolder"]),
+      expand("{outfolder}/fa_factors.tsv", outfolder=config["outfolder"]),
+
+      expand("{outfolder}/fa-likelihood_path.png", outfolder=config["outfolder"]),
+      expand("{outfolder}/fa-factors-variance_explained.png", outfolder=config["outfolder"]),
+      expand("{outfolder}/fa-factors-biplot.png", outfolder=config["outfolder"]),
+
+      expand("{outfolder}/fa-sample", outfolder=config["outfolder"]),
       expand("{outfolder}/fa-sample.log", outfolder=config["outfolder"]),
+
       expand("{outfolder}/fa-sample-distribution.log", outfolder=config["outfolder"]),
       expand("{outfolder}/outlier-removal.log", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-fit.log", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-plot.log", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transform.log", outfolder=config["outfolder"])
 
+
 rule fa:
     input:
         expand("{infile}", infile=config["infile"])
     output:
-        expand("{outfolder}/fa.log", outfolder=config["outfolder"])
+        expand("{outfolder}/fa_likelihood.tsv", outfolder=config["outfolder"]),
+        expand("{outfolder}/fa.log", outfolder=config["outfolder"]),
+        expand("{outfolder}/fa_factors.tsv", outfolder=config["outfolder"]),
+        fa = expand("{outfolder}/fa", outfolder=config["outfolder"])
+    run:
+        params = " ".join([x for x in config["sparkparams"]])
+        cmd = """{} --master {} \
+                              {} \
+                              2-dimension_reduction/1a-factor_analysis-spark.py \
+                              -c {} \
+                              -f {} \
+                              -o {}""".format(
+            config["spark"], config["sparkip"], params, config["factors"], input, output.fa)
+        shell("{cmd}")
+
+
+rule fa_plot:
+    input:
+        expand("{outfolder}/fa", outfolder=config["outfolder"])
+    output:
+        expand("{outfolder}/fa-likelihood_path.png", outfolder=config["outfolder"]),
+        expand("{outfolder}/fa-factors-variance_explained.png", outfolder=config["outfolder"]),
+        expand("{outfolder}/fa-factors-biplot.png", outfolder=config["outfolder"])
     shell:
-        """
-        spark-submit -f {input} -o {output}
-        """
+        "2-dimension_reduction/1b-factor_analysis_plot.R {config[outfolder]}"
+
 
 rule fa_sample:
     input:
-        expand("{outfolder}/fa.log", outfolder=config["outfolder"]),
+        expand("{outfolder}/fa", outfolder=config["outfolder"])
     output:
+        expand("{outfolder}/fa-sample", outfolder=config["outfolder"]),
         expand("{outfolder}/fa-sample.log", outfolder=config["outfolder"])
-    shell:
-        "cat {input} > {output}"
+    run:
+        params = " ".join([x for x in config["sparkparams"]])
+        cmd = """{} --master {} \
+                             {} \
+                             2-dimension_reduction/2-parquet_to_tsv.py \
+                             -f {} \
+                             -o {}""".format(
+            config["spark"], config["sparkip"], params, input, output.fa)
+        shell("{cmd}")
 
 rule fa_sample_plot:
     input:
@@ -50,7 +88,7 @@ rule clustering_fit:
     output:
         expand("{outfolder}/kmeans-fit.log", outfolder=config["outfolder"])
     shell:
-        "echo {config[spark]} > {output}"
+        "echo {config[sparkip]} > {output}"
 
 rule clustering_transform:
     input:

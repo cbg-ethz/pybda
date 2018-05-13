@@ -40,9 +40,14 @@ def read_args(args):
                              'cells_sample_10_normalized_cut_100.tsv',
                         required=True,
                         metavar="input-file")
+    parser.add_argument('-c',
+                        type=int,
+                        help='number of factors',
+                        required=True,
+                        metavar="input-file")
     opts = parser.parse_args(args)
 
-    return opts.f, opts.o, opts
+    return opts.f, opts.o, opts.c, opts
 
 
 def get_feature_columns(data):
@@ -55,11 +60,6 @@ def data_path(file_name):
     return file_name.replace(".tsv", "_parquet")
 
 
-def read_parquet_data(file_name):
-    logger.info("Reading parquet: {}".format(file_name))
-    return spark.read.parquet(file_name)
-
-
 def write_parquet_data(outpath, data):
     logger.info("Writing parquet: {}".format(outpath))
     data.write.parquet(outpath, mode="overwrite")
@@ -67,6 +67,7 @@ def write_parquet_data(outpath, data):
 
 def get_frame(file_name):
     logger.info("Reading: {}".format(file_name))
+
     df = spark.read.csv(path=file_name, sep="\t", header='true')
     old_cols = df.columns
     new_cols = list(map(lambda x: x.replace(".", "_"), old_cols))
@@ -95,7 +96,8 @@ def tilde(X, psi_sqrt, n_sqrt):
     return Xtilde
 
 
-def process_data(data):
+def stats(data):
+    logger.info("\tcomputing data statistics")
     rdd = data.select(get_feature_columns(data)).rdd.map(list)
     summary = Statistics.colStats(rdd)
     return RowMatrix(rdd), summary.mean(), summary.variance()
@@ -112,6 +114,7 @@ def fit(X, var, n_components):
     psi = numpy.ones(P, dtype=numpy.float64)
     nsqrt = numpy.sqrt(N)
 
+    logger.info("\tcomputing factor analysis")
     for i in range(MAX_ITER):
         sqrt_psi = numpy.sqrt(psi) + DELTA
         s, V, unexp_var = svd(tilde(X, sqrt_psi, nsqrt), n_components)
@@ -137,6 +140,7 @@ def fit(X, var, n_components):
 
 
 def transform(X, W, psi):
+    logger.info("\ttransforming data")
     Ih = numpy.eye(len(W))
     Wpsi = W / psi
     cov_z = scipy.linalg.inv(Ih + numpy.dot(Wpsi, W.T))
@@ -154,7 +158,7 @@ def transform(X, W, psi):
     return X
 
 
-def fa(file_name, outpath):
+def fa(file_name, outpath, ncomp):
     if not pathlib.Path(file_name).is_file():
         logger.error("File doesnt exist: {}".format(file_name))
         return
@@ -162,12 +166,11 @@ def fa(file_name, outpath):
         logger.error("Not a path: {}".format(outpath))
         return
 
-    ncomp = 15
-
     data = get_frame(file_name)
     features = get_feature_columns(data)
 
-    X, means, var = process_data(data)
+    logger.info("Running factor analysis ...")
+    X, means, var = stats(data)
     X = RowMatrix(X.rows.map(lambda x: x - means))
     W, ll, psi = fit(X, var, ncomp)
     X = transform(X, W, psi)
@@ -180,21 +183,31 @@ def fa(file_name, outpath):
 
     write_parquet_data(outpath, data)
 
+    logger.info("\twriting factor to data")
     W = pandas.DataFrame(data=W)
     W.columns = features
     W.to_csv(outpath + "_factors.tsv", sep="\t", index=False)
 
+    logger.info("\twriting likelihood profile")
     L = pandas.DataFrame(data=ll)
     L.to_csv(outpath + "_likelihood.tsv", sep="\t", index=False)
 
 
 def run():
     # check files
-    file_name, outpath, opts = read_args(sys.argv[1:])
+    file_name, outpath, ncomp, opts = read_args(sys.argv[1:])
+
+    if outpath.endswith("/"):
+        outpath = outpath[:-1]
+    hdlr = logging.FileHandler(outpath + ".log")
+    hdlr.setFormatter(frmtr)
+    logger.addHandler(hdlr)
+
     if not file_name.endswith(".tsv"):
         logger.error("Please provide a tsv file: " + file_name)
         return
 
+    logger.info("Initializing pyspark context")
     # spark settings
     pyspark.StorageLevel(True, True, False, False, 1)
     conf = pyspark.SparkConf()
@@ -203,10 +216,11 @@ def run():
     spark = pyspark.sql.SparkSession(sc)
 
     try:
-        fa(file_name, outpath)
+        fa(file_name, outpath, ncomp)
     except Exception as e:
         logger.error("Some error: {}".format(str(e)))
 
+    logger.info("Stopping pyspark context")
     spark.stop()
 
 

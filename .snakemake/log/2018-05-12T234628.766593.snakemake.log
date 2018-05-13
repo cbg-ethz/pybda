@@ -1,0 +1,23 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	1	clustering_fit
+	1	clustering_transform
+	1	fa
+	1	fa_sample
+	1	fa_sample_plot
+	1	outliers
+	7
+
+rule fa:
+    input: data/single_cell_samples.tsv
+    output: data/fa.log
+    jobid: 5
+
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: /Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/.snakemake/log/2018-05-12T234628.766593.snakemake.log
