@@ -1,3 +1,0 @@
-CreateRuleException in line 9 of /Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/Snakefile:
-The name dimred is already used by another rule
-  File "/Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/Snakefile", line 9, in <module>

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import argparse
 import logging
 import pathlib
@@ -75,10 +77,6 @@ def path(outpath, mid, file_name):
     return outpath + "/" + mid + file_suffix(file_name)
 
 
-def model_path(outpath, file_name):
-    return path(outpath, "kmeans_fit-", file_name)
-
-
 def transform_path(outpath, file_name):
     return path(outpath, "kmeans_transform-", file_name)
 
@@ -88,11 +86,11 @@ def plot_path(outpath, mid, file_name):
 
 
 def k_path(path, k):
-    return path + "_K{:03d}".format(k)
+    return path + "_K{}".format(k)
 
 
-def k_model_path(outpath, filename, k):
-    return k_path(model_path(outpath, filename), k)
+def k_fit_path(outpath, k):
+    return outpath + "-K{}".format(k)
 
 
 def k_transform_path(outpath, filename, k):
@@ -244,13 +242,16 @@ def plot(ks, score, axis_label, outpath, file_name):
 
 def fit_cluster(file_name, K, outpath):
     data = get_frame(file_name)
+
     logger.info("Clustering with K: {}".format(K))
     km = KMeans().setK(K).setSeed(23)
     model = km.fit(data)
-    clustout = k_model_path(outpath, file_name, K)
+
+    clustout = k_fit_path(outpath, K)
     logger.info("Writing cluster fit to: {}".format(clustout))
     model.write().overwrite().save(clustout)
 
+    logger.info("Writing clusterSize file")
     clust_sizes = model.summary.clusterSizes
     thefile = open(clustout + "_clusterSizes.tsv", 'w')
     for c in clust_sizes:
@@ -294,7 +295,7 @@ def transform_cluster(file_name, k, outpath):
 def loggername(which, outpath, file_name, k=None):
     name = {
         'transform': k_transform_path(outpath, file_name, k),
-        'fit': k_model_path(outpath, file_name, k),
+        'fit': k_fit_path(outpath, k),
         'plot': outpath + "/kmeans_plot-" + file_suffix(file_name)
     }[which]
     return name + ".log"
@@ -303,12 +304,6 @@ def loggername(which, outpath, file_name, k=None):
 def run():
     # check files
     file_name, outpath, which, opts = read_args(sys.argv[1:])
-    if not pathlib.Path(file_name).exists():
-        logger.error("Please provide a file: " + file_name)
-        return
-    if not pathlib.Path(outpath).is_dir():
-        logger.error("Outpath does not exist: " + outpath)
-        return
 
     # logging format
     if "k" not in opts:
@@ -317,6 +312,12 @@ def run():
       loggername(which, outpath, file_name, opts.k))
     hdlr.setFormatter(frmtr)
     logger.addHandler(hdlr)
+
+    if not pathlib.Path(file_name).exists():
+        logger.error("Please provide a file: " + file_name)
+        return
+
+    logger.info("Starting Spark context")
 
     # spark settings
     pyspark.StorageLevel(True, True, False, False, 1)
@@ -335,6 +336,7 @@ def run():
     else:
         logger.error("Wrong which chosen: " + which)
 
+    logger.info("Stopping Spark context")
     spark.stop()
 
 
