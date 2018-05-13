@@ -105,8 +105,8 @@ def remove_outliers_(data):
 
     data = data.withColumn("maha", maha(col("features")))
     logger.info("\tcomputing chi-square ppf with {} degrees of freedom and {}" \
-                " percentile".format(precision.shape[0], 97.5))
-    quant = stats.chi2.ppf(q=.975, df=precision.shape[0])
+                " percentile".format(precision.shape[0], 95))
+    quant = stats.chi2.ppf(q=.95, df=precision.shape[0])
     logger.info("\tdataFrame rowcount before removal: {}".format(data.count()))
     data = data.filter(data.maha < quant)
     logger.info("\tdataFrame rowcount after removal: {}".format(data.count()))
