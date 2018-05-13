@@ -1,0 +1,11 @@
+[INFO/MainProcess/__main__]: Starting Spark context
+[INFO/MainProcess/__main__]: Removing outliers..
+[INFO/MainProcess/__main__]: 	reading parquet: data/fa
+[INFO/MainProcess/__main__]: 	centering data
+[INFO/MainProcess/__main__]: 	computing feature vectors
+[INFO/MainProcess/__main__]: 	computing precision
+[INFO/MainProcess/__main__]: 	computing chi-square ppf with 15 degrees of freedom and 97.5 percentile
+[INFO/MainProcess/__main__]: 	dataFrame rowcount before removal: 100
+[INFO/MainProcess/__main__]: 	dataFrame rowcount after removal: 96
+[INFO/MainProcess/__main__]: 	writing parquet: data/outlier-removal
+[INFO/MainProcess/__main__]: Stopping Spark context

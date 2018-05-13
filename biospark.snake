@@ -94,11 +94,15 @@ rule outliers:
             config["spark"], config["sparkip"], params, input, output.out)
         shell("{cmd}")
 
+
 rule clustering_fit:
     input:
-        expand("{outfolder}/outlier-removal.log", outfolder=config["outfolder"])
+        expand("{outfolder}/outlier-removal", outfolder=config["outfolder"])
     output:
         expand("{outfolder}/kmeans-fit.log", outfolder=config["outfolder"])
+        expand("{outfolder}/kmeans-fit-K{}", outfolder=config["outfolder"], center=config["centers"])
+      wildcard_constraints:
+          center="\d+"
     shell:
         "echo {config[sparkip]} > {output}"
 
