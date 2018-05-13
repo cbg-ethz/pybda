@@ -9,11 +9,13 @@ rule all:
       expand("{outfolder}/fa-factors-variance_explained.png", outfolder=config["outfolder"]),
       expand("{outfolder}/fa-factors-biplot.png", outfolder=config["outfolder"]),
 
-      expand("{outfolder}/fa-sample", outfolder=config["outfolder"]),
+      expand("{outfolder}/fa-sample.tsv", outfolder=config["outfolder"]),
       expand("{outfolder}/fa-sample.log", outfolder=config["outfolder"]),
+      expand("{outfolder}/fa-sample-feature_distributions", outfolder=config["outfolder"]),
 
-      expand("{outfolder}/fa-sample-distribution.log", outfolder=config["outfolder"]),
       expand("{outfolder}/outlier-removal.log", outfolder=config["outfolder"]),
+      expand("{outfolder}/outlier-removal", outfolder=config["outfolder"]),
+
       expand("{outfolder}/kmeans-fit.log", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-plot.log", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transform.log", outfolder=config["outfolder"])
@@ -26,7 +28,7 @@ rule fa:
         expand("{outfolder}/fa_likelihood.tsv", outfolder=config["outfolder"]),
         expand("{outfolder}/fa.log", outfolder=config["outfolder"]),
         expand("{outfolder}/fa_factors.tsv", outfolder=config["outfolder"]),
-        fa = expand("{outfolder}/fa", outfolder=config["outfolder"])
+        out = expand("{outfolder}/fa", outfolder=config["outfolder"])
     run:
         params = " ".join([x for x in config["sparkparams"]])
         cmd = """{} --master {} \
@@ -35,7 +37,7 @@ rule fa:
                               -c {} \
                               -f {} \
                               -o {}""".format(
-            config["spark"], config["sparkip"], params, config["factors"], input, output.fa)
+            config["spark"], config["sparkip"], params, config["factors"], input, output.out)
         shell("{cmd}")
 
 
@@ -54,33 +56,43 @@ rule fa_sample:
     input:
         expand("{outfolder}/fa", outfolder=config["outfolder"])
     output:
-        expand("{outfolder}/fa-sample", outfolder=config["outfolder"]),
-        expand("{outfolder}/fa-sample.log", outfolder=config["outfolder"])
+        expand("{outfolder}/fa-sample.log", outfolder=config["outfolder"]),
+        out = expand("{outfolder}/fa-sample.tsv", outfolder=config["outfolder"]),
     run:
         params = " ".join([x for x in config["sparkparams"]])
         cmd = """{} --master {} \
                              {} \
-                             2-dimension_reduction/2-parquet_to_tsv.py \
+                             2-dimension_reduction/2a-sample_fa-spark.py \
                              -f {} \
                              -o {}""".format(
-            config["spark"], config["sparkip"], params, input, output.fa)
+            config["spark"], config["sparkip"], params, input, output.out)
         shell("{cmd}")
+
 
 rule fa_sample_plot:
     input:
-        expand("{outfolder}/fa-sample.log", outfolder=config["outfolder"]),
+        expand("{outfolder}/fa-sample.tsv", outfolder=config["outfolder"])
     output:
-        expand("{outfolder}/fa-sample-distribution.log", outfolder=config["outfolder"])
+        expand("{outfolder}/fa-sample-feature_distributions", outfolder=config["outfolder"])
     shell:
-        "cat {input} > {output}"
+        "2-dimension_reduction/2b-plot_feature_distribution.R {input}"
+
 
 rule outliers:
     input:
-        expand("{outfolder}/fa.log", outfolder=config["outfolder"]),
+        expand("{outfolder}/fa", outfolder=config["outfolder"]),
     output:
-        expand("{outfolder}/outlier-removal.log", outfolder=config["outfolder"])
-    shell:
-        "cat {input} > {output}"
+        expand("{outfolder}/outlier-removal.log", outfolder=config["outfolder"]),
+        out = expand("{outfolder}/outlier-removal", outfolder=config["outfolder"])
+    run:
+        params = " ".join([x for x in config["sparkparams"]])
+        cmd = """{} --master {} \
+                              {} \
+                              2-dimension_reduction/3-remove_outliers.py \
+                              -f {} \
+                              -o {}""".format(
+            config["spark"], config["sparkip"], params, input, output.out)
+        shell("{cmd}")
 
 rule clustering_fit:
     input:

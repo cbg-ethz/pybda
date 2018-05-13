@@ -42,12 +42,12 @@ def read_args(args):
 
 
 def read_parquet_data(file_name):
-    logger.info("Reading parquet: {}".format(file_name))
+    logger.info("\treading parquet: {}".format(file_name))
     return spark.read.parquet(file_name)
 
 
 def write_parquet_data(outpath, data):
-    logger.info("Writing parquet: {}".format(outpath))
+    logger.info("\twriting parquet: {}".format(outpath))
     data.write.parquet(outpath, mode="overwrite")
 
 
@@ -63,19 +63,21 @@ def split_features(data):
 
         return udf(to_array_, ArrayType(DoubleType()))(col)
 
+    logger.info("\tcomputing feature vectors")
     len_vec = len(data.select("features").take(1)[0][0])
     data = (data.withColumn("f", to_array(col("features")))
             .select(data.columns + [col("f")[i] for i in range(len_vec)]))
 
     for i, x in enumerate(data.columns):
         if x.startswith("f["):
-            data = data.withColumnRenamed(x,
-                                          x.replace("[", "_").replace("]", ""))
+            data = data.withColumnRenamed(
+                x, x.replace("[", "_").replace("]", ""))
 
     return data
 
 
 def center(data):
+    logger.info("\tcentering data")
     data = split_features(data)
     f_cols = [x for x in data.columns if x.startswith("f_")]
 
@@ -86,6 +88,7 @@ def center(data):
 
 
 def get_precision_matrix(X):
+    logger.info("\tcomputing precision")
     precision = linalg.inv(X.computeCovariance().toArray())
     return precision
 
@@ -101,18 +104,21 @@ def remove_outliers_(data):
         return udf(maha_, DoubleType())(col)
 
     data = data.withColumn("maha", maha(col("features")))
+    logger.info("\tcomputing chi-square ppf with {} degrees of freedom and {}" \
+                " percentile".format(precision.shape[0], 97.5))
     quant = stats.chi2.ppf(q=.975, df=precision.shape[0])
-    print("asdasd\n\n\n\n\n\n\n\n")
-    logger.info("DataFrame rowcount before removal: {}".format(data.count()))
+    logger.info("\tdataFrame rowcount before removal: {}".format(data.count()))
     data = data.filter(data.maha < quant)
-    logger.info("DataFrame rowcount after removal: {}".format(data.count()))
+    logger.info("\tdataFrame rowcount after removal: {}".format(data.count()))
     return data
 
 
 def remove_outliers(infolder, outpath):
     if not pathlib.Path(infolder).is_dir():
-        raise ValueError("infolder is not a directory")
+        logger.error("infolder is not a directory")
+        return
 
+    logger.info("Removing outliers..")
     data = read_parquet_data(infolder)
     check_columns(data)
 
@@ -124,6 +130,14 @@ def run():
     # check files
     infolder, outpath, opts = read_args(sys.argv[1:])
 
+    if outpath.endswith("/"):
+        outpath = outpath[:-1]
+    hdlr = logging.FileHandler(outpath + ".log")
+    hdlr.setFormatter(frmtr)
+    logger.addHandler(hdlr)
+
+    logger.info("Starting Spark context")
+
     # spark settings
     pyspark.StorageLevel(True, True, False, False, 1)
     conf = pyspark.SparkConf()
@@ -131,17 +145,12 @@ def run():
     global spark
     spark = pyspark.sql.SparkSession(sc)
 
-    if outpath.endswith("/"):
-        outpath = outpath[:-1   ]
-    hdlr = logging.FileHandler(outpath + ".log")
-    hdlr.setFormatter(frmtr)
-    logger.addHandler(hdlr)
-
     try:
         remove_outliers(infolder, outpath)
     except Exception as e:
         logger.error("Some error: {}".format(str(e)))
 
+    logger.info("Stopping Spark context")
     spark.stop()
 
 
