@@ -1,33 +1,27 @@
 #!/usr/bin/env Rscript
 
-library(dplyr)
-library(dtplyr)
-library(data.table)
-library(stringr)
-library(tidyr)
-library(ggplot2)
-library(hrbrthemes)
-library(ggthemr)
-library(rutil)
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(data.table))
+suppressPackageStartupMessages(library(stringr))
+suppressPackageStartupMessages(library(argparse))
+suppressPackageStartupMessages(library(tidyr))
+suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(hrbrthemes))
+suppressPackageStartupMessages(library(ggthemr))
 
-hrbrthemes::import_roboto_condensed()
 
+suppressMessages(hrbrthemes::import_roboto_condensed())
 options(stringsAsFactors=FALSE)
 
 
-data.dir  <- "/Users/simondi/PROJECTS/target_infect_x_project/results/2-analysis/1-fa/current/"
-out.dir   <- "/Users/simondi/PROJECTS/target_infect_x_project/results/2-analysis/1-fa/current/feature_distributions/"
-data.file <- paste(data.dir, "all_optimal_from_file_feature_dbq_250_cells_100_sample.tsv", sep="/")
-
-
-plot.distributions <- function()
+plot.distributions <- function(out.dir, data.file)
 {
-  fr           <- fread(data.file, sep=",")
+  fr           <- data.table::fread(data.file, sep="\t")
   colnames(fr) <- paste0("factor_", seq(ncol(fr)))
   cols         <- colnames(fr)
   if (!dir.exists(out.dir)) dir.create(out.dir)
 
-  for (col in cols) {0
+  for (col in cols) {
     cl <- fr[ ,get(col)]
     cl.var  <- var(cl, na.rm=T)
     cl.mean <- mean(cl, na.rm=TRUE)
@@ -42,8 +36,21 @@ plot.distributions <- function()
             axis.title.y = element_text(size=12),
             axis.title.x = element_text(size=12))
 
-    rutil::saveplot(pl, paste0("feature_", col), out.folders=out.dir, format=c("eps", "png", "svg"))
+    for (form in c("eps", "png", "svg")) {
+        ggsave(plot=pl, paste0(out.dir ,"/feature_", col, ".", form),
+               dpi=720, width=10, height=10  )
+    }
   }
 }
 
-plot.distributions()
+(run <- function()
+{
+  parser <- ArgumentParser()
+  parser$add_argument("infile", help = "Folder in which fa is", type="character")
+  opt <- parser$parse_args()
+  fl <- opt$infile
+  dir <- stringr:::str_match("(.*).tsv", string=fl)[2]
+  out.dir   <- paste0(dir, "-feature_distributions/")
+
+  plot.distributions(out.dir, fl)
+})()

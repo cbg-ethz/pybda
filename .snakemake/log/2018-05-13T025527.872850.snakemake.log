@@ -1,0 +1,34 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	1	fa_sample
+	1	fa_sample_plot
+	3
+
+rule fa_sample:
+    input: data/fa
+    output: data/fa-sample.log, data/fa-sample.tsv
+    jobid: 5
+
+Finished job 5.
+1 of 3 steps (33%) done
+
+rule fa_sample_plot:
+    input: data/fa-sample.log
+    output: data/fa-sample-distribution.log
+    jobid: 4
+
+Finished job 4.
+2 of 3 steps (67%) done
+
+localrule all:
+    input: data/fa, data/fa.log, data/fa_likelihood.tsv, data/fa_factors.tsv, data/fa-likelihood_path.png, data/fa-factors-variance_explained.png, data/fa-factors-biplot.png, data/fa-sample.tsv, data/fa-sample.log, data/fa-sample-distribution.log, data/outlier-removal.log, data/kmeans-fit.log, data/kmeans-plot.log, data/kmeans-transform.log
+    jobid: 0
+
+Finished job 0.
+3 of 3 steps (100%) done
+Complete log: /Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/.snakemake/log/2018-05-13T025527.872850.snakemake.log

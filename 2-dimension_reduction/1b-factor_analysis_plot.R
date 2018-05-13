@@ -1,16 +1,17 @@
 #!/usr/bin/env Rscript
 
-library(dplyr)
-library(ggplot2)
-library(hrbrthemes)
-library(ggthemr)
-library(viridis)
-library(cowplot)
-library(ggrepel)
-library(argparse)
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(hrbrthemes))
+suppressPackageStartupMessages(library(ggthemr))
+suppressPackageStartupMessages(library(viridis))
+suppressPackageStartupMessages(library(argparse))
+suppressPackageStartupMessages(library(cowplot))
+suppressPackageStartupMessages(library(ggrepel))
+suppressPackageStartupMessages(library(argparse))
 
 theme <- ggthemr("fresh", "scientific")
-hrbrthemes::import_roboto_condensed()
+suppressMessages(hrbrthemes::import_roboto_condensed())
 options(stringsAsFactors=FALSE)
 
 
@@ -36,9 +37,9 @@ plot.likelihood <- function(plotout, likelhood.file)
                    axis.text.y  = ggplot2::element_text(size=18),
                    axis.title.x   = ggplot2::element_text(size=20),
                    axis.title.y   = ggplot2::element_text(size=20),
-                   panel.grid.major.x = element_line(colour = 'black', linetype = 'dotted'))
+                   panel.grid.major = element_line(colour = 'black', linetype = 'dotted'))
 
-  ggsave(paste0(plotout, ".png"), dpi=720)
+  ggsave(paste0(plotout, ".png"), dpi=720, width=10, height=10)
 
 }
 
@@ -71,7 +72,8 @@ plot.factors <- function(plotout, factors.file)
                    axis.title.x   = ggplot2::element_text(size=20),
                    axis.title.y   = ggplot2::element_text(size=20),
                    panel.grid.major.x = element_line(colour = 'black', linetype = 'dotted'))
-  ggsave(paste(plotout, "variance_explained.png", sep="-"), dpi=720)
+  ggsave(paste(plotout, "variance_explained.png", sep="-"), dpi=720,
+         width=10, height=10)
 
   vars.explained <- apply(full.tbl, 2, function(e) sum(e**2) / P)
   idx <- sort(vars.explained, decreasing=TRUE, index.return=TRUE)$ix
@@ -94,13 +96,17 @@ plot.factors <- function(plotout, factors.file)
                    axis.title.y   = ggplot2::element_text(size=20),
                    panel.grid.major.x = element_line(colour = 'black', linetype = 'dotted'))
 
-  ggsave(paste(plotout, "biplot.png", sep="-") , dpi=720)
+  ggsave(paste(plotout, "biplot.png", sep="-") , dpi=720, width=10, height=10)
 
 }
 
 
 (run <- function() {
-  dir <- commandArgs(trailing=TRUE)[1]
+  parser <- ArgumentParser()
+  parser$add_argument("folder", help = "Folder in which fa is", type="character")
+  opt <- parser$parse_args()
+  dir <- opt$folder
+  
   likelhood.file <- list.files(dir, pattern="likelihood.tsv", full.names=TRUE)
   factors.file   <- list.files(dir, pattern="factors.tsv", full.names=TRUE)
   plotout <- sub(".tsv", "", likelhood.file)

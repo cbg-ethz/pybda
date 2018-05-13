@@ -13,4 +13,3 @@ fi
   3-remove_outliers.py \
   -f /cluster/home/simondi/simondi/data/tix/2-analysis/fa-all_optimal_from_file_feature_dbq_250_cells_100 \
   -o /cluster/home/simondi/simondi/data/tix/2-analysis/outlier_detection-all_optimal_from_file_feature_dbq_250_cells_100
-
