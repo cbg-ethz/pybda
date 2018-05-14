@@ -126,14 +126,14 @@ def get_kmean_fit_statistics(mpaths, data):
     for mpath in mpaths:
         try:
             # Get number of clusters
-            K = int(re.match(".*_K(\d+)$", mpath).group(1))
+            K = int(re.match(".*-K(\d+)$", mpath).group(1))
             logger.info("\tloading model for K={}".format(K))
             model = KMeansModel.load(mpath)
             rss = model.computeCost(data)
             # number of samples
             N = data.count()
             # number of predictors (feature dimensionality)
-            P = len(numpy.asarray(df.select("features").take(1)).flatten())
+            P = len(numpy.asarray(data.select("features").take(1)).flatten())
             bic = rss + numpy.log(N) * K * P
             kmean_fits.append({"K": K, "model": model, "BIC": bic})
         except AttributeError as e:
@@ -146,7 +146,7 @@ def get_kmean_fit_statistics(mpaths, data):
 
 def plot_cluster(outpath, kmean_fits):
     plotpath = outpath + "-bic"
-    logger.info("Plotting cluster BICs to: {}".format(plotpath))
+    logger.info("Writing cluster BICs to: {}".format(plotpath))
 
     kmean_fits.sort(key=lambda x: x["K"])
     ks  = [ x["K"] for x in kmean_fits ]
@@ -156,46 +156,56 @@ def plot_cluster(outpath, kmean_fits):
     logger.info("\tsaving bic tsv to: {}".format(statistics_file))
     pandas.DataFrame(data={ "index": ks, "stat": bic }) \
         .to_csv(statistics_file, sep="\t", index=0)
-        
+
     plot(ks, bic, "BIC", plotpath)
 
-def plot(ks, score, axis_label, outpath, file_name):
 
-    plotfile = outpath + ".eps"
-    font = {'weight': 'normal', 'family': 'sans-serif', 'size': 14}
-    plt.rc('font', **font)
-    plt.figure()
-    ax = plt.subplot(111)
-    plt.tick_params(axis="both", which="both", bottom="off", top="off",
-                    labelbottom="on", left="off", right="off", labelleft="on")
+def plot(ks, score, axis_label, outpath):
+    plotfile = outpath
+    #font = {'weight': 'normal', 'size': 12}
+    #plt.rc('font', **font)
+    plt.figure( figsize=(10, 8), dpi=720)
+    plt.style.use(["seaborn-whitegrid"])
+    #plt.rcParams['font.serif'] = 'Ubuntu'
+    #plt.rcParams['font.monospace'] = 'Ubuntu Mono'
+    #plt.tick_params(axis="both", which="both", bottom="off", top="off",
+#                    labelbottom="on", left="off", right="off", labelleft="on")
     ax.spines["top"].set_visible(False)
-    ax.spines["bottom"].set_visible(True)
+    ax.spines["bottom"].set_visible(False)
     ax.spines["right"].set_visible(False)
-    ax.spines["left"].set_visible(True)
+    ax.spines["left"].set_visible(False)
 
+    min_idx = min(list(enumerate(score)), key=lambda x:x[1])[0]
     ax.plot(ks, score, "black")
-    ax.plot(ks, score, "or")
-    plt.xlabel('K', fontsize=15)
-    plt.ylabel(axis_label, fontsize=15)
+    ax.plot(ks, score, "ok")
+    ax.plot(ks[min_idx], score[min_idx], "or")
+
+    xpad = ax.get_xlim()[0]
+    ypad = ax.get_ylim()[0]
+    plt.xlabel('Number of clusters', fontsize=15, labelpad=abs(xpad))
+    plt.ylabel(axis_label, fontsize=15, labelpad=abs(ypad))
     plt.title('')
-    ax.grid(True)
-    logger.info("\tsaving plot to: {}".format(plotfile))
-    plt.savefig(plotfile, bbox_inches="tight")
+
+    logger.info("\tsaving plot to: {}.eps/svg/png".format(plotfile))
+    plt.savefig(plotfile + ".eps", bbox_inches="tight")
+    plt.savefig(plotfile + ".svg", bbox_inches="tight")
+    plt.savefig(plotfile + ".png", bbox_inches="tight")
 
 
-def get_optimal_k(datafolder, clusterprefix):
+def get_optimal_k(datafolder, outpath, clusterprefix):
     logger.info("Finding optimal K for transformation...")
 
     data = get_frame(datafolder)
     mpaths = k_fit_folders(clusterprefix)
     kmeans_fits = get_kmean_fit_statistics(mpaths, data)
 
-    plot_cluster(outpath)
+    plot_cluster(outpath, kmeans_fits)
 
+    return 1
 
 
 def transform_cluster(datafolder, outpath, clusterprefix):
-    bic =  get_optimal_k(datafolder, clusterprefix)
+    bic =  get_optimal_k(datafolder, outpath, clusterprefix)
     # cpath = data_path(file_name)
     # mpath = k_model_path(outpath, file_name, k)
     # if not pathlib.Path(cpath).is_dir():
@@ -255,8 +265,10 @@ def run():
     global spark
     spark = pyspark.sql.SparkSession(sc)
 
-
-    transform_cluster(datafolder, outpath, clusterprefix)
+    try:
+        transform_cluster(datafolder, outpath, clusterprefix)
+    except Exception as e:
+        logger.error("Some error: {}".format(str(e)))
 
     logger.info("Stopping Spark context")
     spark.stop()
