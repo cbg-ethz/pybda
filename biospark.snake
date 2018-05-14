@@ -129,13 +129,13 @@ rule clustering_transform:
         transform = expand("{outfolder}/kmeans-plot.png", outfolder=config["outfolder"], center=config["centers"])
     run:
         out = config["outfolder"] + "/kmeans-fit"
+        out = config["outfolder"] + "/kmeans-transformed"
         params = " ".join([x for x in config["sparkparams"]])
         for c in config["centers"]:
             cmd = """{} --master {} \
                         {} \
                         3-clustering/1b-kmeans-transform-spark.py \
                         -f {} \
-                        -o {} \
-                        -k {}""".format(
+                        -o {}""".format(
               config["spark"], config["sparkip"], params, input, out, c)
             shell("{cmd}")
