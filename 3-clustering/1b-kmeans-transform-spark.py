@@ -13,6 +13,7 @@ import matplotlib
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 
 from pyspark.ml.clustering import KMeansModel, KMeans
 from pyspark.ml.feature import VectorAssembler
@@ -157,33 +158,42 @@ def plot_cluster(outpath, kmean_fits):
     pandas.DataFrame(data={ "index": ks, "stat": bic }) \
         .to_csv(statistics_file, sep="\t", index=0)
 
+    ks = [int(x) for x in ks]
     plot(ks, bic, "BIC", plotpath)
 
 
 def plot(ks, score, axis_label, outpath):
     plotfile = outpath
-    #font = {'weight': 'normal', 'size': 12}
-    #plt.rc('font', **font)
-    plt.figure( figsize=(10, 8), dpi=720)
+
     plt.style.use(["seaborn-whitegrid"])
-    #plt.rcParams['font.serif'] = 'Ubuntu'
-    #plt.rcParams['font.monospace'] = 'Ubuntu Mono'
-    #plt.tick_params(axis="both", which="both", bottom="off", top="off",
-#                    labelbottom="on", left="off", right="off", labelleft="on")
+    plt.rcParams['font.family'] = 'sans-serif'
+    plt.rcParams['font.sans-serif'] = 'Lucida Grande'
+    _, ax = plt.subplots(figsize=(7, 4), dpi=720)
     ax.spines["top"].set_visible(False)
-    ax.spines["bottom"].set_visible(False)
+    ax.spines["bottom"].set_visible(True)
+    ax.spines["left"].set_visible(True)
     ax.spines["right"].set_visible(False)
-    ax.spines["left"].set_visible(False)
+    ax.xaxis.set_label_coords(x=.9, y=-0.1)
+    ax.yaxis.set_label_coords(x=-0.06, y=.95)
+    ax.grid(linestyle="")
+    ax.grid(which="major", axis="x", linestyle="-", color="gainsboro")
+    #ax.tick_params(length=3.5, color="black")
+    ax.spines['bottom'].set_color('black')
+    ax.spines['left'].set_color('black')
 
     min_idx = min(list(enumerate(score)), key=lambda x:x[1])[0]
-    ax.plot(ks, score, "black")
+    ax.plot(ks, score, "black", alpha=.5)
     ax.plot(ks, score, "ok")
-    ax.plot(ks[min_idx], score[min_idx], "or")
+    ax.plot(ks[min_idx], score[min_idx], marker="o", color="#65ADC2")
 
-    xpad = ax.get_xlim()[0]
-    ypad = ax.get_ylim()[0]
-    plt.xlabel('Number of clusters', fontsize=15, labelpad=abs(xpad))
-    plt.ylabel(axis_label, fontsize=15, labelpad=abs(ypad))
+    for index, label in enumerate(ax.xaxis.get_ticklabels()):
+        if index % 2 == 0:
+            label.set_visible(False)
+    for label in ax.yaxis.get_ticklabels()[::2]:
+        label.set_visible(False)
+
+    plt.xlabel('Number of clusters', fontsize=15)
+    plt.ylabel(axis_label, fontsize=15)
     plt.title('')
 
     logger.info("\tsaving plot to: {}.eps/svg/png".format(plotfile))

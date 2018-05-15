@@ -21,7 +21,11 @@ rule all:
       expand("{outfolder}/kmeans-fit-K{center}_clusterSizes.tsv", outfolder=config["outfolder"], center=config["centers"]),
 
       expand("{outfolder}/kmeans-transformed", outfolder=config["outfolder"]),
-      expand("{outfolder}/kmeans-transformed.log", outfolder=config["outfolder"])
+      expand("{outfolder}/kmeans-transformed.log", outfolder=config["outfolder"]),
+      expand("{outfolder}/kmeans-transformed-bic.tsv", outfolder=config["outfolder"]),
+      expand("{outfolder}/kmeans-transformed-bic.png", outfolder=config["outfolder"]),
+      expand("{outfolder}/kmeans-transformed-bic.eps", outfolder=config["outfolder"]),
+      expand("{outfolder}/kmeans-transformed-bic.svg", outfolder=config["outfolder"])
 
 
 rule fa:
@@ -127,6 +131,10 @@ rule clustering_transform:
         inf = expand("{outfolder}/outlier-removal", outfolder=config["outfolder"])
     output:
         expand("{outfolder}/kmeans-transformed.log", outfolder=config["outfolder"]),
+        expand("{outfolder}/kmeans-transformed-bic.tsv", outfolder=config["outfolder"]),
+        expand("{outfolder}/kmeans-transformed-bic.png", outfolder=config["outfolder"]),
+        expand("{outfolder}/kmeans-transformed-bic.eps", outfolder=config["outfolder"]),
+        expand("{outfolder}/kmeans-transformed-bic.svg", outfolder=config["outfolder"]),
         out = expand("{outfolder}/kmeans-transformed", outfolder=config["outfolder"])
     run:
         inc = config["outfolder"] + "/kmeans-fit"
