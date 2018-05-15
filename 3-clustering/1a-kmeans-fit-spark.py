@@ -122,9 +122,9 @@ def fit_cluster(file_name, K, outpath):
     logger.info("Writing cluster fit to: {}".format(clustout))
     model.write().overwrite().save(clustout)
 
-    logger.info("Writing clusterSize file")
+    logger.info("Writing cluster size file")
     clust_sizes = model.summary.clusterSizes
-    thefile = open(clustout + "_clusterSizes.tsv", 'w')
+    thefile = open(clustout + "_cluster_sizes.tsv", 'w')
     for c in clust_sizes:
         thefile.write("{}\n".format(c))
 
