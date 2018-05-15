@@ -14,17 +14,15 @@ ggthemr("fresh", "scientific")
 hrbrthemes::import_roboto_condensed()
 extrafont::loadfonts()
 
-dir <- ""
+
 bic.file         <- list.files(dir, pattern="BIC.*.tsv", full.names=TRUE)
 gene.pred.folder <- list.files(dir, pattern="gene_pathogen_prediction_count$", full.names=TRUE)
 silhouette.file <- list.files(dir, pattern="silhouette.tsv", full.names=TRUE)
 
-analyse.gene.pathogen.prediction <- function(gene.pred.folder)
+
+analyse.gene.pathogen.prediction <- function(gene.pred.file)
 {
-  dat <-
-    rbindlist(
-      parallel::mclapply(list.files(gene.pred.folder, pattern="part-", full.names=TRUE),
-             function(e) { data.table::fread(e, sep="\t", header=TRUE) }, mc.cores=3 ))
+  dat <- data.table::fread(gene.pred.file, sep="\t", header=TRUE)
 
   gene.pathogen.combinations <- group_by(dat, gene, pathogen) %>%
     dplyr::summarize(n=n()) %>%
@@ -143,6 +141,9 @@ write.table <- function(gene.pred.folder)
 }
 
 
-analyse.gene.pathogen.prediction(gene.pred.folder)
-silhouette.plot(silhouette.file)
-write.table(gene.pred.folder)
+(run <- function()
+{
+  analyse.gene.pathogen.prediction(gene.pred.file)
+  silhouette.plot(silhouette.file)
+  write.table(gene.pred.folder)
+})()
