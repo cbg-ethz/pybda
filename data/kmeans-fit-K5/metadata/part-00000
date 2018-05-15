@@ -1,1 +1,1 @@
-{"class":"org.apache.spark.ml.clustering.KMeansModel","timestamp":1526309653905,"sparkVersion":"2.2.0","uid":"KMeans_49158ea6779c201c7812","paramMap":{"tol":1.0E-4,"initSteps":2,"featuresCol":"features","maxIter":20,"k":5,"seed":23,"initMode":"k-means||","predictionCol":"prediction"}}
+{"class":"org.apache.spark.ml.clustering.KMeansModel","timestamp":1526370725883,"sparkVersion":"2.2.0","uid":"KMeans_4259bf73ea102808d2c6","paramMap":{"maxIter":20,"predictionCol":"prediction","featuresCol":"features","seed":23,"initSteps":2,"k":5,"initMode":"k-means||","tol":1.0E-4}}

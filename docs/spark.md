@@ -117,8 +117,8 @@ Options to submit:
 
 ```
     # seems to work: single core exe
-     sparkcluster start --memory-per-executor 15000 --memory-per-core 10000  --walltime 4:00 --cores-per-executor 1 20 
-     
+     sparkcluster start --memory-per-executor 15000 --memory-per-core 10000  --walltime 4:00 --cores-per-executor 1 20
+
      sparkcluster launch --memory 190G --timeout 10
 
     /cluster/home/simondi/spark/bin/spark-submit  --master spark://10.205.0.129:7078

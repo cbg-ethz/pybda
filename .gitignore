@@ -1,3 +1,7 @@
+data/fa*
+data/kmeans*
+data/outlier*
+Rplots.pdf
 .snakemake/*
 .snakemake
 .nfs*
