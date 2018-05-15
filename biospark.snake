@@ -25,7 +25,15 @@ rule all:
       expand("{outfolder}/kmeans-transformed-bic.tsv", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transformed-bic.png", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transformed-bic.eps", outfolder=config["outfolder"]),
-      expand("{outfolder}/kmeans-transformed-bic.svg", outfolder=config["outfolder"])
+      expand("{outfolder}/kmeans-transformed-bic.svg", outfolder=config["outfolder"]),
+
+      expand("{outfolder}/kmeans-transformed-statistics.log", outfolder=config["outfolder"]),
+      expand("{outfolder}/kmeans-transformed_gene_prediction_count.tsv", outfolder=config["outfolder"]),
+      expand("{outfolder}/kmeans-transformed_sirna_prediction_count.tsv", outfolder=config["outfolder"]),
+      expand("{outfolder}/kmeans-transformed_pathogen_prediction_count.tsv", outfolder=config["outfolder"]),
+      expand("{outfolder}/kmeans-transformed_gene_pathogen_prediction_count.tsv", outfolder=config["outfolder"]),
+      expand("{outfolder}/kmeans-transformed_sirna_pathogen_prediction_count.tsv", outfolder=config["outfolder"]),
+      expand("{outfolder}/kmeans-transformed_silhouette.tsv", outfolder=config["outfolder"])
 
 
 rule fa:
@@ -151,25 +159,21 @@ rule clustering_transform:
 
 rule clustering_statistics:
     input:
-        expand("{outfolder}/kmeans-fit-K{center}", outfolder=config["outfolder"], center=config["centers"]),
-        expand("{outfolder}/kmeans-fit-K{center}.log", outfolder=config["outfolder"], center=config["centers"]),
-        expand("{outfolder}/kmeans-fit-K{center}_clusterSizes.tsv", outfolder=config["outfolder"], center=config["centers"]),
-        inf = expand("{outfolder}/outlier-removal", outfolder=config["outfolder"])
+        expand("{outfolder}/kmeans-transformed", outfolder=config["outfolder"])
     output:
-        expand("{outfolder}/kmeans-transformed.log", outfolder=config["outfolder"]),
-        expand("{outfolder}/kmeans-transformed-bic.tsv", outfolder=config["outfolder"]),
-        expand("{outfolder}/kmeans-transformed-bic.png", outfolder=config["outfolder"]),
-        expand("{outfolder}/kmeans-transformed-bic.eps", outfolder=config["outfolder"]),
-        expand("{outfolder}/kmeans-transformed-bic.svg", outfolder=config["outfolder"]),
-        out = expand("{outfolder}/kmeans-transformed", outfolder=config["outfolder"])
+        expand("{outfolder}/kmeans-transformed-statistics.log", outfolder=config["outfolder"]),
+        expand("{outfolder}/kmeans-transformed_gene_prediction_count.tsv", outfolder=config["outfolder"]),
+        expand("{outfolder}/kmeans-transformed_sirna_prediction_count.tsv", outfolder=config["outfolder"]),
+        expand("{outfolder}/kmeans-transformed_pathogen_prediction_count.tsv", outfolder=config["outfolder"]),
+        expand("{outfolder}/kmeans-transformed_gene_pathogen_prediction_count.tsv", outfolder=config["outfolder"]),
+        expand("{outfolder}/kmeans-transformed_sirna_pathogen_prediction_count.tsv", outfolder=config["outfolder"]),
+        expand("{outfolder}/kmeans-transformed_silhouette.tsv", outfolder=config["outfolder"])
     run:
         inc = config["outfolder"] + "/kmeans-fit"
         params = " ".join([x for x in config["sparkparams"]])
         cmd = """{} --master {} \
                     {} \
-                    3-clustering/1b-kmeans-transform-spark.py \
-                    -f {} \
-                    -c {} \
-                    -o {}""".format(
-            config["spark"], config["sparkip"], params, input.inf, inc , output.out)
+                    3-clustering/1c-kmeans-statistics-spark.py \
+                    -f {}""".format(
+            config["spark"], config["sparkip"], params, input)
         shell("{cmd}")
