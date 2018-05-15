@@ -51,31 +51,17 @@ def write_pandas_tsv(file_name, data):
 def count_statistics(data, folder, what):
     dnts = data.groupby(what).count()
     dnts = dnts.select(what + ["count"]).dropDuplicates()
-    outfolder = folder + "_" + "_".join(what) + "_count"
+    outfolder = folder + "-statistics-" + "_".join(what) + "_counts"
     logger.info("Writing sample table to: {}".format(outfolder))
     #dnts.write.csv(path=outfile, sep="\t", header=True)
     dnts.toPandas().to_csv(outfolder + ".tsv", sep="\t")
 
 
-def write_clusters(data, folder, cluster_counts):
-    loger.info("Writing clusters...")
-    file_names = [""] * len(cluster_counts)
-    for i in cluster_counts:
-        data_i = data.filter("prediction={}".format(i))
-        outfile = "{}_{}.tsv".format(folder, i)
-        if pathlib.Path(outfile).is_file():
-            continue
-        data_i = data.filter("prediction={}".format(i))
-        file_names[i] = outfile
-        data_i.toPandas().sample(frac=1).to_csv(outfile, sep="\t", index=0)
-    return file_names
+def compute_silhouettes(outfolder):
+    out_silhouette = outfolder + "-statistics-silhouette.tsv"
+    logger.info("Writing silhouettes to: {}".format(out_silhouette))
 
-
-def compute_silhouettes(folder):
-    reg = re.compile(".*K\d+\_\d+.tsv")
-    files = [x for x in glob.glob(folder + "*") if x.endswith(".tsv")]
-    files = [x for x in files if reg.match(x) is not None]
-    out_silhouette = folder + "_silhouette.tsv"
+    files = [x for x in glob.glob(outfolder + "-clusters/*") if x.endswith(".tsv")]    
     K = len(files)
     with open(out_silhouette, "w") as ot:
         ot.write("#Cluster\tNeighbor\tSilhouette\n")
@@ -119,22 +105,16 @@ def _mean_distance(j, np, outfiles):
     return numpy.mean(distances, axis=1)
 
 
-def statistics(folder):
+def statistics(outfolder):
 
     logger.info("Loading Kmeans clustering")
-    data = read_parquet_data(folder)
-    cluster_counts = numpy.array(
-      data.select("prediction").dropDuplicates().collect()).flatten()
+    data = read_parquet_data(outfolder)
 
     # Group the data by some criteria dnd plot the statistics as parquet files
-    count_statistics(data, folder, ["gene", "prediction"])
-    count_statistics(data, folder, ["sirna", "prediction"])
-    count_statistics(data, folder, ["pathogen", "prediction"])
-    count_statistics(data, folder, ["gene", "pathogen", "prediction"])
-    count_statistics(data, folder, ["sirna", "pathogen", "prediction"])
-
-    write_clusters(data, folder, cluster_counts)
-    compute_silhouettes(folder)
+    count_statistics(data, outfolder, ["gene", "prediction"])
+    count_statistics(data, outfolder, ["pathogen", "prediction"])
+    count_statistics(data, outfolder, ["gene", "pathogen", "prediction"])
+    compute_silhouettes(outfolder)
 
 
 def run():
