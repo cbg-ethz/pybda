@@ -18,7 +18,7 @@ rule all:
 
       expand("{outfolder}/kmeans-fit-K{center}", outfolder=config["outfolder"], center=config["centers"]),
       expand("{outfolder}/kmeans-fit-K{center}.log", outfolder=config["outfolder"], center=config["centers"]),
-      expand("{outfolder}/kmeans-fit-K{center}_clusterSizes.tsv", outfolder=config["outfolder"], center=config["centers"]),
+      expand("{outfolder}/kmeans-fit-K{center}_cluster_sizes.tsv", outfolder=config["outfolder"], center=config["centers"]),
 
       expand("{outfolder}/kmeans-transformed", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transformed.log", outfolder=config["outfolder"]),
@@ -108,7 +108,7 @@ rule clustering_fit:
     output:
         expand("{outfolder}/kmeans-fit-K{center}", outfolder=config["outfolder"], center=config["centers"]),
         expand("{outfolder}/kmeans-fit-K{center}.log", outfolder=config["outfolder"], center=config["centers"]),
-        expand("{outfolder}/kmeans-fit-K{center}_clusterSizes.tsv", outfolder=config["outfolder"], center=config["centers"])
+        expand("{outfolder}/kmeans-fit-K{center}_cluster_sizes.tsv", outfolder=config["outfolder"], center=config["centers"])
     run:
         out = config["outfolder"] + "/kmeans-fit"
         params = " ".join([x for x in config["sparkparams"]])
@@ -139,7 +139,6 @@ rule clustering_transform:
     run:
         inc = config["outfolder"] + "/kmeans-fit"
         params = " ".join([x for x in config["sparkparams"]])
-        shell("mkdir {output.out}")
         cmd = """{} --master {} \
                     {} \
                     3-clustering/1b-kmeans-transform-spark.py \
@@ -148,4 +147,29 @@ rule clustering_transform:
                     -o {}""".format(
             config["spark"], config["sparkip"], params, input.inf, inc , output.out)
         shell("{cmd}")
-        shell("touch {output.out}.log")
+
+
+rule clustering_statistics:
+    input:
+        expand("{outfolder}/kmeans-fit-K{center}", outfolder=config["outfolder"], center=config["centers"]),
+        expand("{outfolder}/kmeans-fit-K{center}.log", outfolder=config["outfolder"], center=config["centers"]),
+        expand("{outfolder}/kmeans-fit-K{center}_clusterSizes.tsv", outfolder=config["outfolder"], center=config["centers"]),
+        inf = expand("{outfolder}/outlier-removal", outfolder=config["outfolder"])
+    output:
+        expand("{outfolder}/kmeans-transformed.log", outfolder=config["outfolder"]),
+        expand("{outfolder}/kmeans-transformed-bic.tsv", outfolder=config["outfolder"]),
+        expand("{outfolder}/kmeans-transformed-bic.png", outfolder=config["outfolder"]),
+        expand("{outfolder}/kmeans-transformed-bic.eps", outfolder=config["outfolder"]),
+        expand("{outfolder}/kmeans-transformed-bic.svg", outfolder=config["outfolder"]),
+        out = expand("{outfolder}/kmeans-transformed", outfolder=config["outfolder"])
+    run:
+        inc = config["outfolder"] + "/kmeans-fit"
+        params = " ".join([x for x in config["sparkparams"]])
+        cmd = """{} --master {} \
+                    {} \
+                    3-clustering/1b-kmeans-transform-spark.py \
+                    -f {} \
+                    -c {} \
+                    -o {}""".format(
+            config["spark"], config["sparkip"], params, input.inf, inc , output.out)
+        shell("{cmd}")

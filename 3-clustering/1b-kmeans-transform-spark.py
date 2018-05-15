@@ -51,10 +51,6 @@ def read_args(args):
     return opts.f, opts.o, opts.c, opts
 
 
-def data_path(file_name):
-    return file_name.replace(".tsv", "_parquet")
-
-
 def read_parquet_data(file_name):
     logger.info("Reading parquet: {}".format(file_name))
     return spark.read.parquet(file_name)
@@ -80,45 +76,18 @@ def k_fit_folders(clusterprefix):
     return mpaths
 
 
+def transform_path(outpath):
+    return outpath
+
+
+def cluster_center_file(outpath):
+    return outpath + "-cluster_centers.tsv"
+
+
 def get_feature_columns(data):
     return list(filter(
       lambda x: any(x.startswith(f) for f in ["cells", "perin", "nucle"]),
       data.columns))
-
-
-def get_frame(file_name):
-    if pathlib.Path(file_name).is_dir():
-        logger.info("File is a dictionary. Assuming parquet file: {}".format(
-          file_name))
-        return read_parquet_data(file_name)
-
-    parquet_file = data_path(file_name)
-    # check if data has been loaded before
-    if pathlib.Path(parquet_file).exists():
-        logger.info("Parquet file exists already using parquet file: {}".format(
-            file_name))
-        return read_parquet_data(parquet_file)
-
-    logger.info("Reading: {} and writing parquet".format(file_name))
-    # if not read the file and parse some oclumns
-    df = spark.read.csv(path=file_name, sep="\t", header='true')
-    old_cols = df.columns
-    new_cols = list(map(lambda x: x.replace(".", "_"), old_cols))
-    df = reduce(
-      lambda data, idx: data.withColumnRenamed(old_cols[idx], new_cols[idx]),
-      range(len(new_cols)), df)
-    feature_columns = get_feature_columns(df)
-    for x in feature_columns:
-        df = df.withColumn(x, df[x].cast("double"))
-    df = df.fillna(0)
-    # add a DenseVector column to the frame
-    assembler = VectorAssembler(inputCols=feature_columns, outputCol='features')
-    data = assembler.transform(df)
-
-    # save the frame
-    write_parquet_data(parquet_file, data)
-
-    return data
 
 
 def get_kmean_fit_statistics(mpaths, data):
@@ -136,7 +105,7 @@ def get_kmean_fit_statistics(mpaths, data):
             # number of predictors (feature dimensionality)
             P = len(numpy.asarray(data.select("features").take(1)).flatten())
             bic = rss + numpy.log(N) * K * P
-            kmean_fits.append({"K": K, "model": model, "BIC": bic})
+            kmean_fits.append({"K": K, "model": model, "BIC": bic, "path": mpath})
         except AttributeError as e:
             logger.error(
                 "\tcould not load model {}, due to: {}".format(mpath, str(e)))
@@ -202,51 +171,44 @@ def plot(ks, score, axis_label, outpath):
     plt.savefig(plotfile + ".png", bbox_inches="tight")
 
 
-def get_optimal_k(datafolder, outpath, clusterprefix):
+def get_optimal_k(data, outpath, clusterprefix):
     logger.info("Finding optimal K for transformation...")
 
-    data = get_frame(datafolder)
     mpaths = k_fit_folders(clusterprefix)
     kmeans_fits = get_kmean_fit_statistics(mpaths, data)
 
     plot_cluster(outpath, kmeans_fits)
 
-    return 1
+    min_fit = min(list(enumerate(kmeans_fits)), key=lambda x:x[1]["BIC"])[1]
+
+    return min_fit
 
 
 def transform_cluster(datafolder, outpath, clusterprefix):
-    bic =  get_optimal_k(datafolder, outpath, clusterprefix)
-    # cpath = data_path(file_name)
-    # mpath = k_model_path(outpath, file_name, k)
-    # if not pathlib.Path(cpath).is_dir():
-    #     logger.error("Directory doesnt exist: {}".format(cpath))
-    #     return
-    # if not pathlib.Path(mpath).is_dir():
-    #     logger.error("Directory doesnt exist: {}".format(mpath))
-    #     return
-    #
-    # logger.info("Loading data: {}".format(cpath))
-    # logger.info("Loading model: {}".format(mpath))
-    # logger.info("Loading/clustering KMeansModel with k={}".format(k))
-    # data = read_parquet_data(cpath)
-    # model = KMeansModel.load(mpath)
-    #
-    # copath = k_transform_centers_path(outpath, file_name, k)
-    # logger.info("Writing cluster centers to: {}".format(copath))
-    # with open(copath, "w") as fh:
-    #     fh.write("#Clustercenters\n")
-    #     for center in model.clusterCenters():
-    #         fh.write("\t".join(map(str, center)) + '\n')
-    #
-    # # transform data and select
-    # data = model.transform(data).select(
-    #   "study", "pathogen", "library", "design", "replicate",
-    #   "plate", "well", "gene", "sirna", "well_type",
-    #   "image_idx", "object_idx", "prediction", "features")
-    # logger.info("Writing clustered data to parquet")
-    #
-    # opath = k_transform_path(outpath, file_name, k)
-    # write_parquet_data(opath, data)
+    data = read_parquet_data(datafolder)
+
+    brst_model =  get_optimal_k(data, outpath, clusterprefix)
+    logger.info("Using model: {}".format(brst_model))
+    k = brst_model["K"]
+
+    model = KMeansModel.load(brst_model["path"])
+    ccf = cluster_center_file(outpath)
+    logger.info("Writing cluster centers to: {}".format(ccf))
+
+    with open(ccf, "w") as fh:
+        fh.write("#Clustercenters\n")
+        for center in model.clusterCenters():
+            fh.write("\t".join(map(str, center)) + '\n')
+
+    # transform data and select
+    data = model.transform(data).select(
+      "study", "pathogen", "library", "design", "replicate",
+      "plate", "well", "gene", "sirna", "well_type",
+      "image_idx", "object_idx", "prediction", "features")
+    logger.info("Writing clustered data to parquet")
+
+    opath = transform_path(outpath)
+    write_parquet_data(opath, data)
 
 
 def loggername(outpath):
