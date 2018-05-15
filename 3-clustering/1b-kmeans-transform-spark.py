@@ -77,10 +77,6 @@ def k_fit_folders(clusterprefix):
     return mpaths
 
 
-def transform_path(outpath):
-    return outpath
-
-
 def cluster_center_file(outpath):
     return outpath + "-cluster_centers.tsv"
 
@@ -185,6 +181,24 @@ def get_optimal_k(data, outpath, clusterprefix):
     return min_fit
 
 
+def write_clusters(data, outfolder):
+    cluster_counts = numpy.array(
+      data.select("prediction").dropDuplicates().collect()).flatten()
+
+    outpath = outfolder + "-clusters"
+    if not pathlib.Path(outpath).exists():
+        pathlib.Path(outpath).mkdir()
+
+    logger.info("Writing clusters to: {}".format(outpath))
+    file_names = [""] * len(cluster_counts)
+    for i in cluster_counts:
+        outfile = "{}/cluster-{}.tsv".format(outpath, i)
+        if pathlib.Path(outfile).is_file():
+            continue
+        data_i = data.filter("prediction={}".format(i))
+        data_i.toPandas().sample(frac=1).to_csv(outfile, sep="\t", index=0)
+
+
 def transform_cluster(datafolder, outpath, clusterprefix):
     data = read_parquet_data(datafolder)
 
@@ -208,8 +222,9 @@ def transform_cluster(datafolder, outpath, clusterprefix):
       "image_idx", "object_idx", "prediction", "features")
     logger.info("Writing clustered data to parquet")
 
-    opath = transform_path(outpath)
-    write_parquet_data(opath, data)
+    write_parquet_data(outpath, data)
+    write_clusters(data, outpath)
+
 
 
 def loggername(outpath):

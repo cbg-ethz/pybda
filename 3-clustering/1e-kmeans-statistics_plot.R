@@ -14,7 +14,7 @@ ggthemr("fresh", "scientific")
 hrbrthemes::import_roboto_condensed()
 extrafont::loadfonts()
 
-dir <- "/Users/simondi/PROJECTS/target_infect_x_project/results/2-analysis/2-clustering/current/"
+dir <- ""
 bic.file         <- list.files(dir, pattern="BIC.*.tsv", full.names=TRUE)
 gene.pred.folder <- list.files(dir, pattern="gene_pathogen_prediction_count$", full.names=TRUE)
 silhouette.file <- list.files(dir, pattern="silhouette.tsv", full.names=TRUE)
@@ -55,6 +55,7 @@ analyse.gene.pathogen.prediction <- function(gene.pred.folder)
   ggsave(filename=paste0(gene.pred.folder, "_frequencies2.eps"), plot=plt, device="eps", width=12, height=7)
   ggsave(filename=paste0(gene.pred.folder, "_frequencies2.png"), plot=plt, device="png", width=7, height=7, dpi=1080)
 }
+
 
 silhouette.plot <- function(silhouette.file)
 {
@@ -141,28 +142,7 @@ write.table <- function(gene.pred.folder)
     fwrite(best.clusters, paste0(gene.pred.folder, "_best_clusters.tsv"))
 }
 
-plot.bic <- function(bic.file)
-{
-  fl <- readr::read_tsv(bic.file, col_names=TRUE)
-  plt <- ggplot(fl, aes(x=index, y=stat)) +
-    geom_line(lwd=1, color="black") +
-    geom_point(size=3, color="black") +
-    hrbrthemes::theme_ipsum_rc() +
-    scale_y_log10(breaks=scales::pretty_breaks(n=4)) +
-    scale_x_continuous(limits=c(0, 21000)) +
-    ylab("BIC") + xlab("Cluster centers") +
-    ggplot2::theme(axis.text.x  = ggplot2::element_text( size=18),
-                   axis.text.y  = ggplot2::element_text(size=18),
-                   axis.title.x   = ggplot2::element_text(size=20),
-                   axis.title.y   = ggplot2::element_text(size=20),
-                   panel.grid.major.x = element_line(colour = 'black', linetype = 'dotted'))
 
-  ggsave(filename=sub(".tsv", ".eps", bic.file), plt, width=12, height=7)
-  ggsave(filename=sub(".tsv", ".png", bic.file), plt, width=12, height=7, dpi=1080)
-
-}
-
-plot.bic(bic.file)
 analyse.gene.pathogen.prediction(gene.pred.folder)
 silhouette.plot(silhouette.file)
 write.table(gene.pred.folder)

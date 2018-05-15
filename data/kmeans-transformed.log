@@ -11,4 +11,5 @@
 [INFO/MainProcess/__main__]: Writing cluster centers to: data/kmeans-transformed-cluster_centers.tsv
 [INFO/MainProcess/__main__]: Writing clustered data to parquet
 [INFO/MainProcess/__main__]: Writing parquet: data/kmeans-transformed
+[INFO/MainProcess/__main__]: Writing clusters to: data/kmeans-transformed-clusters
 [INFO/MainProcess/__main__]: Stopping Spark context
