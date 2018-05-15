@@ -31,7 +31,8 @@ def read_args(args):
     parser = argparse.ArgumentParser(description='Cluster an RNAi dataset.')
     parser.add_argument('-o',
                         type=str,
-                        help='the output folder the results are written to',
+                        help="the output folder the results are written to. "
+                              "this is probablt a folder called 'kmeans-transformed'",
                         required=True,
                         metavar="output-folder")
     parser.add_argument('-f',
