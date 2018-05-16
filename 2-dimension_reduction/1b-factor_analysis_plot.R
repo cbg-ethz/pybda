@@ -106,7 +106,7 @@ plot.factors <- function(plotout, factors.file)
   parser$add_argument("folder", help = "Folder in which fa is", type="character")
   opt <- parser$parse_args()
   dir <- opt$folder
-  
+
   likelhood.file <- list.files(dir, pattern="likelihood.tsv", full.names=TRUE)
   factors.file   <- list.files(dir, pattern="factors.tsv", full.names=TRUE)
   plotout <- sub(".tsv", "", likelhood.file)

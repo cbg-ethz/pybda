@@ -54,14 +54,14 @@ def count_statistics(data, folder, what):
     outfolder = folder + "-statistics-" + "_".join(what) + "_counts"
     logger.info("Writing sample table to: {}".format(outfolder))
     #dnts.write.csv(path=outfile, sep="\t", header=True)
-    dnts.toPandas().to_csv(outfolder + ".tsv", sep="\t")
+    dnts.toPandas().to_csv(outfolder + ".tsv", sep="\t", index=False)
 
 
 def compute_silhouettes(outfolder):
     out_silhouette = outfolder + "-statistics-silhouette.tsv"
     logger.info("Writing silhouettes to: {}".format(out_silhouette))
 
-    files = [x for x in glob.glob(outfolder + "-clusters/*") if x.endswith(".tsv")]    
+    files = [x for x in glob.glob(outfolder + "-clusters/*") if x.endswith(".tsv")]
     K = len(files)
     with open(out_silhouette, "w") as ot:
         ot.write("#Cluster\tNeighbor\tSilhouette\n")
@@ -71,8 +71,7 @@ def compute_silhouettes(outfolder):
 
 def read_matrix(fl):
     matr = pandas.read_csv(fl, sep="\t", nrows=1000, usecols=["features"])
-    return matr["features"].str.split(",", expand=True).as_matrix().astype(
-        numpy.float64)
+    return matr["features"].str.split(",", expand=True).as_matrix().astype(numpy.float64)
 
 
 def _compute_silhouette(outfiles, i, K, ot):
