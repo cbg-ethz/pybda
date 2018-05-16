@@ -183,6 +183,28 @@ def get_optimal_k(data, outpath, clusterprefix):
     return min_fit
 
 
+
+def split_features(data):
+    def to_array(col):
+        def to_array_(v):
+            return v.toArray().tolist()
+
+        return udf(to_array_, ArrayType(DoubleType()))(col)
+
+    logger.info("\tcomputing feature vectors")
+    len_vec = len(data.select("features").take(1)[0][0])
+    data = (data.withColumn("f", to_array(col("features")))
+            .select(data.columns + [col("f")[i] for i in range(len_vec)])
+            .drop("features"))
+
+    for i, x in enumerate(data.columns):
+        if x.startswith("f["):
+            data = data.withColumnRenamed(
+                x, x.replace("[", "_").replace("]", ""))
+
+    return data
+
+
 def write_clusters(data, outfolder):
     cluster_counts = numpy.array(
       data.select("prediction").dropDuplicates().collect()).flatten()
@@ -191,16 +213,7 @@ def write_clusters(data, outfolder):
     if not pathlib.Path(outpath).exists():
         pathlib.Path(outpath).mkdir()
 
-
-    def to_array(col):
-        def to_array_(v):
-            return v.toArray().tolist()
-        return udf(to_array_, ArrayType(DoubleType()))(col)
-
-    data  = (df
-        .withColumn("features", to_array(col("features")))
-        .select(["word"] + [col("xs")[i] for i in range(3)]))
-
+    data = split_features(data)
 
     logger.info("Writing clusters to: {}".format(outpath))
     file_names = [""] * len(cluster_counts)
