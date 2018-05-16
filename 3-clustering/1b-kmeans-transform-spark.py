@@ -18,6 +18,8 @@ import matplotlib.ticker as ticker
 from pyspark.ml.clustering import KMeansModel, KMeans
 from pyspark.ml.feature import VectorAssembler
 from pyspark.rdd import reduce
+from pyspark.sql.functions import udf, col
+from pyspark.sql.types import ArrayType, DoubleType
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -188,6 +190,17 @@ def write_clusters(data, outfolder):
     outpath = outfolder + "-clusters"
     if not pathlib.Path(outpath).exists():
         pathlib.Path(outpath).mkdir()
+
+
+    def to_array(col):
+        def to_array_(v):
+            return v.toArray().tolist()
+        return udf(to_array_, ArrayType(DoubleType()))(col)
+
+    data  = (df
+        .withColumn("features", to_array(col("features")))
+        .select(["word"] + [col("xs")[i] for i in range(3)]))
+
 
     logger.info("Writing clusters to: {}".format(outpath))
     file_names = [""] * len(cluster_counts)

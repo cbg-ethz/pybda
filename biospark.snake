@@ -20,19 +20,20 @@ rule all:
       expand("{outfolder}/kmeans-fit-K{center}.log", outfolder=config["outfolder"], center=config["centers"]),
       expand("{outfolder}/kmeans-fit-K{center}_cluster_sizes.tsv", outfolder=config["outfolder"], center=config["centers"]),
 
-      expand("{outfolder}/kmeans-transformed", outfolder=config["outfolder"]),
-      expand("{outfolder}/kmeans-transformed-clusters", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transformed.log", outfolder=config["outfolder"]),
+      expand("{outfolder}/kmeans-transformed-clusters", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transformed-bic.tsv", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transformed-bic.png", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transformed-bic.eps", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transformed-bic.svg", outfolder=config["outfolder"]),
+      expand("{outfolder}/kmeans-transformed", outfolder=config["outfolder"]),
 
       expand("{outfolder}/kmeans-transformed-statistics.log", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transformed-statistics-gene_prediction_counts.tsv", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transformed-statistics-pathogen_prediction_counts.tsv", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transformed-statistics-gene_pathogen_prediction_counts.tsv", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transformed-statistics-silhouette.tsv", outfolder=config["outfolder"])
+
 
 rule fa:
     input:
@@ -177,13 +178,10 @@ rule clustering_statistics:
 
 rule clustering_plot:
     input:
-        expand("{outfolder}/kmeans-transformed", outfolder=config["outfolder"])
+        cnt = expand("{outfolder}/kmeans-transformed-statistics-pathogen_prediction_counts.tsv", outfolder=config["outfolder"]),
+        sil = expand("{outfolder}/kmeans-transformed-statistics-silhouette.tsv", outfolder=config["outfolder"])
     output:
-        expand("{outfolder}/kmeans-transformed-statistics.log", outfolder=config["outfolder"]),
-        expand("{outfolder}/kmeans-transformed-statistics-gene_prediction_counts.tsv", outfolder=config["outfolder"]),
-        expand("{outfolder}/kmeans-transformed-statistics-pathogen_prediction_counts.tsv", outfolder=config["outfolder"]),
-        expand("{outfolder}/kmeans-transformed-statistics-gene_pathogen_prediction_counts.tsv", outfolder=config["outfolder"]),
-        expand("{outfolder}/kmeans-transformed-statistics-silhouette.tsv", outfolder=config["outfolder"])
+        expand("{outfolder}/kmeans-transformed-statistics-pathogen_prediction_counts-frequencies.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"]),
     run:
         params = " ".join([x for x in config["sparkparams"]])
         cmd = """{} --master {} \
