@@ -32,7 +32,9 @@ rule all:
       expand("{outfolder}/kmeans-transformed-statistics-gene_prediction_counts.tsv", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transformed-statistics-pathogen_prediction_counts.tsv", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transformed-statistics-gene_pathogen_prediction_counts.tsv", outfolder=config["outfolder"]),
-      expand("{outfolder}/kmeans-transformed-statistics-silhouette.tsv", outfolder=config["outfolder"])
+      expand("{outfolder}/kmeans-transformed-statistics-silhouette.tsv", outfolder=config["outfolder"]),
+
+      expand("{outfolder}/kmeans-transformed-statistics-pathogen_prediction_counts-frequencies.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"]),
 
 
 rule fa:

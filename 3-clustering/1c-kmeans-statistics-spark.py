@@ -70,8 +70,8 @@ def compute_silhouettes(outfolder):
 
 
 def read_matrix(fl):
-    matr = pandas.read_csv(fl, sep="\t", nrows=1000, usecols=["features"])
-    return matr["features"].str.split(",", expand=True).as_matrix().astype(numpy.float64)
+    return pandas.read_csv(fl, sep="\t", nrows=1000,
+                           usecols=lambda x: x.startswith("f_"))
 
 
 def _compute_silhouette(outfiles, i, K, ot):
