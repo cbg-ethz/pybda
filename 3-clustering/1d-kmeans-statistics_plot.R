@@ -24,7 +24,7 @@ analyse.gene.pathogen.prediction <- function(gene.pred.file)
 
   gene.pathogen.combinations <- group_by(dat, gene, pathogen) %>%
     dplyr::summarize(n=n()) %>%
-    ungroup
+    ungroup()
 
   dat <- dplyr::left_join(dat, gene.pathogen.combinations, by=c("gene", "pathogen"))
   dat <- dplyr::mutate(dat, Frequency=count/n)
@@ -49,10 +49,7 @@ analyse.gene.pathogen.prediction <- function(gene.pred.file)
                    axis.title.x   = ggplot2::element_text(size=20),
                    axis.title.y   = ggplot2::element_text(size=20))
 
-
-
   gene.pred.folder <- stringr::str_match(string=gene.pred.file, pattern="(.*).tsv")[2]
-
   for (i in c("eps", "png", "svg"))
   {
     ggsave(filename=paste0(gene.pred.folder, "-frequencies.", i),
@@ -117,44 +114,36 @@ write.table <- function(gene.pred.file)
 {
   dat <- data.table::fread(gene.pred.file, sep="\t", header=TRUE)
 
+  # create a table with how many single cless belong are in ever gene-pathogen group
   gene.pathogen.combinations <- group_by(dat, gene, pathogen) %>%
-    dplyr::summarize(n=n()) %>%
-    ungroup
-
+    dplyr::summarize(n=sum(count)) %>%
+    ungroup()
   dat <- dplyr::left_join(dat, gene.pathogen.combinations, by=c("gene", "pathogen"))
+  # compute frequencies how often a single cell is in the same gene=pathogen-prediction group
   dat <- dplyr::mutate(dat, Frequency=count/n) %>% arrange(-Frequency)
 
-  D <-
-      dplyr::filter(dat, gene %in% c("mock", "none", "cdc42", "met", "mtor",
-                                     "alk", "ilk", "rip4k", "pik3r3", "igf2r",
-                                     "gak", "ulk1", "ntpcr", "etnk1", "wnk1",
-                                     "tgfbr1")) %>%
-      dplyr::group_by(gene, prediction) %>%
-      dplyr::summarize(n=n()) %>%
-      dplyr::group_by(gene) %>%
-      dplyr::summarize(freqstr=paste0(n, "/" , n()), freq=n/n(), cnt=n()) %>%
-      dplyr::group_by(gene) %>%
-      arrange(-cnt) %>%
-      dplyr::summarize(MaxFrequenctInBucket=freq[1])
+  # Here we try to get the genes that are most dominant in a single cluster
+  # i.e.: which genes have the hightest frequency of being in the SAME cluster
+  best.genes <- dat %>%
+    dplyr::filter(!gene  %in% c("ran", "allstarsdeath", "allstars hs cell death sirna")) %>%
+    dplyr::group_by(gene, prediction) %>%
+    dplyr::summarize(n=sum(count)) %>%
+    dplyr::group_by(gene) %>%
+    dplyr::summarize(freq=n/sum(n), cnt=sum(n)) %>%
+    dplyr::group_by(gene) %>%
+    dplyr::summarize(MaxFrequenctInBucket=freq[1]) %>%
+    arrange(-MaxFrequenctInBucket)
 
-    best.genes <- dat %>% dplyr::filter(!gene  %in% c("ran", "allstarsdeath",
-                                                      "allstars hs cell death sirna")) %>%
-      dplyr::group_by(gene, prediction) %>%
-      dplyr::summarize(n=n()) %>%
-      dplyr::group_by(gene) %>%
-      dplyr::summarize(freqstr=paste0(n, "/" , n()), freq=n/n(), cnt=n()) %>%
-      dplyr::group_by(gene) %>%
-      arrange(-cnt) %>%
-      dplyr::summarize(MaxFrequenctInBucket=freq[1]) %>%
-      arrange(-MaxFrequenctInBucket) %>% .[1:20]
+  # write clusters by their highest 'consistency' of gene-pathogen pairs mapping
+  best.clusters <- dat %>%
+    arrange(desc(Frequency)) %>%
+    dplyr::filter(!gene  %in% c("ran", "allstarsdeath", "allstars hs cell death sirna")) %>%
+    dplyr::select(prediction) %>%
+    unique()
 
-    best.clusters <- dat %>% dplyr::filter(!gene  %in%
-            c("ran", "allstarsdeath", "allstars hs cell death sirna")) %>%
-        dplyr::select(prediction) %>% unique %>% .[1:5]
-
-    fwrite(D, paste0(gene.pred.folder, "_sample_genes_frequency_ramo.tsv"))
-    fwrite(best.genes, paste0(gene.pred.folder, "_sample_genes_frequency_best.tsv"))
-    fwrite(best.clusters, paste0(gene.pred.folder, "_best_clusters.tsv"))
+  outfl <- stringr::str_match(gene.pred.file, "(.*).tsv")[2]
+  fwrite(best.genes, paste0(outfl, "-best_gene_buckets.tsv"), sep = "\t")
+  fwrite(best.clusters, paste0(outfl, "-best_cluster.tsv"), sep = "\t")
 }
 
 
@@ -173,10 +162,11 @@ write.table <- function(gene.pred.file)
   {
     stop(parser$print_help())
   }
+
   gene.pred.file <- opt$prediction
   silhouette.file <- opt$silhouettes
 
   analyse.gene.pathogen.prediction(gene.pred.file)
   silhouette.plot(silhouette.file)
-  #write.table(gene.pred.file)
+  write.table(gene.pred.file)
 })()

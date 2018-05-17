@@ -34,7 +34,10 @@ rule all:
       expand("{outfolder}/kmeans-transformed-statistics-gene_pathogen_prediction_counts.tsv", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transformed-statistics-silhouette.tsv", outfolder=config["outfolder"]),
 
-      expand("{outfolder}/kmeans-transformed-statistics-pathogen_prediction_counts-frequencies.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"]),
+      expand("{outfolder}/kmeans-transformed-statistics-gene_pathogen_prediction_counts-frequencies.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"]),
+      expand("{outfolder}/kmeans-transformed-statistics-silhouette.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"]),
+      expand("{outfolder}/kmeans-transformed-statistics-gene_pathogen_prediction_counts-best_cluster.tsv", outfolder=config["outfolder"]),
+      expand("{outfolder}/kmeans-transformed-statistics-gene_pathogen_prediction_counts-best_gene_buckets.tsv", outfolder=config["outfolder"])
 
 
 rule fa:
@@ -180,15 +183,12 @@ rule clustering_statistics:
 
 rule clustering_plot:
     input:
-        cnt = expand("{outfolder}/kmeans-transformed-statistics-pathogen_prediction_counts.tsv", outfolder=config["outfolder"]),
+        cnt = expand("{outfolder}/kmeans-transformed-statistics-gene_pathogen_prediction_counts.tsv", outfolder=config["outfolder"]),
         sil = expand("{outfolder}/kmeans-transformed-statistics-silhouette.tsv", outfolder=config["outfolder"])
     output:
-        expand("{outfolder}/kmeans-transformed-statistics-pathogen_prediction_counts-frequencies.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"]),
+        expand("{outfolder}/kmeans-transformed-statistics-gene_pathogen_prediction_counts-frequencies.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"]),
+        expand("{outfolder}/kmeans-transformed-statistics-silhouette.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"]),
+        expand("{outfolder}/kmeans-transformed-statistics-gene_pathogen_prediction_counts-best_cluster.tsv", outfolder=config["outfolder"]),
+        expand("{outfolder}/kmeans-transformed-statistics-gene_pathogen_prediction_counts-best_gene_buckets.tsv", outfolder=config["outfolder"])
     run:
-        params = " ".join([x for x in config["sparkparams"]])
-        cmd = """{} --master {} \
-                    {} \
-                    3-clustering/1c-kmeans-statistics-spark.py \
-                    -f {}""".format(
-            config["spark"], config["sparkip"], params, input)
-        shell("{cmd}")
+        shell("3-clustering/1d-kmeans-statistics_plot.R -g {input.cnt} -s {input.sil}")
