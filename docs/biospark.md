@@ -8,6 +8,9 @@ Make sure to have `spark >= 2.2.0` and all the dependencies given in `requiremen
 
 # TODO: add r requirements
 
+`org.Hs.eg.db`
+`hgu95av2.db`
+
 ## Usage
 
 ### Config
