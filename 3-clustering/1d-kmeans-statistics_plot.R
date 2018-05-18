@@ -13,21 +13,37 @@ suppressPackageStartupMessages(library(ggthemr))
 suppressPackageStartupMessages(library(viridis))
 suppressPackageStartupMessages(library(cowplot))
 
-ggthemr("fresh", "scientific")
+suppressWarnings(ggthemr("fresh", "scientific"))
+suppressMessages(hrbrthemes::import_roboto_condensed())
 
-hrbrthemes::import_roboto_condensed()
+
+#' @description Create a table where every row counts
+#'  how many single cells belong to every gene-pathogen group
+.get.cell.count.per.gene.pathogen.group <- . %>%
+  group_by(gene, pathogen) %>%
+  dplyr::summarize(n=sum(count)) %>%
+  ungroup()
+
+
+#' @description Compute a table where every row shows the frequency
+#' of a single cell belonging to a specific gene-pathogen group maps to a cluster
+#' I.e: what is the frequency of a gene-pathogen group in a cluster
+.compute.cell.cluster.frequencies <- function(dat, gpc)
+{
+  dat <- dplyr::left_join(dat, gpc, by=c("gene", "pathogen"))
+  dat <- dplyr::mutate(dat, Frequency=count/n) %>%
+    arrange(-Frequency)
+  dat
+}
 
 
 analyse.gene.pathogen.prediction <- function(gene.pred.file)
 {
   dat <- data.table::fread(gene.pred.file, sep="\t", header=TRUE)
 
-  gene.pathogen.combinations <- group_by(dat, gene, pathogen) %>%
-    dplyr::summarize(n=n()) %>%
-    ungroup()
-
-  dat <- dplyr::left_join(dat, gene.pathogen.combinations, by=c("gene", "pathogen"))
-  dat <- dplyr::mutate(dat, Frequency=count/n)
+  gene.pathogen.combinations <- .get.cell.count.per.gene.pathogen.group(dat)
+  dat <- .compute.cell.cluster.frequencies(
+    dat, gene.pathogen.combinations)
 
   hs <- hist(dat$Frequency, breaks=300, plot=FALSE)
   df <- data.frame(Frequency=hs$mids, Density=hs$counts/sum(hs$counts))
@@ -110,17 +126,12 @@ silhouette.plot <- function(silhouette.file)
 }
 
 
-write.table <- function(gene.pred.file)
+create.table <- function(gene.pred.file)
 {
   dat <- data.table::fread(gene.pred.file, sep="\t", header=TRUE)
-
-  # create a table with how many single cless belong are in ever gene-pathogen group
-  gene.pathogen.combinations <- group_by(dat, gene, pathogen) %>%
-    dplyr::summarize(n=sum(count)) %>%
-    ungroup()
-  dat <- dplyr::left_join(dat, gene.pathogen.combinations, by=c("gene", "pathogen"))
-  # compute frequencies how often a single cell is in the same gene=pathogen-prediction group
-  dat <- dplyr::mutate(dat, Frequency=count/n) %>% arrange(-Frequency)
+  gene.pathogen.combinations <- .get.cell.count.per.gene.pathogen.group(dat)
+  dat <- .compute.cell.cluster.frequencies(
+    dat, gene.pathogen.combinations)
 
   # Here we try to get the genes that are most dominant in a single cluster
   # i.e.: which genes have the hightest frequency of being in the SAME cluster
@@ -134,7 +145,7 @@ write.table <- function(gene.pred.file)
     dplyr::summarize(MaxFrequenctInBucket=freq[1]) %>%
     arrange(-MaxFrequenctInBucket)
 
-  # write clusters by their highest 'consistency' of gene-pathogen pairs mapping
+  # creates clusters by their highest 'consistency' of gene-pathogen pairs mapping
   best.clusters <- dat %>%
     arrange(desc(Frequency)) %>%
     dplyr::filter(!gene  %in% c("ran", "allstarsdeath", "allstars hs cell death sirna")) %>%
@@ -144,6 +155,101 @@ write.table <- function(gene.pred.file)
   outfl <- stringr::str_match(gene.pred.file, "(.*).tsv")[2]
   fwrite(best.genes, paste0(outfl, "-best_gene_buckets.tsv"), sep = "\t")
   fwrite(best.clusters, paste0(outfl, "-best_cluster.tsv"), sep = "\t")
+
+  list(best.clusters = best.clusters,
+       best.genes    = best.genes)
+}
+
+
+ora <- function(cluster.genes, universe)
+{
+  .to.entrez <- function(dat)
+  {
+    frame.hugo <- AnnotationDbi::toTable(org.Hs.eg.db::org.Hs.egSYMBOL) %>%
+      as.data.table()
+    dat <- dplyr::left_join(data.table(symbol=toupper(dat)), frame.hugo, by="symbol") %>%
+      dplyr::filter(!is.na(gene_id))
+    dat
+  }
+
+  suppressPackageStartupMessages(library(GOstats))
+  hit.list <- .to.entrez(cluster.genes)
+  universe <- .to.entrez(universe)
+  GOparams <- new("GOHyperGParams",
+                  geneIds = unique(hit.list),
+                  universeGeneIds = unique(universe),
+                  annotation="hgu95av2.db",
+                  ontology="BP",
+                  pvalueCutoff=0.05,
+                  conditional=TRUE,
+                  testDirection="over")
+  ora <- GOstats::hyperGTest(GOparams)
+
+  test.count <- length(ora@pvalue.order)
+  summ <- summary(ora)
+  pvals <- c(summ$Pvalue, rep(1, test.count - nrow(summ)))
+  qvals <- p.adjust(pvals, method="BH")
+  summ$Qvalue <- qvals[1:nrow(summ)]
+  li <- list(ora=ora, summary=summ)
+
+  li
+}
+
+
+plot.oras <- function(best.cluster, gene.pred.file, how.many.clusters=5)
+{
+  which.clusters <- best.clusters$prediction[seq(how.many.clusters)]
+
+  dat <- data.table::fread(gene.pred.file, sep="\t", header=TRUE)
+  gene.pathogen.combinations <- .get.cell.count.per.gene.pathogen.group(dat)
+  dat <- .compute.cell.cluster.frequencies(dat, gene.pathogen.combinations)
+
+  pre   <- dat %>% dplyr::filter(prediction %in% which.clusters)
+
+  universe <- dat %>% dplyr::pull(gene) %>% unique()
+  oras <- list()
+  for (i in which.clusters)
+  {
+    cluster.genes <- dplyr::filter(pre, prediction==i) %>%
+      pull(gene) %>% unique()
+    oras[[paste(i)]] <- ora(cluster.genes, genes)
+  }
+
+  oras.flast <- rbindlist(lapply(1:length(oras), function(e) data.table(Index=e,  oras[[e]]$summary[1:10, ])))
+  oras.flast <- oras.flast %>% as.data.frame
+  oras.flast <- oras.flast[oras.flast$Qvalue <= .05, c("Index", "Qvalue", "Term")]
+
+  dat <- spread(oras.flast, Index, Qvalue) %>% gather(Term)
+  colnames(dat) <- c("Term", "Cluster", "Qvalue")
+  dat$Qvalue[is.na(dat$Qvalue)] <- 1
+  dat$Term <- factor(dat$Term, levels=rev(unique(dat$Term)))
+  dat <- dplyr::mutate(dat, Significant = Qvalue <= 0.05)
+  dat <-
+    dplyr::group_by(dat, Term) %>%
+    dplyr::mutate(S=sum(Significant)) %>%
+    ungroup %>%
+    dplyr::mutate(Color=( S==1 & Significant==TRUE))
+  dat$Color <- factor(dat$Color)
+
+  ggplot(dat, aes(Cluster, Term), fill="black") +
+    hrbrthemes::theme_ipsum_rc() +
+    geom_point(aes(size=Significant, color=Color)) +
+    scale_size_discrete(name="Q-value < .05") +
+    scale_color_manual(name="Exclusively significant\nwithin term", values=c("black", cols[2])) +
+    ylab("GO-term") +
+    ggplot2::scale_x_discrete(expand = c(0,1)) +
+    ggplot2::scale_y_discrete(expand = c(0,1)) +
+    ggplot2::theme(
+      axis.title.y=element_blank(),
+      axis.title.x=element_text(size=17, hjust=.5),
+      axis.text.y=element_text(size=15),
+      axis.text.x=element_blank(),
+      legend.text=element_text(size=15),
+      legend.title=element_text(size=17)) +
+    guides(size=guide_legend("Q-value \u2264 .05", override.aes=list(colour="black")))
+
+  ggsave(paste0(dir, "best_5_clusters_ora.eps"), dpi=2000, width=20)
+  ggsave(paste0(dir, "best_5_clusters_ora.png"), dpi=1000, width=13)
 }
 
 
@@ -168,5 +274,8 @@ write.table <- function(gene.pred.file)
 
   analyse.gene.pathogen.prediction(gene.pred.file)
   silhouette.plot(silhouette.file)
-  write.table(gene.pred.file)
+
+  tabs <- create.table(gene.pred.file)
+  plot.oras(tabs$best.clusters, gene.pred.file)
+
 })()
