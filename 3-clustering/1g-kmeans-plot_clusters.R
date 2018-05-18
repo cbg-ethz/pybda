@@ -14,7 +14,7 @@ extrafont::loadfonts()
 
 options(stringsAsFactors=FALSE)
 
-dir <- "/Users/simondi/PROJECTS/target_infect_x_project/results/2-analysis/2-clustering/current/"
+dir <- "/Users/simondi/PROJECTS/target_infect_x_project/results/2-analysis/2-clustering/2017_12_04//"
 
 best.clusters.file   <- list.files(dir, pattern="best_clusters", full.names=TRUE)
 cluster.files        <-list.files(paste(dir, "clusters", sep="/"), full.names=TRUE)
@@ -91,6 +91,7 @@ plot.oras <- function(gene.pred.folder)
   dat
 }
 
+
 ora <- function(genes, universe)
 {
   library(GOstats)
@@ -115,6 +116,7 @@ ora <- function(genes, universe)
 
   li
 }
+
 
 plot.best.clusters <- function()
 {
@@ -149,6 +151,7 @@ plot.best.clusters <- function()
   ggsave(paste(plot.out, "genes.png", sep="-"), dpi=1080)
 }
 
+
 plot.sampled.genes <- function(sampled.genes.file)
 {
 
@@ -171,6 +174,7 @@ plot.sampled.genes <- function(sampled.genes.file)
   ggsave(paste(plot.out, "genes.eps", sep="-"), plot=plt)
   ggsave(paste(plot.out, "genes.png", sep="-"), dpi=450)
 }
+
 
 plot.best.clusters()
 plot.sampled.genes(gene.pred.folder)
