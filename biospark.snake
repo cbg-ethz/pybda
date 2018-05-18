@@ -192,3 +192,16 @@ rule clustering_plot:
         expand("{outfolder}/kmeans-transformed-statistics-gene_pathogen_prediction_counts-best_gene_buckets.tsv", outfolder=config["outfolder"])
     run:
         shell("3-clustering/1d-kmeans-statistics_plot.R -g {input.cnt} -s {input.sil}")
+
+
+rule clustering_plot:
+    input:
+        cnt = expand("{outfolder}/kmeans-transformed-statistics-gene_pathogen_prediction_counts.tsv", outfolder=config["outfolder"]),
+        sil = expand("{outfolder}/kmeans-transformed-statistics-silhouette.tsv", outfolder=config["outfolder"])
+    output:
+        expand("{outfolder}/kmeans-transformed-statistics-gene_pathogen_prediction_counts-frequencies.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"]),
+        expand("{outfolder}/kmeans-transformed-statistics-silhouette.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"]),
+        expand("{outfolder}/kmeans-transformed-statistics-gene_pathogen_prediction_counts-best_cluster.tsv", outfolder=config["outfolder"]),
+        expand("{outfolder}/kmeans-transformed-statistics-gene_pathogen_prediction_counts-best_gene_buckets.tsv", outfolder=config["outfolder"])
+    run:
+        shell("3-clustering/1d-kmeans-statistics_plot.R -g {input.cnt} -s {input.sil}")

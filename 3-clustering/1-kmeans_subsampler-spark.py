@@ -28,7 +28,7 @@ spark = None
 
 
 def read_args(args):
-    parser = argparse.ArgumentParser(description='Sample gens from clustered dataset.')
+    parser = argparse.ArgumentParser(description='Sample genes from clustered dataset.')
     parser.add_argument('-f',
                         type=str,
                         help='the folder where the clustered/transformed data lie,'
