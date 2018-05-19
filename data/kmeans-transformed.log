@@ -7,7 +7,7 @@
 [INFO/MainProcess/__main__]: Writing cluster BICs to: data/kmeans-transformed-bic
 [INFO/MainProcess/__main__]: 	saving bic tsv to: data/kmeans-transformed-bic.tsv
 [INFO/MainProcess/__main__]: 	saving plot to: data/kmeans-transformed-bic.eps/svg/png
-[INFO/MainProcess/__main__]: Using model: {'K': 5, 'model': KMeans_4496a17aa8cb763c6730, 'BIC': 854.9608639468756, 'path': 'data/kmeans-fit-K5'}
+[INFO/MainProcess/__main__]: Using model: {'K': 5, 'model': KMeans_43b6998d7e5f11df1926, 'BIC': 854.9608639468756, 'path': 'data/kmeans-fit-K5'}
 [INFO/MainProcess/__main__]: Writing cluster centers to: data/kmeans-transformed-cluster_centers.tsv
 [INFO/MainProcess/__main__]: Writing clustered data to parquet
 [INFO/MainProcess/__main__]: Writing parquet: data/kmeans-transformed

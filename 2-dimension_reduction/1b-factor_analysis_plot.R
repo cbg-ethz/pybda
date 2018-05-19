@@ -36,8 +36,7 @@ plot.likelihood <- function(plotout, likelhood.file)
     ggplot2::theme(axis.text.x  = ggplot2::element_text( size=18),
                    axis.text.y  = ggplot2::element_text(size=18),
                    axis.title.x   = ggplot2::element_text(size=20),
-                   axis.title.y   = ggplot2::element_text(size=20),
-                   panel.grid.major = element_line(colour = 'black', linetype = 'dotted'))
+                   axis.title.y   = ggplot2::element_text(size=20))
 
   ggsave(paste0(plotout, ".png"), dpi=720, width=10, height=10)
 
@@ -93,8 +92,7 @@ plot.factors <- function(plotout, factors.file)
     ggplot2::theme(axis.text.x  = ggplot2::element_text( size=18),
                    axis.text.y  = ggplot2::element_text(size=18),
                    axis.title.x   = ggplot2::element_text(size=20),
-                   axis.title.y   = ggplot2::element_text(size=20),
-                   panel.grid.major.x = element_line(colour = 'black', linetype = 'dotted'))
+                   axis.title.y   = ggplot2::element_text(size=20))
 
   ggsave(paste(plotout, "biplot.png", sep="-") , dpi=720, width=10, height=10)
 

@@ -24,40 +24,6 @@ best.clusters        <- readr::read_tsv(best.clusters.file, col_names=TRUE) %>% 
 
 
 
-plot.best.clusters <- function()
-{
-  best.clusters <- readr::read_tsv(best.clusters.file, col_names=TRUE) %>% as.tbl
-
-  fls <- lapply(best.clusters$prediction, function(i)
-  {
-    idx <- grep(paste0(dir, "/clusters/.*_", i, ".*tsv"), cluster.files)
-    cluster.files[idx]
-  }) %>% unlist
-
-  dat <- rbindlist(lapply(fls, function(f) readr::read_tsv(f, col_names=TRUE))) %>%
-    as_tibble %>%
-    tidyr::separate(features, into=paste0("Factor", 1:15), sep=",") %>%
-    dplyr::mutate(Factor1:=as.double(Factor1),
-                  Factor2:=as.double(Factor2),
-                  prediction=as.factor(prediction))
-
-  plt <-
-    ggplot(dat) +
-    geom_point(aes(x=Factor1, y=Factor2, color = prediction, shape=prediction), size=.75) +
-    hrbrthemes::theme_ipsum_rc() +
-    ggplot2::theme(axis.text.x  = ggplot2::element_text( size=18),
-                   axis.text.y  = ggplot2::element_text(size=18),
-                   axis.title.x   = ggplot2::element_text(size=20),
-                   axis.title.y   = ggplot2::element_text(size=20)) +
-    viridis::scale_colour_viridis(discrete=T, guide=FALSE, option="D") +
-    guides(shape=FALSE)
-
-  plot.out  <- sub(".tsv", "", best.clusters.file)
-  ggsave(paste(plot.out, "genes.eps", sep="-"), plot=plt)
-  ggsave(paste(plot.out, "genes.png", sep="-"), dpi=1080)
-}
-
-
 plot.sampled.genes <- function(sampled.genes.file)
 {
 
