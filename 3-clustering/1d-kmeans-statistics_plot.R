@@ -4,17 +4,23 @@ suppressPackageStartupMessages(library(argparse))
 suppressPackageStartupMessages(library(stringr))
 suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(dtplyr))
+suppressPackageStartupMessages(library(readr))
 suppressPackageStartupMessages(library(tidyr))
 suppressPackageStartupMessages(library(data.table))
 suppressPackageStartupMessages(library(tibble))
 suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(hrbrthemes))
 suppressPackageStartupMessages(library(ggthemr))
+suppressPackageStartupMessages(library(purrr))
 suppressPackageStartupMessages(library(viridis))
 suppressPackageStartupMessages(library(cowplot))
 
 suppressWarnings(ggthemr("fresh", "scientific"))
 suppressMessages(hrbrthemes::import_roboto_condensed())
+
+library(futile.logger)
+logr <- "logger"
+flog.logger(logr, futile.logger::INFO)
 
 
 #' @description Create a table where every row counts
@@ -39,6 +45,9 @@ suppressMessages(hrbrthemes::import_roboto_condensed())
 
 analyse.gene.pathogen.prediction <- function(gene.pred.file)
 {
+
+  flog.info('Computing histograms for gene pathogen predictions. ', name=logr)
+
   dat <- data.table::fread(gene.pred.file, sep="\t", header=TRUE)
 
   gene.pathogen.combinations <- .get.cell.count.per.gene.pathogen.group(dat)
@@ -65,6 +74,7 @@ analyse.gene.pathogen.prediction <- function(gene.pred.file)
                    axis.title.x   = ggplot2::element_text(size=20),
                    axis.title.y   = ggplot2::element_text(size=20))
 
+  flog.info('Plotting histograms for gene pathogen predictions. ', name=logr)
   gene.pred.folder <- stringr::str_match(string=gene.pred.file, pattern="(.*).tsv")[2]
   for (i in c("eps", "png", "svg"))
   {
@@ -76,6 +86,8 @@ analyse.gene.pathogen.prediction <- function(gene.pred.file)
 
 silhouette.plot <- function(silhouette.file)
 {
+  flog.info('PLotting silhouette scores for single cell measurements.', name=logr)
+
   dat <- fread(silhouette.file,  sep="\t", header=TRUE) %>%
     rename(Cluster = "#Cluster")
   hs <- hist(dat$Silhouette, plot=FALSE, breaks=100)
@@ -128,6 +140,7 @@ silhouette.plot <- function(silhouette.file)
 
 create.table <- function(gene.pred.file)
 {
+  flog.info("Computing best gene and cluster tables", name=logr)
   dat <- data.table::fread(gene.pred.file, sep="\t", header=TRUE)
   gene.pathogen.combinations <- .get.cell.count.per.gene.pathogen.group(dat)
   dat <- .compute.cell.cluster.frequencies(
@@ -153,6 +166,8 @@ create.table <- function(gene.pred.file)
     unique()
 
   outfl <- stringr::str_match(gene.pred.file, "(.*).tsv")[2]
+  flog.info(paste0("\twriting tables to: ", outfl), name=logr)
+
   fwrite(best.genes, paste0(outfl, "-best_gene_buckets.tsv"), sep = "\t")
   fwrite(best.clusters, paste0(outfl, "-best_cluster.tsv"), sep = "\t")
 
@@ -176,8 +191,8 @@ ora <- function(cluster.genes, universe)
   hit.list <- .to.entrez(cluster.genes)
   universe <- .to.entrez(universe)
   GOparams <- new("GOHyperGParams",
-                  geneIds = unique(hit.list),
-                  universeGeneIds = unique(universe),
+                  geneIds = unique(hit.list$gene_id),
+                  universeGeneIds = unique(universe$gene_id),
                   annotation="hgu95av2.db",
                   ontology="BP",
                   pvalueCutoff=0.05,
@@ -187,17 +202,22 @@ ora <- function(cluster.genes, universe)
 
   test.count <- length(ora@pvalue.order)
   summ <- summary(ora)
-  pvals <- c(summ$Pvalue, rep(1, test.count - nrow(summ)))
-  qvals <- p.adjust(pvals, method="BH")
-  summ$Qvalue <- qvals[1:nrow(summ)]
+  if (nrow(summ) != 0)
+  {
+    pvals <- c(summ$Pvalue, rep(1, test.count - nrow(summ)))
+    qvals <- p.adjust(pvals, method="BH")
+    summ$Qvalue <- qvals[1:nrow(summ)]
+  }
+
   li <- list(ora=ora, summary=summ)
 
   li
 }
 
 
-plot.oras <- function(best.cluster, gene.pred.file, how.many.clusters=5)
+plot.oras <- function(best.clusters, gene.pred.file, how.many.clusters=5)
 {
+  flog.info('Computing ORAs.', name=logr)
   which.clusters <- best.clusters$prediction[seq(how.many.clusters)]
 
   dat <- data.table::fread(gene.pred.file, sep="\t", header=TRUE)
@@ -212,45 +232,97 @@ plot.oras <- function(best.cluster, gene.pred.file, how.many.clusters=5)
   {
     cluster.genes <- dplyr::filter(pre, prediction==i) %>%
       pull(gene) %>% unique()
-    oras[[paste(i)]] <- ora(cluster.genes, genes)
+    flog.info(paste('\tdoing ORAs', i), name=logr)
+    oras[[paste(i)]] <- ora(cluster.genes, universe)
   }
 
-  oras.flast <- rbindlist(lapply(1:length(oras), function(e) data.table(Index=e,  oras[[e]]$summary[1:10, ])))
-  oras.flast <- oras.flast %>% as.data.frame
-  oras.flast <- oras.flast[oras.flast$Qvalue <= .05, c("Index", "Qvalue", "Term")]
+  oras.flast <- rbindlist(
+    lapply(1:length(oras), function(e) data.table(Index=e,  oras[[e]]$summary[1:10, ]))) %>%
+    as.data.frame() %>%
+    dplyr::filter(!is.na(Pvalue))
 
-  dat <- spread(oras.flast, Index, Qvalue) %>% gather(Term)
-  colnames(dat) <- c("Term", "Cluster", "Qvalue")
-  dat$Qvalue[is.na(dat$Qvalue)] <- 1
-  dat$Term <- factor(dat$Term, levels=rev(unique(dat$Term)))
-  dat <- dplyr::mutate(dat, Significant = Qvalue <= 0.05)
-  dat <-
-    dplyr::group_by(dat, Term) %>%
-    dplyr::mutate(S=sum(Significant)) %>%
-    ungroup %>%
-    dplyr::mutate(Color=( S==1 & Significant==TRUE))
-  dat$Color <- factor(dat$Color)
+  if (nrow(oras.flast) > 0) {
+    flog.info('\tplotting and writing ORA table.', name=logr)
+    oras.flast <- oras.flast[oras.flast$Qvalue <= .05, c("Index", "Qvalue", "Term")]
+    dat <- spread(oras.flast, Index, Qvalue) %>% tidyr::gather(Cluster, Qvalue ,-Term)
+    dat$Qvalue[is.na(dat$Qvalue)] <- 1
+    dat <- oras.flast
+    dat$Term <- factor(dat$Term, levels=rev(unique(dat$Term)))
+    dat <- dplyr::mutate(dat, Significant = Qvalue <= 0.05)
+    dat <-
+      dplyr::group_by(dat, Term) %>%
+      dplyr::mutate(S=sum(Significant)) %>%
+      ungroup() %>%
+      dplyr::mutate(Color = (S==1 & Significant==TRUE))
+    dat$Color <- factor(dat$Color)
+    dat$Cluster <- as.character(dat$Index)
 
-  ggplot(dat, aes(Cluster, Term), fill="black") +
-    hrbrthemes::theme_ipsum_rc() +
-    geom_point(aes(size=Significant, color=Color)) +
-    scale_size_discrete(name="Q-value < .05") +
-    scale_color_manual(name="Exclusively significant\nwithin term", values=c("black", cols[2])) +
-    ylab("GO-term") +
-    ggplot2::scale_x_discrete(expand = c(0,1)) +
-    ggplot2::scale_y_discrete(expand = c(0,1)) +
-    ggplot2::theme(
-      axis.title.y=element_blank(),
-      axis.title.x=element_text(size=17, hjust=.5),
-      axis.text.y=element_text(size=15),
-      axis.text.x=element_blank(),
-      legend.text=element_text(size=15),
-      legend.title=element_text(size=17)) +
-    guides(size=guide_legend("Q-value \u2264 .05", override.aes=list(colour="black")))
+    ggplot(dat, aes(Cluster, Term), fill="black") +
+      hrbrthemes::theme_ipsum_rc() +
+      geom_point(aes(color=Color), size=7) +
+      scale_color_manual(name="Significant in\nonly one cluster", values=c("black", "#65ADC2")) +
+      ylab("Different clusters") +
+      ylab("GO-term") +
+      ggplot2::scale_x_discrete(expand = c(0,1)) +
+      ggplot2::scale_y_discrete(expand = c(0,1)) +
+      ggplot2::theme(
+        axis.title.y=element_blank(),
+        panel.grid.major.x=element_blank(),
+        axis.title.x=element_text(size=17, hjust=.5),
+        axis.text.y=element_text(size=15),
+        axis.text.x=element_blank(),
+        legend.text=element_text(size=15),
+        legend.title=element_text(size=17))
 
-  ggsave(paste0(dir, "best_5_clusters_ora.eps"), dpi=2000, width=20)
-  ggsave(paste0(dir, "best_5_clusters_ora.png"), dpi=1000, width=13)
+    dir <- stringr::str_match(string=gene.pred.file, pattern="(.*).tsv")[2]
+    readr::write_tsv(oras.flast, path=paste0(dir, "-", "ora.tsv"))
+    for (i in c("eps", "png", "svg"))
+    {
+      ggsave(filename=paste0(dir, "-ora.", i),
+             plot=plt, dpi=1000, width=13)
+    }
+  } else {
+    flog.info('\tno significant OR was found. Writing nothing...', name=logr)
+  }
 }
+
+
+plot.best.clusters <- function(best.clusters, dir, how.many.clusters=5)
+{
+  flog.info('PLotting best clusters.', name=logr)
+  cluster.folder <- paste0(dir, "/kmeans-transformed-clusters/")
+  cluster.files  <- list.files(cluster.folder, full.names=T)
+  fls <- purrr::map_chr(best.clusters$prediction, function(i) {
+    idx <- grep(paste0("/cluster-", i, ".tsv"), cluster.files)
+    cluster.files[idx]
+  })
+
+  dat <- purrr::map_dfr(fls , function(f) readr::read_tsv(f, col_names=TRUE)) %>%
+    dplyr::mutate(Factor1:=as.double(f_0),
+                  Factor2:=as.double(f_1),
+                  prediction=as.factor(prediction))
+
+  plt <-
+    ggplot(dat) +
+    geom_point(aes(x=Factor1, y=Factor2, color = prediction, shape=prediction), size=.75) +
+    hrbrthemes::theme_ipsum_rc() +
+    xlab("Factor 1") + ylab("Factor 2") +
+    ggplot2::theme(axis.text.x  = ggplot2::element_text( size=18),
+                   axis.text.y  = ggplot2::element_text(size=18),
+                   axis.title.x   = ggplot2::element_text(size=20),
+                   axis.title.y   = ggplot2::element_text(size=20)) +
+    viridis::scale_colour_viridis(discrete=T, guide=FALSE, option="D") +
+    guides(shape=FALSE)
+
+  plot.out  <- paste0(dir, "/kmeans-transformed-clusters")
+  flog.info(paste0("\tplotting to: ", plot.out), name=logr)
+  for (i in c("png", "svg", "eps"))
+  {
+    ggsave(paste0(plot.out, "-gene_clusters.", i), plot=plt, dpi=720, height=7, width=7)
+  }
+}
+
+
 
 
 (run <- function() {
@@ -269,6 +341,10 @@ plot.oras <- function(best.cluster, gene.pred.file, how.many.clusters=5)
     stop(parser$print_help())
   }
 
+  dir <- dirname(opt$prediction)
+  lg.file <- paste0(dir, "/kmeans-transformed-statistics-plot.log")
+  flog.appender(appender.file(lg.file), name=logr)
+
   gene.pred.file <- opt$prediction
   silhouette.file <- opt$silhouettes
 
@@ -276,6 +352,6 @@ plot.oras <- function(best.cluster, gene.pred.file, how.many.clusters=5)
   silhouette.plot(silhouette.file)
 
   tabs <- create.table(gene.pred.file)
-  plot.oras(tabs$best.clusters, gene.pred.file)
-
+    plot.oras(tabs$best.clusters, gene.pred.file)
+  plot.best.clusters(tabs$best.clusters, dir)
 })()
