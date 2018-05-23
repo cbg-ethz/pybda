@@ -47,8 +47,8 @@ def write_tsv_data(outpath, data):
 
     data_row_cnt = data.count()
     sample_ratio = float(min(100000 / data_row_cnt, 1))
-    data = data\
-        .sample(withReplacement=False, fraction=sample_ratio, seed=23)\
+    data = data \
+        .sample(withReplacement=False, fraction=sample_ratio, seed=23) \
         .select("features").toPandas()
 
     logger.info("Writing tsv: {}".format(outpath))
