@@ -133,7 +133,7 @@ rule clustering_fit:
                         -f {} \
                         -o {} \
                         -k {}""".format(
-              config["spark"], config["sparkip"], params, input, out, c)
+              config["sx park"], config["sparkip"], params, input, out, c)
             shell("{cmd}")
 
 
