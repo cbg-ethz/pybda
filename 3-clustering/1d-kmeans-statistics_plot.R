@@ -323,8 +323,6 @@ plot.best.clusters <- function(best.clusters, dir, how.many.clusters=5)
 }
 
 
-
-
 (run <- function() {
   parser <- ArgumentParser()
   parser$add_argument(
