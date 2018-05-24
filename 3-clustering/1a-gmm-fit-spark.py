@@ -14,7 +14,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-from pyspark.ml.clustering import KMeansModel, KMeans
+from pyspark.ml.clustering import GaussianMixture
 from pyspark.ml.feature import VectorAssembler
 from pyspark.rdd import reduce
 
@@ -53,7 +53,7 @@ def read_args(args):
 
 
 def k_fit_path(outpath, k):
-    return outpath + "-K{}".format(k)
+    return outpath + "-C{}".format(k)
 
 
 def data_path(file_name):
@@ -114,19 +114,31 @@ def get_frame(file_name):
 def fit_cluster(file_name, K, outpath):
     data = get_frame(file_name)
 
-    logger.info("Clustering with K: {}".format(K))
-    km = KMeans().setK(K).setSeed(23)
+    logger.info("Fitting mixture with C: {}".format(K))
+    km = GaussianMixture().setK(K).setSeed(23)
     model = km.fit(data)
 
     clustout = k_fit_path(outpath, K)
-    logger.info("Writing cluster fit to: {}".format(clustout))
+    logger.info("Writing components to: {}".format(clustout))
     model.write().overwrite().save(clustout)
 
-    logger.info("Writing cluster size file")
+    logger.info("Writing components size file")
     clust_sizes = model.summary.clusterSizes
-    thefile = open(clustout + "_cluster_sizes.tsv", 'w')
-    for c in clust_sizes:
-        thefile.write("{}\n".format(c))
+    with  open(clustout + "_cluster_sizes.tsv", 'w') as fh:
+        for c in clust_sizes:
+            fh.write("{}\n".format(c))
+
+    logger.info("Writing mixing weights")
+    weights = model.weights
+    with open(clustout + "_mixing_weights.tsv", 'w') as fh:
+        for c in weights:
+            fh.write("{}\n".format(c))
+
+    logger.info("Writing gaussian distributions file")
+
+    with open(clustout + "_mixing_weights.tsv", 'w') as fh:
+        for c in weights:
+            fh.write("{}\n".format(c))
 
 
 def loggername(outpath, file_name, k=None):
