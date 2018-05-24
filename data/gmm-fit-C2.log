@@ -1,0 +1,9 @@
+[INFO/MainProcess/__main__]: Starting Spark context
+[INFO/MainProcess/__main__]: File is a dictionary. Assuming parquet file: data/outlier-removal
+[INFO/MainProcess/__main__]: Reading parquet: data/outlier-removal
+[INFO/MainProcess/__main__]: Fitting mixture with C: 2
+[INFO/MainProcess/__main__]: Writing components to: data/gmm-fit-C2
+[INFO/MainProcess/__main__]: Writing components size file
+[INFO/MainProcess/__main__]: Writing mixing weights
+[INFO/MainProcess/__main__]: Writing gaussian distributions file
+[INFO/MainProcess/__main__]: Stopping Spark context
