@@ -20,12 +20,13 @@ rule all:
       expand("{outfolder}/kmeans-fit-K{center}.log", outfolder=config["outfolder"], center=config["centers"]),
       expand("{outfolder}/kmeans-fit-K{center}_cluster_sizes.tsv", outfolder=config["outfolder"], center=config["centers"]),
 
+      expand("{outfolder}/kmeans-fit-plot.log", outfolder=config["outfolder"], center=config["centers"]),
+      expand("{outfolder}/kmeans-fit-clustersize_stats.tsv", outfolder=config["outfolder"], center=config["centers"]),
+      expand("{outfolder}/kmeans-fit-clustersize_histogram.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"]),
+
       expand("{outfolder}/kmeans-transformed.log", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transformed-clusters", outfolder=config["outfolder"]),
-      expand("{outfolder}/kmeans-transformed-bic.tsv", outfolder=config["outfolder"]),
-      expand("{outfolder}/kmeans-transformed-bic.png", outfolder=config["outfolder"]),
-      expand("{outfolder}/kmeans-transformed-bic.eps", outfolder=config["outfolder"]),
-      expand("{outfolder}/kmeans-transformed-bic.svg", outfolder=config["outfolder"]),
+      expand("{outfolder}/kmeans-transformed-bic.tsv", outfolder=config["outfolder"], out=["eps", "png", "svg", "out"]),
       expand("{outfolder}/kmeans-transformed", outfolder=config["outfolder"]),
 
       expand("{outfolder}/kmeans-transformed-statistics.log", outfolder=config["outfolder"]),
@@ -39,12 +40,11 @@ rule all:
       expand("{outfolder}/kmeans-transformed-statistics-silhouette.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"]),
       expand("{outfolder}/kmeans-transformed-statistics-gene_pathogen_prediction_counts-best_cluster.tsv", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transformed-statistics-gene_pathogen_prediction_counts-best_gene_buckets.tsv", outfolder=config["outfolder"]),
-      expand("{outfolder}/kmeans-transformed-clusters-gene_clusters.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"])
+      expand("{outfolder}/kmeans-transformed-clusters-gene_clusters.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"]),
 
-
-################################################################################
-################################################################################
-
+      expand("{outfolder}/gmm-fit-C{center}", outfolder=config["outfolder"], center=config["centers"]),
+      expand("{outfolder}/gmm-fit-C{center}.log", outfolder=config["outfolder"], center=config["centers"]),
+      expand("{outfolder}/gmm-fit-C{center}_cluster_sizes.tsv", outfolder=config["outfolder"], center=config["centers"])
 
 rule fa:
     input:
@@ -103,10 +103,6 @@ rule fa_sample_plot:
         "2-dimension_reduction/2b-plot_feature_distribution.R {input}"
 
 
-################################################################################
-################################################################################
-
-
 rule outliers:
     input:
         expand("{outfolder}/fa", outfolder=config["outfolder"]),
@@ -122,10 +118,6 @@ rule outliers:
                     -o {}""".format(
             config["spark"], config["sparkip"], params, input, output.out)
         shell("{cmd}")
-
-
-################################################################################
-################################################################################
 
 
 rule kmeans_fit:
@@ -145,8 +137,20 @@ rule kmeans_fit:
                         -f {} \
                         -o {} \
                         -k {}""".format(
-              config["sx park"], config["sparkip"], params, input, out, c)
+              config["s[ark"], config["sparkip"], params, input, out, c)
             shell("{cmd}")
+
+
+rule kmeans_fit_plot:
+  input:
+      expand("{outfolder}/kmeans-fit-K{center}", outfolder=config["outfolder"], center=config["centers"])
+  output:
+      expand("{outfolder}/kmeans-fit-plot.log", outfolder=config["outfolder"], center=config["centers"]),
+      expand("{outfolder}/kmeans-fit-clustersize_stats.tsv", outfolder=config["outfolder"], center=config["centers"]),
+      expand("{outfolder}/kmeans-fit-clustersize_histogram.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"])
+  run:
+      inp = config["outfolder"] + "/kmeans-fit"
+      shell("3-clustering/1a-kmeans-fit_plot.R -f {inp}")
 
 
 rule kmeans_transform:
@@ -158,10 +162,7 @@ rule kmeans_transform:
     output:
         expand("{outfolder}/kmeans-transformed.log", outfolder=config["outfolder"]),
         expand("{outfolder}/kmeans-transformed-clusters", outfolder=config["outfolder"]),
-        expand("{outfolder}/kmeans-transformed-bic.tsv", outfolder=config["outfolder"]),
-        expand("{outfolder}/kmeans-transformed-bic.png", outfolder=config["outfolder"]),
-        expand("{outfolder}/kmeans-transformed-bic.eps", outfolder=config["outfolder"]),
-        expand("{outfolder}/kmeans-transformed-bic.svg", outfolder=config["outfolder"]),
+        expand("{outfolder}/kmeans-transformed-bic.tsv", outfolder=config["outfolder"], out=["eps", "png", "svg", "out"]),
         out = expand("{outfolder}/kmeans-transformed", outfolder=config["outfolder"])
     run:
         inc = config["outfolder"] + "/kmeans-fit"
@@ -210,10 +211,6 @@ rule kmeans_plot:
         shell("3-clustering/1d-kmeans-statistics_plot.R -g {input.cnt} -s {input.sil}")
 
 
-################################################################################
-################################################################################
-
-
 rule gmm_fit:
     input:
         expand("{outfolder}/outlier-removal", outfolder=config["outfolder"])
@@ -227,7 +224,7 @@ rule gmm_fit:
         for c in config["centers"]:
             cmd = """{} --master {} \
                         {} \
-                        3-clustering/1a-kmeans-fit-spark.py \
+                        3-clustering/1a-gmm-fit-spark.py \
                         -f {} \
                         -o {} \
                         -k {}""".format(
