@@ -14,3 +14,15 @@ INFO [2018-05-25 13:12:28]
 	data/gmm-fit-C5_cluster_sizes.tsv
 INFO [2018-05-25 13:12:28] Plotting cluster sizes
 INFO [2018-05-25 13:12:29] Plotting cluster statistics
+INFO [2018-05-25 13:38:07] Reading cluster size data:
+INFO [2018-05-25 13:38:07] 
+	data/gmm-fit-C2_cluster_sizes.tsv
+	data/gmm-fit-C5_cluster_sizes.tsv
+INFO [2018-05-25 13:38:07] Plotting cluster sizes
+INFO [2018-05-25 13:38:08] Plotting cluster statistics
+INFO [2018-05-25 13:41:20] Reading cluster size data:
+INFO [2018-05-25 13:41:20] 
+	data/gmm-fit-C2_cluster_sizes.tsv
+	data/gmm-fit-C5_cluster_sizes.tsv
+INFO [2018-05-25 13:41:20] Plotting cluster sizes
+INFO [2018-05-25 13:41:23] Plotting cluster statistics

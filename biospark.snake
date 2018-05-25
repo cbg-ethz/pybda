@@ -171,9 +171,11 @@ rule kmeans_fit_plot:
     shell:
         "3-clustering/1a-clustering-fit-plot.R -f {config[outfolder]} -a kmeans"
 
+
 rule gmm_fit_plot:
     shell:
         "3-clustering/1a-clustering-fit-plot.R -f {config[outfolder]} -a gmm"
+
 
 rule kmeans_transform:
     input:
