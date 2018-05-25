@@ -24,7 +24,6 @@ plot.cluster.sizes <- function(dat, plot.folder)
 
   dat$ClusterCount <- factor(dat$ClusterCount, levels=rev(sort(unique(dat$ClusterCount))))
 
-
   plt <- ggplot(dat, aes(x = dat$K, y = dat$ClusterCount, fill = dat$ClusterCount)) +
     geom_density_ridges(stat = "binline", scale = .4, draw_baseline = FALSE, bins=100, alpha=.5) +
     theme_ridges() +
@@ -38,9 +37,10 @@ plot.cluster.sizes <- function(dat, plot.folder)
           axis.text.x = element_text(size=15),
           axis.text.y = element_text(size=15))
 
-  for (i in c("svg", "png", "eps")) {
+  for (i in c("svg", "png", "eps"))
+  {
       ggsave(plt,
-            filename=paste0(plot.folder,"/kmeans-fit-clustersize_histogram.", i),
+            filename=paste0(plot.folder,"/kmeans-fit-cluster_sizes-histogram.", i),
              width=10, height=7)
   }
 
@@ -49,10 +49,12 @@ plot.cluster.sizes <- function(dat, plot.folder)
 
 plot.cluster.stats <- function(dat, plot.folder)
 {
-  fl.out <- paste0(plot.folder,"/kmeans-fit-clustersize_stats.tsv")
+  flog.info('Plotting cluster statistics', name=logr)
+
+  fl.out <- paste0(plot.folder,"/kmeans-fit-cluster_sizes-stats.tsv")
   cl <-  group_by(dat, ClusterCount) %>%
     dplyr::summarize(n=paste(sprintf("%.2f", quantile(K)/max(K)), collapse=", "))
-  readr::write_tsv(x=cl,  path=fl.out.)
+  readr::write_tsv(x=cl,  path=fl.out)
 }
 
 
@@ -71,7 +73,7 @@ plot.cluster.stats <- function(dat, plot.folder)
   plot.folder <- opt$folder
   lg.file <- paste0(plot.folder, "/kmeans-fit-plot.log")
 
-  pls <- list.files(plot.folder,  pattern="cluster_?[s|S]izes.tsv", full.names=TRUE)
+  pls <- list.files(plot.folder,  pattern="kmeans.*cluster_?[s|S]izes.tsv", full.names=TRUE)
   dat <- purrr::map_dfr(pls, function(e) {
     # parse the number of clusters from the file name
     fl.suf <- as.integer(str_match(string=e, pattern=".*K(\\d+).*tsv")[2])
@@ -82,5 +84,6 @@ plot.cluster.stats <- function(dat, plot.folder)
 
   plot.cluster.sizes(dat, plot.folder)
   plot.cluster.stats(dat, plot.folder)
-
+  print(warnings())
+  warnings()
 })()

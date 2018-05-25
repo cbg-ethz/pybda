@@ -134,11 +134,9 @@ def fit_cluster(file_name, K, outpath):
         for c in weights:
             fh.write("{}\n".format(c))
 
-    logger.info("Writing gaussian distributions file")
-
-    with open(clustout + "_mixing_weights.tsv", 'w') as fh:
-        for c in weights:
-            fh.write("{}\n".format(c))
+    param_fold = clustout + "_parameters"
+    logger.info("Writing parameter folder to: {}".format(param_fold))
+    write_parquet_data(param_fold, model.gaussiansDF)
 
 
 def loggername(outpath, file_name, k=None):
