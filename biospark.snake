@@ -48,6 +48,7 @@ rule all:
       expand("{outfolder}/kmeans-transformed-statistics-gene_pathogen_prediction_counts-best_gene_buckets.tsv", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transformed-clusters-gene_clusters.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"]),
 
+
 rule fa:
     input:
         expand("{infile}", infile=config["infile"])
@@ -167,9 +168,8 @@ rule gmm_fit:
 
 
 rule kmeans_fit_plot:
-    run:
-    TODO HERE
-      shell("3-clustering/1a-kmeans-fit-plot.R -f data")
+    shell:
+        "3-clustering/1a-kmeans-fit-plot.R -f {config[outfolder]}"
 
 
 rule kmeans_transform:
