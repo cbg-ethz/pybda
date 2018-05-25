@@ -53,17 +53,22 @@ plot.cluster.stats <- function(dat, plot.folder)
 
   fl.out <- paste0(plot.folder,"/kmeans-fit-cluster_sizes-stats.tsv")
   cl <-  group_by(dat, ClusterCount) %>%
-    dplyr::summarize(n=paste(sprintf("%.2f", quantile(K)/max(K)), collapse=", "))
+    dplyr::summarize(Quantiles = paste(sprintf("%.2f", quantile(K)/max(K)), collapse=", "))
   readr::write_tsv(x=cl,  path=fl.out)
 }
 
 
 (run <- function() {
   parser <- ArgumentParser()
-  parser$add_argument("-f", "--folder", help = "folder where the cluster size files lie")
+  parser$add_argument(
+    "-f", "--folder",
+    help = "folder where the cluster size files lie")
+  parser$add_argument(
+    "-a", "--algorithm",
+    help = "algorithm used for clustering")
 
   opt <- parser$parse_args()
-  if (is.null(opt$folder))
+  if (is.null(opt$folder) || is.null(opt$algorithm))
   {
     stop(parser$print_help())
   }
@@ -71,19 +76,28 @@ plot.cluster.stats <- function(dat, plot.folder)
   flog.appender(appender.file(lg.file), name=logr)
 
   plot.folder <- opt$folder
-  lg.file <- paste0(plot.folder, "/kmeans-fit-plot.log")
+  algo        <- opt$algorithm
+  lg.file <- paste0(plot.folder, "/", algo, "-fit-plot.log")
 
-  pls <- list.files(plot.folder,  pattern="kmeans.*cluster_?[s|S]izes.tsv", full.names=TRUE)
-  dat <- purrr::map_dfr(pls, function(e) {
-    # parse the number of clusters from the file name
-    fl.suf <- as.integer(str_match(string=e, pattern=".*K(\\d+).*tsv")[2])
-    tab    <- readr::read_tsv(e, col_names="K", col_types="i")
-    tab$ClusterCount <- fl.suf
-    tab
-  })
+  pls <- list.files(
+    plot.folder,
+    pattern=paste0(algo, ".*cluster_?[s|S]izes.tsv"),
+    full.names=TRUE)
 
-  plot.cluster.sizes(dat, plot.folder)
-  plot.cluster.stats(dat, plot.folder)
-  print(warnings())
-  warnings()
+  if (length(pls) == 0) {
+    flog.error('No cluster files found', name=logr)
+  } else {
+    flog.info('Reading cluster size data', name=logr)
+
+    dat <- purrr::map_dfr(pls, function(e) {
+      # parse the number of clusters from the file name
+      fl.suf <- as.integer(str_match(string=e, pattern=".*K(\\d+).*tsv")[2])
+      tab    <- readr::read_tsv(e, col_names="K", col_types="i")
+      tab$ClusterCount <- fl.suf
+      tab
+    })
+
+    plot.cluster.sizes(dat, plot.folder)
+    plot.cluster.stats(dat, plot.folder)
+  }
 })()
