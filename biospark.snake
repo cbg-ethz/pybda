@@ -19,12 +19,14 @@ rule all:
       expand("{outfolder}/kmeans-fit-K{center}", outfolder=config["outfolder"], center=config["centers"]),
       expand("{outfolder}/kmeans-fit-K{center}.log", outfolder=config["outfolder"], center=config["centers"]),
       expand("{outfolder}/kmeans-fit-K{center}_cluster_sizes.tsv", outfolder=config["outfolder"], center=config["centers"]),
+      expand("{outfolder}/kmeans-fit-K{center}_sse.tsv", outfolder=config["outfolder"], center=config["centers"]),
 
-      expand("{outfolder}/gmm-fit-C{center}", outfolder=config["outfolder"], center=config["centers"]),
-      expand("{outfolder}/gmm-fit-C{center}.log", outfolder=config["outfolder"], center=config["centers"]),
-      expand("{outfolder}/gmm-fit-C{center}_cluster_sizes.tsv", outfolder=config["outfolder"], center=config["centers"]),
-      expand("{outfolder}/gmm-fit-C{center}_parameters", outfolder=config["outfolder"], center=config["centers"]),
-      expand("{outfolder}/gmm-fit-C{center}_mixing_weights.tsv", outfolder=config["outfolder"], center=config["centers"]),
+      expand("{outfolder}/gmm-fit-K{center}", outfolder=config["outfolder"], center=config["centers"]),
+      expand("{outfolder}/gmm-fit-K{center}.log", outfolder=config["outfolder"], center=config["centers"]),
+      expand("{outfolder}/gmm-fit-K{center}_cluster_sizes.tsv", outfolder=config["outfolder"], center=config["centers"]),
+      expand("{outfolder}/gmm-fit-K{center}_parameters", outfolder=config["outfolder"], center=config["centers"]),
+      expand("{outfolder}/gmm-fit-K{center}_mixing_weights.tsv", outfolder=config["outfolder"], center=config["centers"]),
+      expand("{outfolder}/gmm-fit-K{center}_loglik.tsv", outfolder=config["outfolder"], center=config["centers"]),
 
       #expand("{outfolder}/kmeans-fit-plot.log", outfolder=config["outfolder"], center=config["centers"]),
       #expand("{outfolder}/kmeans-fit-cluster_sizes-stats.tsv", outfolder=config["outfolder"], center=config["centers"]),
@@ -129,7 +131,8 @@ rule kmeans_fit:
     output:
         expand("{outfolder}/kmeans-fit-K{center}", outfolder=config["outfolder"], center=config["centers"]),
         expand("{outfolder}/kmeans-fit-K{center}.log", outfolder=config["outfolder"], center=config["centers"]),
-        expand("{outfolder}/kmeans-fit-K{center}_cluster_sizes.tsv", outfolder=config["outfolder"], center=config["centers"])
+        expand("{outfolder}/kmeans-fit-K{center}_cluster_sizes.tsv", outfolder=config["outfolder"], center=config["centers"]),
+        expand("{outfolder}/kmeans-fit-K{center}_sse.tsv", outfolder=config["outfolder"], center=config["centers"])
     run:
         out = config["outfolder"] + "/kmeans-fit"
         params = " ".join([x for x in config["sparkparams"]])
@@ -148,11 +151,12 @@ rule gmm_fit:
     input:
         expand("{outfolder}/outlier-removal", outfolder=config["outfolder"])
     output:
-        expand("{outfolder}/gmm-fit-C{center}", outfolder=config["outfolder"], center=config["centers"]),
-        expand("{outfolder}/gmm-fit-C{center}.log", outfolder=config["outfolder"], center=config["centers"]),
-        expand("{outfolder}/gmm-fit-C{center}_cluster_sizes.tsv", outfolder=config["outfolder"], center=config["centers"]),
-        expand("{outfolder}/gmm-fit-C{center}_parameters", outfolder=config["outfolder"], center=config["centers"]),
-        expand("{outfolder}/gmm-fit-C{center}_mixing_weights.tsv", outfolder=config["outfolder"], center=config["centers"])
+        expand("{outfolder}/gmm-fit-K{center}", outfolder=config["outfolder"], center=config["centers"]),
+        expand("{outfolder}/gmm-fit-K{center}.log", outfolder=config["outfolder"], center=config["centers"]),
+        expand("{outfolder}/gmm-fit-K{center}_cluster_sizes.tsv", outfolder=config["outfolder"], center=config["centers"]),
+        expand("{outfolder}/gmm-fit-K{center}_parameters", outfolder=config["outfolder"], center=config["centers"]),
+        expand("{outfolder}/gmm-fit-K{center}_mixing_weights.tsv", outfolder=config["outfolder"], center=config["centers"]),
+        expand("{outfolder}/gmm-fit-K{center}_loglik.tsv", outfolder=config["outfolder"], center=config["centers"])
     run:
         out = config["outfolder"] + "/gmm-fit"
         params = " ".join([x for x in config["sparkparams"]])

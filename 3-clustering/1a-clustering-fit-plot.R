@@ -41,9 +41,10 @@ plot.cluster.sizes <- function(dat, plot.folder, algo)
 
   for (i in c("svg", "png", "eps"))
   {
-      ggsave(plt,
-            filename=paste0(plot.folder,"/", algo, "-fit-cluster_sizes-histogram.", i),
-             width=10, height=7)
+      ggsave(
+        plt,
+        filename=paste0(plot.folder,"/", algo, "-fit-cluster_sizes-histogram.", i),
+        width=10, height=7)
   }
 
 }
@@ -95,7 +96,7 @@ plot.cluster.stats <- function(dat, plot.folder, algo)
     flog.info(paste0("\n\t", paste0(collapse="\n\t", pls)), name=logr)
     dat <- purrr::map_dfr(pls, function(e) {
       # parse the number of clusters from the file name
-      fl.suf <- as.integer(str_match(string=e, pattern=".*-fit-[C|K](\\d+).*tsv")[2])
+      fl.suf <- as.integer(str_match(string=e, pattern=".*-fit-K(\\d+).*tsv")[2])
       tab    <- readr::read_tsv(e, col_names="K", col_types="i")
       tab$ClusterCount <- fl.suf
       tab
