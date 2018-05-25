@@ -121,6 +121,7 @@ def fit_cluster(file_name, K, outpath):
     clustout = k_fit_path(outpath, K)
     logger.info("Writing cluster fit to: {}".format(clustout))
     model.write().overwrite().save(clustout)
+    sse = model.computeCost(data)
 
     comp_files = clustout + "_cluster_sizes.tsv"
     logger.info("Writing cluster size file to: {}".format(comp_files))
@@ -128,10 +129,10 @@ def fit_cluster(file_name, K, outpath):
         for c in model.summary.clusterSizes:
             fh.write("{}\n".format(c))
 
-    sse_file = clustout + "_sse.tsv",
+    sse_file = clustout + "_sse.tsv"
     logger.info("Writing sse to: {}".format(sse_file))
     with open(sse_file, 'w') as fh:
-        fh.write("{}\n".format(c))
+        fh.write("{}\n".format(sse))
 
 
 def loggername(outpath, file_name, k=None):

@@ -28,9 +28,9 @@ rule all:
       expand("{outfolder}/gmm-fit-K{center}_mixing_weights.tsv", outfolder=config["outfolder"], center=config["centers"]),
       expand("{outfolder}/gmm-fit-K{center}_loglik.tsv", outfolder=config["outfolder"], center=config["centers"]),
 
-      #expand("{outfolder}/kmeans-fit-plot.log", outfolder=config["outfolder"], center=config["centers"]),
-      #expand("{outfolder}/kmeans-fit-cluster_sizes-stats.tsv", outfolder=config["outfolder"], center=config["centers"]),
-      #expand("{outfolder}/kmeans-fit-cluster_sizes-histogram.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"]),
+      expand("{outfolder}/kmeans-fit-plot.log", outfolder=config["outfolder"]),
+      expand("{outfolder}/kmeans-fit-cluster_sizes-stats.tsv", outfolder=config["outfolder"]),
+      expand("{outfolder}/kmeans-fit-cluster_sizes-histogram.{out}", outfolder=config["outfolder"], out=["svg", "png", "eps"]),
 
       expand("{outfolder}/kmeans-transformed.log", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transformed-clusters", outfolder=config["outfolder"]),
@@ -171,12 +171,21 @@ rule gmm_fit:
             shell("{cmd}")
 
 
+# TODO combine this: read GMM?kmeans  from file header
 rule kmeans_fit_plot:
+    input:
+        expand("{outfolder}/kmeans-fit-K{center}_cluster_sizes.tsv", outfolder=config["outfolder"], center=config["centers"])
+    output:
+        expand("{outfolder}/kmeans-fit-plot.log", outfolder=config["outfolder"]),
+        expand("{outfolder}/kmeans-fit-cluster_sizes-stats.tsv", outfolder=config["outfolder"]),
+        expand("{outfolder}/kmeans-fit-cluster_sizes-histogram.{out}", outfolder=config["outfolder"], out=["svg", "png", "eps"])
     shell:
         "3-clustering/1a-clustering-fit-plot.R -f {config[outfolder]} -a kmeans"
 
 
 rule gmm_fit_plot:
+    input:
+        expand("{outfolder}/gmm-fit-K{center}_cluster_sizes.tsv", outfolder=config["outfolder"], center=config["centers"])
     shell:
         "3-clustering/1a-clustering-fit-plot.R -f {config[outfolder]} -a gmm"
 

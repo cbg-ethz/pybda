@@ -138,10 +138,10 @@ def fit_cluster(file_name, K, outpath):
     logger.info("Writing parameter folder to: {}".format(param_fold))
     write_parquet_data(param_fold, model.gaussiansDF)
 
-    loglik_file = clustout + "_loglik.tsv",
+    loglik_file = clustout + "_loglik.tsv"
     logger.info("Writing loglik to: {}".format(loglik_file))
     with open(loglik_file, 'w') as fh:
-        fh.write("{}\n".format(c))
+        fh.write("{}\n".format(model.summary.logLikelihood))
 
 
 def loggername(outpath, file_name, k=None):

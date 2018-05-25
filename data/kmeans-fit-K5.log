@@ -3,5 +3,6 @@
 [INFO/MainProcess/__main__]: Reading parquet: data/outlier-removal
 [INFO/MainProcess/__main__]: Clustering with K: 5
 [INFO/MainProcess/__main__]: Writing cluster fit to: data/kmeans-fit-K5
-[INFO/MainProcess/__main__]: Writing cluster size file
+[INFO/MainProcess/__main__]: Writing cluster size file to: data/kmeans-fit-K5_cluster_sizes.tsv
+[INFO/MainProcess/__main__]: Writing sse to: data/kmeans-fit-K5_sse.tsv
 [INFO/MainProcess/__main__]: Stopping Spark context
