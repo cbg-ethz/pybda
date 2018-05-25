@@ -73,11 +73,13 @@ plot.cluster.stats <- function(dat, plot.folder)
     stop(parser$print_help())
   }
 
-  flog.appender(appender.file(lg.file), name=logr)
-
   plot.folder <- opt$folder
   algo        <- opt$algorithm
+  if (!algo %in% c("kmeans", "gmm"))
+    stop("Please provide either of kmeans/gmm.")
+
   lg.file <- paste0(plot.folder, "/", algo, "-fit-plot.log")
+  flog.appender(appender.file(lg.file), name=logr)
 
   pls <- list.files(
     plot.folder,
@@ -87,8 +89,8 @@ plot.cluster.stats <- function(dat, plot.folder)
   if (length(pls) == 0) {
     flog.error('No cluster files found', name=logr)
   } else {
-    flog.info('Reading cluster size data', name=logr)
-
+    flog.info('Reading cluster size data:', name=logr)
+    flog.info(paste0("\n\t", paste0(collapse="\n\t", pls)), name=logr)
     dat <- purrr::map_dfr(pls, function(e) {
       # parse the number of clusters from the file name
       fl.suf <- as.integer(str_match(string=e, pattern=".*K(\\d+).*tsv")[2])
