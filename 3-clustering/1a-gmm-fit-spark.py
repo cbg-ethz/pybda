@@ -53,7 +53,7 @@ def read_args(args):
 
 
 def k_fit_path(outpath, k):
-    return outpath + "-C{}".format(k)
+    return outpath + "-K{}".format(k)
 
 
 def data_path(file_name):
@@ -114,7 +114,7 @@ def get_frame(file_name):
 def fit_cluster(file_name, K, outpath):
     data = get_frame(file_name)
 
-    logger.info("Fitting mixture with C: {}".format(K))
+    logger.info("Fitting mixture with K: {}".format(K))
     km = GaussianMixture().setK(K).setSeed(23)
     model = km.fit(data)
 
@@ -122,21 +122,26 @@ def fit_cluster(file_name, K, outpath):
     logger.info("Writing components to: {}".format(clustout))
     model.write().overwrite().save(clustout)
 
-    logger.info("Writing components size file")
-    clust_sizes = model.summary.clusterSizes
-    with  open(clustout + "_cluster_sizes.tsv", 'w') as fh:
-        for c in clust_sizes:
+    comp_files = clustout + "_cluster_sizes.tsv"
+    logger.info("Writing components size file to: {}".format(comp_files))
+    with open(comp_files, 'w') as fh:
+        for c in model.summary.clusterSizes:
             fh.write("{}\n".format(c))
 
-    logger.info("Writing mixing weights")
-    weights = model.weights
-    with open(clustout + "_mixing_weights.tsv", 'w') as fh:
-        for c in weights:
+    weight_file = clustout + "_mixing_weights.tsv"
+    logger.info("Writing mixing weights to: {}".format(weight_file))
+    with open(weight_file, "w") as fh:
+        for c in model.weights:
             fh.write("{}\n".format(c))
 
     param_fold = clustout + "_parameters"
     logger.info("Writing parameter folder to: {}".format(param_fold))
     write_parquet_data(param_fold, model.gaussiansDF)
+
+    loglik_file = clustout + "_loglik.tsv",
+    logger.info("Writing loglik to: {}".format(loglik_file))
+    with open(loglik_file, 'w') as fh:
+        fh.write("{}\n".format(c))
 
 
 def loggername(outpath, file_name, k=None):

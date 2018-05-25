@@ -18,7 +18,7 @@ logr <- "logger"
 flog.logger(logr, futile.logger::INFO)
 
 
-plot.cluster.sizes <- function(dat, plot.folder)
+plot.cluster.sizes <- function(dat, plot.folder, algo)
 {
   flog.info('Plotting cluster sizes', name=logr)
 
@@ -29,8 +29,10 @@ plot.cluster.sizes <- function(dat, plot.folder)
     theme_ridges() +
     hrbrthemes::theme_ipsum() +
     colorspace::scale_fill_discrete_sequential("Blues", c1 = 20, c2 = 70, l1 = 25, l2 = 100) +
-    scale_y_discrete("# clusters") +
-    scale_x_log10("# cells per cluster") +
+    scale_y_discrete("# clusters")
+  if (algo == "kmeans") plt <- plt + scale_x_log10("# cells per cluster")
+  else plt <- plt + scale_x_log10("# cells per component")
+  plt <- plt +
     guides(fill=FALSE) +
     theme(axis.title.x = element_text(size=20),
           axis.title.y = element_text(size=20),
@@ -40,18 +42,18 @@ plot.cluster.sizes <- function(dat, plot.folder)
   for (i in c("svg", "png", "eps"))
   {
       ggsave(plt,
-            filename=paste0(plot.folder,"/kmeans-fit-cluster_sizes-histogram.", i),
+            filename=paste0(plot.folder,"/", algo, "-fit-cluster_sizes-histogram.", i),
              width=10, height=7)
   }
 
 }
 
 
-plot.cluster.stats <- function(dat, plot.folder)
+plot.cluster.stats <- function(dat, plot.folder, algo)
 {
   flog.info('Plotting cluster statistics', name=logr)
 
-  fl.out <- paste0(plot.folder,"/kmeans-fit-cluster_sizes-stats.tsv")
+  fl.out <- paste0(plot.folder,"/" , algo, "-fit-cluster_sizes-stats.tsv")
   cl <-  group_by(dat, ClusterCount) %>%
     dplyr::summarize(Quantiles = paste(sprintf("%.2f", quantile(K)/max(K)), collapse=", "))
   readr::write_tsv(x=cl,  path=fl.out)
@@ -93,13 +95,13 @@ plot.cluster.stats <- function(dat, plot.folder)
     flog.info(paste0("\n\t", paste0(collapse="\n\t", pls)), name=logr)
     dat <- purrr::map_dfr(pls, function(e) {
       # parse the number of clusters from the file name
-      fl.suf <- as.integer(str_match(string=e, pattern=".*K(\\d+).*tsv")[2])
+      fl.suf <- as.integer(str_match(string=e, pattern=".*-fit-[C|K](\\d+).*tsv")[2])
       tab    <- readr::read_tsv(e, col_names="K", col_types="i")
       tab$ClusterCount <- fl.suf
       tab
     })
 
-    plot.cluster.sizes(dat, plot.folder)
-    plot.cluster.stats(dat, plot.folder)
+    plot.cluster.sizes(dat, plot.folder, algo)
+    plot.cluster.stats(dat, plot.folder, algo)
   }
 })()
