@@ -1,9 +1,9 @@
 data/fa*
 data/kmeans*
 data/outlier*
-Rplots.pdf
 .snakemake/*
 .snakemake
+Rplots.pdf
 .nfs*
 .ipynb_checkpoints/*
 job
