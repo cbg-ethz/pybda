@@ -1,4 +1,4 @@
-^fa*
+fa*
 outlier*
-^gmm*
-^kmeans*
+gmm*
+kmeans*
