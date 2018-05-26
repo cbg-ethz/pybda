@@ -86,13 +86,13 @@ rule fa_sample:
     input:
         expand("{outfolder}/fa", outfolder=config["outfolder"])
     output:
-        expand("{outfolder}/fa-sample.log", outfolder=config["outfolder"]),        
+        expand("{outfolder}/fa-sample.log", outfolder=config["outfolder"]),
         out = expand("{outfolder}/fa-sample.tsv", outfolder=config["outfolder"]),
     run:
         params = " ".join([x for x in config["sparkparams"]])
         cmd = """{} --master {} \
                     {} \
-                    2-dimension_reduction/2a-sample_fa-spark.py \
+                    2-dimension_reduction/sample-spark.py \
                     -f {} \
                     -o {}""".format(
             config["spark"], config["sparkip"], params, input, output.out)
@@ -105,7 +105,7 @@ rule fa_distribution_plot:
     output:
         expand("{outfolder}/fa-sample-feature_distributions", outfolder=config["outfolder"])
     shell:
-        "2-dimension_reduction/2b-plot_feature_distribution.R {input}"
+        "2-dimension_reduction/plot_feature_distribution.R {input}"
 
 
 rule outliers:
