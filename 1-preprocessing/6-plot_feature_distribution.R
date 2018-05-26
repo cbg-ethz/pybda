@@ -37,8 +37,14 @@ plot.distributions <- function()
       scale_y_continuous("Count") +
       geom_histogram(bins=100, fill="darkgrey") +
       theme(panel.grid.major=element_blank(),
-            axis.title.y = element_text(size=12),
-            axis.title.x = element_text(size=12))
+            axis.title.y = element_text(size=20),
+            axis.title.x = element_text(size=20),
+            axis.text.x = element_text(size=15),
+            axis.text.y = element_text(size=15),
+            panel.grid.minor = element_blank(),
+            axis.line = element_line(color="black", size = .75))
+
+
     rutil::saveplot(pl, paste0("feature_", col), out.folders=out.dir, format=c("eps", "png", "svg"))
   }
 }

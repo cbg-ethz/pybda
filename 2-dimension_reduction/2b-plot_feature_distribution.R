@@ -49,6 +49,23 @@ plot.distributions <- function(out.dir, data.file)
     }
   }
 
+  frs <- fr[seq(min(nrow(fr), 10000)), ]
+  plt <- ggplot(frs) +
+    geom_point(aes(frs[,get("Factor 1")], frs[,get("Factor 2")]), size=.5) +
+    hrbrthemes::theme_ipsum_rc(base_family="Helvetica") +
+    scale_x_continuous("Factor 1") +
+    scale_y_continuous("Factor 2") +
+    theme(axis.title.y = element_text(size=20),
+          axis.title.x = element_text(size=20),
+          axis.text.x = element_text(size=15),
+          axis.text.y = element_text(size=15),
+          panel.grid.minor = element_blank())
+  for (form in c("eps", "png", "svg"))
+  {
+      ggsave(plot=plt, paste0(out.dir ,"/feature_scatter_plot.", form),
+             dpi=720, width=8, height=10)
+  }
+
 }
 
 (run <- function()
