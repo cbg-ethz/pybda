@@ -27,7 +27,7 @@ def read_args(args):
                         metavar="output-folder")
     parser.add_argument('-f',
                         type=str,
-                        help='input folder that storres parquet files',
+                        help='input folder that stores parquet files',
                         required=True,
                         metavar="input-folder")
     opts = parser.parse_args(args)

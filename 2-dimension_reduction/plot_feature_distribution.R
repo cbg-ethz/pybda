@@ -71,7 +71,7 @@ plot.distributions <- function(out.dir, data.file)
 (run <- function()
 {
   parser <- ArgumentParser()
-  parser$add_argument("infile", help = "Name of subsampled fa entries (e.g. 'fa-sample.tsv')", type="character")
+  parser$add_argument("infile", help = "Name of subsampled fa entries (e.g. 'fa-sample.tsv', 'outliers-sample.tsv')", type="character")
   opt <- parser$parse_args()
   fl <- opt$infile
   dir <- stringr:::str_match("(.*).tsv", string=fl)[2]
