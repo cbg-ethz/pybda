@@ -140,8 +140,10 @@ def fit_cluster(file_name, K, outpath):
 
     loglik_file = clustout + "_loglik.tsv"
     logger.info("Writing loglik to: {}".format(loglik_file))
+    loglik = model.summary.logLikelihood
+    bic =
     with open(loglik_file, 'w') as fh:
-        fh.write("{}\n".format(model.summary.logLikelihood))
+        fh.write("{}\t{}\n".format(loglik, bic))
 
 
 def loggername(outpath, file_name, k=None):
