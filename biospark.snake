@@ -86,7 +86,7 @@ rule fa_sample:
     input:
         expand("{outfolder}/fa", outfolder=config["outfolder"])
     output:
-        expand("{outfolder}/fa-sample.log", outfolder=config["outfolder"]),
+        expand("{outfolder}/fa-sample.log", outfolder=config["outfolder"]),        
         out = expand("{outfolder}/fa-sample.tsv", outfolder=config["outfolder"]),
     run:
         params = " ".join([x for x in config["sparkparams"]])
@@ -99,7 +99,7 @@ rule fa_sample:
         shell("{cmd}")
 
 
-rule fa_sample_plot:
+rule fa_distribution_plot:
     input:
         expand("{outfolder}/fa-sample.tsv", outfolder=config["outfolder"])
     output:
