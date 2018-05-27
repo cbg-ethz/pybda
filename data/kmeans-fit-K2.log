@@ -1,8 +1,0 @@
-[INFO/MainProcess/__main__]: Starting Spark context
-[INFO/MainProcess/__main__]: File is a dictionary. Assuming parquet file: data/outlier-removal
-[INFO/MainProcess/__main__]: Reading parquet: data/outlier-removal
-[INFO/MainProcess/__main__]: Clustering with K: 2
-[INFO/MainProcess/__main__]: Writing cluster fit to: data/kmeans-fit-K2
-[INFO/MainProcess/__main__]: Writing cluster size file to: data/kmeans-fit-K2_cluster_sizes.tsv
-[INFO/MainProcess/__main__]: Writing sse to: data/kmeans-fit-K2_sse.tsv
-[INFO/MainProcess/__main__]: Stopping Spark context
