@@ -1,6 +1,0 @@
-INFO [2018-05-26 00:10:27] Reading cluster size data:
-INFO [2018-05-26 00:10:27] 
-	data/gmm-fit-K2_cluster_sizes.tsv
-	data/gmm-fit-K5_cluster_sizes.tsv
-INFO [2018-05-26 00:10:27] Plotting cluster sizes
-INFO [2018-05-26 00:10:28] Plotting cluster statistics
