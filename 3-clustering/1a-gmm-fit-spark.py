@@ -111,6 +111,19 @@ def get_frame(file_name):
     return data
 
 
+def bic_(loglik, K, data):
+    P = len(numpy.asarray(data.select("features").take(1)).flatten())
+    N = data.count()
+
+    mean_params = P * K
+    cov_params = (P * (P + 1) / 2) * K
+    mixing_weights = K - 1
+    n_params = mean_params + cov_params + mixing_weights
+
+    bic = -2 * loglik + numpy.log(data.count()) * n_params
+    return bic, N, P, K
+
+
 def fit_cluster(file_name, K, outpath):
     data = get_frame(file_name)
 
@@ -141,9 +154,10 @@ def fit_cluster(file_name, K, outpath):
     loglik_file = clustout + "_loglik.tsv"
     logger.info("Writing loglik to: {}".format(loglik_file))
     loglik = model.summary.logLikelihood
-    bic =
+    bic, N, P, K =  bic_(loglik, K, data)
     with open(loglik_file, 'w') as fh:
-        fh.write("{}\t{}\n".format(loglik, bic))
+        fh.write("{}\t{}\t{}\t{}\t{}\n".format("Loglik", "BIC", "N", "P", "K"))
+        fh.write("{}\t{}\t{}\t{}\t{}\n".format(loglik, bic, N, P, K))
 
 
 def loggername(outpath, file_name, k=None):
