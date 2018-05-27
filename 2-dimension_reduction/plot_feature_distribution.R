@@ -1,5 +1,6 @@
 #!/usr/bin/env Rscript
 
+
 suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(data.table))
 suppressPackageStartupMessages(library(stringr))
@@ -8,7 +9,8 @@ suppressPackageStartupMessages(library(tidyr))
 suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(hrbrthemes))
 suppressPackageStartupMessages(library(ggthemr))
-
+suppressPackageStartupMessages(library(colorspace))
+suppressPackageStartupMessages(library(rutil))
 
 suppressMessages(hrbrthemes::import_roboto_condensed())
 options(stringsAsFactors=FALSE)
@@ -49,27 +51,28 @@ plot.distributions <- function(out.dir, fr)
 
 scatter.distributions <- function(out.dir, fr)
 {
-
-  fr <- as.matrix(fr)
-  fr.maha <- stats::mahalanobis(fr, colMeans(fr), cov(fr))
-  flt <- qchisq(.95, df=ncol(fr))
-  fr.flt <- fr[fr.maha  <= flt, ]
-
-  frs <- fr.flt[seq(min(nrow(fr.flt), 10000)), ]
-  frs <- as.data.table(frs)
-
+  frm <- as.matrix(fr [,1:2])
+  fr$Outlier <- "TRUE"
+  fr.maha <- stats::mahalanobis(frm, colMeans(frm), cov(frm))
+  flt <- qchisq(.99, df=ncol(frm))
+  fr$Outlier[fr.maha  <= flt] <- "FALSE"
 
   frs <- fr[seq(min(nrow(fr), 10000)), ]
   plt <- ggplot(frs) +
-    geom_point(aes(frs[,get("Factor 1")], frs[,get("Factor 2")]), size=.5) +
-    hrbrthemes::theme_ipsum_rc(base_family="Helvetica") +
-    scale_x_continuous("Factor 1") +
-    scale_y_continuous("Factor 2") +
+    geom_point(aes(frs[,get("Factor 1")], frs[,get("Factor 2")], color=Outlier), size=.5) +
+    hrbrthemes::theme_ipsum() +
+    scale_color_manual(values=c("FALSE"="darkgrey", "TRUE"= rutil::manual_discrete_colors()[4])) +
+    scale_x_continuous("Factor 1", limits=c(-5, 5)) +
+    scale_y_continuous("Factor 2", limits=c(-5, 5)) +
     theme(axis.title.y = element_text(size=20),
           axis.title.x = element_text(size=20),
           axis.text.x = element_text(size=15),
           axis.text.y = element_text(size=15),
-          panel.grid.minor = element_blank())
+          panel.grid.minor = element_blank(),
+          legend.position="bottom")
+  plt
+
+
   for (form in c("eps", "png", "svg"))
   {
       ggsave(plot=plt, paste0(out.dir ,"/feature_scatter_plot.", form),
@@ -87,7 +90,7 @@ scatter.distributions <- function(out.dir, fr)
   dir <- stringr:::str_match("(.*).tsv", string=fl)[2]
   out.dir   <- paste0(dir, "-feature_distributions/")
 
-  fr           <- data.table::fread(fl, sep="\t")
+  fr           <- data.table::fread(fl, sep=",")
   colnames(fr) <- paste0("Factor ", seq(ncol(fr)))
   cols         <- colnames(fr)
   if (!dir.exists(out.dir)) dir.create(out.dir)

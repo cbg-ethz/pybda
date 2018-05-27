@@ -125,15 +125,6 @@ rule outliers:
         shell("{cmd}")
 
 
-rule outliers_distribution_plot:
-    input:
-        expand("{outfolder}/fa-sample.tsv", outfolder=config["outfolder"])
-    output:
-        expand("{outfolder}/fa-sample-feature_distributions", outfolder=config["outfolder"])
-    shell:
-        "2-dimension_reduction/plot_outlier_feature_distribution.R {input}"
-
-
 rule kmeans_fit:
     input:
         expand("{outfolder}/outlier-removal", outfolder=config["outfolder"])
@@ -180,7 +171,6 @@ rule gmm_fit:
             shell("{cmd}")
 
 
-# TODO combine this: read GMM?kmeans  from file header
 rule kmeans_fit_plot:
     input:
         expand("{outfolder}/kmeans-fit-K{center}_cluster_sizes.tsv", outfolder=config["outfolder"], center=config["centers"])
