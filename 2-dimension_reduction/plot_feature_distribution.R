@@ -16,7 +16,7 @@ suppressMessages(hrbrthemes::import_roboto_condensed())
 options(stringsAsFactors=FALSE)
 
 
-plot.distributions <- function(out.dir, fr)
+plot.distributions <- function(out.dir, fr, cols)
 {
   for (col in cols)
   {
@@ -61,7 +61,7 @@ scatter.distributions <- function(out.dir, fr)
   plt <- ggplot(frs) +
     geom_point(aes(frs[,get("Factor 1")], frs[,get("Factor 2")], color=Outlier), size=.5) +
     hrbrthemes::theme_ipsum() +
-    scale_color_manual(values=c("FALSE"="darkgrey", "TRUE"= rutil::manual_discrete_colors()[4])) +
+    scale_color_manual(values=c("FALSE"="darkgrey", "TRUE"= rutil::manual_discrete_colors()[4]), guide=FALSE) +
     scale_x_continuous("Factor 1", limits=c(-5, 5)) +
     scale_y_continuous("Factor 2", limits=c(-5, 5)) +
     theme(axis.title.y = element_text(size=20),
@@ -70,13 +70,11 @@ scatter.distributions <- function(out.dir, fr)
           axis.text.y = element_text(size=15),
           panel.grid.minor = element_blank(),
           legend.position="bottom")
-  plt
-
 
   for (form in c("eps", "png", "svg"))
   {
       ggsave(plot=plt, paste0(out.dir ,"/feature_scatter_plot.", form),
-             dpi=720, width=8, height=10)
+             dpi=720, width=10, height=6)
   }
 }
 
@@ -90,11 +88,11 @@ scatter.distributions <- function(out.dir, fr)
   dir <- stringr:::str_match("(.*).tsv", string=fl)[2]
   out.dir   <- paste0(dir, "-feature_distributions/")
 
-  fr           <- data.table::fread(fl, sep=",")
+  fr           <- data.table::fread(fl, sep="\t")
   colnames(fr) <- paste0("Factor ", seq(ncol(fr)))
   cols         <- colnames(fr)
   if (!dir.exists(out.dir)) dir.create(out.dir)
 
-  plot.distributions(out.dir, fr)
+  plot.distributions(out.dir, fr, cols)
   scatter.distributions(out.dir, fr)
 })()
