@@ -5,8 +5,10 @@ import sys
 import pandas
 import numpy
 import pyspark
-from pyspark.ml.linalg import Vectors
 
+from pyspark.ml.linalg import Vectors
+from pyspark.sql.functions import udf, col, struct
+from pyspark.sql.types import ArrayType, DoubleType
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -40,6 +42,26 @@ def read_parquet_data(file_name):
     return spark.read.parquet(file_name)
 
 
+def split_features(data):
+    def to_array(col):
+        def to_array_(v):
+            return v.toArray().tolist()
+
+        return udf(to_array_, ArrayType(DoubleType()))(col)
+
+    logger.info("\tcomputing feature vectors")
+    len_vec = len(data.select("features").take(1)[0][0])
+    data = (data.withColumn("f", to_array(col("features")))
+            .select([col("f")[i] for i in range(len_vec)]))
+
+    for i, x in enumerate(data.columns):
+        if x.startswith("f["):
+            data = data.withColumnRenamed(
+                x, x.replace("[", "_").replace("]", ""))
+
+    return data
+
+
 def write_tsv_data(outpath, data):
     logger.info("Subsampling data")
     if not outpath.endswith(".tsv"):
@@ -47,16 +69,11 @@ def write_tsv_data(outpath, data):
 
     data_row_cnt = data.count()
     sample_ratio = float(min(100000 / data_row_cnt, 1))
-    data = data \
-        .sample(withReplacement=False, fraction=sample_ratio, seed=23) \
-        .select("features").toPandas()
+    data = data.sample(withReplacement=False, fraction=sample_ratio, seed=23)
+    data = split_features(data).toPandas()
 
     logger.info("Writing tsv: {}".format(outpath))
     data.to_csv(outpath, sep="\t", index=False, header=False)
-    subprocess.run(['sed', '-i', ".bak", 's/\[//g', outpath])
-    subprocess.run(['sed', '-i', ".bak", 's/\]//g', outpath])
-    subprocess.run(['sed', '-i', ".bak", "s/\,/\t/g", outpath])
-    subprocess.run(['rm', outpath + '.bak'])
 
 
 def run():

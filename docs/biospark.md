@@ -22,7 +22,9 @@ spark: /usr/local/spark/spark/bin/spark-submit
 infile: data/single_cell_samples.tsv
 outfolder: data
 factors: 15
-centers: 2,5,10
+centers:
+  - 2
+  - 5
 sparkparams:
   - "--driver-memory=3G"
   - "--executor-memory=6G"
@@ -58,8 +60,16 @@ If you are working on a cluster, I recommend using `sparkhpc` to start a cluster
 
 Once you started the cluster, you start `snakemake`:
 
+#### Local environment
+
 ```bash
 snakemake -s biospark.snake --configfile biospark-local.config --config sparkip= <sparkip>
+```
+
+#### Cluster environment
+
+```bash
+snakemake -s biospark.snake --configfile biospark-grid.config --config sparkip= <sparkip>
 ```
 
 That is it! This will create all required files in the data directory,
