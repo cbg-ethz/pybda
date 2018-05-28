@@ -44,7 +44,6 @@ plot.distributions <- function(out.dir, fr, cols)
                dpi=720, width=8, height=10)
     }
   }
-
 }
 
 
@@ -60,7 +59,7 @@ scatter.distributions <- function(out.dir, fr)
   plt <- ggplot(frs) +
     geom_point(aes(frs[,get("Factor 1")], frs[,get("Factor 2")], color=Outlier), size=.5) +
     hrbrthemes::theme_ipsum() +
-    scale_color_manual(values=c("FALSE"="darkgrey", "TRUE"= "#E84646", guide=FALSE) +
+    scale_color_manual(values=c("FALSE"="darkgrey", "TRUE"= "#E84646"), guide=FALSE) +
     scale_x_continuous("Factor 1", limits=c(-5, 5)) +
     scale_y_continuous("Factor 2", limits=c(-5, 5)) +
     theme(axis.title.y = element_text(size=20),
@@ -92,6 +91,6 @@ scatter.distributions <- function(out.dir, fr)
   cols         <- colnames(fr)
   if (!dir.exists(out.dir)) dir.create(out.dir)
 
-  plot.distributions(out.dir, fr, cols)
+  #plot.distributions(out.dir, fr, cols)
   scatter.distributions(out.dir, fr)
 })()
