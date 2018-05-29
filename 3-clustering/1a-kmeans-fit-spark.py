@@ -111,6 +111,11 @@ def get_frame(file_name):
     return data
 
 
+
+def P_(data):
+    return len(numpy.asarray(data.select("features").take(1)).flatten())
+
+
 def fit_cluster(file_name, K, outpath):
     data = get_frame(file_name)
 
@@ -132,8 +137,8 @@ def fit_cluster(file_name, K, outpath):
     sse_file = clustout + "_sse.tsv"
     logger.info("Writing sse to: {}".format(sse_file))
     with open(sse_file, 'w') as fh:
-        fh.write("{}\n".format(sse))
-
+        fh.write("{}\t{}\t{}\t{}\t{}\n".format("SSE", "N", "P", "K"))
+        fh.write("{}\t{}\t{}\t{}\t{}\n".format(sse, data.count(), P_(data), K))
 
 def loggername(outpath, file_name, k=None):
     return k_fit_path(outpath, k) + ".log"
