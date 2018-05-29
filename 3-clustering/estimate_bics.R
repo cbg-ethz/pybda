@@ -32,20 +32,15 @@ bic2 <- function() {
   N + N * log(2 * pi) + N * log(rss/N) + log(N) * (K + P + 1)
 }
 
-bic.xmeans <- function() {
-  n_param <- K + P
-
-
-}
 
 df <- data.frame(
   K    = K,
   RSS  =  rss,
   BIC  =  bic(),
   BIC2 =  bic2()
-)
+) %>% .[seq(2, 17),]
 
-gathered.dat <-  df[seq(2, 17),] %>%
+gathered.dat <- df %>%
   tidyr::gather(Score, Value, -K)
 
 pl <-
