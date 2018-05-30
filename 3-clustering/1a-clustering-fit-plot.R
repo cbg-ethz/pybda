@@ -23,7 +23,6 @@ plot.cluster.sizes <- function(dat, plot.folder, algo)
 {
   flog.info('Plotting cluster sizes', name=logr)
 
-  dat <- filter(dat,ClusterCount >= 1000,ClusterCount <= 100000)
   dat$ClusterCount <- factor(dat$ClusterCount, levels=rev(sort(unique(dat$ClusterCount))))
   crit <-  group_by(dat, ClusterCount) %>%
     summarize(Min=min(K), Max=max(K)) %>%
@@ -34,7 +33,7 @@ plot.cluster.sizes <- function(dat, plot.folder, algo)
     geom_density_ridges(
       data=dat,  aes(x = dat$K, y = dat$ClusterCount, fill = dat$ClusterCount),
       stat = "binline", scale = .4, draw_baseline = FALSE, bins=100, alpha=.5) +
-    geom_text(data=crit, aes(x=crit$Value, y=crit$ClusterCount, label=crit$Value), vjust=-1.5) +
+    geom_text(data=crit, aes(x=crit$Value, y=crit$ClusterCount, label=crit$Value), vjust=1.5) +
     theme_ridges() +
     hrbrthemes::theme_ipsum() +
     colorspace::scale_fill_discrete_sequential("Blues", c1 = 20, c2 = 70, l1 = 25, l2 = 100) +
@@ -50,8 +49,6 @@ plot.cluster.sizes <- function(dat, plot.folder, algo)
           axis.title.y = element_text(size=20),
           axis.text.x = element_text(size=15),
           axis.text.y = element_text(size=15))
-
-  plt
 
   for (i in c("svg", "png", "eps"))
   {
@@ -111,7 +108,6 @@ plot.cluster.stats <- function(dat, plot.folder, algo)
     dat <- purrr::map_dfr(pls, function(e) {
       # parse the number of clusters from the file name
       fl.suf <- as.integer(str_match(string=e, pattern=".*K(\\d+).*tsv")[2])
-      print(fl.suf)
       tab    <- readr::read_tsv(e, col_names="K", col_types="i")
       tab$ClusterCount <- fl.suf
       tab
