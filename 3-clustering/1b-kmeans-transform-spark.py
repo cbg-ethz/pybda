@@ -71,22 +71,22 @@ def write_tsv_data(file_name, data):
 
 def k_fit_bics(clusterprefix):
     logger.info("\tloading SSEs")
-    mpaths = []
+    kmean_fits = []
     mreg =  re.compile(".*K\d+_sse.tsv$")
     for x in glob.glob(clusterprefix + "*"):
         if mreg.match(x):
             tab = pandas.read_csv(x, sep='\t')
             logger.info("\tloading model for K={}".format(tab["K"][0]))
-            bic = tab["SSE"][0] + numpy.log(tab["N"][0]) * tab["K"][0] * tab["P"][0]
-            mpaths.append({
+            kmean_fits.append({
                  "K":   tab["K"][0],
                  "N":   tab["N"][0],
                  "P":   tab["P"][0],
                  "SSE": tab["SSE"][0],
-                 "BIC": tab["BIC"][0]
-                 })
+                 "BIC": tab["BIC"][0],
+                 "path": clusterprefix + "-K" + str(tab["K"][0])
+            })
     kmean_fits.sort(key=lambda x: x["K"])
-    return mpaths
+    return kmean_fits
 
 
 def cluster_center_file(outpath):
@@ -159,13 +159,10 @@ def plot(ks, score, axis_label, outpath):
 def get_optimal_k(data, outpath, clusterprefix):
     logger.info("Finding optimal K for transformation...")
 
-    mpaths = k_fit_bics(clusterprefix)
-    kmeans_fits = get_kmean_fit_statistics(mpaths, data)
-
+    kmeans_fits = k_fit_bics(clusterprefix)
     plot_cluster(outpath, kmeans_fits)
 
     min_fit = min(list(enumerate(kmeans_fits)), key=lambda x:x[1]["BIC"])[1]
-
     return min_fit
 
 

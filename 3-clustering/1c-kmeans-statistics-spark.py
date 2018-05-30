@@ -23,11 +23,11 @@ spark = None
 
 def read_args(args):
     parser = argparse.ArgumentParser(
-      description='Compute statistics of a clustered PCA-dataset.')
+      description="Compute statistics of a clustered dataset.")
     parser.add_argument('-f',
                         type=str,
-                        help='the folder where the pca data lie,'
-                             ' i.e. transform-*_K005',
+                        help="the folder where the  data lie,"
+                             " i.e. 'kmeans-transformed'",
                         required=True, metavar="input-folder")
 
     opts = parser.parse_args(args)
