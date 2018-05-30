@@ -89,10 +89,6 @@ def k_fit_bics(clusterprefix):
     return kmean_fits
 
 
-def cluster_center_file(outpath):
-    return outpath + "-cluster_centers.tsv"
-
-
 def get_feature_columns(data):
     return list(filter(
       lambda x: any(x.startswith(f) for f in ["cells", "perin", "nucle"]),
@@ -215,13 +211,6 @@ def transform_cluster(datafolder, outpath, clusterprefix):
     k = brst_model["K"]
 
     model = KMeansModel.load(brst_model["path"])
-    ccf = cluster_center_file(outpath)
-    logger.info("Writing cluster centers to: {}".format(ccf))
-
-    with open(ccf, "w") as fh:
-        fh.write("#Clustercenters\n")
-        for center in model.clusterCenters():
-            fh.write("\t".join(map(str, center)) + '\n')
 
     # transform data and select
     data = model.transform(data).select(

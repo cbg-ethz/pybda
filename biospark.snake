@@ -19,6 +19,7 @@ rule all:
       expand("{outfolder}/kmeans-fit-K{center}", outfolder=config["outfolder"], center=config["centers"]),
       expand("{outfolder}/kmeans-fit-K{center}.log", outfolder=config["outfolder"], center=config["centers"]),
       expand("{outfolder}/kmeans-fit-K{center}_cluster_sizes.tsv", outfolder=config["outfolder"], center=config["centers"]),
+      expand("{outfolder}/kmeans-fit-K{center}_cluster_centers.tsv", outfolder=config["outfolder"], center=config["centers"]),
       expand("{outfolder}/kmeans-fit-K{center}_sse.tsv", outfolder=config["outfolder"], center=config["centers"]),
 
       expand("{outfolder}/gmm-fit-K{center}", outfolder=config["outfolder"], center=config["centers"]),
@@ -32,10 +33,19 @@ rule all:
       expand("{outfolder}/kmeans-fit-cluster_sizes-stats.tsv", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-fit-cluster_sizes-histogram.{out}", outfolder=config["outfolder"], out=["svg", "png", "eps"]),
 
+      expand("{outfolder}/gmm-fit-plot.log", outfolder=config["outfolder"]),
+      expand("{outfolder}/gmm-fit-cluster_sizes-stats.tsv", outfolder=config["outfolder"]),
+      expand("{outfolder}/gmm-fit-cluster_sizes-histogram.{out}", outfolder=config["outfolder"], out=["svg", "png", "eps"]),
+
       expand("{outfolder}/kmeans-transformed.log", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transformed-clusters", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transformed-bic.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg", "tsv"]),
       expand("{outfolder}/kmeans-transformed", outfolder=config["outfolder"]),
+
+      expand("{outfolder}/gmm-transformed.log", outfolder=config["outfolder"]),
+      expand("{outfolder}/gmm-transformed-clusters", outfolder=config["outfolder"]),
+      expand("{outfolder}/gmm-transformed-bic.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg", "tsv"]),
+      expand("{outfolder}/gmm-transformed", outfolder=config["outfolder"]),
 
       expand("{outfolder}/kmeans-transformed-statistics.log", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transformed-statistics-gene_prediction_counts.tsv", outfolder=config["outfolder"]),
@@ -132,6 +142,7 @@ rule kmeans_fit:
         expand("{outfolder}/kmeans-fit-K{center}", outfolder=config["outfolder"], center=config["centers"]),
         expand("{outfolder}/kmeans-fit-K{center}.log", outfolder=config["outfolder"], center=config["centers"]),
         expand("{outfolder}/kmeans-fit-K{center}_cluster_sizes.tsv", outfolder=config["outfolder"], center=config["centers"]),
+        expand("{outfolder}/kmeans-fit-K{center}_cluster_centers.tsv", outfolder=config["outfolder"], center=config["centers"]),
         expand("{outfolder}/kmeans-fit-K{center}_sse.tsv", outfolder=config["outfolder"], center=config["centers"])
     run:
         out = config["outfolder"] + "/kmeans-fit"
@@ -185,6 +196,10 @@ rule kmeans_fit_plot:
 rule gmm_fit_plot:
     input:
         expand("{outfolder}/gmm-fit-K{center}_cluster_sizes.tsv", outfolder=config["outfolder"], center=config["centers"])
+    output:
+        expand("{outfolder}/gmm-fit-plot.log", outfolder=config["outfolder"]),
+        expand("{outfolder}/gmm-fit-cluster_sizes-stats.tsv", outfolder=config["outfolder"]),
+        expand("{outfolder}/gmm-fit-cluster_sizes-histogram.{out}", outfolder=config["outfolder"], out=["svg", "png", "eps"])
     shell:
         "3-clustering/1a-clustering-fit-plot.R -f {config[outfolder]} -a gmm"
 
@@ -206,6 +221,30 @@ rule kmeans_transform:
         cmd = """{} --master {} \
                     {} \
                     3-clustering/1b-kmeans-transform-spark.py \
+                    -f {} \
+                    -c {} \
+                    -o {}""".format(
+            config["spark"], config["sparkip"], params, input.inf, inc , output.out)
+        shell("{cmd}")
+
+
+rule gmm_transform:
+    input:
+        expand("{outfolder}/gmm-fit-K{center}", outfolder=config["outfolder"], center=config["centers"]),
+        expand("{outfolder}/gmm-fit-K{center}.log", outfolder=config["outfolder"], center=config["centers"]),
+        expand("{outfolder}/gmm-fit-K{center}_cluster_sizes.tsv", outfolder=config["outfolder"], center=config["centers"]),
+        inf = expand("{outfolder}/outlier-removal", outfolder=config["outfolder"])
+    output:
+        expand("{outfolder}/gmm-transformed.log", outfolder=config["outfolder"]),
+        expand("{outfolder}/gmm-transformed-clusters", outfolder=config["outfolder"]),
+        expand("{outfolder}/gmm-transformed-bic.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg", "tsv"]),
+        out = expand("{outfolder}/gmm-transformed", outfolder=config["outfolder"])
+    run:
+        inc = config["outfolder"] + "/gmm-fit"
+        params = " ".join([x for x in config["sparkparams"]])
+        cmd = """{} --master {} \
+                    {} \
+                    3-clustering/1b-gmm-transform-spark.py \
                     -f {} \
                     -c {} \
                     -o {}""".format(

@@ -134,6 +134,13 @@ def fit_cluster(file_name, K, outpath):
         for c in model.summary.clusterSizes:
             fh.write("{}\n".format(c))
 
+    ccf = clustout + "_cluster_centers.tsv"
+    logger.info("Writing cluster centers to: {}".format(ccf))
+    with open(ccf, "w") as fh:
+        fh.write("#Clustercenters\n")
+        for center in model.clusterCenters():
+            fh.write("\t".join(map(str, center)) + '\n')
+
     sse_file = clustout + "_sse.tsv"
     logger.info("Writing sse to: {}".format(sse_file))
     P = P_(data)
