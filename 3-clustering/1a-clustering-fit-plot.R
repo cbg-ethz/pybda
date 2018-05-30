@@ -12,6 +12,7 @@ suppressPackageStartupMessages(library(purrr))
 suppressPackageStartupMessages(library(futile.logger))
 suppressPackageStartupMessages(library(ggridges))
 
+
 suppressMessages(hrbrthemes::import_roboto_condensed())
 
 logr <- "logger"
@@ -22,22 +23,35 @@ plot.cluster.sizes <- function(dat, plot.folder, algo)
 {
   flog.info('Plotting cluster sizes', name=logr)
 
+  dat <- filter(dat,ClusterCount >= 1000,ClusterCount <= 100000)
   dat$ClusterCount <- factor(dat$ClusterCount, levels=rev(sort(unique(dat$ClusterCount))))
+  crit <-  group_by(dat, ClusterCount) %>%
+    summarize(Min=min(K), Max=max(K)) %>%
+    tidyr::gather(Criteria, Value, -ClusterCount)
 
-  plt <- ggplot(dat, aes(x = dat$K, y = dat$ClusterCount, fill = dat$ClusterCount)) +
-    geom_density_ridges(stat = "binline", scale = .4, draw_baseline = FALSE, bins=100, alpha=.5) +
+  plt <-
+  ggplot() +
+    geom_density_ridges(
+      data=dat,  aes(x = dat$K, y = dat$ClusterCount, fill = dat$ClusterCount),
+      stat = "binline", scale = .4, draw_baseline = FALSE, bins=100, alpha=.5) +
+    geom_text(data=crit, aes(x=crit$Value, y=crit$ClusterCount, label=crit$Value), vjust=-1.5) +
     theme_ridges() +
     hrbrthemes::theme_ipsum() +
     colorspace::scale_fill_discrete_sequential("Blues", c1 = 20, c2 = 70, l1 = 25, l2 = 100) +
-    scale_y_discrete("# clusters")
-  if (algo == "kmeans") plt <- plt + scale_x_log10("# cells per cluster")
-  else plt <- plt + scale_x_log10("# cells per component")
+    scale_y_discrete("# clusters", expand = c(0, 1))
+  if (algo == "kmeans") {
+    plt <- plt + scale_x_log10("# cells per cluster")
+  } else {
+    plt <- plt + scale_x_log10("# cells per component")
+  }
   plt <- plt +
     guides(fill=FALSE) +
     theme(axis.title.x = element_text(size=20),
           axis.title.y = element_text(size=20),
           axis.text.x = element_text(size=15),
           axis.text.y = element_text(size=15))
+
+  plt
 
   for (i in c("svg", "png", "eps"))
   {
@@ -96,7 +110,8 @@ plot.cluster.stats <- function(dat, plot.folder, algo)
     flog.info(paste0("\n\t", paste0(collapse="\n\t", pls)), name=logr)
     dat <- purrr::map_dfr(pls, function(e) {
       # parse the number of clusters from the file name
-      fl.suf <- as.integer(str_match(string=e, pattern=".*-fit-K(\\d+).*tsv")[2])
+      fl.suf <- as.integer(str_match(string=e, pattern=".*K(\\d+).*tsv")[2])
+      print(fl.suf)
       tab    <- readr::read_tsv(e, col_names="K", col_types="i")
       tab$ClusterCount <- fl.suf
       tab

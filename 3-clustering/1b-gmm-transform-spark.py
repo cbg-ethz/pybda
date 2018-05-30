@@ -34,13 +34,13 @@ def read_args(args):
     parser.add_argument('-o',
                         type=str,
                         help="the output folder the results are written to. "
-                              "this is probablt a folder called 'kmeans-transformed'",
+                              "this is probablt a folder called 'gmm-transformed'",
                         required=True,
                         metavar="output-folder")
     parser.add_argument('-f',
                         type=str,
                         help="the folder originally used for clustering. "
-                             "this is probably a folder called 'outlier-removal' or so",
+                             "this is probably a folder called 'outlier-detection or so'",
                         required=True,
                         metavar="input")
     parser.add_argument('-c',
@@ -69,23 +69,13 @@ def write_tsv_data(file_name, data):
     data.write.csv(file_name, mode="overwrite", header=True, sep="\t")
 
 
-def k_fit_bics(clusterprefix):
-    logger.info("\tloading SSEs")
+def k_fit_folders(clusterprefix):
     mpaths = []
-    mreg =  re.compile(".*K\d+_sse.tsv$")
+    mreg =  re.compile(".*K\d+$")
     for x in glob.glob(clusterprefix + "*"):
-        if mreg.match(x):
-            tab = pandas.read_csv(x, sep='\t')
-            logger.info("\tloading model for K={}".format(tab["K"][0]))
-            bic = tab["SSE"][0] + numpy.log(tab["N"][0]) * tab["K"][0] * tab["P"][0]
-            mpaths.append({
-                 "K":   tab["K"][0],
-                 "N":   tab["N"][0],
-                 "P":   tab["P"][0],
-                 "SSE": tab["SSE"][0],
-                 "BIC": tab["BIC"][0]
-                 })
-    kmean_fits.sort(key=lambda x: x["K"])
+         if pathlib.Path(x).is_dir():
+             if mreg.match(x):
+                 mpaths.append(x)
     return mpaths
 
 
@@ -97,6 +87,30 @@ def get_feature_columns(data):
     return list(filter(
       lambda x: any(x.startswith(f) for f in ["cells", "perin", "nucle"]),
       data.columns))
+
+
+def get_gmm_fit_statistics(mpaths, data):
+    logger.info("\tcomputing fit statistics using BIC")
+    kmean_fits = []
+    for mpath in mpaths:
+        try:
+            # Get number of clusters
+            K = int(re.match(".*-K(\d+)$", mpath).group(1))
+            logger.info("\tloading model for K={}".format(K))
+            model = KMeansModel.load(mpath)
+            rss = model.computeCost(data)
+            # number of samples
+            N = data.count()
+            # number of predictors (feature dimensionality)
+            P = len(numpy.asarray(data.select("features").take(1)).flatten())
+            bic = rss + numpy.log(N) * K * P
+            kmean_fits.append({"K": K, "model": model, "BIC": bic, "path": mpath})
+        except AttributeError as e:
+            logger.error(
+                "\tcould not load model {}, due to: {}".format(mpath, str(e)))
+    kmean_fits.sort(key=lambda x: x["K"])
+
+    return kmean_fits
 
 
 def plot_cluster(outpath, kmean_fits):
@@ -159,7 +173,7 @@ def plot(ks, score, axis_label, outpath):
 def get_optimal_k(data, outpath, clusterprefix):
     logger.info("Finding optimal K for transformation...")
 
-    mpaths = k_fit_bics(clusterprefix)
+    mpaths = k_fit_folders(clusterprefix)
     kmeans_fits = get_kmean_fit_statistics(mpaths, data)
 
     plot_cluster(outpath, kmeans_fits)
@@ -167,6 +181,7 @@ def get_optimal_k(data, outpath, clusterprefix):
     min_fit = min(list(enumerate(kmeans_fits)), key=lambda x:x[1]["BIC"])[1]
 
     return min_fit
+
 
 
 def split_features(data):
@@ -235,6 +250,7 @@ def transform_cluster(datafolder, outpath, clusterprefix):
 
     write_parquet_data(outpath, data)
     write_clusters(data, outpath)
+
 
 
 def loggername(outpath):
