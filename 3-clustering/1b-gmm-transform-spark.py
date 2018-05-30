@@ -15,7 +15,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
-from pyspark.ml.clustering import KMeansModel, KMeans
+from pyspark.ml.clustering import GaussianMixture, GaussianMixtureModel
 from pyspark.ml.feature import VectorAssembler
 from pyspark.rdd import reduce
 from pyspark.sql.functions import udf, col
@@ -40,13 +40,13 @@ def read_args(args):
     parser.add_argument('-f',
                         type=str,
                         help="the folder originally used for clustering. "
-                             "this is probably a folder called 'outlier-detection or so'",
+                             "this is probably a folder called 'outlier-removal' or so",
                         required=True,
                         metavar="input")
     parser.add_argument('-c',
                         type=str,
                         help="the folder prefix used for clustering. "
-                             "this is probaly a folder called 'kmeans-fit'",
+                             "this is probaly a folder called 'gmm-fit'",
                         required=True,
                         metavar="input")
     opts = parser.parse_args(args)
@@ -69,14 +69,25 @@ def write_tsv_data(file_name, data):
     data.write.csv(file_name, mode="overwrite", header=True, sep="\t")
 
 
-def k_fit_folders(clusterprefix):
-    mpaths = []
-    mreg =  re.compile(".*K\d+$")
+def k_fit_bics(clusterprefix):
+    logger.info("\tloading Logliks")
+    gmm_fits = []
+    mreg =  re.compile(".*K\d+_loglik.tsv$")
     for x in glob.glob(clusterprefix + "*"):
-         if pathlib.Path(x).is_dir():
-             if mreg.match(x):
-                 mpaths.append(x)
-    return mpaths
+        if mreg.match(x):
+            tab = pandas.read_csv(x, sep='\t')
+            logger.info("\tloading model for K={}".format(tab["K"][0]))
+            gmm_fits.append({
+                 "K":   tab["K"][0],
+                 "N":   tab["N"][0],
+                 "P":   tab["P"][0],
+                 "Loglik": tab["Loglik"][0],
+                 "BIC": tab["BIC"][0],
+                 "path": clusterprefix + "-K" + str(tab["K"][0])
+            })
+    gmm_fits.sort(key=lambda x: x["K"])
+
+    return gmm_fits
 
 
 def cluster_center_file(outpath):
@@ -89,37 +100,13 @@ def get_feature_columns(data):
       data.columns))
 
 
-def get_gmm_fit_statistics(mpaths, data):
-    logger.info("\tcomputing fit statistics using BIC")
-    kmean_fits = []
-    for mpath in mpaths:
-        try:
-            # Get number of clusters
-            K = int(re.match(".*-K(\d+)$", mpath).group(1))
-            logger.info("\tloading model for K={}".format(K))
-            model = KMeansModel.load(mpath)
-            rss = model.computeCost(data)
-            # number of samples
-            N = data.count()
-            # number of predictors (feature dimensionality)
-            P = len(numpy.asarray(data.select("features").take(1)).flatten())
-            bic = rss + numpy.log(N) * K * P
-            kmean_fits.append({"K": K, "model": model, "BIC": bic, "path": mpath})
-        except AttributeError as e:
-            logger.error(
-                "\tcould not load model {}, due to: {}".format(mpath, str(e)))
-    kmean_fits.sort(key=lambda x: x["K"])
-
-    return kmean_fits
-
-
-def plot_cluster(outpath, kmean_fits):
+def plot_cluster(outpath, gmm_fits):
     plotpath = outpath + "-bic"
     logger.info("Writing cluster BICs to: {}".format(plotpath))
 
-    kmean_fits.sort(key=lambda x: x["K"])
-    ks  = [ x["K"] for x in kmean_fits ]
-    bic = [ x["BIC"] for x in kmean_fits ]
+    gmm_fits.sort(key=lambda x: x["K"])
+    ks  = [ x["K"] for x in gmm_fits ]
+    bic = [ x["BIC"] for x in gmm_fits ]
 
     statistics_file = plotpath + ".tsv"
     logger.info("\tsaving bic tsv to: {}".format(statistics_file))
@@ -173,15 +160,12 @@ def plot(ks, score, axis_label, outpath):
 def get_optimal_k(data, outpath, clusterprefix):
     logger.info("Finding optimal K for transformation...")
 
-    mpaths = k_fit_folders(clusterprefix)
-    kmeans_fits = get_kmean_fit_statistics(mpaths, data)
+    gmm_fits = k_fit_bics(clusterprefix)
+    plot_cluster(outpath, gmm_fits)
 
-    plot_cluster(outpath, kmeans_fits)
-
-    min_fit = min(list(enumerate(kmeans_fits)), key=lambda x:x[1]["BIC"])[1]
+    min_fit = min(list(enumerate(gmm_fits)), key=lambda x:x[1]["BIC"])[1]
 
     return min_fit
-
 
 
 def split_features(data):
@@ -232,14 +216,7 @@ def transform_cluster(datafolder, outpath, clusterprefix):
     logger.info("Using model: {}".format(brst_model))
     k = brst_model["K"]
 
-    model = KMeansModel.load(brst_model["path"])
-    ccf = cluster_center_file(outpath)
-    logger.info("Writing cluster centers to: {}".format(ccf))
-
-    with open(ccf, "w") as fh:
-        fh.write("#Clustercenters\n")
-        for center in model.clusterCenters():
-            fh.write("\t".join(map(str, center)) + '\n')
+    model = GaussianMixtureModel.load(brst_model["path"])
 
     # transform data and select
     data = model.transform(data).select(
@@ -250,7 +227,6 @@ def transform_cluster(datafolder, outpath, clusterprefix):
 
     write_parquet_data(outpath, data)
     write_clusters(data, outpath)
-
 
 
 def loggername(outpath):
