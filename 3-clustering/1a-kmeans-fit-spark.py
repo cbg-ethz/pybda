@@ -136,9 +136,13 @@ def fit_cluster(file_name, K, outpath):
 
     sse_file = clustout + "_sse.tsv"
     logger.info("Writing sse to: {}".format(sse_file))
+    P = P_(data)
+    N = data.count()
+    bic = sse + numpy.log(N) * K * P
     with open(sse_file, 'w') as fh:
-        fh.write("{}\t{}\t{}\t{}\t{}\n".format("SSE", "N", "P", "K"))
-        fh.write("{}\t{}\t{}\t{}\t{}\n".format(sse, data.count(), P_(data), K))
+        fh.write("{}\t{}\t{}\t{}\t{}\n".format("K", "SSE", "BIC",  "N", "P"))
+        fh.write("{}\t{}\t{}\t{}\t{}\n".format(K, sse, bic, N, P))
+
 
 def loggername(outpath, file_name, k=None):
     return k_fit_path(outpath, k) + ".log"

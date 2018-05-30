@@ -156,8 +156,8 @@ def fit_cluster(file_name, K, outpath):
     loglik = model.summary.logLikelihood
     bic, N, P, K =  bic_(loglik, K, data)
     with open(loglik_file, 'w') as fh:
-        fh.write("{}\t{}\t{}\t{}\t{}\n".format("Loglik", "BIC", "N", "P", "K"))
-        fh.write("{}\t{}\t{}\t{}\t{}\n".format(loglik, bic, N, P, K))
+        fh.write("{}\t{}\t{}\t{}\t{}\n".format("K", "Loglik", "BIC", "N", "P"))
+        fh.write("{}\t{}\t{}\t{}\t{}\n".format(K, loglik, bic, N, P))
 
 
 def loggername(outpath, file_name, k=None):
