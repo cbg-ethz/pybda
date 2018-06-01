@@ -129,11 +129,15 @@ def fit_cluster(file_name, K, outpath):
 
     logger.info("Fitting mixture with K: {}".format(K))
     km = GaussianMixture().setK(K).setSeed(23)
-    model = km.fit(data)
 
     clustout = k_fit_path(outpath, K)
-    logger.info("Writing components to: {}".format(clustout))
-    model.write().overwrite().save(clustout)
+    if pathlib.Path(clustout).is_dir():
+        logger.info("Loading old model: {}".format(clustout))
+        model = GaussianMixtureModel.load(clustout)
+    else:
+        model = km.fit(data)
+        logger.info("Writing components to: {}".format(clustout))
+        model.write().overwrite().save(clustout)
 
     comp_files = clustout + "_cluster_sizes.tsv"
     logger.info("Writing components size file to: {}".format(comp_files))
