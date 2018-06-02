@@ -17,7 +17,6 @@ options(stringsAsFactors=FALSE)
 
 plot.likelihood <- function(plotout, likelhood.file)
 {
-  hrbrthemes::import_roboto_condensed()
   full.tbl <- readr::read_tsv(likelhood.file, col_names=FALSE) %>%
     as.tbl %>%
     dplyr::mutate(Iteration=0:(n()-1)) %>%
@@ -29,7 +28,6 @@ plot.likelihood <- function(plotout, likelhood.file)
     ggplot2::geom_line(size=1.25) +
     xlab("Iteration") +
     ylab(expression(paste("-\u2113(", theta, ")"))) +
-    labs(title="Factor analysis likelihood path") +
     hrbrthemes::theme_ipsum() +
     scale_y_reverse(labels=rev(lims), breaks= lims) +
     ggplot2::theme(axis.text.x  = ggplot2::element_text( size=18),
@@ -40,7 +38,9 @@ plot.likelihood <- function(plotout, likelhood.file)
                    axis.title.x   = ggplot2::element_text(size=20),
                    axis.title.y   = ggplot2::element_text(size=20))
 
-  ggsave(plot=plt, filename=paste0(plotout, ".", "png"), dpi=720, width=10, height=7)
+  for (i in c("png", "svg")) {
+    ggsave(plot=plt, filename=paste0(plotout, ".", i), dpi=720, width=10, height=7)
+  }
 
 }
 
@@ -64,9 +64,8 @@ plot.factors <- function(plotout, factors.file)
   plt <-
     ggplot(X) +
     geom_bar(aes(x=Factors, y=Cumulative), stat="identity") +
-    geom_text(aes(x=Factors, y=Cumulative, label=sprintf("%0.2f", Cumulative)), vjust=-.25, stat="identity") +
+    geom_text(aes(x=Factors, y=Cumulative, label=sprintf("%0.2f", Cumulative)), vjust=-.25, stat="identity", size=5) +
     ylab("Cumulative variance") +
-    labs(title="Factor loadings variance explained") +
     hrbrthemes::theme_ipsum() +
     ggplot2::theme(axis.text.x  = ggplot2::element_text( size=18),
                    axis.text.y  = ggplot2::element_text(size=18),

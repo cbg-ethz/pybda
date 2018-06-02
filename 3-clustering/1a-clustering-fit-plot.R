@@ -29,9 +29,9 @@ plot.cluster.sizes <- function(dat, plot.folder, algo)
     tidyr::gather(Criteria, Value, -ClusterCount)
 
   plt <-
-  ggplot() +
+    ggplot() +
     geom_density_ridges(
-      data=dat,  aes(x = dat$K, y = dat$ClusterCount, fill = dat$ClusterCount),
+      data=dat,  aes(x = dat$K, y = dat$ClusterCount, ), fill="gray",
       stat = "binline", scale = .4, draw_baseline = FALSE, bins=100, alpha=.5) +
     geom_text(data=crit, aes(x=crit$Value, y=crit$ClusterCount, label=crit$Value), vjust=1.5) +
     theme_ridges() +
@@ -48,6 +48,8 @@ plot.cluster.sizes <- function(dat, plot.folder, algo)
     theme(axis.title.x = element_text(size=20),
           axis.title.y = element_text(size=20),
           axis.text.x = element_text(size=15),
+          panel.grid.major.x = element_blank(),
+          panel.grid.minor = element_blank(),
           axis.text.y = element_text(size=15))
 
   for (i in c("svg", "png", "eps"))
