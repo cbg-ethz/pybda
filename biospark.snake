@@ -5,13 +5,24 @@ rule all:
       expand("{outfolder}/fa_likelihood.tsv", outfolder=config["outfolder"]),
       expand("{outfolder}/fa_factors.tsv", outfolder=config["outfolder"]),
 
+      expand("{outfolder}/kpca.log", outfolder=config["outfolder"]),
+      expand("{outfolder}/kpca_factors.tsv", outfolder=config["outfolder"]),
+      expand("{outfolder}/kpca", outfolder=config["outfolder"]),
+
       expand("{outfolder}/fa-likelihood_path.png", outfolder=config["outfolder"]),
       expand("{outfolder}/fa-factors-variance_explained.png", outfolder=config["outfolder"]),
       expand("{outfolder}/fa-factors-biplot.png", outfolder=config["outfolder"]),
 
+      expand("{outfolder}/kpca-components-variance_explained.png", outfolder=config["outfolder"]),
+      expand("{outfolder}/kpca-components-biplot.png", outfolder=config["outfolder"]),
+
       expand("{outfolder}/fa-sample.tsv", outfolder=config["outfolder"]),
       expand("{outfolder}/fa-sample.log", outfolder=config["outfolder"]),
       expand("{outfolder}/fa-sample-feature_distributions", outfolder=config["outfolder"]),
+
+      expand("{outfolder}/kpca-sample.log", outfolder=config["outfolder"]),
+      expand("{outfolder}/kpca-sample.tsv", outfolder=config["outfolder"]),
+      expand("{outfolder}/kpca-sample-feature_distributions", outfolder=config["outfolder"]),
 
       expand("{outfolder}/outlier-removal.log", outfolder=config["outfolder"]),
       expand("{outfolder}/outlier-removal", outfolder=config["outfolder"]),
@@ -74,6 +85,25 @@ rule all:
       expand("{outfolder}/gmm-transformed-clusters-gene_clusters.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"])
 
 
+rule kpca:
+    input:
+        expand("{infile}", infile=config["infile"])
+    output:
+        expand("{outfolder}/kpca.log", outfolder=config["outfolder"]),
+        expand("{outfolder}/kpca_factors.tsv", outfolder=config["outfolder"]),
+        out = expand("{outfolder}/kpca", outfolder=config["outfolder"])
+    run:
+        params = " ".join([x for x in config["sparkparams"]])
+        cmd = """{} --master {} \
+                    {} \
+                    2-dimension_reduction/1a-kpca-spark.py \
+                    -c {} \
+                    -f {} \
+                    -o {}""".format(
+            config["spark"], config["sparkip"], params, config["factors"], input, output.out)
+        shell("{cmd}")
+
+
 rule fa:
     input:
         expand("{infile}", infile=config["infile"])
@@ -105,12 +135,39 @@ rule fa_plot:
         "2-dimension_reduction/1b-factor_analysis_plot.R {config[outfolder]}"
 
 
+rule kpca_plot:
+    input:
+        expand("{outfolder}/kpca", outfolder=config["outfolder"])
+    output:
+        expand("{outfolder}/kpca-components-variance_explained.png", outfolder=config["outfolder"]),
+        expand("{outfolder}/kpca-components-biplot.png", outfolder=config["outfolder"]),
+    shell:
+        "2-dimension_reduction/1b-kpca_plot.R {config[outfolder]}"
+
+
 rule fa_sample:
     input:
         expand("{outfolder}/fa", outfolder=config["outfolder"])
     output:
         expand("{outfolder}/fa-sample.log", outfolder=config["outfolder"]),
         out = expand("{outfolder}/fa-sample.tsv", outfolder=config["outfolder"]),
+    run:
+        params = " ".join([x for x in config["sparkparams"]])
+        cmd = """{} --master {} \
+                    {} \
+                    2-dimension_reduction/2a-sample-spark.py \
+                    -f {} \
+                    -o {}""".format(
+            config["spark"], config["sparkip"], params, input, output.out)
+        shell("{cmd}")
+
+
+rule kpca_sample:
+    input:
+        expand("{outfolder}/kpca", outfolder=config["outfolder"])
+    output:
+        expand("{outfolder}/kpca-sample.log", outfolder=config["outfolder"]),
+        out = expand("{outfolder}/kpca-sample.tsv", outfolder=config["outfolder"]),
     run:
         params = " ".join([x for x in config["sparkparams"]])
         cmd = """{} --master {} \
@@ -131,9 +188,17 @@ rule fa_distribution_plot:
         "2-dimension_reduction/2b-plot_feature_distribution.R {input}"
 
 
+rule kpca_distribution_plot:
+    input:
+        expand("{outfolder}/kpca-sample.tsv", outfolder=config["outfolder"])
+    output:
+        expand("{outfolder}/kpca-sample-feature_distributions", outfolder=config["outfolder"])
+    shell:
+        "2-dimension_reduction/2b-plot_feature_distribution.R {input}"
+
 rule outliers:
     input:
-        expand("{outfolder}/fa", outfolder=config["outfolder"]),
+        expand("{outfolder}/{inf}", outfolder=config["outfolder"], inf=["fa", "kpca"])
     output:
         expand("{outfolder}/outlier-removal.log", outfolder=config["outfolder"]),
         out = expand("{outfolder}/outlier-removal", outfolder=config["outfolder"])
