@@ -1,0 +1,26 @@
+digraph snakemake_dag {
+    graph[bgcolor=white, margin=0];
+    node[shape=box, style=rounded, fontname=sans, fontsize=9, penwidth=2,  fixedsize=true, width=1.25, fontname = "helvetica"];
+    edge[penwidth=2, color=grey];	
+	1[label = "kmeans_plot", color = grey, style="rounded"];
+	2[label = "gmm_plot", color = grey, style="rounded"];
+	3[label = "kmeans_statistics", color = grey, style="rounded"];
+	4[label = "gmm_statistics", color = grey, style="rounded"];
+	5[label = "kmeans_transform", color = grey, style="rounded"];
+	6[label = "gmm_transform", color = grey, style="rounded"];
+	7[label = "kmeans_fit", color = grey, style="rounded"];
+	8[label = "outliers", color = grey, style="rounded,"];
+	9[label = "gmm_fit", color = grey, style="rounded"];
+	10[label = "fa", color = grey, style="rounded"];	
+	3 -> 1
+	4 -> 2
+	5 -> 3
+	6 -> 4
+	7 -> 5
+	8 -> 5
+	9 -> 6
+	8 -> 6
+	8 -> 7
+	10 -> 8
+	8 -> 9
+}            

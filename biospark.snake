@@ -53,12 +53,25 @@ rule all:
       expand("{outfolder}/kmeans-transformed-statistics-gene_pathogen_prediction_counts.tsv", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transformed-statistics-silhouette.tsv", outfolder=config["outfolder"]),
 
+      expand("{outfolder}/gmm-transformed-statistics.log", outfolder=config["outfolder"]),
+      expand("{outfolder}/gmm-transformed-statistics-gene_prediction_counts.tsv", outfolder=config["outfolder"]),
+      expand("{outfolder}/gmm-transformed-statistics-pathogen_prediction_counts.tsv", outfolder=config["outfolder"]),
+      expand("{outfolder}/gmm-transformed-statistics-gene_pathogen_prediction_counts.tsv", outfolder=config["outfolder"]),
+      expand("{outfolder}/gmm-transformed-statistics-silhouette.tsv", outfolder=config["outfolder"]),
+
       expand("{outfolder}/kmeans-transformed-statistics-plot.log", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transformed-statistics-gene_pathogen_prediction_counts-frequencies.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"]),
       expand("{outfolder}/kmeans-transformed-statistics-silhouette.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"]),
       expand("{outfolder}/kmeans-transformed-statistics-gene_pathogen_prediction_counts-best_cluster.tsv", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transformed-statistics-gene_pathogen_prediction_counts-best_gene_buckets.tsv", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transformed-clusters-gene_clusters.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"]),
+
+      expand("{outfolder}/gmm-transformed-statistics-plot.log", outfolder=config["outfolder"]),
+      expand("{outfolder}/gmm-transformed-statistics-gene_pathogen_prediction_counts-frequencies.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"]),
+      expand("{outfolder}/gmm-transformed-statistics-silhouette.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"]),
+      expand("{outfolder}/gmm-transformed-statistics-gene_pathogen_prediction_counts-best_cluster.tsv", outfolder=config["outfolder"]),
+      expand("{outfolder}/gmm-transformed-statistics-gene_pathogen_prediction_counts-best_gene_buckets.tsv", outfolder=config["outfolder"]),
+      expand("{outfolder}/gmm-transformed-clusters-gene_clusters.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"])
 
 
 rule fa:
@@ -271,6 +284,25 @@ rule kmeans_statistics:
         shell("{cmd}")
 
 
+rule gmm_statistics:
+    input:
+        expand("{outfolder}/gmm-transformed", outfolder=config["outfolder"])
+    output:
+        expand("{outfolder}/gmm-transformed-statistics.log", outfolder=config["outfolder"]),
+        expand("{outfolder}/gmm-transformed-statistics-gene_prediction_counts.tsv", outfolder=config["outfolder"]),
+        expand("{outfolder}/gmm-transformed-statistics-pathogen_prediction_counts.tsv", outfolder=config["outfolder"]),
+        expand("{outfolder}/gmm-transformed-statistics-gene_pathogen_prediction_counts.tsv", outfolder=config["outfolder"]),
+        expand("{outfolder}/gmm-transformed-statistics-silhouette.tsv", outfolder=config["outfolder"])
+    run:
+        params = " ".join([x for x in config["sparkparams"]])
+        cmd = """{} --master {} \
+                    {} \
+                    3-clustering/1c-gmm-statistics-spark.py \
+                    -f {}""".format(
+            config["spark"], config["sparkip"], params, input)
+        shell("{cmd}")
+
+
 rule kmeans_plot:
     input:
         cnt = expand("{outfolder}/kmeans-transformed-statistics-gene_pathogen_prediction_counts.tsv", outfolder=config["outfolder"]),
@@ -284,3 +316,18 @@ rule kmeans_plot:
         expand("{outfolder}/kmeans-transformed-clusters-gene_clusters.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"])
     run:
         shell("3-clustering/1d-kmeans-statistics_plot.R -g {input.cnt} -s {input.sil}")
+
+
+rule gmm_plot:
+    input:
+        cnt = expand("{outfolder}/gmm-transformed-statistics-gene_pathogen_prediction_counts.tsv", outfolder=config["outfolder"]),
+        sil = expand("{outfolder}/gmm-transformed-statistics-silhouette.tsv", outfolder=config["outfolder"])
+    output:
+        expand("{outfolder}/gmm-transformed-statistics-plot.log", outfolder=config["outfolder"]),
+        expand("{outfolder}/gmm-transformed-statistics-gene_pathogen_prediction_counts-frequencies.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"]),
+        expand("{outfolder}/gmm-transformed-statistics-silhouette.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"]),
+        expand("{outfolder}/gmm-transformed-statistics-gene_pathogen_prediction_counts-best_cluster.tsv", outfolder=config["outfolder"]),
+        expand("{outfolder}/gmm-transformed-statistics-gene_pathogen_prediction_counts-best_gene_buckets.tsv", outfolder=config["outfolder"]),
+        expand("{outfolder}/gmm-transformed-clusters-gene_clusters.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"])
+    run:
+        shell("3-clustering/1d-gmm-statistics_plot.R -g {input.cnt} -s {input.sil}")
