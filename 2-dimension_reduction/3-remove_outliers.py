@@ -99,7 +99,7 @@ def remove_outliers_(data):
     def maha(col):
         def maha_(v):
             arr = v.toArray()
-            arr = arr.dot(precision).dot(arr)
+            arr = numpy.sqrt(arr.dot(precision).dot(arr))
             return float(arr)
         return udf(maha_, DoubleType())(col)
 
