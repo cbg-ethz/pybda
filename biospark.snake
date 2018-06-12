@@ -5,24 +5,13 @@ rule all:
       expand("{outfolder}/fa_likelihood.tsv", outfolder=config["outfolder"]),
       expand("{outfolder}/fa_factors.tsv", outfolder=config["outfolder"]),
 
-      expand("{outfolder}/kpca.log", outfolder=config["outfolder"]),
-      expand("{outfolder}/kpca_factors.tsv", outfolder=config["outfolder"]),
-      expand("{outfolder}/kpca", outfolder=config["outfolder"]),
-
       expand("{outfolder}/fa-likelihood_path.png", outfolder=config["outfolder"]),
       expand("{outfolder}/fa-factors-variance_explained.png", outfolder=config["outfolder"]),
       expand("{outfolder}/fa-factors-biplot.png", outfolder=config["outfolder"]),
 
-      expand("{outfolder}/kpca-components-variance_explained.png", outfolder=config["outfolder"]),
-      expand("{outfolder}/kpca-components-biplot.png", outfolder=config["outfolder"]),
-
       expand("{outfolder}/fa-sample.tsv", outfolder=config["outfolder"]),
       expand("{outfolder}/fa-sample.log", outfolder=config["outfolder"]),
       expand("{outfolder}/fa-sample-feature_distributions", outfolder=config["outfolder"]),
-
-      expand("{outfolder}/kpca-sample.log", outfolder=config["outfolder"]),
-      expand("{outfolder}/kpca-sample.tsv", outfolder=config["outfolder"]),
-      expand("{outfolder}/kpca-sample-feature_distributions", outfolder=config["outfolder"]),
 
       expand("{outfolder}/outlier-removal.log", outfolder=config["outfolder"]),
       expand("{outfolder}/outlier-removal", outfolder=config["outfolder"]),
@@ -44,19 +33,10 @@ rule all:
       expand("{outfolder}/kmeans-fit-cluster_sizes-stats.tsv", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-fit-cluster_sizes-histogram.{out}", outfolder=config["outfolder"], out=["svg", "png", "eps"]),
 
-      expand("{outfolder}/gmm-fit-plot.log", outfolder=config["outfolder"]),
-      expand("{outfolder}/gmm-fit-cluster_sizes-stats.tsv", outfolder=config["outfolder"]),
-      expand("{outfolder}/gmm-fit-cluster_sizes-histogram.{out}", outfolder=config["outfolder"], out=["svg", "png", "eps"]),
-
       expand("{outfolder}/kmeans-transformed.log", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transformed-clusters", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transformed-bic.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg", "tsv"]),
       expand("{outfolder}/kmeans-transformed", outfolder=config["outfolder"]),
-
-      expand("{outfolder}/gmm-transformed.log", outfolder=config["outfolder"]),
-      expand("{outfolder}/gmm-transformed-clusters", outfolder=config["outfolder"]),
-      expand("{outfolder}/gmm-transformed-bic.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg", "tsv"]),
-      expand("{outfolder}/gmm-transformed", outfolder=config["outfolder"]),
 
       expand("{outfolder}/kmeans-transformed-statistics.log", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transformed-statistics-gene_prediction_counts.tsv", outfolder=config["outfolder"]),
@@ -64,44 +44,12 @@ rule all:
       expand("{outfolder}/kmeans-transformed-statistics-gene_pathogen_prediction_counts.tsv", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transformed-statistics-silhouette.tsv", outfolder=config["outfolder"]),
 
-      expand("{outfolder}/gmm-transformed-statistics.log", outfolder=config["outfolder"]),
-      expand("{outfolder}/gmm-transformed-statistics-gene_prediction_counts.tsv", outfolder=config["outfolder"]),
-      expand("{outfolder}/gmm-transformed-statistics-pathogen_prediction_counts.tsv", outfolder=config["outfolder"]),
-      expand("{outfolder}/gmm-transformed-statistics-gene_pathogen_prediction_counts.tsv", outfolder=config["outfolder"]),
-      expand("{outfolder}/gmm-transformed-statistics-silhouette.tsv", outfolder=config["outfolder"]),
-
       expand("{outfolder}/kmeans-transformed-statistics-plot.log", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transformed-statistics-gene_pathogen_prediction_counts-frequencies.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"]),
       expand("{outfolder}/kmeans-transformed-statistics-silhouette.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"]),
       expand("{outfolder}/kmeans-transformed-statistics-gene_pathogen_prediction_counts-best_cluster.tsv", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transformed-statistics-gene_pathogen_prediction_counts-best_gene_buckets.tsv", outfolder=config["outfolder"]),
       expand("{outfolder}/kmeans-transformed-clusters-gene_clusters.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"]),
-
-      expand("{outfolder}/gmm-transformed-statistics-plot.log", outfolder=config["outfolder"]),
-      expand("{outfolder}/gmm-transformed-statistics-gene_pathogen_prediction_counts-frequencies.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"]),
-      expand("{outfolder}/gmm-transformed-statistics-silhouette.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"]),
-      expand("{outfolder}/gmm-transformed-statistics-gene_pathogen_prediction_counts-best_cluster.tsv", outfolder=config["outfolder"]),
-      expand("{outfolder}/gmm-transformed-statistics-gene_pathogen_prediction_counts-best_gene_buckets.tsv", outfolder=config["outfolder"]),
-      expand("{outfolder}/gmm-transformed-clusters-gene_clusters.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"])
-
-
-rule kpca:
-    input:
-        expand("{infile}", infile=config["infile"])
-    output:
-        expand("{outfolder}/kpca.log", outfolder=config["outfolder"]),
-        expand("{outfolder}/kpca_factors.tsv", outfolder=config["outfolder"]),
-        out = expand("{outfolder}/kpca", outfolder=config["outfolder"])
-    run:
-        params = " ".join([x for x in config["sparkparams"]])
-        cmd = """{} --master {} \
-                    {} \
-                    2-dimension_reduction/1a-kpca-spark.py \
-                    -c {} \
-                    -f {} \
-                    -o {}""".format(
-            config["spark"], config["sparkip"], params, config["factors"], input, output.out)
-        shell("{cmd}")
 
 
 rule fa:
@@ -134,40 +82,12 @@ rule fa_plot:
     shell:
         "2-dimension_reduction/1b-factor_analysis_plot.R {config[outfolder]}"
 
-
-rule kpca_plot:
-    input:
-        expand("{outfolder}/kpca", outfolder=config["outfolder"])
-    output:
-        expand("{outfolder}/kpca-components-variance_explained.png", outfolder=config["outfolder"]),
-        expand("{outfolder}/kpca-components-biplot.png", outfolder=config["outfolder"]),
-    shell:
-        "2-dimension_reduction/1b-kpca_plot.R {config[outfolder]}"
-
-
 rule fa_sample:
     input:
         expand("{outfolder}/fa", outfolder=config["outfolder"])
     output:
         expand("{outfolder}/fa-sample.log", outfolder=config["outfolder"]),
         out = expand("{outfolder}/fa-sample.tsv", outfolder=config["outfolder"]),
-    run:
-        params = " ".join([x for x in config["sparkparams"]])
-        cmd = """{} --master {} \
-                    {} \
-                    2-dimension_reduction/2a-sample-spark.py \
-                    -f {} \
-                    -o {}""".format(
-            config["spark"], config["sparkip"], params, input, output.out)
-        shell("{cmd}")
-
-
-rule kpca_sample:
-    input:
-        expand("{outfolder}/kpca", outfolder=config["outfolder"])
-    output:
-        expand("{outfolder}/kpca-sample.log", outfolder=config["outfolder"]),
-        out = expand("{outfolder}/kpca-sample.tsv", outfolder=config["outfolder"]),
     run:
         params = " ".join([x for x in config["sparkparams"]])
         cmd = """{} --master {} \
@@ -188,17 +108,9 @@ rule fa_distribution_plot:
         "2-dimension_reduction/2b-plot_feature_distribution.R {input}"
 
 
-rule kpca_distribution_plot:
-    input:
-        expand("{outfolder}/kpca-sample.tsv", outfolder=config["outfolder"])
-    output:
-        expand("{outfolder}/kpca-sample-feature_distributions", outfolder=config["outfolder"])
-    shell:
-        "2-dimension_reduction/2b-plot_feature_distribution.R {input}"
-
 rule outliers:
     input:
-        expand("{outfolder}/{inf}", outfolder=config["outfolder"], inf=["fa", "kpca"])
+        expand("{outfolder}/{inf}", outfolder=config["outfolder"], inf=["fa"])
     output:
         expand("{outfolder}/outlier-removal.log", outfolder=config["outfolder"]),
         out = expand("{outfolder}/outlier-removal", outfolder=config["outfolder"])
@@ -305,31 +217,6 @@ rule kmeans_transform:
             config["spark"], config["sparkip"], params, input.inf, inc , output.out)
         shell("{cmd}")
 
-
-rule gmm_transform:
-    input:
-        expand("{outfolder}/gmm-fit-K{center}", outfolder=config["outfolder"], center=config["centers"]),
-        expand("{outfolder}/gmm-fit-K{center}.log", outfolder=config["outfolder"], center=config["centers"]),
-        expand("{outfolder}/gmm-fit-K{center}_cluster_sizes.tsv", outfolder=config["outfolder"], center=config["centers"]),
-        inf = expand("{outfolder}/outlier-removal", outfolder=config["outfolder"])
-    output:
-        expand("{outfolder}/gmm-transformed.log", outfolder=config["outfolder"]),
-        expand("{outfolder}/gmm-transformed-clusters", outfolder=config["outfolder"]),
-        expand("{outfolder}/gmm-transformed-bic.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg", "tsv"]),
-        out = expand("{outfolder}/gmm-transformed", outfolder=config["outfolder"])
-    run:
-        inc = config["outfolder"] + "/gmm-fit"
-        params = " ".join([x for x in config["sparkparams"]])
-        cmd = """{} --master {} \
-                    {} \
-                    3-clustering/1b-gmm-transform-spark.py \
-                    -f {} \
-                    -c {} \
-                    -o {}""".format(
-            config["spark"], config["sparkip"], params, input.inf, inc , output.out)
-        shell("{cmd}")
-
-
 rule kmeans_statistics:
     input:
         expand("{outfolder}/kmeans-transformed", outfolder=config["outfolder"])
@@ -349,24 +236,6 @@ rule kmeans_statistics:
         shell("{cmd}")
 
 
-rule gmm_statistics:
-    input:
-        expand("{outfolder}/gmm-transformed", outfolder=config["outfolder"])
-    output:
-        expand("{outfolder}/gmm-transformed-statistics.log", outfolder=config["outfolder"]),
-        expand("{outfolder}/gmm-transformed-statistics-gene_prediction_counts.tsv", outfolder=config["outfolder"]),
-        expand("{outfolder}/gmm-transformed-statistics-pathogen_prediction_counts.tsv", outfolder=config["outfolder"]),
-        expand("{outfolder}/gmm-transformed-statistics-gene_pathogen_prediction_counts.tsv", outfolder=config["outfolder"]),
-        expand("{outfolder}/gmm-transformed-statistics-silhouette.tsv", outfolder=config["outfolder"])
-    run:
-        params = " ".join([x for x in config["sparkparams"]])
-        cmd = """{} --master {} \
-                    {} \
-                    3-clustering/1c-gmm-statistics-spark.py \
-                    -f {}""".format(
-            config["spark"], config["sparkip"], params, input)
-        shell("{cmd}")
-
 
 rule kmeans_plot:
     input:
@@ -381,18 +250,3 @@ rule kmeans_plot:
         expand("{outfolder}/kmeans-transformed-clusters-gene_clusters.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"])
     run:
         shell("3-clustering/1d-kmeans-statistics_plot.R -g {input.cnt} -s {input.sil}")
-
-
-rule gmm_plot:
-    input:
-        cnt = expand("{outfolder}/gmm-transformed-statistics-gene_pathogen_prediction_counts.tsv", outfolder=config["outfolder"]),
-        sil = expand("{outfolder}/gmm-transformed-statistics-silhouette.tsv", outfolder=config["outfolder"])
-    output:
-        expand("{outfolder}/gmm-transformed-statistics-plot.log", outfolder=config["outfolder"]),
-        expand("{outfolder}/gmm-transformed-statistics-gene_pathogen_prediction_counts-frequencies.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"]),
-        expand("{outfolder}/gmm-transformed-statistics-silhouette.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"]),
-        expand("{outfolder}/gmm-transformed-statistics-gene_pathogen_prediction_counts-best_cluster.tsv", outfolder=config["outfolder"]),
-        expand("{outfolder}/gmm-transformed-statistics-gene_pathogen_prediction_counts-best_gene_buckets.tsv", outfolder=config["outfolder"]),
-        expand("{outfolder}/gmm-transformed-clusters-gene_clusters.{out}", outfolder=config["outfolder"], out=["eps", "png", "svg"])
-    run:
-        shell("3-clustering/1d-gmm-statistics_plot.R -g {input.cnt} -s {input.sil}")

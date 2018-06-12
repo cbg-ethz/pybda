@@ -6,6 +6,7 @@ import logging
 import pathlib
 import sys
 import pandas
+import scipy
 from numpy import linalg
 from scipy import stats
 
@@ -102,7 +103,7 @@ def remove_outliers_(data):
     def maha(col):
         def maha_(v):
             arr = v.toArray()
-            arr = numpy.sqrt(arr.dot(precision).dot(arr))
+            arr = scipy.sqrt(arr.dot(precision).dot(arr))
             return float(arr)
         return udf(maha_, DoubleType())(col)
 
