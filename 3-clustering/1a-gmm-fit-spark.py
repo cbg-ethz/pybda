@@ -35,11 +35,8 @@ def read_args(args):
                         metavar="output-folder")
     parser.add_argument('-f',
                         type=str,
-                        help='the file or filder you want to cluster, i.e. a file derived '
-                             'from rnai-query like '
-                             'cells_sample_10_normalized_cut_100.tsv or '
-                             'cells_sample_10_normalized_cut_100_factors. If it '
-                             'is a folder we assume it is a parquet.',
+                        help="the file or folder you want to cluster, This should be a parquet folder"
+                             " like 'fa' or 'outlier-removal'",
                         required=True,
                         metavar="input")
     parser.add_argument('-k',

@@ -35,16 +35,13 @@ def read_args(args):
                         metavar="output-folder")
     parser.add_argument('-f',
                         type=str,
-                        help='the file or filder you want to cluster, i.e. a file derived '
-                             'from rnai-query like '
-                             'cells_sample_10_normalized_cut_100.tsv or '
-                             'cells_sample_10_normalized_cut_100_factors. If it '
-                             'is a folder we assume it is a parquet.',
+                        help="the file or folder you want to cluster, This should be a parquet folder"
+                             " like 'fa' or 'outlier-removal'",
                         required=True,
                         metavar="input")
     parser.add_argument('-k',
                           type=int,
-                          help='numbers of clusters',
+                          help='maximum numbers of clusters',
                           required=True,
                           metavar="cluster-count")
     opts = parser.parse_args(args)
@@ -115,11 +112,124 @@ def get_frame(file_name):
 def P_(data):
     return len(numpy.asarray(data.select("features").take(1)).flatten())
 
+def split_features(data):
+    def to_array(col):
+        def to_array_(v):
+            return v.toArray().tolist()
+
+        return udf(to_array_, ArrayType(DoubleType()))(col)
+
+    len_vec = len(data.select("features").take(1)[0][0])
+    data = (data.withColumn("f", to_array(col("features")))
+            .select(["prediction"]+  [col("f")[i] for i in range(len_vec)]))
+
+    for i, x in enumerate(data.columns):
+        if x.startswith("f["):
+            data = data.withColumnRenamed(
+                x, x.replace("[", "_").replace("]", ""))
+
+    return data
+
+def n_param_kmm(k, p):
+    n_mean = k * p
+    n_var = 1
+    return n_mean + n_var
+
+
+def compute_variance(K, data, model, p):
+    total_var = 0
+    ni = scipy.zeros(K)
+    p = len(data.take(1)[0]) - 1
+
+    for i in range(K):
+        data_cluster = data.filter("prediction==" + str(i)).drop("prediction")
+        ni[i] =  data_cluster.count()
+        rdd = data_cluster.rdd.map(list)
+        means = model.clusterCenters()[i]
+        var = (RowMatrix(rdd).rows
+                   .map(lambda x: (x - means).T.dot(x - means))
+                   .reduce(lambda x, y: x + y))
+        total_var += var
+    total_var /= ((data.count() - K) * p)
+
+    return total_var, ni
+
+
+def loglik(data, K, model):
+    n = data.count()
+    p = len(data.take(1)[0]) - 1
+    total_var, ni = compute_variance(K, data, model, p)
+    ll = 0
+
+    for i in range(K):
+        l = ni[i] * scipy.log(ni[i])
+        l -= ni[i] * scipy.log(n)
+        l -= .5 * ni[i] * p * scipy.log(2 * scipy.pi * total_var)
+        l -= .5 * (ni[i] - 1) * p
+        ll += l
+    bic = ll - .5 * scipy.log(n) * (p + 1) * K
+
+    return ll, bic, total_var, ni
+
+
+def lrt(max_loglik, loglik, max_params, params):
+    t = 2 * (max_loglik - loglik)
+    df = max_params - params
+    if df == 0:
+        return 1
+    p_val = 1 - scipy.stats.chi2.cdf(t, df=df)
+    return p_val
+
+def get_model(k, data):
+    mod = KMeans(k=k, seed=23).fit(data)
+    transformed_data = split_features(mod.transform(data))
+    ll, bic, var, ni = loglik(transformed_data, k, mod)
+    n_params = n_param_kmm(k, p)
+    return (ll, bic, var, ni, n_params)
+
 
 def fit_cluster(file_name, K, outpath):
     data = get_frame(file_name)
+    logger.info("Recursively clustering with a maximal K: {}".format(K))
 
-    logger.info("Clustering with K: {}".format(K))
+    lefts, mids, rights = [], [], []
+    left, right = 2, K
+    mid = int((left + right) / 2)
+    lrts = []
+
+    K_model = get_model(right, df)
+    mods = {}
+    while True:
+        mids.append(mid)
+        lefts.append(left)
+        rights.append(right)
+
+        if mid in mods.keys():
+            m_model = mods[mid]
+        else:
+            m_model = get_model(mid, df)
+            mods[mid] = m_model
+
+        l_rt = lrt(K_model[0], m_model[0], K_model[-1], m_model[-1])
+        logger.info("{} {} {} {} {} {} {}".format(left, mid, right, K_model[0], m_model[0], K_model[-1], m_model[-1], l_rt))
+        lrts.append(l_rt)
+
+        if l_rt > p:
+            mid, right = int((left + mid) / 2), mid + 1
+        elif l_rt < p:
+            mid, left = int((right + mid) / 2), mid - 1
+        print(left, mid, right)
+        if left == lefts[-1] and right == rights[-1]:
+            break
+
+    return mid, left, right
+
+
+
+
+
+
+
     km = KMeans().setK(K).setSeed(23)
     model = km.fit(data)
 
@@ -183,6 +293,7 @@ def run():
 
     logger.info("Stopping Spark context")
     spark.stop()
+
 
 if __name__ == "__main__":
     run()
