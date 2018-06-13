@@ -8,8 +8,8 @@ import sys
 import glob
 import pyspark
 import pandas
-import numpy
 import scipy
+import scipy.stats
 import matplotlib
 
 matplotlib.use('Agg')
@@ -18,6 +18,9 @@ import matplotlib.pyplot as plt
 from pyspark.ml.clustering import KMeansModel, KMeans
 from pyspark.ml.feature import VectorAssembler
 from pyspark.rdd import reduce
+from pyspark.sql.functions import udf, col, struct
+from pyspark.sql.types import ArrayType, DoubleType, StringType
+from pyspark.mllib.linalg.distributed import RowMatrix, DenseMatrix
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -41,10 +44,10 @@ def read_args(args):
                         required=True,
                         metavar="input")
     parser.add_argument('-k',
-                          type=int,
-                          help='maximum numbers of clusters',
-                          required=True,
-                          metavar="cluster-count")
+                        type=int,
+                        help='maximum numbers of clusters',
+                        required=True,
+                        metavar="cluster-count")
     opts = parser.parse_args(args)
 
     return opts.f, opts.o, opts.k, opts
@@ -84,7 +87,7 @@ def get_frame(file_name):
     # check if data has been loaded before
     if pathlib.Path(parquet_file).exists():
         logger.info("Parquet file exists already using parquet file: {}".format(
-            file_name))
+          file_name))
         return read_parquet_data(parquet_file)
 
     logger.info("Reading: {} and writing parquet".format(file_name))
@@ -109,9 +112,8 @@ def get_frame(file_name):
     return data
 
 
-
 def P_(data):
-    return len(numpy.asarray(data.select("features").take(1)).flatten())
+    return len(scipy.asarray(data.select("features").take(1)).flatten())
 
 
 def split_features(data):
@@ -123,12 +125,12 @@ def split_features(data):
 
     len_vec = len(data.select("features").take(1)[0][0])
     data = (data.withColumn("f", to_array(col("features")))
-            .select(["prediction"]+  [col("f")[i] for i in range(len_vec)]))
+            .select(["prediction"] + [col("f")[i] for i in range(len_vec)]))
 
     for i, x in enumerate(data.columns):
         if x.startswith("f["):
             data = data.withColumnRenamed(
-                x, x.replace("[", "_").replace("]", ""))
+              x, x.replace("[", "_").replace("]", ""))
 
     return data
 
@@ -139,128 +141,145 @@ def n_param_kmm(k, p):
     return n_mean + n_var
 
 
-def compute_variance(K, data, model, p):
+def cluster_stats(K, data, model, p):
+    """
+    Computes the variance of the clustering and the number of cells per cluster.
+    """
     total_var = 0
     ni = scipy.zeros(K)
-    p = len(data.take(1)[0]) - 1
 
     for i in range(K):
+        # get only the cells of a specific clustering
         data_cluster = data.filter("prediction==" + str(i)).drop("prediction")
-        ni[i] =  data_cluster.count()
+        # number of clusters
+        ni[i] = data_cluster.count()
         rdd = data_cluster.rdd.map(list)
+        # get the current mean vector (i should need to test this again)
         means = model.clusterCenters()[i]
+        # compute the variance
         var = (RowMatrix(rdd).rows
-                   .map(lambda x: (x - means).T.dot(x - means))
-                   .reduce(lambda x, y: x + y))
+               .map(lambda x: (x - means).T.dot(x - means))
+               .reduce(lambda x, y: x + y))
         total_var += var
-    total_var /= ((data.count() - K) * p)
+    # sum the variances and compute the unbiased estimate
+    total_var /= (data.count() - K) * p
 
     return total_var, ni
 
 
-def loglik(data, K, model):
-    n = data.count()
-    p = len(data.take(1)[0]) - 1
-    total_var, ni = compute_variance(K, data, model, p)
+def loglik(variance, ni, K, n, p, model):
     ll = 0
-
     for i in range(K):
         l = ni[i] * scipy.log(ni[i])
         l -= ni[i] * scipy.log(n)
-        l -= .5 * ni[i] * p * scipy.log(2 * scipy.pi * total_var)
+        l -= .5 * ni[i] * p * scipy.log(2 * scipy.pi * variance)
         l -= .5 * (ni[i] - 1) * p
         ll += l
     bic = ll - .5 * scipy.log(n) * (p + 1) * K
 
-    return ll, bic, total_var, ni
+    return ll, bic
+
+
+def get_model_likelihood(k, n, p, data, outpath):
+    logger.info("\tclustering with K: {}".format(k))
+    km = KMeans(k=k, seed=23)
+    model = km.fit(data)
+
+    clustout = k_fit_path(outpath, k)
+    logger.info("Writing cluster fit to: {}".format(clustout))
+    model.write().overwrite().save(clustout)
+
+    comp_files = clustout + "_cluster_sizes.tsv"
+    logger.info("Writing cluster size file to: {}".format(comp_files))
+    with open(clustout + "_cluster_sizes.tsv", 'w') as fh:
+        for c in model.summary.clusterSizes:
+            fh.write("{}\n".format(c))
+
+    ccf = clustout + "_cluster_centers.tsv"
+    logger.info("Writing cluster centers to: {}".format(ccf))
+    with open(ccf, "w") as fh:
+        fh.write("#Clustercenters\n")
+        for center in model.clusterCenters():
+            fh.write("\t".join(map(str, center)) + '\n')
+
+    sse_file = clustout + "_loglik.tsv"
+    logger.info("Writing likelihood and BIC to: {}".format(sse_file))
+    transformed_data = split_features(model.transform(data))
+    variance, cells_per_cluster = cluster_stats(k, transformed_data, model, p)
+    ll, bic = loglik(variance, cells_per_cluster, k, n, p, model)
+    n_params = n_param_kmm(k, p)
+    with open(sse_file, 'w') as fh:
+        fh.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(
+          "K", "LogLik", "BIC", "N", "P", "Var"))
+        fh.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(
+          k, ll, bic, n, p, variance))
+
+    return {"ll": ll, "n_params": n_params}
 
 
 def lrt(max_loglik, loglik, max_params, params):
     t = 2 * (max_loglik - loglik)
     df = max_params - params
-    if df == 0:
+    if df <= 0:
         return 1
     p_val = 1 - scipy.stats.chi2.cdf(t, df=df)
-    return p_val
-
-def get_model(k, data):
-    mod = KMeans(k=k, seed=23).fit(data)
-    transformed_data = split_features(mod.transform(data))
-    ll, bic, var, ni = loglik(transformed_data, k, mod)
-    n_params = n_param_kmm(k, p)
-    return (ll, bic, var, ni, n_params)
+    return (p_val, t, df)
 
 
 def fit_cluster(file_name, K, outpath):
     data = get_frame(file_name)
     logger.info("Recursively clustering with a maximal K: {}".format(K))
 
+    n, p = data.count(), P_(data)
+    logger.info("Using data with n={} and p={}".format(n, p))
+
     lefts, mids, rights = [], [], []
     left, right = 2, K
     mid = int((left + right) / 2)
     lrts = []
 
-    K_model = get_model(right, df)
+    K_model = get_model_likelihood(right, n, p, data, outpath)
     mods = {}
-    while True:
-        mids.append(mid)
-        lefts.append(left)
-        rights.append(right)
 
-        if mid in mods.keys():
-            m_model = mods[mid]
-        else:
-            m_model = get_model(mid, df)
-            mods[mid] = m_model
+    lrt_file = outpath + "-lrt_path.tsv"
+    with open(lrt_file, "w") as fh:
+        fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+          "left_bound", "current_model", "right_biund", "Kmax_loglik", "Mid_loglik",
+          "Kmax_nparams", "Mid_nparams", "LRT_pval", "LRT_t", "LRT_df"))
 
-        l_rt = lrt(K_model[0], m_model[0], K_model[-1], m_model[-1])
-        logger.info("{} {} {} {} {} {} {}".format(left, mid, right, K_model[0], m_model[0], K_model[-1], m_model[-1], l_rt))
-        lrts.append(l_rt)
+        itr  = 0
+        while True:
+            mids.append(mid)
+            lefts.append(left)
+            rights.append(right)
 
-        if l_rt > p:
-            mid, right = int((left + mid) / 2), mid + 1
-        elif l_rt < p:
-            mid, left = int((right + mid) / 2), mid - 1
-        print(left, mid, right)
-        if left == lefts[-1] and right == rights[-1]:
-            break
+            if mid in mods.keys():
+                m_model = mods[mid]
+            else:
+                m_model = get_model_likelihood(mid, n, p, data, outpath)
+                mods[mid] = m_model
 
-    return mid, left, right
+            l_rt = lrt(K_model['ll'], m_model["ll"],
+                       K_model["n_params"], m_model["n_params"])
+            pval = l_rt[0]
+            fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+              left, mid, right, K_model['ll'], m_model["ll"],
+              K_model["n_params"], m_model["n_params"], l_rt[0], l_rt[1], l_rt[2]))
+            lrts.append(pval)
 
-
-    # km = KMeans().setK(K).setSeed(23)
-    # model = km.fit(data)
-    #
-    # clustout = k_fit_path(outpath, K)
-    # logger.info("Writing cluster fit to: {}".format(clustout))
-    # model.write().overwrite().save(clustout)
-    # sse = model.computeCost(data)
-    #
-    # comp_files = clustout + "_cluster_sizes.tsv"
-    # logger.info("Writing cluster size file to: {}".format(comp_files))
-    # with open(clustout + "_cluster_sizes.tsv", 'w') as fh:
-    #     for c in model.summary.clusterSizes:
-    #         fh.write("{}\n".format(c))
-    #
-    # ccf = clustout + "_cluster_centers.tsv"
-    # logger.info("Writing cluster centers to: {}".format(ccf))
-    # with open(ccf, "w") as fh:
-    #     fh.write("#Clustercenters\n")
-    #     for center in model.clusterCenters():
-    #         fh.write("\t".join(map(str, center)) + '\n')
-    #
-    # sse_file = clustout + "_sse.tsv"
-    # logger.info("Writing sse to: {}".format(sse_file))
-    # P = P_(data)
-    # N = data.count()
-    # bic = sse + numpy.log(N) * K * P
-    # with open(sse_file, 'w') as fh:
-    #     fh.write("{}\t{}\t{}\t{}\t{}\n".format("K", "SSE", "BIC",  "N", "P"))
-    #     fh.write("{}\t{}\t{}\t{}\t{}\n".format(K, sse, bic, N, P))
+            if pval > p:
+                mid, right = int((left + mid) / 2) , mid + 1
+            elif pval < p:
+                mid, left = int((right + mid) / 2) , mid - 1
+            if left == lefts[-1] and right == rights[-1] and mid == mids[-1]:
+                break
+            if itr == 15:
+                break
+            itr += 1
 
 
-def loggername(outpath, file_name, k=None):
-    return k_fit_path(outpath, k) + ".log"
+def loggername(outpath):
+    return outpath + ".log"
 
 
 def run():
@@ -268,8 +287,7 @@ def run():
     file_name, outpath, k, opts = read_args(sys.argv[1:])
 
     # logging format
-    hdlr = logging.FileHandler(
-      loggername(outpath, file_name, k))
+    hdlr = logging.FileHandler(loggername(outpath))
     hdlr.setFormatter(frmtr)
     logger.addHandler(hdlr)
 
