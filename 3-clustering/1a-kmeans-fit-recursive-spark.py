@@ -186,24 +186,24 @@ def get_model_likelihood(k, n, p, data, outpath):
     model = km.fit(data)
 
     clustout = k_fit_path(outpath, k)
-    logger.info("Writing cluster fit to: {}".format(clustout))
+    logger.info("\twriting cluster fit to: {}".format(clustout))
     model.write().overwrite().save(clustout)
 
     comp_files = clustout + "_cluster_sizes.tsv"
-    logger.info("Writing cluster size file to: {}".format(comp_files))
+    logger.info("\twriting cluster size file to: {}".format(comp_files))
     with open(clustout + "_cluster_sizes.tsv", 'w') as fh:
         for c in model.summary.clusterSizes:
             fh.write("{}\n".format(c))
 
     ccf = clustout + "_cluster_centers.tsv"
-    logger.info("Writing cluster centers to: {}".format(ccf))
+    logger.info("\triting cluster centers to: {}".format(ccf))
     with open(ccf, "w") as fh:
         fh.write("#Clustercenters\n")
         for center in model.clusterCenters():
             fh.write("\t".join(map(str, center)) + '\n')
 
     sse_file = clustout + "_loglik.tsv"
-    logger.info("Writing likelihood and BIC to: {}".format(sse_file))
+    logger.info("\twriting likelihood and BIC to: {}".format(sse_file))
     transformed_data = split_features(model.transform(data))
     variance, cells_per_cluster = cluster_stats(k, transformed_data, model, p)
     ll, bic = loglik(variance, cells_per_cluster, k, n, p, model)
@@ -221,9 +221,39 @@ def lrt(max_loglik, loglik, max_params, params):
     t = 2 * (max_loglik - loglik)
     df = max_params - params
     if df <= 0:
-        return 1
+        return (1, t, df)
     p_val = 1 - scipy.stats.chi2.cdf(t, df=df)
     return (p_val, t, df)
+
+
+def load_models(lrt_file, k):
+    mod = {}
+    if pathlib.Path(lrt_file).exists():
+        tab = pandas.read_csv(lrt_file, sep="\t", header=0)
+        if tab["K_max"][0] != k:
+            logger.info(
+              "Need to start from scratch because file-K({}) =!= current-K({})".format(tab["K_max"][0], k))
+        else:
+            logger.info("\tusing precomputed likelihoods from {}".format(lrt_file))
+            for x in range(tab.shape[0]):
+                mod[tab["current_model"][x]] = {
+                    "ll": tab["current_loglik"][x],
+                    "n_params": tab["current_nparams"][x]
+                }
+    else:
+        logger.info("\tstarting from scratch...")
+    return mod
+
+
+def get_model(mods, k, n, p, data, outpath):
+    if k in mods.keys():
+        logger.info("loading model k={}".format(k))
+        model = mods[k]
+    else:
+        logger.info("newly estimating model k={}".format(k))
+        model = get_model_likelihood(k, n, p, data, outpath)
+        mods[k] = model
+    return model
 
 
 def fit_cluster(file_name, K, outpath):
@@ -238,33 +268,34 @@ def fit_cluster(file_name, K, outpath):
     mid = int((left + right) / 2)
     lrts = []
 
-    K_model = get_model_likelihood(right, n, p, data, outpath)
-    mods = {}
-
     lrt_file = outpath + "-lrt_path.tsv"
+    mods = load_models(lrt_file, K)
+    logger.info("Writing LRT file to {}".format(lrt_file))
     with open(lrt_file, "w") as fh:
-        fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-          "left_bound", "current_model", "right_biund", "Kmax_loglik", "Mid_loglik",
-          "Kmax_nparams", "Mid_nparams", "LRT_pval", "LRT_t", "LRT_df"))
+        fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+          "left_bound", "current_model", "right_bound", "K_max", "Kmax_loglik", "current_loglik",
+          "Kmax_nparams", "current_nparams", "LRT_pval", "LRT_t", "LRT_df"))
 
-        itr  = 0
+        K_model = get_model(mods, right, n, p, data, outpath)
+        logger.info(K_model)
+        l_rt = lrt(K_model['ll'], K_model["ll"], K_model["n_params"], K_model["n_params"])
+        fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+           left, mid, right, K, K_model['ll'], K_model["ll"],
+           K_model["n_params"], K_model["n_params"], l_rt[0], l_rt[1], l_rt[2]))
+
         while True:
             mids.append(mid)
             lefts.append(left)
             rights.append(right)
 
-            if mid in mods.keys():
-                m_model = mods[mid]
-            else:
-                m_model = get_model_likelihood(mid, n, p, data, outpath)
-                mods[mid] = m_model
+            m_model = get_model(mods, mid, n, p, data, outpath)
 
-            l_rt = lrt(K_model['ll'], m_model["ll"],
-                       K_model["n_params"], m_model["n_params"])
+            l_rt = lrt(K_model['ll'], m_model["ll"],  K_model["n_params"], m_model["n_params"])
             pval = l_rt[0]
             fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-              left, mid, right, K_model['ll'], m_model["ll"],
+              left, mid, right, K, K_model['ll'], m_model["ll"],
               K_model["n_params"], m_model["n_params"], l_rt[0], l_rt[1], l_rt[2]))
+            logger.info("Creating model for K={} with LRT p-value {}".format(mid, pval))
             lrts.append(pval)
 
             if pval > p:
@@ -273,9 +304,6 @@ def fit_cluster(file_name, K, outpath):
                 mid, left = int((right + mid) / 2) , mid - 1
             if left == lefts[-1] and right == rights[-1] and mid == mids[-1]:
                 break
-            if itr == 15:
-                break
-            itr += 1
 
 
 def loggername(outpath):
