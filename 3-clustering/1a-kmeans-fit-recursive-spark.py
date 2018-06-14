@@ -277,7 +277,6 @@ def fit_cluster(file_name, K, outpath):
           "Kmax_nparams", "current_nparams", "LRT_pval", "LRT_t", "LRT_df"))
 
         K_model = get_model(mods, right, n, p, data, outpath)
-        logger.info(K_model)
         l_rt = lrt(K_model['ll'], K_model["ll"], K_model["n_params"], K_model["n_params"])
         fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
            left, mid, right, K, K_model['ll'], K_model["ll"],
