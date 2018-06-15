@@ -220,7 +220,7 @@ def get_model_likelihood(k, n, p, data, outpath):
 def lrt(max_loglik, loglik, max_params, params):
     t = 2 * (max_loglik - loglik)
     df = max_params - params
-    if df <= 0:
+    if df <= 0 or max_loglik < loglik:
         return (1, t, df)
     p_val = 1 - scipy.stats.chi2.cdf(t, df=df)
     return (p_val, t, df)
@@ -278,8 +278,8 @@ def fit_cluster(file_name, K, outpath):
 
         K_model = get_model(mods, right, n, p, data, outpath)
         l_rt = lrt(K_model['ll'], K_model["ll"], K_model["n_params"], K_model["n_params"])
-        fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-           left, mid, right, K, K_model['ll'], K_model["ll"],
+        fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+          left, right, right, K, K_model['ll'], K_model["ll"],
            K_model["n_params"], K_model["n_params"], l_rt[0], l_rt[1], l_rt[2]))
 
         while True:
@@ -291,10 +291,10 @@ def fit_cluster(file_name, K, outpath):
 
             l_rt = lrt(K_model['ll'], m_model["ll"],  K_model["n_params"], m_model["n_params"])
             pval = l_rt[0]
-            fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+            fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
               left, mid, right, K, K_model['ll'], m_model["ll"],
               K_model["n_params"], m_model["n_params"], l_rt[0], l_rt[1], l_rt[2]))
-            logger.info("Creating model for K={} with LRT p-value {}".format(mid, pval))
+            logger.info("LRT betweens models for K={} with p-value {}".format(mid, pval))
             lrts.append(pval)
 
             if pval > p:
