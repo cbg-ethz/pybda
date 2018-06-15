@@ -346,10 +346,8 @@ def recursive_clustering(file_name, K, outpath, lrt_file, threshold=.05):
 
         if pval > threshold:
             mid, right = int((left + mid) / 2), mid
-            logger.info("Smaller")
         elif pval < threshold:
             mid, left = int((right + mid) / 2), mid
-            logger.info("bigger")
         if left == lefts[-1] and right == rights[-1]:
             break
         if itr >= 15:
