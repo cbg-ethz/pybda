@@ -30,6 +30,67 @@ frmtr = logging.Formatter(
 spark = None
 
 
+class LRT():
+    def __init__(self, left_boundary, current, right_boundary,
+                 K, K_loglik, curr_loglik, K_nparams, curr_nparams,
+                 pval, df, t):
+        self.__left_boundary = left_boundary
+        self.__current = current
+        self.__right_boundary = right_boundary
+        self.__K = K
+        self.__K_loglik = K_loglik
+        self.__curr_loglik = curr_loglik
+        self.__K_nparams = K_nparams
+        self.__curr_n_params = curr_nparams
+        self.__lrt_pval = pval
+        self.__lrt_df = df
+        self.__lrt_t = t
+
+    @property
+    def pval(self):
+        return self.__lrt_pval
+
+    @property
+    def df(self):
+        return self.__lrt_df
+
+    @property
+    def t(self):
+        return self.__lrt_t
+
+    @property
+    def current_k_loglik(self):
+        return self.__curr_loglik
+
+    @property
+    def K_nparams(self):
+        return self.__K_nparams
+
+    @property
+    def current_k_nparams(self):
+        return self.__curr_n_params
+
+    @property
+    def K_loglik(self):
+        return self.__K_loglik
+
+    @property
+    def K(self):
+        return self.__K
+
+    @property
+    def right_boundary(self):
+        return self.__right_boundary
+
+    @property
+    def current_k(self):
+        return self.__current
+
+    @property
+    def left_boundary(self):
+        return self.__left_boundary
+
+
 def read_args(args):
     parser = argparse.ArgumentParser(description='Cluster an RNAi dataset.')
     parser.add_argument('-o',
@@ -220,43 +281,39 @@ def get_model_likelihood(k, n, p, data, outpath):
 def lrt(max_loglik, loglik, max_params, params):
     t = 2 * (max_loglik - loglik)
     df = max_params - params
-    if df <= 0 or max_loglik < loglik:
+    if df <= 0 or max_loglik <= loglik:
         return (1, t, df)
     p_val = 1 - scipy.stats.chi2.cdf(t, df=df)
     return (p_val, t, df)
 
 
-def load_models(lrt_file, k):
+def load_models(lrt_file, K, outpath):
     mod = {}
-    if pathlib.Path(lrt_file).exists():
-        tab = pandas.read_csv(lrt_file, sep="\t", header=0)
-        if tab["K_max"][0] != k:
-            logger.info(
-              "Need to start from scratch because file-K({}) =!= current-K({})".format(tab["K_max"][0], k))
-        else:
-            logger.info("\tusing precomputed likelihoods from {}".format(lrt_file))
-            for x in range(tab.shape[0]):
-                mod[tab["current_model"][x]] = {
-                    "ll": tab["current_loglik"][x],
-                    "n_params": tab["current_nparams"][x]
-                }
+    fls = glob.glob(outpath + "*_loglik.tsv")
+    if fls:
+        logger.info("Found precomputed ll-files. ")
+        for f in fls:
+            tab = pandas.read_csv(f, sep="\t")
+            ll, k, p = tab["LogLik"][0], tab["K"][0], tab["P"][0]
+            logger.info("\tusing k={}, p={}, ll={} from {}".format(k, p, ll, f))
+            mod[k] = {"ll": ll, "n_params": n_param_kmm(k, p)}
     else:
-        logger.info("\tstarting from scratch...")
+        logger.info("Starting from scratch...")
     return mod
 
 
 def get_model(mods, k, n, p, data, outpath):
     if k in mods.keys():
-        logger.info("loading model k={}".format(k))
+        logger.info("\tloading model k={}".format(k))
         model = mods[k]
     else:
-        logger.info("newly estimating model k={}".format(k))
+        logger.info("\tnewly estimating model k={}".format(k))
         model = get_model_likelihood(k, n, p, data, outpath)
         mods[k] = model
     return model
 
 
-def fit_cluster(file_name, K, outpath):
+def recursive_clustering(file_name, K, outpath, lrt_file, threshold=.05):
     data = get_frame(file_name)
     logger.info("Recursively clustering with a maximal K: {}".format(K))
 
@@ -266,43 +323,63 @@ def fit_cluster(file_name, K, outpath):
     lefts, mids, rights = [], [], []
     left, right = 2, K
     mid = int((left + right) / 2)
-    lrts = []
 
-    lrt_file = outpath + "-lrt_path.tsv"
-    mods = load_models(lrt_file, K)
+    mods = load_models(lrt_file, K, outpath)
+
+    lrts = []
+    K_mod = get_model(mods, right, n, p, data, outpath)
+    itr = 0
+    while True:
+        mids.append(mid)
+        lefts.append(left)
+        rights.append(right)
+
+        m_mod = get_model(mods, mid, n, p, data, outpath)
+
+        l_rt = lrt(K_mod['ll'], m_mod["ll"], K_mod["n_params"], m_mod["n_params"])
+        lrts.append(
+          LRT(left, mid, right, K,
+              K_mod['ll'], m_mod['ll'], K_mod['n_params'], m_mod['n_params'],
+              l_rt[0], l_rt[1], l_rt[2]))
+        pval = l_rt[0]
+        logger.info("\tLRT betweens models for K={} with p-value {}".format(mid, pval))
+
+        if pval > threshold:
+            mid, right = int((left + mid) / 2), mid
+            logger.info("Smaller")
+        elif pval < threshold:
+            mid, left = int((right + mid) / 2), mid
+            logger.info("bigger")
+        if left == lefts[-1] and right == rights[-1]:
+            break
+        if itr >= 15:
+            logger.info("Breaking")
+            break
+        itr += 1
+
+    return lrts
+
+
+def write_clustering(clustering, outpath, lrt_file):
     logger.info("Writing LRT file to {}".format(lrt_file))
+
     with open(lrt_file, "w") as fh:
         fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-          "left_bound", "current_model", "right_bound", "K_max", "Kmax_loglik", "current_loglik",
+          "left_bound", "current_model", "right_bound", "K_max", "Kmax_loglik",
+          "current_loglik",
           "Kmax_nparams", "current_nparams", "LRT_pval", "LRT_t", "LRT_df"))
-
-        K_model = get_model(mods, right, n, p, data, outpath)
-        l_rt = lrt(K_model['ll'], K_model["ll"], K_model["n_params"], K_model["n_params"])
-        fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-          left, right, right, K, K_model['ll'], K_model["ll"],
-           K_model["n_params"], K_model["n_params"], l_rt[0], l_rt[1], l_rt[2]))
-
-        while True:
-            mids.append(mid)
-            lefts.append(left)
-            rights.append(right)
-
-            m_model = get_model(mods, mid, n, p, data, outpath)
-
-            l_rt = lrt(K_model['ll'], m_model["ll"],  K_model["n_params"], m_model["n_params"])
-            pval = l_rt[0]
+        for lrt in clustering:
             fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-              left, mid, right, K, K_model['ll'], m_model["ll"],
-              K_model["n_params"], m_model["n_params"], l_rt[0], l_rt[1], l_rt[2]))
-            logger.info("LRT betweens models for K={} with p-value {}".format(mid, pval))
-            lrts.append(pval)
+              lrt.left_boundary, lrt.current_k, lrt.right_boundary,
+              lrt.K, lrt.K_loglik, lrt.current_k_loglik,
+              lrt.K_nparams, lrt.current_k_nparams,
+              lrt.pval, lrt.df, lrt.t))
 
-            if pval > p:
-                mid, right = int((left + mid) / 2) , mid + 1
-            elif pval < p:
-                mid, left = int((right + mid) / 2) , mid - 1
-            if left == lefts[-1] and right == rights[-1] and mid == mids[-1]:
-                break
+
+def fit_cluster(file_name, K, outpath):
+    lrt_file = outpath + "-lrt_path.tsv"
+    clustering = recursive_clustering(file_name, K, outpath, lrt_file)
+    write_clustering(clustering, outpath, lrt_file)
 
 
 def loggername(outpath):
