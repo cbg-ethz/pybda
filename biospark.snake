@@ -22,13 +22,6 @@ rule all:
       expand("{outfolder}/kmeans-fit-K{center}_cluster_centers.tsv", outfolder=config["outfolder"], center=config["centers"]),
       expand("{outfolder}/kmeans-fit-K{center}_sse.tsv", outfolder=config["outfolder"], center=config["centers"]),
 
-      expand("{outfolder}/kmeans-fit-recursive.log", outfolder=config["outfolder"], center=config["max_centers"]),
-      expand("{outfolder}/kmeans-fit-recursive-lrt_path.tsv", outfolder=config["outfolder"], center=config["max_centers"]),
-      expand("{outfolder}/kmeans-fit-recursive-K{center}", outfolder=config["outfolder"], center=config["max_centers"]),
-      expand("{outfolder}/kmeans-fit-recursive-K{center}_cluster_sizes.tsv", outfolder=config["outfolder"], center=config["max_centers"]),
-      expand("{outfolder}/kmeans-fit-recursive-K{center}_cluster_centers.tsv", outfolder=config["outfolder"], center=config["max_centers"]),
-      expand("{outfolder}/kmeans-fit-recursive-K{center}_loglik.tsv", outfolder=config["outfolder"], center=config["max_centers"]),
-
       expand("{outfolder}/gmm-fit-K{center}", outfolder=config["outfolder"], center=config["centers"]),
       expand("{outfolder}/gmm-fit-K{center}.log", outfolder=config["outfolder"], center=config["centers"]),
       expand("{outfolder}/gmm-fit-K{center}_cluster_sizes.tsv", outfolder=config["outfolder"], center=config["centers"]),
@@ -158,13 +151,6 @@ rule kmeans_fit:
 rule kmeans_recursive_fit:
     input:
         expand("{outfolder}/outlier-removal", outfolder=config["outfolder"])
-    output:
-        expand("{outfolder}/kmeans-fit-recursive.log", outfolder=config["outfolder"], center=config["max_centers"]),
-        expand("{outfolder}/kmeans-fit-recursive-lrt_path.tsv", outfolder=config["outfolder"], center=config["max_centers"]),
-        expand("{outfolder}/kmeans-fit-recursive-K{center}", outfolder=config["outfolder"], center=config["max_centers"]),
-        expand("{outfolder}/kmeans-fit-recursive-K{center}_cluster_sizes.tsv", outfolder=config["outfolder"], center=config["max_centers"]),
-        expand("{outfolder}/kmeans-fit-recursive-K{center}_cluster_centers.tsv", outfolder=config["outfolder"], center=config["max_centers"]),
-        expand("{outfolder}/kmeans-fit-recursive-K{center}_loglik.tsv", outfolder=config["outfolder"], center=config["max_centers"])
     run:
         out = config["outfolder"] + "/kmeans-fit-recursive"
         params = " ".join([x for x in config["sparkparams"]])
