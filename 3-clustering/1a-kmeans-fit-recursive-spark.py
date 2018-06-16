@@ -285,7 +285,7 @@ def recursive_clustering(file_name, K, outpath, lrt_file, threshold=.1):
         if improved_variance < threshold:
             mid, right = int((left + mid) / 2), mid + 1
         elif improved_variance > threshold:
-            mid, left = int((right + mid) / 2), mid
+            mid, left = int((right + mid) / 2), mid 
         if left == lefts[-1] and right == rights[-1]:
             break
         if itr >= 15:
