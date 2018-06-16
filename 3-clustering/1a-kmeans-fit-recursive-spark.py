@@ -21,6 +21,7 @@ from pyspark.rdd import reduce
 from pyspark.sql.functions import udf, col, struct
 from pyspark.sql.types import ArrayType, DoubleType, StringType
 from pyspark.mllib.linalg.distributed import RowMatrix, DenseMatrix
+from pyspark.mllib.stat import Statistics
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -30,65 +31,36 @@ frmtr = logging.Formatter(
 spark = None
 
 
-class LRT():
-    def __init__(self, left_boundary, current, right_boundary,
-                 K, K_loglik, curr_loglik, K_nparams, curr_nparams,
-                 pval, df, t):
+class ExplainedVariance():
+    def __init__(self, left_boundary, current, right_boundary, K,
+                 K_explained_variance, curr_explained_variance,
+                 K_sse, curr_sse, max_sse,
+                 percent_explained_variance):
         self.__left_boundary = left_boundary
         self.__current = current
         self.__right_boundary = right_boundary
         self.__K = K
-        self.__K_loglik = K_loglik
-        self.__curr_loglik = curr_loglik
-        self.__K_nparams = K_nparams
-        self.__curr_n_params = curr_nparams
-        self.__lrt_pval = pval
-        self.__lrt_df = df
-        self.__lrt_t = t
+        self.__K_explained_variance = K_explained_variance
+        self.__curr_explained_variance = curr_explained_variance
+        self.__K_sse = K_sse
+        self.__curr_sse = curr_sse
+        self.__max_sse = max_sse
+        self.__percent_explained_variance = percent_explained_variance
 
-    @property
-    def pval(self):
-        return self.__lrt_pval
+    def header(self):
+        return "left_bound\tcurrent_model\tright_bound\t" \
+               "K_max\tK_expl\tcurrent_expl\tmax_sse\tK_sse\tcurrent_sse\t" \
+               "percent_improvement\n"
 
-    @property
-    def df(self):
-        return self.__lrt_df
+    def __repr__(self):
+        return self.__str__()
 
-    @property
-    def t(self):
-        return self.__lrt_t
-
-    @property
-    def current_k_loglik(self):
-        return self.__curr_loglik
-
-    @property
-    def K_nparams(self):
-        return self.__K_nparams
-
-    @property
-    def current_k_nparams(self):
-        return self.__curr_n_params
-
-    @property
-    def K_loglik(self):
-        return self.__K_loglik
-
-    @property
-    def K(self):
-        return self.__K
-
-    @property
-    def right_boundary(self):
-        return self.__right_boundary
-
-    @property
-    def current_k(self):
-        return self.__current
-
-    @property
-    def left_boundary(self):
-        return self.__left_boundary
+    def __str__(self):
+        return "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+          self.__left_boundary, self.__current, self.__right_boundary,
+          self.__K, self.__K_explained_variance, self.__curr_explained_variance,
+          self.__max_sse, self.__K_sse, self.__curr_sse,
+          self.__percent_explained_variance)
 
 
 def read_args(args):
@@ -186,7 +158,7 @@ def split_features(data):
 
     len_vec = len(data.select("features").take(1)[0][0])
     data = (data.withColumn("f", to_array(col("features")))
-            .select(["prediction"] + [col("f")[i] for i in range(len_vec)]))
+            .select([col("f")[i] for i in range(len_vec)]))
 
     for i, x in enumerate(data.columns):
         if x.startswith("f["):
@@ -196,52 +168,23 @@ def split_features(data):
     return data
 
 
-def n_param_kmm(k, p):
-    n_mean = k * p
-    n_var = 1
-    return n_mean + n_var
-
-
-def cluster_stats(K, data, model, p):
+def sse(data):
     """
-    Computes the variance of the clustering and the number of cells per cluster.
+    Computes the sum of squared errors of the dataset
     """
-    total_var = 0
-    ni = scipy.zeros(K)
 
-    for i in range(K):
-        # get only the cells of a specific clustering
-        data_cluster = data.filter("prediction==" + str(i)).drop("prediction")
-        # number of clusters
-        ni[i] = data_cluster.count()
-        rdd = data_cluster.rdd.map(list)
-        # get the current mean vector (i should need to test this again)
-        means = model.clusterCenters()[i]
-        # compute the variance
-        var = (RowMatrix(rdd).rows
-               .map(lambda x: (x - means).T.dot(x - means))
-               .reduce(lambda x, y: x + y))
-        total_var += var
-    # sum the variances and compute the unbiased estimate
-    total_var /= (data.count() - K) * p
+    rdd = data.rdd.map(list)
+    summary = Statistics.colStats(rdd)
+    means = summary.mean()
 
-    return total_var, ni
+    sse = (RowMatrix(rdd).rows
+           .map(lambda x: (x - means).T.dot(x - means))
+           .reduce(lambda x, y: x + y))
+
+    return sse
 
 
-def loglik(variance, ni, K, n, p, model):
-    ll = 0
-    for i in range(K):
-        l = ni[i] * scipy.log(ni[i])
-        l -= ni[i] * scipy.log(n)
-        l -= .5 * ni[i] * p * scipy.log(2 * scipy.pi * variance)
-        l -= .5 * (ni[i] - 1) * p
-        ll += l
-    bic = ll - .5 * scipy.log(n) * (p + 1) * K
-
-    return ll, bic
-
-
-def get_model_likelihood(k, n, p, data, outpath):
+def _estimate_model(total_sse, k, n, p, data, outpath):
     logger.info("\tclustering with K: {}".format(k))
     km = KMeans(k=k, seed=23)
     model = km.fit(data)
@@ -264,56 +207,49 @@ def get_model_likelihood(k, n, p, data, outpath):
             fh.write("\t".join(map(str, center)) + '\n')
 
     sse_file = clustout + "_loglik.tsv"
-    logger.info("\twriting likelihood and BIC to: {}".format(sse_file))
-    transformed_data = split_features(model.transform(data))
-    variance, cells_per_cluster = cluster_stats(k, transformed_data, model, p)
-    ll, bic = loglik(variance, cells_per_cluster, k, n, p, model)
-    n_params = n_param_kmm(k, p)
+    logger.info("\twriting SSE and BIC to: {}".format(sse_file))
+
+    sse = model.computeCost(data)
+    expl = 1 - sse / total_sse
+    bic = sse + scipy.log(n) * (k * p + 1)
     with open(sse_file, 'w') as fh:
         fh.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(
-          "K", "LogLik", "BIC", "N", "P", "Var"))
+          "K", "SSE", "ExplainedVariance", "BIC", "N", "P"))
         fh.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(
-          k, ll, bic, n, p, variance))
+          k, sse, expl, bic, n, p))
 
-    return {"ll": ll, "n_params": n_params}
-
-
-def lrt(max_loglik, loglik, max_params, params):
-    t = 2 * (max_loglik - loglik)
-    df = max_params - params
-    if df <= 0 or max_loglik <= loglik:
-        return (1, t, df)
-    p_val = 1 - scipy.stats.chi2.cdf(t, df=df)
-    return (p_val, t, df)
+    return {"sse": sse, "expl": expl}
 
 
-def load_models(lrt_file, K, outpath):
+def load_precomputed_models(lrt_file, K, outpath):
     mod = {}
     fls = glob.glob(outpath + "*_loglik.tsv")
     if fls:
         logger.info("Found precomputed ll-files. ")
         for f in fls:
             tab = pandas.read_csv(f, sep="\t")
-            ll, k, p = tab["LogLik"][0], tab["K"][0], tab["P"][0]
-            logger.info("\tusing k={}, p={}, ll={} from {}".format(k, p, ll, f))
-            mod[k] = {"ll": ll, "n_params": n_param_kmm(k, p)}
+            sse, expl = tab["SSE"][0], tab["ExplainedVariance"][0]
+            k, p = tab["K"][0], tab["P"][0]
+            logger.info("\tusing k={}, p={}, sse={}, expl={} from {}"
+                        .format(k, p, sse,expl, f))
+            mod[k] = {"sse": sse, "expl": expl}
     else:
         logger.info("Starting from scratch...")
     return mod
 
 
-def get_model(mods, k, n, p, data, outpath):
+def estimate_model(total_sse, mods, k, n, p, data, outpath):
     if k in mods.keys():
         logger.info("\tloading model k={}".format(k))
         model = mods[k]
     else:
         logger.info("\tnewly estimating model k={}".format(k))
-        model = get_model_likelihood(k, n, p, data, outpath)
+        model = _estimate_model(total_sse, k, n, p, data, outpath)
         mods[k] = model
     return model
 
 
-def recursive_clustering(file_name, K, outpath, lrt_file, threshold=.05):
+def recursive_clustering(file_name, K, outpath, lrt_file, threshold=.1):
     data = get_frame(file_name)
     logger.info("Recursively clustering with a maximal K: {}".format(K))
 
@@ -324,29 +260,31 @@ def recursive_clustering(file_name, K, outpath, lrt_file, threshold=.05):
     left, right = 2, K
     mid = int((left + right) / 2)
 
-    mods = load_models(lrt_file, K, outpath)
+    mods = load_precomputed_models(lrt_file, K, outpath)
+    total_sse = sse(split_features(data))
 
     lrts = []
-    K_mod = get_model(mods, right, n, p, data, outpath)
+    K_mod = estimate_model(total_sse, mods, right, n, p, data, outpath)
     itr = 0
     while True:
         mids.append(mid)
         lefts.append(left)
         rights.append(right)
 
-        m_mod = get_model(mods, mid, n, p, data, outpath)
+        m_mod = estimate_model(total_sse, mods, mid, n, p, data, outpath)
 
-        l_rt = lrt(K_mod['ll'], m_mod["ll"], K_mod["n_params"], m_mod["n_params"])
+        improved_variance = 1 - m_mod['expl'] / K_mod['expl']
         lrts.append(
-          LRT(left, mid, right, K,
-              K_mod['ll'], m_mod['ll'], K_mod['n_params'], m_mod['n_params'],
-              l_rt[0], l_rt[1], l_rt[2]))
-        pval = l_rt[0]
-        logger.info("\tLRT betweens models for K={} with p-value {}".format(mid, pval))
+          ExplainedVariance(
+            left, mid, right, K,
+            K_mod['expl'], m_mod['expl'], K_mod["sse"], m_mod['sse'],
+            total_sse, improved_variance))
+        logger.info("\tVariance reduction for K={} to {}"
+                    .format(mid, improved_variance))
 
-        if pval > threshold:
-            mid, right = int((left + mid) / 2), mid
-        elif pval < threshold:
+        if improved_variance < threshold:
+            mid, right = int((left + mid) / 2), mid + 1
+        elif improved_variance > threshold:
             mid, left = int((right + mid) / 2), mid
         if left == lefts[-1] and right == rights[-1]:
             break
@@ -360,18 +298,10 @@ def recursive_clustering(file_name, K, outpath, lrt_file, threshold=.05):
 
 def write_clustering(clustering, outpath, lrt_file):
     logger.info("Writing LRT file to {}".format(lrt_file))
-
     with open(lrt_file, "w") as fh:
-        fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-          "left_bound", "current_model", "right_bound", "K_max", "Kmax_loglik",
-          "current_loglik",
-          "Kmax_nparams", "current_nparams", "LRT_pval", "LRT_t", "LRT_df"))
+        fh.write(clustering[0].header())
         for lrt in clustering:
-            fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-              lrt.left_boundary, lrt.current_k, lrt.right_boundary,
-              lrt.K, lrt.K_loglik, lrt.current_k_loglik,
-              lrt.K_nparams, lrt.current_k_nparams,
-              lrt.pval, lrt.df, lrt.t))
+            fh.write(str(lrt))
 
 
 def fit_cluster(file_name, K, outpath):
