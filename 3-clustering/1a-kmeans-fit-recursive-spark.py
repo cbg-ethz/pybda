@@ -168,19 +168,30 @@ def split_features(data):
     return data
 
 
-def sse(data):
+def sse(data, outpath):
     """
     Computes the sum of squared errors of the dataset
     """
 
-    rdd = data.rdd.map(list)
-    summary = Statistics.colStats(rdd)
-    means = summary.mean()
+    sse_file = outpath + "-total_sse.tsv"
+    if pathlib.Path(sse_file).exists():
+        logger.info("Loading SSE file")
+        tab = pandas.read_csv(sse_file, sep="\t")
+        sse = tab["SSE"][0]
+    else:
+        logger.info("Computing SSE of complete dataset")
+        rdd = data.rdd.map(list)
+        summary = Statistics.colStats(rdd)
+        means = summary.mean()
 
-    sse = (RowMatrix(rdd).rows
-           .map(lambda x: (x - means).T.dot(x - means))
-           .reduce(lambda x, y: x + y))
+        sse = (RowMatrix(rdd).rows
+               .map(lambda x: (x - means).T.dot(x - means))
+               .reduce(lambda x, y: x + y))
 
+        with open(sse_file, 'w') as fh:
+            fh.write("SSE\n{}\n".format(sse))
+
+    logger.info("\tsse: {}".format(sse))
     return sse
 
 
@@ -261,7 +272,7 @@ def recursive_clustering(file_name, K, outpath, lrt_file, threshold=.1):
     mid = int((left + right) / 2)
 
     mods = load_precomputed_models(lrt_file, K, outpath)
-    total_sse = sse(split_features(data))
+    total_sse = sse(split_features(data), outpath)
 
     lrts = []
     K_mod = estimate_model(total_sse, mods, right, n, p, data, outpath)
@@ -285,7 +296,7 @@ def recursive_clustering(file_name, K, outpath, lrt_file, threshold=.1):
         if improved_variance < threshold:
             mid, right = int((left + mid) / 2), mid + 1
         elif improved_variance > threshold:
-            mid, left = int((right + mid) / 2), mid 
+            mid, left = int((right + mid) / 2), mid
         if left == lefts[-1] and right == rights[-1]:
             break
         if itr >= 15:
