@@ -260,7 +260,7 @@ def estimate_model(total_sse, mods, k, n, p, data, outpath):
     return model
 
 
-def recursive_clustering(file_name, K, outpath, lrt_file, threshold=.1):
+def recursive_clustering(file_name, K, outpath, lrt_file, threshold=.01):
     data = get_frame(file_name)
     logger.info("Recursively clustering with a maximal K: {}".format(K))
 
