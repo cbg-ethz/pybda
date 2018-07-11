@@ -251,10 +251,10 @@ def load_precomputed_models(lrt_file, K, outpath):
 
 def estimate_model(total_sse, mods, k, n, p, data, outpath):
     if k in mods.keys():
-        logger.info("\tloading model k={}".format(k))
+        logger.info("Loading model k={}".format(k))
         model = mods[k]
     else:
-        logger.info("\tnewly estimating model k={}".format(k))
+        logger.info("Newly estimating model k={}".format(k))
         model = _estimate_model(total_sse, k, n, p, data, outpath)
         mods[k] = model
     return model
@@ -299,7 +299,7 @@ def recursive_clustering(file_name, K, outpath, lrt_file, threshold=.01):
             mid, left = int((right + mid) / 2), mid
         if left == lefts[-1] and right == rights[-1]:
             break
-        if itr >= 15:
+        if itr >= 10:
             logger.info("Breaking")
             break
         itr += 1
