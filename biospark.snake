@@ -233,6 +233,24 @@ rule kmeans_transform:
             config["spark"], config["sparkip"], params, input.inf, inc , output.out)
         shell("{cmd}")
 
+
+rule kmeans_transform:
+    input:
+        expand("{outfolder}/kmeans-fit-recursive-lrt_path.tsv", outfolder=config["outfolder"])
+        inf = expand("{outfolder}/outlier-removal", outfolder=config["outfolder"])
+    run:
+        inc = config["outfolder"] + "/kmeans-fit-recursive"
+        params = " ".join([x for x in config["sparkparams"]])
+        cmd = """{} --master {} \
+                    {} \
+                    3-clustering/1b-kmeans-transform-spark.py \
+                    -f {} \
+                    -c {} \
+                    -o {}""".format(
+            config["spark"], config["sparkip"], params, input.inf, inc , output.out)
+        shell("{cmd}")
+
+
 rule kmeans_statistics:
     input:
         expand("{outfolder}/kmeans-transformed", outfolder=config["outfolder"])
