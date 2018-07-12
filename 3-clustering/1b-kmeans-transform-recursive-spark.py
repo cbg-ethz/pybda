@@ -71,13 +71,13 @@ def write_tsv_data(file_name, data):
 
 def read_lrt_file(clusterprefix):
     logger.info("\tloading best clustering")
-    mreg = glob.glob(clusterprefix + ".*-lrt_path.tsv$")
-    if len(mreg) == 0:
+    mreg = clusterprefix + "-lrt_path.tsv"
+    if not pathlib.Path(mreg).is_file():
         logger.error("Could not find LRT file!")
         raise ValueError("Could not find LRT file!")
     tab = pandas.read_csv(mreg, sep="\t")
-    best_model = tab['current_model'][-1]
-    fl = clusterprefix + "-K" + best_model
+    best_model = tab['current_model'].iloc[-1]
+    fl = clusterprefix + "-K" + str(best_model)
     logger.info("\tbest model is: {}".format(best_model))
     return best_model, fl
 
