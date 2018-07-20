@@ -129,7 +129,9 @@ def write_clusters(data, outfolder):
     for i in cluster_counts:
         outfile = "{}/cluster-{}.tsv".format(outpath, i)
         if pathlib.Path(outfile).is_file():
+            logger.info("\tfound file {}. skipping".format(outfile))
             continue
+        logger.info("\triting file {}".format(outfile))
         data_i = data.filter("prediction={}".format(i))
         data_i.toPandas().sample(frac=1).to_csv(outfile, sep="\t", index=0)
 
@@ -149,7 +151,7 @@ def transform_cluster(datafolder, outpath, clusterprefix):
       "image_idx", "object_idx", "prediction", "features")
     logger.info("Writing clustered data to parquet")
 
-    write_parquet_data(outpath, data)
+    #write_parquet_data(outpath, data)
     write_clusters(data, outpath)
 
 
