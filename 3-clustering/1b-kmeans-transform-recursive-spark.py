@@ -115,26 +115,16 @@ def split_features(data):
 
 
 def write_clusters(data, outfolder):
-    cluster_counts = numpy.array(
-      data.select("prediction").dropDuplicates().collect()).flatten()
 
     outpath = outfolder + "-clusters"
     if not pathlib.Path(outpath).exists():
         pathlib.Path(outpath).mkdir()
-
     data = split_features(data)
 
     logger.info("Writing clusters to: {}".format(outpath))
-    file_names = [""] * len(cluster_counts)
-    for i in cluster_counts:
-        outfile = "{}/cluster-{}.tsv".format(outpath, i)
-        if pathlib.Path(outfile).is_file():
-            logger.info("\tfound file {}. skipping".format(outfile))
-            continue
-        logger.info("\triting file {}".format(outfile))
-        data_i = data.filter("prediction={}".format(i))
-        data_i.toPandas().sample(frac=1).to_csv(outfile, sep="\t", index=0)
-
+    data.sort(col('prediction')).write.csv(
+      path=outpath, sep='\t', mode='overwrite',
+    header=True)
 
 def transform_cluster(datafolder, outpath, clusterprefix):
     data = read_parquet_data(datafolder)
