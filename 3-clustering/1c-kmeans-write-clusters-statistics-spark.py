@@ -30,18 +30,20 @@ def read_args(args):
 
 
 
-def write_clustered(outfolder):
-    files = (x for x in glob.glob(fl + "*") if x.endswith(".csv"))
+def write_clusters(outfolder):
+    files = [x for x in glob.glob(outfolder + "/*") if x.endswith(".csv")]
+    logger.info(list(files))
     for fl in files:
+        logger.info(fl)
         df = pandas.read_csv(fl, sep="\t")
         for i in df["prediction"].unique():
             sub  = df[df.prediction == i]
             out = outfolder + "/cluster_" + str(i) + ".tsv"
             if not pathlib.Path(out).exists():
-                logging.logger("Logging to {}".format(out))
+                logger.info("Logging to {}".format(out))
                 sub.to_csv(out, sep="\t", header=True, index=False)
             else:
-                logging.logger("Re-logging to {}".format(out))
+                logger.info("Re-logging to {}".format(out))
                 sub.to_csv(out, sep="\t", mode="a", header=False, index=False)
 
 
@@ -66,7 +68,7 @@ def run():
     global spark
     spark = pyspark.sql.SparkSession(sc)
     try:
-        write_clustered(folder)
+        write_clusters(folder)
     except Exception as e:
         logger.error("Random exception: {}".format(str(e)))
 
