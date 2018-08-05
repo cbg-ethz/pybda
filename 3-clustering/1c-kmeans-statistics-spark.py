@@ -24,7 +24,8 @@ spark = None
 def read_args(args):
     parser = argparse.ArgumentParser(
       description="Compute statistics of a clustered dataset."
-      " The script computes some summary statistics about the number of cells (classified by gene/pathogen) and some silhouette scores.")
+      " The script computes some summary statistics about the number"
+      " of cells (classified by gene/pathogen) and some silhouette scores.")
     parser.add_argument('-f',
                         type=str,
                         help="the folder where the  data lie,"
@@ -61,7 +62,8 @@ def compute_silhouettes(outfolder):
     out_silhouette = outfolder + "-statistics-silhouette.tsv"
     logger.info("Writing silhouettes to: {}".format(out_silhouette))
 
-    files = [x for x in glob.glob(outfolder + "-clusters/*") if x.endswith(".tsv")]    
+    files = [x for x in glob.glob(outfolder + "-clusters/cluster*")  \
+             if x.endswith(".tsv")]
     K = len(files)
     with open(out_silhouette, "w") as ot:
         ot.write("#Cluster\tNeighbor\tSilhouette\n")
@@ -78,7 +80,7 @@ def _compute_silhouette(outfiles, i, K, ot):
     np_i = read_matrix(outfiles[i])
     min_cluster, min_distance = mp_min_distance(i, K, np_i, outfiles)
     within_distance = _mean_distance(i, np_i, outfiles)
-    silhouette = (min_distance - within_distance) /
+    silhouette = (min_distance - within_distance) / \
         numpy.maximum(min_distance, within_distance)
     for clust, sil in zip(min_cluster, silhouette):
         ot.write("{}\t{}\t{}".format(i, clust, sil) + "\n")
