@@ -252,6 +252,19 @@ rule kmeans_recursive_transform:
         shell("{cmd}")
 
 
+rule kmeans_write_clusters:
+    input:
+        expand("{outfolder}/kmeans-transformed-recursive-clusters", outfolder=config["outfolder"])
+    run:
+        params = " ".join([x for x in config["sparkparams"]])
+        cmd = """{} --master {} \
+                    {} \
+                    3-clustering/1c-kmeans-write-clusters-statistics-spark.py \
+                    -f {}""".format(
+            config["spark"], config["sparkip"], params, input)
+        shell("{cmd}")
+
+
 rule kmeans_statistics:
     input:
         expand("{outfolder}/kmeans-transformed-recursive", outfolder=config["outfolder"])
