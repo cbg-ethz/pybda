@@ -23,7 +23,8 @@ spark = None
 
 def read_args(args):
     parser = argparse.ArgumentParser(
-      description="Compute statistics of a clustered dataset.")
+      description="Compute statistics of a clustered dataset."
+      " The script computes some summary statistics about the number of cells (classified by gene/pathogen) and some silhouette scores.")
     parser.add_argument('-f',
                         type=str,
                         help="the folder where the  data lie,"
