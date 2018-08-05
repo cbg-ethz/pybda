@@ -254,13 +254,7 @@ rule kmeans_recursive_transform:
 
 rule kmeans_statistics:
     input:
-        expand("{outfolder}/kmeans-transformed", outfolder=config["outfolder"])
-    output:
-        expand("{outfolder}/kmeans-transformed-statistics.log", outfolder=config["outfolder"]),
-        expand("{outfolder}/kmeans-transformed-statistics-gene_prediction_counts.tsv", outfolder=config["outfolder"]),
-        expand("{outfolder}/kmeans-transformed-statistics-pathogen_prediction_counts.tsv", outfolder=config["outfolder"]),
-        expand("{outfolder}/kmeans-transformed-statistics-gene_pathogen_prediction_counts.tsv", outfolder=config["outfolder"]),
-        expand("{outfolder}/kmeans-transformed-statistics-silhouette.tsv", outfolder=config["outfolder"])
+        expand("{outfolder}/kmeans-transformed-recursive", outfolder=config["outfolder"])
     run:
         params = " ".join([x for x in config["sparkparams"]])
         cmd = """{} --master {} \
