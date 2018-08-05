@@ -53,8 +53,7 @@ def count_statistics(data, folder, what):
     dnts = dnts.select(what + ["count"]).dropDuplicates()
     outfolder = folder + "-statistics-" + "_".join(what) + "_counts"
     logger.info("Writing sample table to: {}".format(outfolder))
-    #dnts.write.csv(path=outfile, sep="\t", header=True)
-    dnts.toPandas().to_csv(outfolder + ".tsv", sep="\t", index=False)
+    dnts.write.csv(path=outfolder, sep="\t", header=True, mode="overwrite")
 
 
 def compute_silhouettes(outfolder):
