@@ -32,9 +32,8 @@ def read_args(args):
 
 def write_clusters(outfolder):
     files = [x for x in glob.glob(outfolder + "/*") if x.endswith(".csv")]
-    logger.info(list(files))
     for fl in files:
-        logger.info(fl)
+        logger.info("Reading file".format(fl))
         df = pandas.read_csv(fl, sep="\t")
         for i in df["prediction"].unique():
             sub  = df[df.prediction == i]
