@@ -1,3 +1,5 @@
+
+import time
 import argparse
 import logging
 import sys
@@ -77,6 +79,7 @@ def read_matrix(fl):
 
 
 def compute_silhouettes(outfolder):
+    start = time.clock()
     out_silhouette = outfolder + "-statistics-silhouette.tsv"
     logger.info("Writing silhouettes to: {}".format(out_silhouette))
 
@@ -88,9 +91,11 @@ def compute_silhouettes(outfolder):
         logger.info("Opening file IO")
         ot.write("#Cluster\tNeighbor\tSilhouette\n")
         for current_idx in range(K):
-            logger.info("Doing file {}".format(i))
+            logger.info("Doing file {}".format(current_idx))
             _compute_silhouette(current_idx, K, ot, mat)
             ot.flush()
+    logger.info("TIme {}".format(time.clock() - start))
+
 
 def _compute_silhouette(current_idx, K, ot, mat):
     #np_i = read_matrix(outfiles[i])
