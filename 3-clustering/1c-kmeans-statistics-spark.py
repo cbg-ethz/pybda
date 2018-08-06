@@ -58,20 +58,17 @@ def count_statistics(data, folder, what):
     dnts.write.csv(path=outfolder, sep="\t", header=True, mode="overwrite")
 
 
-def compute_silhouettes(outfolder):
-    out_silhouette = outfolder + "-statistics-silhouette.tsv"
-    logger.info("Writing silhouettes to: {}".format(out_silhouette))
-
-    files = [x for x in glob.glob(outfolder + "-clusters/cluster*")  \
-             if x.endswith(".tsv")]
-    K = len(files)
-    with open(out_silhouette, "w") as ot:
-        logger.info("Opening file IO")
-        ot.write("#Cluster\tNeighbor\tSilhouette\n")
-        for i in range(K):
-            logger.info("Doing file {}".format(i))
-            _compute_silhouette(files, i, K, ot)
-            ot.flush()
+def read_matrices(files):
+    df = None
+    logger.info("Reading files into data frame")
+    for fl in files:
+        df2 = pandas.read_csv(
+            fl, sep="\t", nrows=1000,
+            usecols=lambda x: x.startswith("f_") or x.startswith("pred"))
+        df = pandas.concat([df, df2])
+    sh =  df.shape
+    logger.info("Read data frame with dimension ({} x {})".format(sh[0], sh[1]))
+    return df
 
 
 def read_matrix(fl):
@@ -79,20 +76,35 @@ def read_matrix(fl):
                            usecols=lambda x: x.startswith("f_"))
 
 
-def _compute_silhouette(outfiles, i, K, ot):
-    np_i = read_matrix(outfiles[i])
-    min_cluster, min_distance = mp_min_distance(i, K, np_i, outfiles)
-    within_distance = _mean_distance(i, np_i, outfiles)
+def compute_silhouettes(outfolder):
+    out_silhouette = outfolder + "-statistics-silhouette.tsv"
+    logger.info("Writing silhouettes to: {}".format(out_silhouette))
+
+    files = [x for x in glob.glob(outfolder + "-clusters/cluster*")  \
+             if x.endswith(".tsv")]
+    K = len(files)
+    mat = read_matrices(files)
+    with open(out_silhouette, "w") as ot:
+        logger.info("Opening file IO")
+        ot.write("#Cluster\tNeighbor\tSilhouette\n")
+        for current_idx in range(K):
+            logger.info("Doing file {}".format(i))
+            _compute_silhouette(current_idx, K, ot, mat)
+            ot.flush()
+
+def _compute_silhouette(current_idx, K, ot, mat):
+    #np_i = read_matrix(outfiles[i])
+    min_cluster, min_distance = mp_min_distance(current_idx, K, mat)
+    within_distance = _mean_distance(current_idx, current_idx, mat)
     silhouette = (min_distance - within_distance) / \
         numpy.maximum(min_distance, within_distance)
     for clust, sil in zip(min_cluster, silhouette):
-        ot.write("{}\t{}\t{}".format(i, clust, sil) + "\n")
+        ot.write("{}\t{}\t{}".format(current_idx, clust, sil) + "\n")
 
 
-def mp_min_distance(i, K, np_i, outfiles):
-    n_cores = mp.cpu_count()
-    itr = numpy.array([j for j in range(K) if j != i])
-    distances = [_mean_distance(i, np_i, outfiles) for i in itr]
+def mp_min_distance(current_idx, K, mat):
+    itr = numpy.array([j for j in range(K) if j != current_idx])
+    distances = [_mean_distance(it, current_idx, mat) for it in itr]
     distances = numpy.vstack(distances).T
     argmins = numpy.argmin(distances, axis=1)
     min_distances = numpy.min(distances, axis=1)
@@ -100,12 +112,12 @@ def mp_min_distance(i, K, np_i, outfiles):
     return arg, min_distances
 
 
-def _mean_distance(j, np, outfiles):
+def _mean_distance(it, current_idx, df):
     """Computes distances between np array and np_j"""
-    distance = 0
-    cnt = 0
-    np_j = read_matrix(outfiles[j])
-    distances = scipy.spatial.distance.cdist(np, np_j)
+    #np_j = read_matrix(outfiles[j])
+    distances = scipy.spatial.distance.cdist(
+        df[df.prediction == current_idx].iloc[:, 1:],
+        df[df.prediction == it].iloc[:, 1:])
     return numpy.mean(distances, axis=1)
 
 
