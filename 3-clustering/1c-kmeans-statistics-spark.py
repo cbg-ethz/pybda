@@ -66,9 +66,12 @@ def compute_silhouettes(outfolder):
              if x.endswith(".tsv")]
     K = len(files)
     with open(out_silhouette, "w") as ot:
+        logger.info("Opening file IO")
         ot.write("#Cluster\tNeighbor\tSilhouette\n")
         for i in range(K):
+            logger.info("Doing file {}".format(i))
             _compute_silhouette(files, i, K, ot)
+            ot.flush()
 
 
 def read_matrix(fl):
@@ -112,9 +115,9 @@ def statistics(outfolder):
     data = read_parquet_data(outfolder)
 
     # Group the data by some criteria dnd plot the statistics as parquet files
-    count_statistics(data, outfolder, ["gene", "prediction"])
-    count_statistics(data, outfolder, ["pathogen", "prediction"])
-    count_statistics(data, outfolder, ["gene", "pathogen", "prediction"])
+    #count_statistics(data, outfolder, ["gene", "prediction"])
+    #count_statistics(data, outfolder, ["pathogen", "prediction"])
+    #count_statistics(data, outfolder, ["gene", "pathogen", "prediction"])
     compute_silhouettes(outfolder)
 
 
