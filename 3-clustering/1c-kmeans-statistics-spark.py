@@ -61,13 +61,14 @@ def count_statistics(data, folder, what):
 
 
 def read_matrices(files):
-    df = None
     logger.info("Reading files into data frame")
-    for fl in files:
-        df2 = pandas.read_csv(
+    l = [None] * len(files)
+    for i, fl in enumerate(files):
+        df = pandas.read_csv(
             fl, sep="\t", nrows=1000,
             usecols=lambda x: x.startswith("f_") or x.startswith("pred"))
-        df = pandas.concat([df, df2])
+        l[i] = df
+    df = pandas.concat(l)
     sh =  df.shape
     logger.info("Read data frame with dimension ({} x {})".format(sh[0], sh[1]))
     return df
