@@ -114,9 +114,9 @@ def split_features(data):
     return data
 
 
-def write_clusters(data, outfolder):
+def write_clusters(data, outfolder, suff=""):
 
-    outpath = outfolder + "-clusters"
+    outpath = outfolder + "-clusters" + str(Mpme)
     if not pathlib.Path(outpath).exists():
         pathlib.Path(outpath).mkdir()
     data = split_features(data)
@@ -127,6 +127,13 @@ def write_clusters(data, outfolder):
     header=True)
 
 
+def _select_desired_col(data):
+    return data.select(
+      "study", "pathogen", "library", "design", "replicate",
+      "plate", "well", "gene", "sirna", "well_type",
+      "image_idx", "object_idx", "prediction", "features")
+
+
 def transform_cluster(datafolder, outpath, clusterprefix):
     data = read_parquet_data(datafolder)
 
@@ -135,15 +142,26 @@ def transform_cluster(datafolder, outpath, clusterprefix):
 
     model = KMeansModel.load(brst_model[1])
 
-    # transform data and select
-    data = model.transform(data).select(
-      "study", "pathogen", "library", "design", "replicate",
-      "plate", "well", "gene", "sirna", "well_type",
-      "image_idx", "object_idx", "prediction", "features")
+    # transform data and select
+    data_t = _select_desired_col(model.transform(data))
     logger.info("Writing clustered data to parquet")
 
     #write_parquet_data(outpath, data)
-    write_clusters(data, outpath)
+    write_clusters(data_t, outpath)
+    # check if the assignment of clusters is stable or ust a waste of time
+    check_cluster_stability(brst_model, datafolder, outpath, clusterprefix, 5)
+
+
+def check_cluster_stability(brst_model, datafolder,
+                            outpath, clusterprefix, stab_cnt):
+    logger.info("Computing cluster stabilityies")
+    k = brst_model[0]
+    for seed in range(stab_cnt):
+        km = KMeans(k=k, seed=seed)
+        model = km.fit(data)
+        data_t = _select_desired_col(model.transform(data))
+        logger.info("Writing stability computation number {}".format(seed))
+
 
 
 def loggername(outpath):
