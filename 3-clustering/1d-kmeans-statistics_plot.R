@@ -346,23 +346,17 @@ radian.rescale <- function(x, start=0, direction=1) {
   loc[as.integer(V(gragra)$name) > 19947] <- 1.25
   V(gragra)$loc <-  loc
 
-  pdf(paste0(d, "/graph.pdf"))
-  svg(paste0(d, "/graph.svg"))
-  plot(gragra, layout=l, vertex.size=5, vertex.color="black", vertex.label.degree=V(gragra)$loc,
-            vertex.label.cex=0, vertex.label.dist=1.1, vertex.label.color="black",
-            edge.color="darkgrey", edge.width=.75, edge.arrow.size=.65, vertex.label.font=1, vertex.label.family="Helvetica")
-  dev.off()
-
-
-
-  ggplot(loglik.path) +
-    geom_point( aes(current_model, current_expl)) +
+  p1 <-
+    ggplot() +
+    geom_point(data=subset(loglik.path, current_model > 1),
+               aes(factor(current_model), current_expl)) +
     theme_minimal() +
-    scale_x_continuous() +
+    scale_x_discrete("K") +
+    scale_y_log10("Explained Variance", limits=c(0, 1)) +
     geom_rangeframe() +
     theme(panel.grid.major.x=element_blank(),
           panel.grid.minor.x=element_blank())
-
+  p1
 
 
   loglik.files <- list.files(d, full.names=TRUE, pattern="loglik")
