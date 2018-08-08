@@ -321,6 +321,12 @@ plot.best.clusters <- function(best.clusters, dir, how.many.clusters=5)
 }
 
 
+radian.rescale <- function(x, start=0, direction=1) {
+  c.rotate <- function(x) (x + start) %% (2 * pi) * direction
+  c.rotate(scales::rescale(x, c(0, 2 * pi), range(x)))
+}
+
+
 .loc <- function()
 {
   library(igraph)
@@ -335,14 +341,22 @@ plot.best.clusters <- function(best.clusters, dir, how.many.clusters=5)
   l <- layout_as_tree(gragra)
   l[,2] <- seq(nrow(df) + 1, 1)
   l[order(as.integer(V(gragra)$name)),1] <- seq(1, nrow(df) + 1)
-  plot(gragra, layout=l)
+
+  loc <- rep(-4.5, 13)
+  loc[as.integer(V(gragra)$name) > 19947] <- 1.25
+  V(gragra)$loc <-  loc
+
+  pdf(paste0(d, "/graph.pdf"))
+  svg(paste0(d, "/graph.svg"))
+  plot(gragra, layout=l, vertex.size=5, vertex.color="black", vertex.label.degree=V(gragra)$loc,
+            vertex.label.cex=0, vertex.label.dist=1.1, vertex.label.color="black",
+            edge.color="darkgrey", edge.width=.75, edge.arrow.size=.65, vertex.label.font=1, vertex.label.family="Helvetica")
+  dev.off()
 
 
-   s <- render_graph(gr)
 
   ggplot(loglik.path) +
     geom_point( aes(current_model, current_expl)) +
-    geom_label( aes(current_model, current_expl, label=current_model))
     theme_minimal() +
     scale_x_continuous() +
     geom_rangeframe() +
