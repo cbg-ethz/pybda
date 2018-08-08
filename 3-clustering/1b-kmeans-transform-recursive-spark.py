@@ -126,6 +126,7 @@ def write_clusters(data, outfolder):
       path=outpath, sep='\t', mode='overwrite',
     header=True)
 
+
 def transform_cluster(datafolder, outpath, clusterprefix):
     data = read_parquet_data(datafolder)
 

@@ -3,19 +3,17 @@
 suppressPackageStartupMessages(library(argparse))
 suppressPackageStartupMessages(library(stringr))
 suppressPackageStartupMessages(library(dplyr))
-suppressPackageStartupMessages(library(dtplyr))
+suppressPackageStartupMessages(library(tibble))
 suppressPackageStartupMessages(library(readr))
 suppressPackageStartupMessages(library(tidyr))
-suppressPackageStartupMessages(library(data.table))
-suppressPackageStartupMessages(library(tibble))
 suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(hrbrthemes))
-suppressPackageStartupMessages(library(ggthemr))
+suppressPackageStartupMessages(library(ggthemes))
 suppressPackageStartupMessages(library(purrr))
 suppressPackageStartupMessages(library(viridis))
 suppressPackageStartupMessages(library(cowplot))
 
-suppressWarnings(ggthemr("fresh", "scientific"))
+ggthemr::ggthemr_reset()
 suppressMessages(hrbrthemes::import_roboto_condensed())
 
 library(futile.logger)
@@ -86,7 +84,7 @@ analyse.gene.pathogen.prediction <- function(gene.pred.file)
 
 silhouette.plot <- function(silhouette.file)
 {
-  flog.info('PLotting silhouette scores for single cell measurements.', name=logr)
+  flog.info('Plotting silhouette scores for single cell measurements.', name=logr)
 
   dat <- fread(silhouette.file,  sep="\t", header=TRUE) %>%
     rename(Cluster = "#Cluster")
@@ -323,8 +321,49 @@ plot.best.clusters <- function(best.clusters, dir, how.many.clusters=5)
 }
 
 
+.loc <- function()
+{
+  library(igraph)
+  d <- "/Users/simondi/PROJECTS/target_infect_x_project/results/2-analysis/2-clustering/current"
+
+  loglik.file      <- list.files(d, full.names=T, pattern="lrt_path")
+  loglik.path  <- read_tsv(loglik.file)
+  df <- data.frame(
+    from = loglik.path$current_model[seq(1, nrow(loglik.path) - 1)],
+    to   = loglik.path$current_model[seq(2, nrow(loglik.path))])
+  gragra <- graph_from_data_frame(df)
+  l <- layout_as_tree(gragra)
+  l[,2] <- seq(nrow(df) + 1, 1)
+  l[order(as.integer(V(gragra)$name)),1] <- seq(1, nrow(df) + 1)
+  plot(gragra, layout=l)
+
+
+   s <- render_graph(gr)
+
+  ggplot(loglik.path) +
+    geom_point( aes(current_model, current_expl)) +
+    geom_label( aes(current_model, current_expl, label=current_model))
+    theme_minimal() +
+    scale_x_continuous() +
+    geom_rangeframe() +
+    theme(panel.grid.major.x=element_blank(),
+          panel.grid.minor.x=element_blank())
+
+
+
+  loglik.files <- list.files(d, full.names=TRUE, pattern="loglik")
+  df <- invisible(purrr::map_df(loglik.files, function(.) {
+    read_tsv(., progress=F) })) %>%
+    dplyr::filter(K %in% loglik.path$current_model) %>%
+    dplyr::arrange(K)
+}
+
 (run <- function() {
   parser <- ArgumentParser()
+  parser$add_argument(
+    "-g", "--prediction", help = paste("tsv file that contains gene-pathogen predictions, e.g.",
+                                       "sth like 'kmeans-transformed-statistics-gene_pathogen_prediction_counts.tsv'")
+  )
   parser$add_argument(
     "-g", "--prediction", help = paste("tsv file that contains gene-pathogen predictions, e.g.",
                       "sth like 'kmeans-transformed-statistics-gene_pathogen_prediction_counts.tsv'")
@@ -338,6 +377,7 @@ plot.best.clusters <- function(best.clusters, dir, how.many.clusters=5)
   {
     stop(parser$print_help())
   }
+  opt <- list(prediction=)
 
   dir <- dirname(opt$prediction)
   lg.file <- paste0(dir, "/kmeans-transformed-statistics-plot.log")

@@ -211,7 +211,7 @@ def _estimate_model(total_sse, k, n, p, data, outpath):
             fh.write("{}\n".format(c))
 
     ccf = clustout + "_cluster_centers.tsv"
-    logger.info("\triting cluster centers to: {}".format(ccf))
+    logger.info("\tWriting cluster centers to: {}".format(ccf))
     with open(ccf, "w") as fh:
         fh.write("#Clustercenters\n")
         for center in model.clusterCenters():
@@ -276,7 +276,13 @@ def recursive_clustering(file_name, K, outpath, lrt_file, threshold=.01, maxit=1
 
     lrts = []
     K_mod = estimate_model(total_sse, mods, right, n, p, data, outpath)
+    lrts.append(
+          ExplainedVariance(
+            left, K, K, K,
+            K_mod['expl'], K_mod['expl'], K_mod["sse"], K_mod['sse'],
+            total_sse, improved_variance))
     itr = 0
+
     while True:
         mids.append(mid)
         lefts.append(left)
