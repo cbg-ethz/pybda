@@ -94,7 +94,6 @@ def compute_silhouettes(outfolder):
         for current_idx in range(K):
             logger.info("Doing file {}".format(current_idx))
             _compute_silhouette(current_idx, K, ot, mat)
-            ot.flush()
     logger.info("TIme {}".format(time.clock() - start))
 
 
