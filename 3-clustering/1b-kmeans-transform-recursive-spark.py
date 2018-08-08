@@ -167,7 +167,6 @@ def check_cluster_stability(brst_model, data,
         logger.info("Writing stability computation number {}".format(seed))
 
 
-
 def loggername(outpath):
     return outpath + ".log"
 
