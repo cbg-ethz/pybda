@@ -114,17 +114,20 @@ def split_features(data):
     return data
 
 
-def write_clusters(data, outfolder, suff=""):
+def write_clusters(data, outfolder, suff="", sort_me=True):
 
-    outpath = outfolder + "-clusters" + str(Mpme)
+    outpath = outfolder + "-clusters" + str(suff)
     if not pathlib.Path(outpath).exists():
         pathlib.Path(outpath).mkdir()
     data = split_features(data)
 
     logger.info("Writing clusters to: {}".format(outpath))
-    data.sort(col('prediction')).write.csv(
-      path=outpath, sep='\t', mode='overwrite',
-    header=True)
+    if sort_me:
+        data.sort(col('prediction')).write.csv(
+            path=outpath, sep='\t', mode='overwrite', header=True)
+    else:
+        data.write.csv(path=outpath, sep='\t', mode='overwrite', header=True)
+
 
 
 def _select_desired_col(data):
@@ -140,26 +143,27 @@ def transform_cluster(datafolder, outpath, clusterprefix):
     brst_model = get_optimal_k(outpath, clusterprefix)
     logger.info("Using model: {}".format(brst_model[0]))
 
-    model = KMeansModel.load(brst_model[1])
+    #model = KMeansModel.load(brst_model[1])
 
     # transform data and select
-    data_t = _select_desired_col(model.transform(data))
-    logger.info("Writing clustered data to parquet")
+    #data_t = _select_desired_col(model.transform(data))
+    #logger.info("Writing clustered data to parquet")
 
     #write_parquet_data(outpath, data)
-    write_clusters(data_t, outpath)
+    #write_clusters(data_t, outpath)
     # check if the assignment of clusters is stable or ust a waste of time
-    check_cluster_stability(brst_model, datafolder, outpath, clusterprefix, 5)
+    check_cluster_stability(brst_model, data, outpath, clusterprefix, 5)
 
 
-def check_cluster_stability(brst_model, datafolder,
+def check_cluster_stability(brst_model, data,
                             outpath, clusterprefix, stab_cnt):
-    logger.info("Computing cluster stabilityies")
+    logger.info("Computing cluster stabilitiies")
     k = brst_model[0]
     for seed in range(stab_cnt):
         km = KMeans(k=k, seed=seed)
         model = km.fit(data)
         data_t = _select_desired_col(model.transform(data))
+        write_clusters(data_t, outpath, suff="-seed_{}".format(seed), sort_me=False)
         logger.info("Writing stability computation number {}".format(seed))
 
 
