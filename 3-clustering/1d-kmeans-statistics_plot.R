@@ -9,10 +9,10 @@ suppressPackageStartupMessages(library(tidyr))
 suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(hrbrthemes))
 suppressPackageStartupMessages(library(ggthemes))
+suppressPackageStartupMessages(library(ggthemr))
 suppressPackageStartupMessages(library(purrr))
 suppressPackageStartupMessages(library(viridis))
 suppressPackageStartupMessages(library(cowplot))
-
 
 
 suppressMessages(hrbrthemes::import_roboto_condensed())
@@ -45,73 +45,13 @@ my.theme <- function(title.hjust = 0, legend_pos="bottom") {
 }
 
 
-#' @description Create a table where every row counts
-#'  how many single cells belong to every gene-pathogen group
-.get.cell.count.per.gene.pathogen.group <- . %>%
-  group_by(gene, pathogen) %>%
-  dplyr::summarize(n=sum(count)) %>%
-  ungroup()
-
-
-#' @description Compute a table where every row shows the frequency
-#' of a single cell belonging to a specific gene-pathogen group maps to a cluster
-#' I.e: what is the frequency of a gene-pathogen group in a cluster
-.compute.cell.cluster.frequencies <- function(dat, gpc)
-{
-  dat <- dplyr::left_join(dat, gpc, by=c("gene", "pathogen"))
-  dat <- dplyr::mutate(dat, Frequency=count/n) %>%
-    arrange(-Frequency)
-  dat
-}
-
-
-analyse.gene.pathogen.prediction <- function(gene.pred.file)
-{
-
-  flog.info('Computing histograms for gene pathogen predictions. ', name=logr)
-
-  dat <- data.table::fread(gene.pred.file, sep="\t", header=TRUE)
-
-  gene.pathogen.combinations <- .get.cell.count.per.gene.pathogen.group(dat)
-  dat <- .compute.cell.cluster.frequencies(
-    dat, gene.pathogen.combinations)
-
-  hs <- hist(dat$Frequency, breaks=300, plot=FALSE)
-  df <- data.frame(Frequency=hs$mids, Density=hs$counts/sum(hs$counts))
-  fre <- mean(dat$Frequency)
-  plt <-
-  ggplot(df) +
-    geom_histogram(aes(x=Frequency, y=Density), stat="identity", fill="darkgrey") +
-    hrbrthemes::theme_ipsum_rc(base_family = "Helvetica") +
-    ylab("Density") +
-    xlab("Relative frequency of single-cells mapping to same cluster") +
-    labs(caption=paste("The plot shows the relative frequency if single-cells of the same",
-                       "genetic knockdown and pathogen map to the same cluster.", sep="\n")) +
-    geom_vline(data=NULL, aes(xintercept=fre), color="red", lwd=1) +
-    geom_text(data=NULL, aes(x=fre, y=.15), label=paste0("Mean=", round(fre, 3)), hjust=-.25) +
-    ggplot2::theme(axis.text.x  = ggplot2::element_text( size=18, color="black"),
-                   axis.text.y  = ggplot2::element_text(size=18, color="black"),
-                   panel.grid.minor = element_blank(),
-                   plot.caption  = ggplot2::element_text(size=14, color="black"),
-                   axis.title.x   = ggplot2::element_text(size=20),
-                   axis.title.y   = ggplot2::element_text(size=20))
-
-  flog.info('Plotting histograms for gene pathogen predictions. ', name=logr)
-  gene.pred.folder <- stringr::str_match(string=gene.pred.file, pattern="(.*).tsv")[2]
-  for (i in c("eps", "png", "svg"))
-  {
-    ggsave(filename=paste0(gene.pred.folder, "-frequencies.", i),
-           plot=plt, device=i, width=12, height=7, dpi=1080)
-  }
-}
-
-
 silhouette.plot <- function(silhouette.file)
 {
   flog.info('Plotting silhouette scores for single cell measurements.', name=logr)
 
-  dat <- fread(silhouette.file,  sep="\t", header=TRUE) %>%
+  dat <- read_tsv(silhouette.file) %>%
     rename(Cluster = "#Cluster")
+
   hs <- hist(dat$Silhouette, plot=FALSE, breaks=100)
   neg.mids.idxs <- which(hs$mids <= 0)
   pos.mids.idxs <- which(hs$mids > 0)
@@ -120,24 +60,23 @@ silhouette.plot <- function(silhouette.file)
              hs$counts[pos.mids.idxs]/sum(hs$counts))
   trends <- c(rep("Negative", length(neg.mids.idxs)),
               rep("Postive", length(pos.mids.idxs)))
-  df <- data.frame(Silhouette=scors, Frequency=freqs, Trend=trends)
+  df <- tibble(Silhouette=scors, Frequency=freqs, Trend=trends)
 
   plt <- ggplot(df)
   if (length(unique(df$Trend)) != 1)
-    plt <- plt + geom_bar(stat = "identity", aes(x=Silhouette, y=Frequency, fill=Trend))
+    plt <- plt + geom_bar(stat = "identity", aes(x=Silhouette, y=Frequency), fill="darkgrey")
   if (length(unique(df$Trend)) == 1)
     plt <- plt + geom_bar(stat = "identity", aes(x=Silhouette, y=Frequency), fill="darkgrey")
   plt <- plt +
-    scale_fill_manual(values=swatch()[c(4,2)], labels=c("Negative", "Positive")) +
     xlab("Silhouette score") +
-    ylab("Relative frequency") +
-    hrbrthemes::theme_ipsum_rc(base_family = "Helvetica")
+    ylab("Frequency") +
+    hrbrthemes::theme_ipsum_rc()
   if (length(unique(df$Trend)) != 1)
     plt <- plt +
-      scale_x_continuous(limits=c(-max(abs(df$Silhouette)), max(abs(df$Silhouette)))) +
-      scale_y_continuous(limits=c(-max(df$Frequency), max(df$Frequency)),
-                         breaks=seq(from=-round(max(df$Frequency), digits=2), to=round(max(df$Frequency), digits=2), length.out=5),
-                         labels=abs(seq(from=-round(max(df$Frequency), digits=2), to=round(max(df$Frequency), digits=2), length.out=5)))
+    scale_x_continuous(limits=c(-max(abs(df$Silhouette)), max(abs(df$Silhouette)))) +
+    scale_y_continuous(limits=c(-max(df$Frequency), max(df$Frequency)),
+                       breaks=seq(from=-round(max(df$Frequency), digits=2), to=round(max(df$Frequency), digits=2), length.out=5),
+                       labels=abs(seq(from=-round(max(df$Frequency), digits=2), to=round(max(df$Frequency), digits=2), length.out=5)))
   plt <- plt +
     ggplot2::theme(axis.text.x  = ggplot2::element_text( size=18),
                    axis.text.y  = ggplot2::element_text(size=18),
@@ -149,12 +88,88 @@ silhouette.plot <- function(silhouette.file)
                    legend.title=element_blank(),
                    legend.text=element_text(size=14),
                    axis.title.y   = ggplot2::element_text(size=20)) +
+    guides(fill=FALSE) +
     coord_flip()
 
   outfi <- sub(".tsv", "", silhouette.file)
   for (i in c("eps", "png", "svg"))
   {
     ggsave(filename=paste0(outfi, ".", i),
+           plot=plt, device=i, width=8, height=8, dpi=1080)
+  }
+}
+
+
+#' @description Create a table where every row counts
+#'  how many single cells belong to every gene-pathogen group
+.get.cell.count.per.gene.pathogen.group <- . %>%
+  group_by(gene, pathogen) %>%
+  dplyr::summarize(n=sum(count)) %>%
+  ungroup()
+
+#' @description Create a table where every row counts
+#'  how many single cells belong to every gene-pathogen group
+.get.cell.count.per.gene.group <- . %>%
+  group_by(gene) %>%
+  dplyr::summarize(n=sum(count)) %>%
+  ungroup()
+
+
+
+#' @description Compute a table where every row shows the frequency
+#' of a single cell belonging to a specific gene-pathogen group maps to a cluster
+#' I.e: what is the frequency of a gene-pathogen group in a cluster
+.compute.cell.cluster.frequencies <- function(dat, gpc, by)
+{
+  dat <- dplyr::left_join(dat, gpc, by=by)
+  dat <- dplyr::mutate(dat, Frequency=count/n) %>%
+    arrange(-Frequency)
+  dat
+}
+
+
+analyse.gene.pathogen.prediction <- function(gene.pred.fold)
+{
+
+  flog.info('Computing histograms for gene pathogen predictions. ', name=logr)
+
+  dat <- purrr:::map_dfr(list.files(gene.pred.fold, full.names=T), function(.) {
+    read_tsv(.)
+  })
+
+  gene.pathogen.combinations <- .get.cell.count.per.gene.group(dat)
+  dat <- .compute.cell.cluster.frequencies(
+    dat, gene.pathogen.combinations, c("gene"))
+
+  hs <- hist(dat$Frequency, breaks=200, plot=FALSE)
+  df <- tibble(Frequency=hs$mids, Density=hs$counts/sum(hs$counts))
+  fre <- mean(dat$Frequency)
+  fre
+  plt <-
+    ggplot(df) +
+    scale_x_continuous(limits=c(0 , 0.01)) +
+    geom_histogram(aes(x=Frequency, y=Density),  stat="identity", fill="darkgrey") +
+    hrbrthemes::theme_ipsum() +
+    my.theme() +
+    ylab("Density") +
+    xlab("Relative frequency of single-cells mapping to same cluster") +
+    labs(caption=paste("The plot shows the relative frequency if single-cells of the same",
+                       "genetic knockdown and pathogen map to the same cluster.", sep="\n")) +
+    geom_vline(data=NULL, aes(xintercept=fre), color="red", lwd=1) +
+    geom_text(data=NULL, aes(x=fre, y=.15), label=paste0("Mean=", round(fre, 3)), hjust=-.25, size=5) +
+    my.theme() +
+    ggplot2::theme(axis.text.x  = ggplot2::element_text( size=18, color="black"),
+                   axis.text.y  = ggplot2::element_text(size=18, color="black"),
+                   panel.grid.minor = element_blank(),
+                   plot.caption  = ggplot2::element_text(size=14, color="black"),
+                   axis.title.x   = ggplot2::element_text(size=20),
+                   axis.title.y   = ggplot2::element_text(size=20))
+  plt
+
+  flog.info('Plotting histograms for gene pathogen predictions. ', name=logr)
+  for (i in c("eps", "png", "svg"))
+  {
+    ggsave(filename=paste0(gene.pred.fold, "-frequencies.", i),
            plot=plt, device=i, width=12, height=7, dpi=1080)
   }
 }
@@ -345,69 +360,29 @@ plot.best.clusters <- function(best.clusters, dir, how.many.clusters=5)
 }
 
 
-plot.explained.variance <- function(data.dir)
-{
-  loglik.file      <- list.files(data.dir, full.names=T, pattern="lrt_path")
-  loglik.path  <- read_tsv(loglik.file) %>%
-    dplyr::mutate(iteration = seq(nrow(.)))
-
-  p1 <- ggplot(data = loglik.path, aes(iteration, current_model)) +
-      geom_point(size = 0.5) +
-      cowplot::theme_cowplot()+
-      my.theme(-0.85) +
-      geom_line(lwd = 0.5) +
-      scale_x_continuous(breaks = seq(1, 13, 3)) +
-      scale_y_continuous(breaks = seq(0, 50000, 25000),
-                         limits = c(0, 51000)) +
-      labs(x = "Iteration", y = "", title = "Number of clusters")
-  p2 <-  ggplot(data = loglik.path, aes(iteration, current_expl)) +
-    geom_point(size=0.5) +
-    cowplot::theme_cowplot()+
-    my.theme(title.hjust = -0.7) +
-    geom_line(lwd = 0.5) +
-    scale_x_continuous(breaks = seq(1, 13, 3)) +
-    scale_y_continuous(labels = scales::percent, limits = c(0.93, 0.96)) +
-    labs(x = "Iteration", y = "", title = "Explained variance")
-
-  p <- ggdraw() +
-    draw_plot(p1, -0.05, 0.4, 1.05, 0.5) +
-    draw_plot(p2, -0.02, 0, 1.02, 0.53)
-
-  for (i in c("svg", "pdf", "png")) {
-    ggsave(paste0(d, "/kmeans-recurive-transform-explained_variance.", i),
-           p, dpi = 900, height = 10, width = 7, units = "cm")
-  }
-}
-
-
-
 (run <- function() {
   parser <- ArgumentParser()
   parser$add_argument(
-    "-g", "--prediction", help = paste("tsv file that contains gene-pathogen predictions, e.g.",
+    "-f", "--folder", help = paste("tsv file that contains gene-pathogen predictions, e.g.",
                       "sth like 'kmeans-transformed-statistics-gene_pathogen_prediction_counts.tsv'")
-    )
-  parser$add_argument(
-    "-s", "--silhouettes", help = paste("tsv file that contains the silhouette scores, e.g.",
-                      "kmeans-transformed-statistics-silhouette.tsv'"))
+  )
 
   opt <- parser$parse_args()
-  if (is.null(opt$prediction) || is.null(opt$silhouettes))
+  if (is.null(opt$folder) || is.null(opt$silhouettes))
   {
     stop(parser$print_help())
   }
-  opt <- list(prediction=)
 
-  dir <- dirname(opt$prediction)
-  lg.file <- paste0(dir, "/kmeans-transformed-statistics-plot.log")
+  data.dir <- opt$folder
+  lg.file  <- paste0(dir, "/kmeans-transformed-statistics-plot.log")
   flog.appender(appender.file(lg.file), name=logr)
 
-  gene.pred.file <- opt$prediction
-  silhouette.file <- opt$silhouettes
+  gene.pred.fold <- list.files(data.dir, pattern="gene_prediction_count", full.names=T)
+  silhouette.file <- list.files(data.dir, pattern="silhouette.tsv", full.names=T)
 
 
 
-  analyse.gene.pathogen.prediction(gene.pred.file)
+  analyse.gene.pathogen.prediction(gene.pred.files)
   silhouette.plot(silhouette.file)
 
   tabs <- create.table(gene.pred.file)
