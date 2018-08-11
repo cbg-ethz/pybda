@@ -80,6 +80,7 @@ plot.explained.variance <- function(data.dir)
 }
 
 
+
 plot.cluster.sizes <- function(data.dir)
 {
   flog.info('Plotting cluster sizes', name=logr)
