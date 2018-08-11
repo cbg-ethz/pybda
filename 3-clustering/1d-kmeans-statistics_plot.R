@@ -73,7 +73,7 @@ silhouette.plot <- function(silhouette.file)
     hrbrthemes::theme_ipsum_rc()
   if (length(unique(df$Trend)) != 1)
     plt <- plt +
-    scale_x_continuous(limits=c(-max(abs(df$Silhouette)), max(abs(df$Silhouette)))) +
+    #scale_x_continuous(limits=c(-max(abs(df$Silhouette)), max(abs(df$Silhouette)))) +
     scale_y_continuous(limits=c(-max(df$Frequency), max(df$Frequency)),
                        breaks=seq(from=-round(max(df$Frequency), digits=2), to=round(max(df$Frequency), digits=2), length.out=5),
                        labels=abs(seq(from=-round(max(df$Frequency), digits=2), to=round(max(df$Frequency), digits=2), length.out=5)))
@@ -83,7 +83,7 @@ silhouette.plot <- function(silhouette.file)
                    plot.caption  = ggplot2::element_text(size=14),
                    axis.title.x   = ggplot2::element_text(size=20),
                    legend.position="bottom",
-                   panel.grid.minor = element_blank(),
+                   panel.grid.minor.x = element_blank(),
                    panel.grid.major.x = element_blank(),
                    legend.title=element_blank(),
                    legend.text=element_text(size=14),
@@ -107,13 +107,13 @@ silhouette.plot <- function(silhouette.file)
   dplyr::summarize(n=sum(count)) %>%
   ungroup()
 
+
 #' @description Create a table where every row counts
 #'  how many single cells belong to every gene-pathogen group
 .get.cell.count.per.gene.group <- . %>%
   group_by(gene) %>%
   dplyr::summarize(n=sum(count)) %>%
   ungroup()
-
 
 
 #' @description Compute a table where every row shows the frequency
@@ -144,11 +144,11 @@ analyse.gene.pathogen.prediction <- function(gene.pred.fold)
   hs <- hist(dat$Frequency, breaks=200, plot=FALSE)
   df <- tibble(Frequency=hs$mids, Density=hs$counts/sum(hs$counts))
   fre <- mean(dat$Frequency)
-  fre
+
   plt <-
     ggplot(df) +
     scale_x_continuous(limits=c(0 , 0.01)) +
-    geom_histogram(aes(x=Frequency, y=Density),  stat="identity", fill="darkgrey") +
+    geom_histogram(aes(x=Frequency, y=Density),  stat="identity", fill="darkgray") +
     hrbrthemes::theme_ipsum() +
     my.theme() +
     ylab("Density") +
@@ -164,7 +164,6 @@ analyse.gene.pathogen.prediction <- function(gene.pred.fold)
                    plot.caption  = ggplot2::element_text(size=14, color="black"),
                    axis.title.x   = ggplot2::element_text(size=20),
                    axis.title.y   = ggplot2::element_text(size=20))
-  plt
 
   flog.info('Plotting histograms for gene pathogen predictions. ', name=logr)
   for (i in c("eps", "png", "svg"))
@@ -175,13 +174,17 @@ analyse.gene.pathogen.prediction <- function(gene.pred.fold)
 }
 
 
-create.table <- function(gene.pred.file)
+create.table <- function(gene.pred.fold)
 {
   flog.info("Computing best gene and cluster tables", name=logr)
-  dat <- data.table::fread(gene.pred.file, sep="\t", header=TRUE)
-  gene.pathogen.combinations <- .get.cell.count.per.gene.pathogen.group(dat)
+
+  dat <- purrr:::map_dfr(list.files(gene.pred.fold, full.names=T), function(.) {
+    read_tsv(.)
+  })
+
+  gene.pathogen.combinations <- .get.cell.count.per.gene.group(dat)
   dat <- .compute.cell.cluster.frequencies(
-    dat, gene.pathogen.combinations)
+    dat, gene.pathogen.combinations, c("gene"))
 
   # Here we try to get the genes that are most dominant in a single cluster
   # i.e.: which genes have the hightest frequency of being in the SAME cluster
@@ -379,7 +382,6 @@ plot.best.clusters <- function(best.clusters, dir, how.many.clusters=5)
 
   gene.pred.fold <- list.files(data.dir, pattern="gene_prediction_count", full.names=T)
   silhouette.file <- list.files(data.dir, pattern="silhouette.tsv", full.names=T)
-
 
 
   analyse.gene.pathogen.prediction(gene.pred.files)
