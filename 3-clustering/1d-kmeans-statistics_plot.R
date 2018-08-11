@@ -13,12 +13,36 @@ suppressPackageStartupMessages(library(purrr))
 suppressPackageStartupMessages(library(viridis))
 suppressPackageStartupMessages(library(cowplot))
 
-ggthemr::ggthemr_reset()
+
+
 suppressMessages(hrbrthemes::import_roboto_condensed())
 
 library(futile.logger)
 logr <- "logger"
 flog.logger(logr, futile.logger::INFO)
+
+
+my.theme <- function(title.hjust = 0, legend_pos="bottom") {
+  theme(
+    axis.text = element_text(size = 8),
+    axis.title.x = element_text(size = 8, face = "bold",
+                                hjust = 1),
+    axis.title.y = element_text(size = 8, face = "bold"),
+    plot.title = element_text(size = 8, face = "bold",
+                              hjust = title.hjust),
+    plot.margin = rep(grid::unit(1, "cm"), 4),
+    strip.text.x = element_text(size = 8),
+    strip.text.y = element_text(size = 8),
+    axis.line = element_blank(),
+    legend.position = legend_pos,
+    legend.text = element_text(size = 8),
+    legend.title = element_text(size = 8)) +
+    background_grid(
+      major = "y", minor = "y",
+      colour.major = "grey80", colour.minor = "grey90",
+      size.major = 0.2, size.minor = 0.2
+    )
+}
 
 
 #' @description Create a table where every row counts
@@ -321,57 +345,44 @@ plot.best.clusters <- function(best.clusters, dir, how.many.clusters=5)
 }
 
 
-radian.rescale <- function(x, start=0, direction=1) {
-  c.rotate <- function(x) (x + start) %% (2 * pi) * direction
-  c.rotate(scales::rescale(x, c(0, 2 * pi), range(x)))
-}
-
-
-.loc <- function()
+plot.explained.variance <- function(data.dir)
 {
-  library(igraph)
-  d <- "/Users/simondi/PROJECTS/target_infect_x_project/results/2-analysis/2-clustering/current"
+  loglik.file      <- list.files(data.dir, full.names=T, pattern="lrt_path")
+  loglik.path  <- read_tsv(loglik.file) %>%
+    dplyr::mutate(iteration = seq(nrow(.)))
 
-  loglik.file      <- list.files(d, full.names=T, pattern="lrt_path")
-  loglik.path  <- read_tsv(loglik.file)
-  df <- data.frame(
-    from = loglik.path$current_model[seq(1, nrow(loglik.path) - 1)],
-    to   = loglik.path$current_model[seq(2, nrow(loglik.path))])
-  gragra <- graph_from_data_frame(df)
-  l <- layout_as_tree(gragra)
-  l[,2] <- seq(nrow(df) + 1, 1)
-  l[order(as.integer(V(gragra)$name)),1] <- seq(1, nrow(df) + 1)
+  p1 <- ggplot(data = loglik.path, aes(iteration, current_model)) +
+      geom_point(size = 0.5) +
+      cowplot::theme_cowplot()+
+      my.theme(-0.85) +
+      geom_line(lwd = 0.5) +
+      scale_x_continuous(breaks = seq(1, 13, 3)) +
+      scale_y_continuous(breaks = seq(0, 50000, 25000),
+                         limits = c(0, 51000)) +
+      labs(x = "Iteration", y = "", title = "Number of clusters")
+  p2 <-  ggplot(data = loglik.path, aes(iteration, current_expl)) +
+    geom_point(size=0.5) +
+    cowplot::theme_cowplot()+
+    my.theme(title.hjust = -0.7) +
+    geom_line(lwd = 0.5) +
+    scale_x_continuous(breaks = seq(1, 13, 3)) +
+    scale_y_continuous(labels = scales::percent, limits = c(0.93, 0.96)) +
+    labs(x = "Iteration", y = "", title = "Explained variance")
 
-  loc <- rep(-4.5, 13)
-  loc[as.integer(V(gragra)$name) > 19947] <- 1.25
-  V(gragra)$loc <-  loc
+  p <- ggdraw() +
+    draw_plot(p1, -0.05, 0.4, 1.05, 0.5) +
+    draw_plot(p2, -0.02, 0, 1.02, 0.53)
 
-  p1 <-
-    ggplot() +
-    geom_point(data=subset(loglik.path, current_model > 1),
-               aes(factor(current_model), current_expl)) +
-    theme_minimal() +
-    scale_x_discrete("K") +
-    scale_y_log10("Explained Variance", limits=c(0, 1)) +
-    geom_rangeframe() +
-    theme(panel.grid.major.x=element_blank(),
-          panel.grid.minor.x=element_blank())
-  p1
-
-
-  loglik.files <- list.files(d, full.names=TRUE, pattern="loglik")
-  df <- invisible(purrr::map_df(loglik.files, function(.) {
-    read_tsv(., progress=F) })) %>%
-    dplyr::filter(K %in% loglik.path$current_model) %>%
-    dplyr::arrange(K)
+  for (i in c("svg", "pdf", "png")) {
+    ggsave(paste0(d, "/kmeans-recurive-transform-explained_variance.", i),
+           p, dpi = 900, height = 10, width = 7, units = "cm")
+  }
 }
+
+
 
 (run <- function() {
   parser <- ArgumentParser()
-  parser$add_argument(
-    "-g", "--prediction", help = paste("tsv file that contains gene-pathogen predictions, e.g.",
-                                       "sth like 'kmeans-transformed-statistics-gene_pathogen_prediction_counts.tsv'")
-  )
   parser$add_argument(
     "-g", "--prediction", help = paste("tsv file that contains gene-pathogen predictions, e.g.",
                       "sth like 'kmeans-transformed-statistics-gene_pathogen_prediction_counts.tsv'")
@@ -394,10 +405,16 @@ radian.rescale <- function(x, start=0, direction=1) {
   gene.pred.file <- opt$prediction
   silhouette.file <- opt$silhouettes
 
+
+
   analyse.gene.pathogen.prediction(gene.pred.file)
   silhouette.plot(silhouette.file)
 
   tabs <- create.table(gene.pred.file)
     plot.oras(tabs$best.clusters, gene.pred.file)
   plot.best.clusters(tabs$best.clusters, dir)
+
+  data.dir <- "/Users/simondi/PROJECTS/target_infect_x_project/results/2-analysis/2-clustering/current"
+  plot.explained.variance(data.dir)
+
 })()
