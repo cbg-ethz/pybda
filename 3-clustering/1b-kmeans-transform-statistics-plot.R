@@ -46,6 +46,7 @@ my.theme <- function(title.hjust = 0, legend_pos="bottom") {
 
 plot.explained.variance <- function(data.dir)
 {
+  flog.info('Plotting explained variance', name=logr)
   loglik.file      <- list.files(data.dir, full.names=T, pattern="lrt_path")
   loglik.path  <- read_tsv(loglik.file) %>%
     dplyr::mutate(iteration = seq(nrow(.)))
@@ -79,6 +80,53 @@ plot.explained.variance <- function(data.dir)
 }
 
 
+plot.cluster.sizes <- function(data.dir)
+{
+  flog.info('Plotting cluster sizes', name=logr)
+  loglik.file      <- list.files(data.dir, full.names=T, pattern="lrt_path")
+  loglik.path  <- read_tsv(loglik.file) %>%
+    dplyr::mutate(iteration = seq(nrow(.)))
+
+  dat$ClusterCount <- factor(dat$ClusterCount, levels=rev(sort(unique(dat$ClusterCount))))
+  crit <-  group_by(dat, ClusterCount) %>%
+    summarize(Min=min(K), Max=max(K)) %>%
+    tidyr::gather(Criteria, Value, -ClusterCount)
+
+  plt <-
+    ggplot() +
+    geom_density_ridges(
+      data=dat,  aes(x = dat$K, y = dat$ClusterCount, ), fill="gray",
+      stat = "binline", scale = .4, draw_baseline = FALSE, bins=100, alpha=.5) +
+    geom_text(data=crit, aes(x=crit$Value, y=crit$ClusterCount, label=crit$Value), vjust=1.5) +
+    theme_ridges() +
+    hrbrthemes::theme_ipsum() +
+    colorspace::scale_fill_discrete_sequential("Blues", c1 = 20, c2 = 70, l1 = 25, l2 = 100) +
+    scale_y_discrete("# clusters", expand = c(0, 1))
+  if (algo == "kmeans") {
+    plt <- plt + scale_x_log10("# cells per cluster")
+  } else {
+    plt <- plt + scale_x_log10("# cells per component")
+  }
+  plt <- plt +
+    guides(fill=FALSE) +
+    theme(axis.title.x = element_text(size=20),
+          axis.title.y = element_text(size=20),
+          axis.text.x = element_text(size=15),
+          panel.grid.major.x = element_blank(),
+          panel.grid.minor = element_blank(),
+          axis.text.y = element_text(size=15))
+
+  for (i in c("svg", "png", "eps"))
+  {
+    ggsave(
+      plt,
+      filename=paste0(plot.folder,"/", algo, "-fit-cluster_sizes-histogram.", i),
+      width=10, height=7)
+  }
+
+}
+
+
 
 (run <- function() {
   parser <- ArgumentParser()
@@ -93,12 +141,11 @@ plot.explained.variance <- function(data.dir)
     stop(parser$print_help())
   }
 
-  lg.file <- paste0(dir, "/kmeans-transformed-statistics-plot.log")
+  data.dir <- opt$folder
+  lg.file <- paste0(data.dir, "/kmeans-transformed-statistics-plot.log")
   flog.appender(appender.file(lg.file), name=logr)
-
-
 
   data.dir <- "/Users/simondi/PROJECTS/target_infect_x_project/results/2-analysis/2-clustering/current"
   plot.explained.variance(data.dir)
-
+  plot.cluster.sizes(data.dir)
 })()
