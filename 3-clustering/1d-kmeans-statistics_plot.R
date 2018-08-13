@@ -181,10 +181,9 @@ create.table <- function(gene.pred.fold)
   dat <- purrr:::map_dfr(list.files(gene.pred.fold, full.names=T), function(.) {
     read_tsv(.)
   })
-
-  gene.pathogen.combinations <- .get.cell.count.per.gene.group(dat)
+  gene.combinations <- .get.cell.count.per.gene.group(dat)
   dat <- .compute.cell.cluster.frequencies(
-    dat, gene.pathogen.combinations, c("gene"))
+    dat, gene.combinations, c("gene"))
 
   # Here we try to get the genes that are most dominant in a single cluster
   # i.e.: which genes have the hightest frequency of being in the SAME cluster
@@ -380,14 +379,13 @@ plot.best.clusters <- function(best.clusters, dir, how.many.clusters=5)
   lg.file  <- paste0(dir, "/kmeans-transformed-statistics-plot.log")
   flog.appender(appender.file(lg.file), name=logr)
 
-  gene.pred.fold <- list.files(data.dir, pattern="gene_prediction_count", full.names=T)
+  gene.pred.fold  <- list.files(data.dir, pattern="gene_prediction_count", full.names=T)
   silhouette.file <- list.files(data.dir, pattern="silhouette.tsv", full.names=T)
-
 
   analyse.gene.pathogen.prediction(gene.pred.files)
   silhouette.plot(silhouette.file)
 
-  tabs <- create.table(gene.pred.file)
+  tabs <- create.table(gene.pred.fold)
     plot.oras(tabs$best.clusters, gene.pred.file)
   plot.best.clusters(tabs$best.clusters, dir)
 
