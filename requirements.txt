@@ -10,3 +10,6 @@ sparkhpc
 statsmodels
 snakemake
 uuid
+sphinx
+sphinxcontrib-fulltoc
+sphinx_fontawesome

@@ -1,0 +1,397 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>rnaiutilities.query_result</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for rnaiutilities.query_result</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (C) 2016 Simon Dirmeier</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of rnaiutilities.</span>
+<span class="c1">#</span>
+<span class="c1"># rnaiutilities is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># rnaiutilities is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with rnaiutilities. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="c1">#</span>
+<span class="c1"># @author = &#39;Simon Dirmeier&#39;</span>
+<span class="c1"># @email = &#39;simon.dirmeier@bsse.ethz.ch&#39;</span>
+
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">enforce</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span>
+
+<span class="kn">from</span> <span class="nn">rnaiutilities.data_set</span> <span class="k">import</span> <span class="n">DataSet</span>
+<span class="kn">from</span> <span class="nn">rnaiutilities.globals</span> <span class="k">import</span> <span class="n">WELL</span><span class="p">,</span> <span class="n">GENE</span><span class="p">,</span> <span class="n">SIRNA</span><span class="p">,</span> \
+    <span class="n">SAMPLE</span><span class="p">,</span> <span class="n">ADDED_COLUMNS_FOR_PRINTING</span>
+<span class="kn">from</span> <span class="nn">rnaiutilities.io.io</span> <span class="k">import</span> <span class="n">IO</span>
+<span class="kn">from</span> <span class="nn">rnaiutilities.normalization.normalizer</span> <span class="k">import</span> <span class="n">Normalizer</span>
+<span class="kn">from</span> <span class="nn">rnaiutilities.table_file_set</span> <span class="k">import</span> <span class="n">TableFileSet</span>
+<span class="kn">from</span> <span class="nn">rnaiutilities.utility.functional</span> <span class="k">import</span> <span class="n">filter_by_prefix</span><span class="p">,</span> \
+    <span class="n">inverse_filter_by_prefix</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="QueryResult"><a class="viewcode-back" href="../../modules.html#rnaiutilities.query_result.QueryResult">[docs]</a><span class="k">class</span> <span class="nc">QueryResult</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set of results derived from a database query.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_filter_attributes_</span> <span class="o">=</span> <span class="p">[</span><span class="n">GENE</span><span class="p">,</span> <span class="n">SIRNA</span><span class="p">,</span> <span class="n">WELL</span><span class="p">,</span> <span class="n">SAMPLE</span><span class="p">]</span>
+    <span class="n">_sar_</span> <span class="o">=</span> <span class="s2">&quot;.*&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tablefile_sets</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tablefile_sets</span> <span class="o">=</span> <span class="n">tablefile_sets</span>
+        <span class="c1"># filters applied for querying</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_filters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_filter</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_shared_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_shared_features</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sample</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter_fn</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="mi">30</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_normalizer</span> <span class="o">=</span> <span class="n">Normalizer</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tablefile_sets</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">tablefileset</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tablefile_sets</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compile</span><span class="p">(</span><span class="n">tablefileset</span><span class="p">)</span>
+
+<div class="viewcode-block" id="QueryResult.dump"><a class="viewcode-back" href="../../modules.html#rnaiutilities.query_result.QueryResult.dump">[docs]</a>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">,</span> <span class="n">normalize</span><span class="p">,</span> <span class="n">fh</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Print the result set of the database query to tsv or stdout. If a string</span>
+<span class="sd">        is given as param *fh* prints to file, otherwise if None is given prints</span>
+<span class="sd">        to stdout.</span>
+
+<span class="sd">        :param sample: number of samples to draw from every well or None</span>
+<span class="sd">        :param sample: int or None</span>
+<span class="sd">        :param normalize: a list of normalisation methods to use, e.g. like</span>
+<span class="sd">         &#39;zscore&#39;. Options so far are &#39;bscore&#39;, &#39;loess&#39; and &#39;zscore&#39;.</span>
+<span class="sd">        :type normalize: list(str)</span>
+<span class="sd">        :param fh: name of the file or None</span>
+<span class="sd">        :type fh: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_normalization</span><span class="p">(</span><span class="n">normalize</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_sample_size</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">IO</span><span class="p">(</span><span class="n">fh</span><span class="p">)</span> <span class="k">as</span> <span class="n">io</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">io</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Successfully wrote table files!&quot;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_set_normalization</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">normalize</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the used normalisations.</span>
+
+<span class="sd">        :param normalize: string of normalisation technmethodsiques</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_normalizer</span><span class="o">.</span><span class="n">set_normalization</span><span class="p">(</span><span class="n">normalize</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_set_sample_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sample</span> <span class="o">=</span> <span class="n">sample</span> <span class="k">if</span> <span class="n">sample</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">2</span> <span class="o">**</span> <span class="mi">30</span>
+        <span class="c1"># lambda function for sampling</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_filter_fn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span>
+          <span class="n">x</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sample</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="p">:]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sample</span> <span class="k">else</span> <span class="n">x</span>
+
+    <span class="k">def</span> <span class="nf">_compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tablefileset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Dumbs a table file to tsv/h5/stdout.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># test if the data files can be found</span>
+            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">tablefileset</span><span class="o">.</span><span class="n">filenames</span><span class="p">):</span>
+                <span class="c1"># read the data files, i.e. cells/nuclei/perinuclei</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read</span><span class="p">(</span><span class="n">tablefileset</span><span class="p">)</span>
+                <span class="c1"># compile everything together</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                <span class="c1"># append study/pathogen/library/...</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_insert_columns</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">tablefileset</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">data</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Could not find files: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                  <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tablefileset</span><span class="o">.</span><span class="n">filenames</span><span class="p">)))</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Error occured for tablefileset </span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span>
+                         <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tablefileset</span><span class="o">.</span><span class="n">classifier</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@enforce</span><span class="o">.</span><span class="n">runtime_validation</span>
+    <span class="k">def</span> <span class="nf">_read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tablefileset</span><span class="p">:</span> <span class="n">TableFileSet</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read the data files from a plate and concatenate the single tables.</span>
+<span class="sd">        Since the dimensions of the tables should be the same, the concatenation</span>
+<span class="sd">        should work. If the dimensions do not fit (i.e. the mapping did not</span>
+<span class="sd">        work), `None` is returned.</span>
+
+<span class="sd">        :param tablefileset: the object to be parsed</span>
+<span class="sd">        :type tablefileset: TableFileSet</span>
+<span class="sd">        :return: returns the merged data as DataSet or None if the concat did</span>
+<span class="sd">         not work</span>
+<span class="sd">        :rtype: DataSet</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># read the X files to memory</span>
+        <span class="n">tables</span> <span class="o">=</span> <span class="p">[</span><span class="n">pandas</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                  <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">tablefileset</span><span class="o">.</span><span class="n">filenames</span><span class="p">]</span>
+        <span class="c1"># check if the dimensions of the tables are the same</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_table_dimensions</span><span class="p">(</span><span class="n">tables</span><span class="p">,</span> <span class="n">tablefileset</span><span class="p">)</span>
+        <span class="c1"># iterate over the tables and drop the redundant meta information</span>
+        <span class="n">tables</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drop_meta_columns</span><span class="p">(</span><span class="n">tables</span><span class="p">,</span> <span class="n">tablefileset</span><span class="p">)</span>
+        <span class="c1"># merge the three tables together column-wise</span>
+        <span class="n">data_merged</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">tables</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">DataSet</span><span class="p">(</span><span class="n">data_merged</span><span class="p">,</span>
+                       <span class="n">tablefileset</span><span class="o">.</span><span class="n">feature_classes</span><span class="p">,</span>
+                       <span class="n">tablefileset</span><span class="o">.</span><span class="n">features</span><span class="p">,</span>
+                       <span class="n">tablefileset</span><span class="o">.</span><span class="n">classifier</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_check_table_dimensions</span><span class="p">(</span><span class="n">tables</span><span class="p">,</span> <span class="n">tfs</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tables</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">tables</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">tables</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">tables</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                      <span class="s2">&quot;TableFileSet&#39;s </span><span class="si">{}</span><span class="s2"> data files do not have &quot;</span>
+                      <span class="s2">&quot;matching dimensions.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tfs</span><span class="o">.</span><span class="n">classifier</span><span class="p">))</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_drop_meta_columns</span><span class="p">(</span><span class="n">tables</span><span class="p">,</span> <span class="n">tablefileset</span><span class="p">):</span>
+        <span class="c1"># get meta column names</span>
+        <span class="n">meta_cols</span> <span class="o">=</span> <span class="n">inverse_filter_by_prefix</span><span class="p">(</span>
+          <span class="n">tables</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">tablefileset</span><span class="o">.</span><span class="n">feature_classes</span><span class="p">)</span>
+        <span class="c1"># iterate over the plate meta columns and drop them from the tables</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">tables</span><span class="p">)):</span>
+            <span class="n">meta_cols_curr</span> <span class="o">=</span> <span class="n">inverse_filter_by_prefix</span><span class="p">(</span>
+              <span class="n">tables</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">tablefileset</span><span class="o">.</span><span class="n">feature_classes</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">meta_cols</span> <span class="o">!=</span> <span class="n">meta_cols_curr</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                  <span class="s2">&quot;Meta column names are not equal: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tablefileset</span><span class="p">))</span>
+
+            <span class="n">feat_col_names</span> <span class="o">=</span> <span class="n">filter_by_prefix</span><span class="p">(</span>
+              <span class="n">tables</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">tablefileset</span><span class="o">.</span><span class="n">feature_classes</span><span class="p">)</span>
+            <span class="n">tables</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">tables</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">feat_col_names</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">tables</span>
+
+    <span class="nd">@enforce</span><span class="o">.</span><span class="n">runtime_validation</span>
+    <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">DataSet</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Process a plate data set file. The following preprocessing</span>
+<span class="sd">         steps are done:</span>
+
+<span class="sd">        * drop columns that are not in the shared feature set, i.e., keep only</span>
+<span class="sd">          columns that every TableFileSet has</span>
+<span class="sd">        * normalize the features using the set normalisation parameters</span>
+<span class="sd">        * filter the data by the defined criteria (i.e. genes/sirna)</span>
+<span class="sd">        * sample the cells from every well</span>
+
+<span class="sd">        :param data: a plate data set</span>
+<span class="sd">        :type data: DataSet</span>
+<span class="sd">        :return: returns the preprocessed data set or None</span>
+<span class="sd">        :rtype: DataSet</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># only take subset of columns that every tablefileset has</span>
+        <span class="c1"># otherwise we don&#39;t get a nice tabular dataset in the end</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_correct_columns</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalizer</span><span class="o">.</span><span class="n">normalize_plate</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="c1"># filter by well/sirna/gene</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="c1"># sample from each well &#39;sample&#39; number if times</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sample_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">data</span>
+
+    <span class="k">def</span> <span class="nf">_set_correct_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="c1"># Subset the dataframe for columns that are shared</span>
+        <span class="c1"># in all tablefile sets.</span>
+
+        <span class="n">feature_classes</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">feature_classes</span>
+        <span class="c1"># get the columns in data that are feature columns</span>
+        <span class="n">feat_cols</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">filter_by_prefix</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">feature_classes</span><span class="p">))</span>
+        <span class="c1"># get the columns that are meta columns, such as gene/well/etc.</span>
+        <span class="n">meta_cols</span> <span class="o">=</span> <span class="n">inverse_filter_by_prefix</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">feature_classes</span><span class="p">)</span>
+        <span class="c1"># make sure to only take columns that are in the</span>
+        <span class="n">feat_cols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">feat_cols</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_shared_features</span><span class="p">))</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">meta_cols</span> <span class="o">+</span> <span class="n">feat_cols</span><span class="p">]</span>
+        <span class="c1"># add features that are explicitely desired</span>
+        <span class="c1"># but not found in every screen :(</span>
+        <span class="k">for</span> <span class="n">feature_class</span> <span class="ow">in</span> <span class="n">feature_classes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">feature_class</span> <span class="ow">in</span> <span class="n">ADDED_COLUMNS_FOR_PRINTING</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">ADDED_COLUMNS_FOR_PRINTING</span><span class="p">[</span><span class="n">feature_class</span><span class="p">]:</span>
+                    <span class="n">add_col</span> <span class="o">=</span> <span class="n">feature_class</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">col</span>
+                    <span class="k">if</span> <span class="n">add_col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+                        <span class="c1"># add the new column</span>
+                        <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">),</span> <span class="n">add_col</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                        <span class="c1"># add the column to the new feature set for later check</span>
+                        <span class="n">feat_cols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">add_col</span><span class="p">)</span>
+        <span class="c1"># sort columns</span>
+        <span class="c1"># (this should be a sufficient condition for optimal overlap)</span>
+        <span class="n">feat_cols</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">feat_cols</span><span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">reindex_axis</span><span class="p">(</span>
+          <span class="n">meta_cols</span> <span class="o">+</span> <span class="n">feat_cols</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">feature_columns</span> <span class="o">=</span> <span class="n">feat_cols</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">feature_columns</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_shared_features</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+              <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> does not have the correct number of features. Skipping.&quot;</span>
+                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">filenames</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Data is none after setting columns.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span>
+
+    <span class="k">def</span> <span class="nf">_filter_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="n">well</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">WELL</span><span class="p">)</span>
+        <span class="n">gene</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">GENE</span><span class="p">)</span>
+        <span class="n">sirna</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">SIRNA</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">filtering data on well &#39;</span><span class="si">{}</span><span class="s2">&#39;, gene &#39;</span><span class="si">{}</span><span class="s2">&#39; and sirna &#39;</span><span class="si">{}</span><span class="s2">&#39;.&quot;</span>
+                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">well</span><span class="p">,</span> <span class="n">gene</span><span class="p">,</span> <span class="n">sirna</span><span class="p">))</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">well</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">well</span><span class="p">)</span> <span class="o">&amp;</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">gene</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">gene</span><span class="p">)</span> <span class="o">&amp;</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">sirna</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">sirna</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Data is zero after filtering&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span>
+
+    <span class="k">def</span> <span class="nf">_sample_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">SAMPLE</span><span class="p">)</span> <span class="o">!=</span> <span class="n">QueryResult</span><span class="o">.</span><span class="n">_sar_</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">sampling </span><span class="si">{}</span><span class="s2"> cells/well.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sample</span><span class="p">)))</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="n">WELL</span><span class="p">,</span> <span class="n">GENE</span><span class="p">,</span> <span class="n">SIRNA</span><span class="p">])</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+              <span class="bp">self</span><span class="o">.</span><span class="n">_filter_fn</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Data is zero after sampling.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span>
+
+    <span class="k">def</span> <span class="nf">_set_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">fls</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">QueryResult</span><span class="o">.</span><span class="n">_filter_attributes_</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">reg</span> <span class="o">=</span> <span class="s2">&quot;^&quot;</span> <span class="o">+</span> <span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;$&quot;</span>
+                    <span class="c1"># user provided gene/sirna/well regex to match</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">k</span><span class="p">,</span> <span class="n">reg</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># if user didnt provide anything match all</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">k</span><span class="p">,</span> <span class="n">QueryResult</span><span class="o">.</span><span class="n">_sar_</span><span class="p">)</span>
+                <span class="n">fls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">fls</span>
+
+    <span class="k">def</span> <span class="nf">_get_shared_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># create a minimal set of features for every table set file</span>
+        <span class="n">features_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">tablefile</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tablefile_sets</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">features_set</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">features_set</span> <span class="o">=</span> <span class="n">tablefile</span><span class="o">.</span><span class="n">features</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">features_set</span> <span class="o">&amp;=</span> <span class="n">tablefile</span><span class="o">.</span><span class="n">features</span>
+        <span class="c1"># add all required columns that we most definitely want all table file</span>
+        <span class="c1"># sets to have, e.g. bacterial counts or parent nuclei</span>
+        <span class="k">for</span> <span class="n">feature_class</span><span class="p">,</span> <span class="n">cols</span> <span class="ow">in</span> <span class="n">ADDED_COLUMNS_FOR_PRINTING</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+                <span class="n">add_col</span> <span class="o">=</span> <span class="n">feature_class</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">col</span>
+                <span class="n">features_set</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">add_col</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">features_set</span><span class="p">))</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_insert_columns</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">table</span><span class="p">):</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;plate&quot;</span><span class="p">,</span> <span class="n">table</span><span class="o">.</span><span class="n">plate</span><span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;replicate&quot;</span><span class="p">,</span> <span class="n">table</span><span class="o">.</span><span class="n">replicate</span><span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;design&quot;</span><span class="p">,</span> <span class="n">table</span><span class="o">.</span><span class="n">design</span><span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;library&quot;</span><span class="p">,</span> <span class="n">table</span><span class="o">.</span><span class="n">library</span><span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;pathogen&quot;</span><span class="p">,</span> <span class="n">table</span><span class="o">.</span><span class="n">pathogen</span><span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;study&quot;</span><span class="p">,</span> <span class="n">table</span><span class="o">.</span><span class="n">study</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><p class="logo">
+  <a href="../../index.html">
+    <img src="../../_static/fig_single_cells.jpg"
+         title="rnaiutilities"/>
+  </a>
+</p><h3><a href="../../index.html">Home</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../rnai_parse.html">rnai-parse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../rnai_query.html">rnai-query</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">Query module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html#module-rnaiutilities.query_result">QueryResult module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html#module-rnaiutilities.parser">Parser module</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">Parser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html#query">Query</a></li>
+</ul>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Simon Dirmeier.
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

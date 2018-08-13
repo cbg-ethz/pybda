@@ -1,0 +1,244 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>rnaiutilities.parser</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for rnaiutilities.parser</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (C) 2016 Simon Dirmeier</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of rnaiutilities.</span>
+<span class="c1">#</span>
+<span class="c1"># rnaiutilities is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># rnaiutilities is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with rnaiutilities. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="c1">#</span>
+<span class="c1"># @author = &#39;Simon Dirmeier&#39;</span>
+<span class="c1"># @email = &#39;simon.dirmeier@bsse.ethz.ch&#39;</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Main module (entry point) for parsing feature files and computing statistics</span>
+<span class="sd">regarding download/parsing.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">enforce</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span> <span class="k">as</span> <span class="nn">mp</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="k">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span> <span class="nn">rnaiutilities.config</span> <span class="k">import</span> <span class="n">Config</span>
+<span class="kn">from</span> <span class="nn">rnaiutilities.globals</span> <span class="k">import</span> <span class="n">USABLE_FEATURES</span>
+
+<span class="kn">from</span> <span class="nn">rnaiutilities.plate.plate_file_sets</span> <span class="k">import</span> <span class="n">PlateFileSets</span>
+<span class="kn">from</span> <span class="nn">rnaiutilities.plate.plate_folder_list</span> <span class="k">import</span> <span class="n">PlateFolderList</span>
+<span class="kn">from</span> <span class="nn">rnaiutilities.plate_parser</span> <span class="k">import</span> <span class="n">PlateFilesParser</span>
+<span class="kn">from</span> <span class="nn">rnaiutilities.plate_writer</span> <span class="k">import</span> <span class="n">PlateWriter</span>
+<span class="kn">from</span> <span class="nn">rnaiutilities.statistics.download_statistics</span> <span class="k">import</span> <span class="n">DownloadStatistics</span>
+<span class="kn">from</span> <span class="nn">rnaiutilities.statistics.featureset_statistics</span> <span class="k">import</span> <span class="n">FeatureSetStatistics</span>
+<span class="kn">from</span> <span class="nn">rnaiutilities.statistics.parse_statistics</span> <span class="k">import</span> <span class="n">ParseStatistics</span>
+<span class="kn">from</span> <span class="nn">rnaiutilities.utility.files</span> <span class="k">import</span> <span class="n">usable_feature_files</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">log_to_stderr</span><span class="p">()</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Parser"><a class="viewcode-back" href="../../modules.html#rnaiutilities.parser.Parser">[docs]</a><span class="k">class</span> <span class="nc">Parser</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for parsing a folder of plates containing matlab files for the</span>
+<span class="sd">    features.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@enforce</span><span class="o">.</span><span class="n">runtime_validation</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for from the command line.</span>
+
+<span class="sd">        :param config: a configuration for file parsing</span>
+<span class="sd">        :type config: Config</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="c1"># where to the plates lie on the hard drive</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plate_folder</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">plate_folder</span>
+        <span class="c1"># where do we want to write to</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_output_path</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">output_path</span>
+
+        <span class="c1"># read the folder names of the plates into an array</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plate_folder_list</span> <span class="o">=</span> <span class="n">PlateFolderList</span><span class="p">(</span>
+          <span class="n">config</span><span class="o">.</span><span class="n">plate_id_file</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">plate_regex</span><span class="p">)</span>
+
+        <span class="c1"># the actual parser</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span> <span class="o">=</span> <span class="n">PlateFilesParser</span><span class="p">()</span>
+        <span class="c1"># the actual writer of parsed data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_writer</span> <span class="o">=</span> <span class="n">PlateWriter</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">layout_file</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Parser.parse"><a class="viewcode-back" href="../../modules.html#rnaiutilities.parser.Parser.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parses the plate file sets into raw tsv files.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">exps</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_plate_folder_list</span><span class="o">.</span><span class="n">folders</span><span class="p">)</span>
+        <span class="c1"># use globals vars for process pool</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">multi_processing</span><span class="p">:</span>
+            <span class="c1"># number of cores we are using</span>
+            <span class="n">n_cores</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Going parallel with &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">n_cores</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; cores!&quot;</span><span class="p">)</span>
+            <span class="n">pool</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="n">n_cores</span><span class="p">)</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_parse</span><span class="p">,</span> <span class="n">iterable</span><span class="o">=</span><span class="n">exps</span><span class="p">)</span>
+            <span class="n">pool</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">exps</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_parse</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;All&#39;s well that ends well&quot;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plate</span><span class="p">):</span>
+        <span class="c1"># Parse the files of a single plate folder as tsv</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">platefilesets</span> <span class="o">=</span> <span class="n">PlateFileSets</span><span class="p">(</span>
+              <span class="bp">self</span><span class="o">.</span><span class="n">_plate_folder</span> <span class="o">+</span><span class="s2">&quot;/&quot;</span><span class="o">+</span> <span class="n">plate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">platefilesets</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Found multiple plate identifiers for: &quot;</span> <span class="o">+</span> <span class="n">plate</span><span class="p">)</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_plate_file_sets</span><span class="p">(</span><span class="n">platefilesets</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Found error parsing: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">plate</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;. &quot;</span> <span class="o">+</span>
+                         <span class="s2">&quot;Error:&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ex</span><span class="p">))</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="k">def</span> <span class="nf">_parse_plate_file_sets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platefilesets</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">platefilesets</span><span class="p">,</span> <span class="n">PlateFileSets</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;no PlateFileSets object given&quot;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">platefileset</span> <span class="ow">in</span> <span class="n">platefilesets</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_parse_plate_file_set</span><span class="p">(</span><span class="n">platefileset</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Some error idk anything can happen here: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ex</span><span class="p">))</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">_parse_plate_file_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platefileset</span><span class="p">):</span>
+        <span class="c1"># create a list of relevant files for the plateset</span>
+        <span class="n">fls</span> <span class="o">=</span> <span class="n">usable_feature_files</span><span class="p">(</span><span class="n">platefileset</span><span class="p">,</span> <span class="n">USABLE_FEATURES</span><span class="p">)</span>
+        <span class="c1"># if all the files exist, we just skip the creation of the files</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="ow">not</span> <span class="n">Path</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">fls</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Doing: &quot;</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">platefileset</span><span class="o">.</span><span class="n">meta</span><span class="p">))</span>
+            <span class="c1"># parse and write the plate file sets</span>
+            <span class="n">pfs</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">platefileset</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pfs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pfs</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">mapping</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">platefileset</span><span class="o">.</span><span class="n">meta</span><span class="p">))</span> <span class="o">+</span>
+                        <span class="s2">&quot; already exists. Skipping.&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Parser.parse_statistics"><a class="viewcode-back" href="../../modules.html#rnaiutilities.parser.Parser.parse_statistics">[docs]</a>    <span class="k">def</span> <span class="nf">parse_statistics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes parsing statistics.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">ParseStatistics</span><span class="p">(</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">_plate_folder_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plate_folder</span><span class="p">,</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">_output_path</span><span class="p">)</span><span class="o">.</span><span class="n">statistics</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Parser.download_statistics"><a class="viewcode-back" href="../../modules.html#rnaiutilities.parser.Parser.download_statistics">[docs]</a>    <span class="k">def</span> <span class="nf">download_statistics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes download statistics if all files given in config have been</span>
+<span class="sd">        downloaded correctly.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">DownloadStatistics</span><span class="p">(</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">_plate_folder_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plate_folder</span><span class="p">)</span><span class="o">.</span><span class="n">statistics</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Parser.featureset_statistics"><a class="viewcode-back" href="../../modules.html#rnaiutilities.parser.Parser.featureset_statistics">[docs]</a>    <span class="k">def</span> <span class="nf">featureset_statistics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outfile</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes statistics between all possible screens for pairwise feature</span>
+<span class="sd">         overlaps. The overlaps can be taken to decide which screens to include.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">FeatureSetStatistics</span><span class="p">(</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">_plate_folder_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plate_folder</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span><span class="o">.</span><span class="n">statistics</span><span class="p">()</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><p class="logo">
+  <a href="../../index.html">
+    <img src="../../_static/fig_single_cells.jpg"
+         title="rnaiutilities"/>
+  </a>
+</p><h3><a href="../../index.html">Home</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../rnai_parse.html">rnai-parse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../rnai_query.html">rnai-query</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">Query module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html#module-rnaiutilities.query_result">QueryResult module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html#module-rnaiutilities.parser">Parser module</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">Parser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html#query">Query</a></li>
+</ul>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Simon Dirmeier.
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
