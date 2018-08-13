@@ -52,7 +52,7 @@ plot.explained.variance <- function(data.dir, loglik.path)
   p1 <- ggplot(data = loglik.path, aes(iteration, current_model)) +
     geom_point(size = 0.5) +
     cowplot::theme_cowplot()+
-    my.theme(-0.85) +
+    my.theme(-0.7) +
     geom_line(lwd = 0.5) +
     scale_x_continuous(breaks = seq(1, 13, 3)) +
     scale_y_continuous(breaks = seq(0, 50000, 25000),
@@ -61,19 +61,20 @@ plot.explained.variance <- function(data.dir, loglik.path)
   p2 <-  ggplot(data = loglik.path, aes(iteration, current_expl)) +
     geom_point(size=0.5) +
     cowplot::theme_cowplot()+
-    my.theme(title.hjust = -0.7) +
+    my.theme(-0.25) +
     geom_line(lwd = 0.5) +
     scale_x_continuous(breaks = seq(1, 13, 3)) +
-    scale_y_continuous(labels = scales::percent, limits = c(0.93, 0.96)) +
+    scale_y_continuous(labels = scales::percent, limits = c(0.93, 0.96),
+                       position = "right") +
     labs(x = "Iteration", y = "", title = "Explained variance")
 
   p <- ggdraw() +
-    draw_plot(p1, -0.05, 0.4, 1.05, 0.5) +
-    draw_plot(p2, -0.02, 0, 1.02, 0.53)
+    draw_plot(p1, 0, 0, 0.5, 1) +
+    draw_plot(p2, 0.5, 0, 0.5, 1)
 
   for (i in c("svg", "eps", "png")) {
     ggsave(paste0(data.dir, "/kmeans-recurive-transform-explained_variance.", i),
-           p, dpi = 900, height = 10, width = 7, units = "cm")
+           p, dpi = 720, height = 7, width = 15, units = "cm")
   }
 }
 
