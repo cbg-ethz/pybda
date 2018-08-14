@@ -103,14 +103,6 @@ silhouette.plot <- function(silhouette.file)
 
 #' @description Create a table where every row counts
 #'  how many single cells belong to every gene-pathogen group
-.get.cell.count.per.gene.pathogen.group <- . %>%
-  group_by(gene, pathogen) %>%
-  dplyr::summarize(n=sum(count)) %>%
-  ungroup()
-
-
-#' @description Create a table where every row counts
-#'  how many single cells belong to every gene-pathogen group
 .get.cell.count.per.gene.group <- . %>%
   group_by(gene) %>%
   dplyr::summarize(n=sum(count)) %>%
@@ -125,6 +117,20 @@ silhouette.plot <- function(silhouette.file)
   dat <- dplyr::left_join(dat, gpc, by=by)
   dat <- dplyr::mutate(dat, Frequency=count/n) %>%
     arrange(-Frequency)
+  dat
+}
+
+
+.get.gene.stats <- function(gene.pred.fold)
+{
+  dat <- purrr:::map_dfr(list.files(gene.pred.fold, full.names=T), function(.)
+  {
+    read_tsv(.)
+  })
+  gene.pathogen.combinations <- .get.cell.count.per.gene.group(dat)
+  dat <- .compute.cell.cluster.frequencies(
+    dat, gene.pathogen.combinations, "gene")
+
   dat
 }
 
@@ -179,13 +185,7 @@ plot.gene.cluster.frequency <- function(gene.pred.fold)
 create.table <- function(gene.pred.fold)
 {
   flog.info("Computing best gene and cluster tables", name=logr)
-
-  dat <- purrr:::map_dfr(list.files(gene.pred.fold, full.names=T), function(.) {
-    read_tsv(.)
-  })
-  gene.combinations <- .get.cell.count.per.gene.group(dat)
-  dat <- .compute.cell.cluster.frequencies(
-    dat, gene.combinations, c("gene"))
+  dat            <- .get.gene.stats(gene.pred.fold)
 
   # Here we try to get the genes that are most dominant in a single cluster
   # i.e.: which genes have the hightest frequency of being in the SAME cluster
@@ -258,12 +258,7 @@ plot.oras <- function(best.clusters, gene.pred.fold, how.many.clusters=10)
   flog.info('Computing ORAs.', name=logr)
 
   which.clusters <- best.clusters$prediction[seq(how.many.clusters)]
-  dat <- purrr:::map_dfr(list.files(gene.pred.fold, full.names=T), function(.)
-  {
-    read_tsv(.)
-  })
-  gene.pathogen.combinations <- .get.cell.count.per.gene.pathogen.group(dat)
-  dat <- .compute.cell.cluster.frequencies(dat, gene.pathogen.combinations)
+  dat            <- .get.gene.stats(gene.pred.fold)
 
   pre   <- dat %>% dplyr::filter(prediction %in% which.clusters)
 
