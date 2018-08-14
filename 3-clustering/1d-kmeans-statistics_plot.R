@@ -17,6 +17,7 @@ suppressPackageStartupMessages(library(cowplot))
 
 suppressMessages(hrbrthemes::import_roboto_condensed())
 
+
 library(futile.logger)
 logr <- "logger"
 flog.logger(logr, futile.logger::INFO)
@@ -128,7 +129,8 @@ silhouette.plot <- function(silhouette.file)
 }
 
 
-analyse.gene.pathogen.prediction <- function(gene.pred.fold)
+#' @description Plots the frequencies how often a gene fits into the same cluster
+plot.gene.cluster.frequency <- function(gene.pred.fold)
 {
 
   flog.info('Computing histograms for gene pathogen predictions. ', name=logr)
@@ -141,8 +143,8 @@ analyse.gene.pathogen.prediction <- function(gene.pred.fold)
   dat <- .compute.cell.cluster.frequencies(
     dat, gene.pathogen.combinations, c("gene"))
 
-  hs <- hist(dat$Frequency, breaks=200, plot=FALSE)
-  df <- tibble(Frequency=hs$mids, Density=hs$counts/sum(hs$counts))
+  hs  <- hist(dat$Frequency, breaks=200, plot=FALSE)
+  df  <- tibble(Frequency=hs$mids, Density=hs$counts/sum(hs$counts))
   fre <- mean(dat$Frequency)
 
   plt <-
@@ -189,33 +191,30 @@ create.table <- function(gene.pred.fold)
   # i.e.: which genes have the hightest frequency of being in the SAME cluster
   best.genes <- dat %>%
     dplyr::filter(!gene  %in% c("ran", "allstarsdeath", "allstars hs cell death sirna")) %>%
-    dplyr::group_by(gene, prediction) %>%
-    dplyr::summarize(n=sum(count)) %>%
     dplyr::group_by(gene) %>%
-    dplyr::summarize(freq=n/sum(n), cnt=sum(n)) %>%
-    dplyr::group_by(gene) %>%
-    dplyr::summarize(MaxFrequenctInBucket=freq[1]) %>%
-    arrange(-MaxFrequenctInBucket)
+    dplyr::summarize(MaxFreq = max(Frequency)) %>%
+    ungroup() %>%
+    arrange(desc(MaxFreq))
 
   # creates clusters by their highest 'consistency' of gene-pathogen pairs mapping
-  best.clusters <- dat %>%
-    arrange(desc(Frequency)) %>%
+  best.clusters <-
+    dat %>%
     dplyr::filter(!gene  %in% c("ran", "allstarsdeath", "allstars hs cell death sirna")) %>%
+    arrange(desc(Frequency)) %>%
     dplyr::select(prediction) %>%
-    unique()
+    dplyr::distinct()
 
-  outfl <- stringr::str_match(gene.pred.file, "(.*).tsv")[2]
-  flog.info(paste0("\twriting tables to: ", outfl), name=logr)
+  flog.info(paste0("\twriting tables to: ", gene.pred.fold), name=logr)
 
-  fwrite(best.genes, paste0(outfl, "-best_gene_buckets.tsv"), sep = "\t")
-  fwrite(best.clusters, paste0(outfl, "-best_cluster.tsv"), sep = "\t")
+  readr::write_tsv(best.genes, paste0(gene.pred.fold, "-best_gene_buckets.tsv"))
+  readr::write_tsv(best.clusters, paste0(gene.pred.fold, "-best_cluster.tsv"))
 
   list(best.clusters = best.clusters,
        best.genes    = best.genes)
 }
 
 
-ora <- function(cluster.genes, universe)
+.ora <- function(cluster.genes, universe)
 {
   .to.entrez <- function(dat)
   {
@@ -254,12 +253,15 @@ ora <- function(cluster.genes, universe)
 }
 
 
-plot.oras <- function(best.clusters, gene.pred.file, how.many.clusters=5)
+plot.oras <- function(best.clusters, gene.pred.fold, how.many.clusters=10)
 {
   flog.info('Computing ORAs.', name=logr)
-  which.clusters <- best.clusters$prediction[seq(how.many.clusters)]
 
-  dat <- data.table::fread(gene.pred.file, sep="\t", header=TRUE)
+  which.clusters <- best.clusters$prediction[seq(how.many.clusters)]
+  dat <- purrr:::map_dfr(list.files(gene.pred.fold, full.names=T), function(.)
+  {
+    read_tsv(.)
+  })
   gene.pathogen.combinations <- .get.cell.count.per.gene.pathogen.group(dat)
   dat <- .compute.cell.cluster.frequencies(dat, gene.pathogen.combinations)
 
@@ -375,21 +377,21 @@ plot.best.clusters <- function(best.clusters, dir, how.many.clusters=5)
     stop(parser$print_help())
   }
 
+  data.dir <- "/Users/simondi/PROJECTS/target_infect_x_project/results/2-analysis/2-clustering/current"
+
   data.dir <- opt$folder
   lg.file  <- paste0(dir, "/kmeans-transformed-statistics-plot.log")
   flog.appender(appender.file(lg.file), name=logr)
 
-  gene.pred.fold  <- list.files(data.dir, pattern="gene_prediction_count", full.names=T)
+  gene.pred.fold  <- list.files(data.dir, pattern="gene_prediction_counts$", full.names=T)
   silhouette.file <- list.files(data.dir, pattern="silhouette.tsv", full.names=T)
 
-  analyse.gene.pathogen.prediction(gene.pred.files)
+  plot.gene.cluster.frequency(gene.pred.fold)
   silhouette.plot(silhouette.file)
 
   tabs <- create.table(gene.pred.fold)
-    plot.oras(tabs$best.clusters, gene.pred.file)
+  plot.oras(tabs$best.clusters, gene.pred.fold)
   plot.best.clusters(tabs$best.clusters, dir)
 
-  data.dir <- "/Users/simondi/PROJECTS/target_infect_x_project/results/2-analysis/2-clustering/current"
-  plot.explained.variance(data.dir)
 
 })()

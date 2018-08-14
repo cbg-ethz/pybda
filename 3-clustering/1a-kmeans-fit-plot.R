@@ -166,6 +166,7 @@ plot.cluster.stats <- function(data.dir, dat)
     tidyr::gather(Criteria, Value, -ClusterCount)
 
   plot.explained.variance(data.dir, loglik.path)
+
   plot.cluster.sizes(data.dir, dat, crit)
   plot.cluster.stats(data.dir, dat)
 })()
