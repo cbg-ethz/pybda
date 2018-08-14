@@ -219,9 +219,12 @@ create.table <- function(gene.pred.fold)
   .to.entrez <- function(dat)
   {
     frame.hugo <- AnnotationDbi::toTable(org.Hs.eg.db::org.Hs.egSYMBOL) %>%
-      as.data.table()
-    dat <- dplyr::left_join(data.table(symbol=toupper(dat)), frame.hugo, by="symbol") %>%
+      as.tibble()
+    dat <- dplyr::left_join(
+      tibble(symbol=toupper(dat)),
+      frame.hugo, by="symbol") %>%
       dplyr::filter(!is.na(gene_id))
+
     dat
   }
 
@@ -253,54 +256,114 @@ create.table <- function(gene.pred.fold)
 }
 
 
-plot.oras <- function(best.clusters, gene.pred.fold, how.many.clusters=10)
+oras <- function( best.clusters ,gene.pred.fold, how.many.clusters)
 {
-  flog.info('Computing ORAs.', name=logr)
+  which.clusters       <- best.clusters$prediction[seq(how.many.clusters)]
+  gene.frequency.table <- .get.gene.stats(gene.pred.fold)
 
-  which.clusters <- best.clusters$prediction[seq(how.many.clusters)]
-  dat            <- .get.gene.stats(gene.pred.fold)
+  pre   <- gene.frequency.table %>%
+    dplyr::filter(prediction %in% which.clusters)
+  universe <- gene.frequency.table %>%
+    dplyr::pull(gene) %>% unique()
 
-  pre   <- dat %>% dplyr::filter(prediction %in% which.clusters)
-
-  universe <- dat %>% dplyr::pull(gene) %>% unique()
   oras <- list()
   for (i in which.clusters)
   {
     cluster.genes <- dplyr::filter(pre, prediction==i) %>%
-      pull(gene) %>% unique()
+      dplyr::pull(gene) %>%
+      unique()
     flog.info(paste('\tdoing ORAs', i), name=logr)
-    oras[[paste(i)]] <- ora(cluster.genes, universe)
+    oras[[paste(i)]] <- .ora(cluster.genes, universe)
   }
 
-  oras.flast <- rbindlist(
-    lapply(1:length(oras), function(e) data.table(Index=e,  oras[[e]]$summary[1:10, ]))) %>%
-    as.data.frame() %>%
-    dplyr::filter(!is.na(Pvalue))
+  oras.flat <- map_dfr(
+    seq(oras),
+    function(i)
+    {
+      cbind(Index=i,  oras[[i]]$summary) %>%
+        as.tibble() %>%
+        dplyr::filter(!is.na(Pvalue))
+    })
 
-  if (nrow(oras.flast) > 0) {
+  oras.flat
+}
+
+
+plot.oras <- function(best.clusters, gene.pred.fold, how.many.clusters=10, data.dir)
+{
+    flog.info('Computing ORAs.', name=logr)
+    oras.flat <- oras(best.clusters, gene.pred.fold, how.many.clusters)
+
+    if (nrow(oras.flat) == 0) {
+      flog.info('\tno significant OR was found. Writing nothing...', name=logr)
+      return(NULL)
+    }
+
     flog.info('\tplotting and writing ORA table.', name=logr)
-    oras.flast <- oras.flast[oras.flast$Qvalue <= .05, c("Index", "Qvalue", "Term")]
-    dat <- spread(oras.flast, Index, Qvalue) %>% tidyr::gather(Cluster, Qvalue ,-Term)
-    dat$Qvalue[is.na(dat$Qvalue)] <- 1
-    dat <- oras.flast
-    dat$Term <- factor(dat$Term, levels=rev(unique(dat$Term)))
-    dat <- dplyr::mutate(dat, Significant = Qvalue <= 0.05)
-    dat <-
-      dplyr::group_by(dat, Term) %>%
-      dplyr::mutate(S=sum(Significant)) %>%
-      ungroup() %>%
-      dplyr::mutate(Color = (S==1 & Significant==TRUE))
-    dat$Color <- factor(dat$Color)
-    dat$Cluster <- as.character(dat$Index)
+    p <-  oras.flat[ oras.flat$Qvalue <= .01,
+                     c("Index", "Qvalue", "Term")] %>%
+      group_by(Term) %>%
+      summarize(Count=n()) %>%
+      ggplot() +
+        geom_bar(aes(Count), bins=20) +
+        geom_text(stat='count', aes(Count, label=..count..), vjust=-.5) +
+        hrbrthemes::theme_ipsum() +
+        scale_x_continuous(breaks=seq(how.many.clusters)) +
+        theme(
+          axis.title.x = element_text(size = 15, face = "bold"),
+          axis.title.y = element_text(size = 15, face = "bold"),
+          panel.grid = element_blank(),
+          axis.text.y = element_blank()) +
+       labs(x = sprintf("# same GO-term found in %d different clusters", how.many.clusters),
+            y = "Frequency", title = "")
 
-    ggplot(dat, aes(Cluster, Term), fill="black") +
+    for (i in c("eps", "svg", "png"))
+    {
+      ggsave(paste0(data.dir, "/go-term_distribution.", i), p, width=10, height=6, dpi=720)
+    }
+
+
+
+
+    unique.ora.terms <- oras.flat[oras.flat$Qvalue <= .01, c("Index", "Qvalue", "Term")] %>%
+      dplyr::group_by(Term) %>%
+      dplyr::mutate(Count=n()) %>%
+      dplyr::filter(Count == 1) %>%
+      dplyr::select(-Count)
+
+
+    unique.ora.table <- tidyr::spread(unique.ora.terms, Index, Qvalue)
+    readr::write_tsv(unique.ora.table, paste0(data.dir, "/ora-table.tsv"))
+
+    unique.ora.table <- unique.ora.table %>%
+      tidyr::gather(Cluster, Qvalue ,-Term) %>%
+      dplyr::mutate(Qvalue = replace(Qvalue, is.na(Qvalue), 1))
+
+    most.significant.terms <- unique.ora.table %>%
+      dplyr::arrange(Qvalue)
+
+    unique.ora.table <- unique.ora.table %>%
+      dplyr::filter(Term %in% most.significant.terms)
+
+    unique.ora.table$Term <- factor(
+      unique.ora.table$Term, levels=rev(unique(unique.ora.table$Term)))
+    unique.ora.table <- unique.ora.table %>%
+      dplyr::mutate(Significant = Qvalue <= 0.05) %>%
+      dplyr::group_by(Term) %>%
+      dplyr::mutate(S = sum(Significant)) %>%
+      ungroup() %>%
+      dplyr::mutate(
+        Color   = factor(S == 1 & Significant==TRUE),
+        Cluster = as.character(Cluster))
+
+    ggplot(unique.ora.table, aes(Cluster, Term), fill="black") +
       hrbrthemes::theme_ipsum_rc() +
-      geom_point(aes(color=Color), size=7) +
+      geom_point(aes(color=Color, size=Color)) +
       scale_color_manual(name="Significant in\nonly one cluster", values=c("black", "#65ADC2")) +
       ylab("Different clusters") +
       ylab("GO-term") +
-      ggplot2::scale_x_discrete(expand = c(0,1)) +
-      ggplot2::scale_y_discrete(expand = c(0,1)) +
+      ggplot2::scale_x_discrete(expand = c(0, 1)) +
+      ggplot2::scale_y_discrete(expand = c(0, 1)) +
       ggplot2::theme(
         axis.title.y=element_blank(),
         panel.grid.major.x=element_blank(),
@@ -317,9 +380,6 @@ plot.oras <- function(best.clusters, gene.pred.fold, how.many.clusters=10)
       ggsave(filename=paste0(dir, "-ora.", i),
              plot=plt, dpi=1000, width=13)
     }
-  } else {
-    flog.info('\tno significant OR was found. Writing nothing...', name=logr)
-  }
 }
 
 
@@ -375,7 +435,7 @@ plot.best.clusters <- function(best.clusters, dir, how.many.clusters=5)
   data.dir <- "/Users/simondi/PROJECTS/target_infect_x_project/results/2-analysis/2-clustering/current"
 
   data.dir <- opt$folder
-  lg.file  <- paste0(dir, "/kmeans-transformed-statistics-plot.log")
+  lg.file  <- paste0(data.dir, "/kmeans-transformed-statistics-plot.log")
   flog.appender(appender.file(lg.file), name=logr)
 
   gene.pred.fold  <- list.files(data.dir, pattern="gene_prediction_counts$", full.names=T)
@@ -385,7 +445,7 @@ plot.best.clusters <- function(best.clusters, dir, how.many.clusters=5)
   silhouette.plot(silhouette.file)
 
   tabs <- create.table(gene.pred.fold)
-  plot.oras(tabs$best.clusters, gene.pred.fold)
+  plot.oras(tabs$best.clusters, gene.pred.fold, 10, data.dir)
   plot.best.clusters(tabs$best.clusters, dir)
 
 
