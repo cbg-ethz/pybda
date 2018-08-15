@@ -1,5 +1,5 @@
-<h1 align="center"> tix notebooks </h1>
-
+Spark examples
+==============
 
 ## Remote hpcnotebook
 

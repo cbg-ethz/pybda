@@ -1,5 +1,5 @@
-TargetInfectX data analysis
-===========================
+Use case
+========
 
 This document describes the steps taken for the data analysis of the *TargetInfectX* project.
 
@@ -47,7 +47,7 @@ order to quickly retrieve plate information. The mentioned files are found in th
 `results/1-preprocessing/0-features/current_analysis` folder.
 The entry to this part is `featuresets_feature_files.tsv` which been created using `rnai-parse featuresets`.
 
-First we created a index for the complete data-set using `sqlite`.  
+First we created a index for the complete data-set using `sqlite`.
 ```bash
   rnai-query insert
              --db /cluster/home/simondi/simondi/data/tix/database/tix_index.db
@@ -202,7 +202,7 @@ The clustering can be done like this locally:
   spark-submit --master "local[*]" --driver-memory 3G --executor-memory 6G \
                1-kmeans_spark.py \
                -o ./1-clustering/test \
-               -f ./query_data/cells_sample_10_normalized_cut_100_factors \  
+               -f ./query_data/cells_sample_10_normalized_cut_100_factors \
                transform -k BEST_K_FROM_PLOT
 
   spark-submit --master "local[*]" --driver-memory 3G --executor-memory 6G \
@@ -227,7 +227,7 @@ The clustering can be done like this locally:
   ./1b-kmeans-plot.sh spark:master
   ./1c-kmeans-transform.sh spark:master K
 
-  ./1d-kmeans-statistics spark:master kmeans_transformed_folder  
+  ./1d-kmeans-statistics spark:master kmeans_transformed_folder
 
 ```
 

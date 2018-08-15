@@ -480,7 +480,8 @@ plot.best.clusters <- function(best.clusters, dir, how.many.clusters=5)
 
   tabs <- create.table(gene.pred.fold)
   test.for.overenrichment(tabs$best.clusters, gene.pred.fold, 10, data.dir)
-  plot.best.clusters(tabs$best.clusters, dir)
+  # TODO plot single clusters, i.e. look into the clusters we found and what they do
+  #??plot.best.clusters(tabs$best.clusters, dir)
 
 
 })()
