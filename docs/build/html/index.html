@@ -55,57 +55,92 @@ and Snakemake for scheduling.</p>
 <p>The library is still under development, so if you’d like to contribute,
 <a class="reference external" href="https://github.com/cbg-ethz/biospark">fork us on GitHub</a>.</p>
 </div>
+<div class="section" id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Apache Spark &gt;= 2.3.0</li>
+<li>JDK &gt;= 1.7</li>
+<li>openmpi</li>
+<li>Scala &gt;= 2.12.0</li>
+<li>R &gt;= 3.5.0</li>
+<li>Python &gt;= 3.6</li>
+<li>sparkhpc</li>
+</ul>
+</div>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
-<p>Make sure to have <code class="docutils literal notranslate"><span class="pre">python3</span></code> installed. <code class="docutils literal notranslate"><span class="pre">biospark</span></code> does not support
+<p>1) Make sure to have <code class="docutils literal notranslate"><span class="pre">python3</span></code> installed. <code class="docutils literal notranslate"><span class="pre">biospark</span></code> does not support
 previous versions. The best way to do that is to download <a class="reference external" href="https://www.continuum.io/downloads">anaconda</a> and create a
 virtual <a class="reference external" href="https://conda.io/docs/using/envs.html">environment</a>.</p>
-<p>Download the latest <a class="reference external" href="https://github.com/cbg-ethz/biospark/releases">release</a> first and install it using:</p>
-<p>//# TODOD</p>
+<ol class="arabic simple" start="2">
+<li>Download the latest <a class="reference external" href="https://github.com/cbg-ethz/biospark/releases">release</a> first and unpack it.</li>
+<li>Install the required dependencies using:</li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./install_dependencies.sh
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li>Install the Apache Spark from <a class="reference external" href="https://spark.apache.org/downloads.html">here</a> . Use the <em>prebuilt for Apache Hadoop</em> package type.</li>
+<li>That is it.</li>
+</ol>
 </div>
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
-<p>## Dependencies</p>
-<p>Make sure to have <cite>spark &gt;= 2.2.0</cite> and all the dependencies given in <cite>requirements.txt</cite> installed.</p>
-<p># TODO: add r requirements</p>
-<p><cite>org.Hs.eg.db</cite>
-<cite>hgu95av2.db</cite></p>
-<p>## Usage</p>
-<p>### Config</p>
-<p>We start by configuring the config file <cite>biospark.config</cite>:</p>
-<p><a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a>bash
-spark: /usr/local/spark/spark/bin/spark-submit
-infile: data/single_cell_samples.tsv
-outfolder: data
-factors: 15
-centers:</p>
+<p>Using <code class="docutils literal notranslate"><span class="pre">biospark</span></code> requires providing a config file and starting a spark cluster.
+We assume that you are familiar with using a spark standalone cluster, so we only briefly
+discuss how the cluster is started.</p>
+</div>
+</div>
+<div class="section" id="config">
+<h1>Config<a class="headerlink" href="#config" title="Permalink to this headline">¶</a></h1>
+<p>Your configuration file will need to have the following format:</p>
+<div class="literal-block-wrapper docutils container" id="biospark-local-config">
+<div class="code-block-caption"><span class="caption-text">Contents of <code class="docutils literal notranslate"><span class="pre">biospark-local.config</span></code> file</span><a class="headerlink" href="#biospark-local-config" title="Permalink to this code">¶</a></div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">spark</span><span class="p">:</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">spark</span><span class="o">/</span><span class="n">spark</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">spark</span><span class="o">-</span><span class="n">submit</span>
+<span class="n">infile</span><span class="p">:</span> <span class="n">data</span><span class="o">/</span><span class="n">single_cell_samples</span><span class="o">.</span><span class="n">tsv</span>
+<span class="n">outfolder</span><span class="p">:</span> <span class="n">data</span>
+<span class="n">factors</span><span class="p">:</span> <span class="mi">15</span>
+<span class="n">max_centers</span><span class="p">:</span> <span class="mi">10</span>
+<span class="n">centers</span><span class="p">:</span>
+  <span class="o">-</span> <span class="mi">2</span>
+  <span class="o">-</span> <span class="mi">5</span>
+<span class="n">sparkparams</span><span class="p">:</span>
+  <span class="o">-</span> <span class="s2">&quot;--driver-memory=3G&quot;</span>
+  <span class="o">-</span> <span class="s2">&quot;--executor-memory=6G&quot;</span>
+</pre></div>
+</div>
+</div>
+<p>The first line points to the <code class="docutils literal notranslate"><span class="pre">spark-submit</span></code> command which is provided by Apache Spark.
+The second line contains the <code class="docutils literal notranslate"><span class="pre">tsv</span></code> with your data, while the third line is the <em>folder</em> where all outputs are saved to.
+We use a factor analysis, PCA or kPCA for dimension reduction.
+The number of latent features is determined by <code class="docutils literal notranslate"><span class="pre">factors</span></code>.
+The output of the dimension reduction will be used for clustering.
+We apply a recursive clustering method that finds the optimal number of cluster
+centers <em>K</em>. For this, you need to provide the maximal number of cluster centers,
+since we use this as a reference point.
+Finally <code class="docutils literal notranslate"><span class="pre">sparkparams</span></code> contains the parameters you want to provide spark with.
+The Spark <a class="reference external" href="https://spark.apache.org/docs/latest/submitting-applications.html">documentation</a>
+for submitting applications provides details which arguments are valid here.</p>
+</div>
+<div class="section" id="spark">
+<h1>Spark<a class="headerlink" href="#spark" title="Permalink to this headline">¶</a></h1>
+<p>In order for <cite>biospark</cite> to work you need to have a working
+<em>standalone spark environment</em> set up, running and listening to some IP.
+You can find a good introduction</p>
 <blockquote>
-<div><ul class="simple">
-<li>2</li>
-<li>5</li>
-</ul>
-</div></blockquote>
-<dl class="docutils">
-<dt>sparkparams:</dt>
-<dd><ul class="first last simple">
-<li>“–driver-memory=3G”</li>
-<li>“–executor-memory=6G”</li>
-</ul>
-</dd>
-</dl>
-<p><a href="#id5"><span class="problematic" id="id6">``</span></a><a href="#id7"><span class="problematic" id="id8">`</span></a></p>
-<p>Here, you only need to change the infile parameter, the folder where you want to save the results and the number of cluster centers we want to test.</p>
-<p>### Spark</p>
-<p>In order for <cite>biospark</cite> to work you need to have a working <em>standalone spark environment</em> already set up and running. This part needs to be done by the user. You can find a good introduction [here](<a class="reference external" href="https://spark.apache.org/docs/latest/spark-standalone.html">https://spark.apache.org/docs/latest/spark-standalone.html</a>).</p>
-<p>If you started your local spark context, you will receive the IP of the master, fo instance something like: <cite>spark://5.6.7.8:7077</cite>.</p>
-<p>#### Local environment</p>
-<p>On a laptop you would start the spark environment using:</p>
-<p><code class="docutils literal notranslate"><span class="pre">`bash</span>
-<span class="pre">$SPARK_HOME/sbin/start-master.sh</span>
-<span class="pre">$SPARK_HOME/sbin/start-slave.sh</span> <span class="pre">&lt;sparkip&gt;</span>
-<span class="pre">`</span></code></p>
+<div><a class="reference external" href="https://spark.apache.org/docs/latest/spark-standalone.html">here</a> on how
+to start the standalone Spark cluster.</div></blockquote>
+<p>On a local ressource, such as a laptop or PC, you would start the spark environment using:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">$SPARK_HOME</span>/sbin/start-master.sh
+<span class="nv">$SPARK_HOME</span>/sbin/start-slave.sh &lt;sparkip&gt;
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">$SPARK_HOME</span></code> is the installation path of Spark.</p>
 <p>#### Cluster environment</p>
-<p>If you are working on a cluster, I recommend using <cite>sparkhpc</cite> to start a cluster. You can use the provided scripts to start a cluster. <strong>Make sure to have a working `openmpi` and `java` installed</strong>.</p>
+<dl class="docutils">
+<dt>If you are working on a cluster, you can use the provided scripts to start a cluster.</dt>
+<dd><strong>Make sure to have a working `openmpi` and `java` installed</strong>.</dd>
+</dl>
 <p><code class="docutils literal notranslate"><span class="pre">`bash</span>
 <span class="pre">./0a-start-cluster.sh</span> <span class="pre">&amp;</span>
 <span class="pre">./0b-launch-cluster.sh</span> <span class="pre">&amp;</span>
@@ -121,7 +156,6 @@ centers:</p>
 <span class="pre">snakemake</span> <span class="pre">-s</span> <span class="pre">biospark.snake</span> <span class="pre">--configfile</span> <span class="pre">biospark-grid.config</span> <span class="pre">--config</span> <span class="pre">sparkip=</span> <span class="pre">&lt;sparkip&gt;</span>
 <span class="pre">`</span></code></p>
 <p>That is it! This will create all required files in the data directory,</p>
-</div>
 </div>
 
 
