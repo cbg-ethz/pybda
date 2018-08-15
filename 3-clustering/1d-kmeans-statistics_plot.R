@@ -256,11 +256,8 @@ create.table <- function(gene.pred.fold)
 }
 
 
-oras <- function( best.clusters ,gene.pred.fold, how.many.clusters)
+oras <- function(which.clusters, gene.frequency.table, how.many.clusters)
 {
-  which.clusters       <- best.clusters$prediction[seq(how.many.clusters)]
-  gene.frequency.table <- .get.gene.stats(gene.pred.fold)
-
   pre   <- gene.frequency.table %>%
     dplyr::filter(prediction %in% which.clusters)
   universe <- gene.frequency.table %>%
@@ -289,10 +286,27 @@ oras <- function( best.clusters ,gene.pred.fold, how.many.clusters)
 }
 
 
+make.random.oras <- function(gene.frequency.table, how.many.clusters, subset.cnt=how.many.clusters - 1)
+{
+    random.oras <- purrr::map_dfr(
+      seq(subset.cnt),
+      function(i)
+      {
+        which.clusters <- sample(gene.frequency.table$prediction, 5, replace=F)
+        orai <- oras(which.clusters, gene.frequency.table, how.many.clusters)
+        add_column(Sample=1, orai, .before=TRUE)
+      }
+    )
+}
+
 plot.oras <- function(best.clusters, gene.pred.fold, how.many.clusters=10, data.dir)
 {
     flog.info('Computing ORAs.', name=logr)
-    oras.flat <- oras(best.clusters, gene.pred.fold, how.many.clusters)
+    gene.frequency.table <- .get.gene.stats(gene.pred.fold)
+    random.oras   <- make.random.oras(gene.frequency.table, how.many.clusters - 1)
+
+    which.clusters <- best.clusters$prediction[seq(how.many.clusters)]
+    oras.flat      <- oras(which.clusters, gene.frequency.table, how.many.clusters)
 
     if (nrow(oras.flat) == 0) {
       flog.info('\tno significant OR was found. Writing nothing...', name=logr)
@@ -311,11 +325,12 @@ plot.oras <- function(best.clusters, gene.pred.fold, how.many.clusters=10, data.
         scale_x_continuous(breaks=seq(how.many.clusters)) +
         theme(
           axis.title.x = element_text(size = 15, face = "bold"),
-          axis.title.y = element_text(size = 15, face = "bold"),
+          axis.title.y = element_blank(),
           panel.grid = element_blank(),
+
           axis.text.y = element_blank()) +
        labs(x = sprintf("# same GO-term found in %d different clusters", how.many.clusters),
-            y = "Frequency", title = "")
+            y = "", title = "Frequency of GO-terms")
 
     for (i in c("eps", "svg", "png"))
     {
