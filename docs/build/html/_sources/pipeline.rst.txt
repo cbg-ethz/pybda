@@ -1,4 +1,5 @@
-# TargetInfectX data analysis
+TargetInfectX data analysis
+===========================
 
 This document describes the steps taken for the data analysis of the *TargetInfectX* project.
 

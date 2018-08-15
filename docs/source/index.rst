@@ -1,5 +1,5 @@
-biospark
-=============
+koios
+=====
 
 .. image:: http://www.repostatus.org/badges/latest/active.svg
    :target: http://www.repostatus.org/#active
@@ -16,6 +16,17 @@ biospark
 
 A library for analysis of big biological data sets using Snakemake and Apache Spark.
 
+.. toctree::
+   :hidden:
+   :maxdepth: 4
+
+   Home <self>
+   usecase
+   spark
+
+   pipeline
+
+
 Introduction
 ------------
 
@@ -25,7 +36,7 @@ Welcome to ``biospark``.
 We use Apache Spark as analytics engine for big data processing and machine learning,
 and Snakemake for scheduling.
 
-The library consists of the following steps:
+With ``apollon``
 
 * Preprocessing: dimension reduction and outlier removal
 * Clustering
@@ -48,7 +59,7 @@ Dependencies
 Installation
 ------------
 
-1) Make sure to have ``python3`` installed. ``biospark`` does not support
+1) Make sure to have ``python3`` installed. ``koios`` does not support
 previous versions. The best way to do that is to download `anaconda <https://www.continuum.io/downloads>`_ and create a
 virtual `environment <https://conda.io/docs/using/envs.html>`_.
 
@@ -72,7 +83,7 @@ We assume that you are familiar with using a spark standalone cluster, so we onl
 discuss how the cluster is started.
 
 Config
-======
+~~~~~~~
 
 Your configuration file will need to have the following format:
 
@@ -83,8 +94,7 @@ Your configuration file will need to have the following format:
 
 The first line points to the ``spark-submit`` command which is provided by Apache Spark.
 The second line contains the ``tsv`` with your data, while the third line is the *folder* where all outputs are saved to.
-We use a factor analysis, PCA or kPCA for dimension reduction.
-The number of latent features is determined by ``factors``.
+We use factor analysis for dimension reduction for which number of latent features is determined by ``factors``.
 The output of the dimension reduction will be used for clustering.
 We apply a recursive clustering method that finds the optimal number of cluster
 centers *K*. For this, you need to provide the maximal number of cluster centers,
@@ -94,52 +104,92 @@ The Spark `documentation <https://spark.apache.org/docs/latest/submitting-applic
 for submitting applications provides details which arguments are valid here.
 
 Spark
-=====
+~~~~~~
 
 In order for `biospark` to work you need to have a working
-*standalone spark environment* set up, running and listening to some IP.
+*standalone spark environment* set up, running and listening to some ``IP``.
 You can find a good introduction
  `here <https://spark.apache.org/docs/latest/spark-standalone.html>`_ on how
  to start the standalone Spark cluster.
+
+We assume that you know how to use Apache Spark and start a cluster.
+However, for the sake of demonstration the next two sections show how Spark can
+be easily started.
 
 
 Local Spark context
 ....................
 
-On a local ressource, such as a laptop or PC, you would start the spark environment using:
+On a local resource, such as a laptop or PC, you would start the spark environment using:
 
 .. code-block:: bash
 
   $SPARK_HOME/sbin/start-master.sh
-  $SPARK_HOME/sbin/start-slave.sh <sparkip>
+  $SPARK_HOME/sbin/start-slave.sh <IP>
 
-where ``$SPARK_HOME`` is the installation path of Spark.
+where ``$SPARK_HOME`` is the installation path of Spark and ``IP`` the IP to which we will submit jobs.
 
-
-#### Cluster environment
+Cluster environment
+....................
 
 If you are working on a cluster, you can use the provided scripts to start a cluster.
- **Make sure to have a working `openmpi` and `java` installed**.
+**Make sure to have a working `openmpi` and `Java` installed**. We use ``sparkhpc``
+in order to start a standalone cluster on an LSF/SGE high-performance computing cluster.
 
-```bash
-./0a-start-cluster.sh &
-./0b-launch-cluster.sh &
-```
+.. code-block:: bash
 
-### Running
+  ./0a-start-cluster.sh &
+  ./0b-launch-cluster.sh &
 
-Once you started the cluster, you start `snakemake`:
+**NOTE**: for your own cluster, you should modify the number of workers, nodes, cores and memory.
+After the job has started, you need to call
 
-#### Local environment
+.. code-block:: bash
 
-```bash
-snakemake -s biospark.snake --configfile biospark-local.config --config sparkip= <sparkip>
-```
+  sparkcluster info
 
-#### Cluster environment
+in order to receive the spark ``IP``.
 
-```bash
-snakemake -s biospark.snake --configfile biospark-grid.config --config sparkip= <sparkip>
-```
+Snakemake
+~~~~~~~~~
 
-That is it! This will create all required files in the data directory,
+If you made it thus far, you successfully
+
+1) modified the config file,
+2) started a Spark standalone cluster and have the ``IP`` to which the Spark cluster listens.
+
+Now we can finally start our application.
+
+.. code-block:: bash
+
+  ./koios --configfile biospark-local.config
+          --ip IP
+
+That will run the dimension reduction, the outlier removal, the clustering and the analysis of the clusters.
+
+You can also only run a subset of the targets.
+For ``dimension-reduction``:
+
+.. code-block:: bash
+
+  ./koios --configfile biospark-local.config
+          --ip IP
+          dimension-reduction
+
+For ``outlier-removal``:
+
+.. code-block:: bash
+
+  ./koios --configfile biospark-local.config
+          --ip IP
+          outlier-removal
+
+For ``clustering``:
+
+.. code-block:: bash
+
+  ./koios --configfile biospark-local.config
+          --ip IP
+           clustering
+
+In all cases, the respective plots and analyses are alywas run.

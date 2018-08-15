@@ -1,0 +1,226 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Spark examples</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="TargetInfectX data analysis" href="pipeline.html" />
+    <link rel="prev" title="Use case" href="usecase.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="spark-examples">
+<h1>Spark examples<a class="headerlink" href="#spark-examples" title="Permalink to this headline">¶</a></h1>
+<p>## Remote hpcnotebook</p>
+<ul class="simple">
+<li>Open a browser and change to SOCKS proxy port 9999.</li>
+<li>Enable forwarding on your local machine</li>
+</ul>
+<dl class="docutils">
+<dt><a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a>sh</dt>
+<dd>ssh -Nf -D 9999 <a class="reference external" href="mailto:username&#37;&#52;&#48;cluster">username<span>&#64;</span>cluster</a> &gt;&amp; ssh_errors</dd>
+</dl>
+<p><a href="#id5"><span class="problematic" id="id6">``</span></a><a href="#id7"><span class="problematic" id="id8">`</span></a></p>
+<ul class="simple">
+<li>Submit a job like this</li>
+</ul>
+<dl class="docutils">
+<dt><a href="#id9"><span class="problematic" id="id10">``</span></a><a href="#id11"><span class="problematic" id="id12">`</span></a>sh</dt>
+<dd>bsub -R light -Is -n 4 -W 1:00 bash</dd>
+</dl>
+<p><a href="#id13"><span class="problematic" id="id14">``</span></a><a href="#id15"><span class="problematic" id="id16">`</span></a></p>
+<ul class="simple">
+<li>Then launch the notebook <strong>BUT DONT FORGET LOADING JAVA BEFORE</strong></li>
+</ul>
+<dl class="docutils">
+<dt><a href="#id17"><span class="problematic" id="id18">``</span></a><a href="#id19"><span class="problematic" id="id20">`</span></a>sh</dt>
+<dd>module load java
+module load open_mpi
+hpcnotebook launch</dd>
+</dl>
+<p><a href="#id21"><span class="problematic" id="id22">``</span></a><a href="#id23"><span class="problematic" id="id24">`</span></a></p>
+<p>## Sparkcluster</p>
+<dl class="docutils">
+<dt><a href="#id25"><span class="problematic" id="id26">``</span></a><a href="#id27"><span class="problematic" id="id28">`</span></a>sh</dt>
+<dd>module load java
+module load open_mpi
+sparkcluster …. start
+sparkcluster launch</dd>
+</dl>
+<p><a href="#id29"><span class="problematic" id="id30">``</span></a>`
+## Spark examples</p>
+<p>It seems that the pyspark api overwrites the command line configurations.
+Although I should not set <cite>driver-mermory</cite> using <cite>SparkConf</cite> this overwriting still happens. I dont get it.</p>
+<p>Options to submit:</p>
+<ol class="arabic">
+<li><dl class="first docutils">
+<dt><a href="#id31"><span class="problematic" id="id32">``</span></a><a href="#id33"><span class="problematic" id="id34">`</span></a>python</dt>
+<dd><dl class="first docutils">
+<dt>conf = pyspark.SparkConf().setMaster(“local[*]”) </dt>
+<dd><p class="first last">.setAppName(“test”) .set(“spark.executor.memory”, “2G”)</p>
+</dd>
+</dl>
+<p class="last">sc = pyspark.SparkContext(conf=conf)</p>
+</dd>
+</dl>
+<p><a href="#id35"><span class="problematic" id="id36">``</span></a><a href="#id37"><span class="problematic" id="id38">`</span></a></p>
+<dl class="docutils">
+<dt><a href="#id39"><span class="problematic" id="id40">``</span></a><a href="#id41"><span class="problematic" id="id42">`</span></a></dt>
+<dd><p class="first last">/usr/local/spark/spark/bin/spark-submit –driver-memory 20G ./tix_scripts/tix_normalize.py</p>
+</dd>
+</dl>
+<p><a href="#id43"><span class="problematic" id="id44">``</span></a><a href="#id45"><span class="problematic" id="id46">`</span></a></p>
+</li>
+<li><dl class="first docutils">
+<dt><a href="#id47"><span class="problematic" id="id48">``</span></a><a href="#id49"><span class="problematic" id="id50">`</span></a>python</dt>
+<dd><p class="first last">conf = pyspark.SparkConf().set(“spark.master”, “spark://10.205.17.48:7077”).set(“spark.executor.memory”, “10G”).set(“spa
+sc = pyspark.SparkContext(conf=conf)
+spark = pyspark.sql.SparkSession(sc)</p>
+</dd>
+</dl>
+<p><a href="#id51"><span class="problematic" id="id52">``</span></a><a href="#id53"><span class="problematic" id="id54">`</span></a></p>
+</li>
+</ol>
+<dl class="docutils">
+<dt><a href="#id55"><span class="problematic" id="id56">``</span></a><a href="#id57"><span class="problematic" id="id58">`</span></a>bash</dt>
+<dd>/usr/local/spark/spark/bin/spark-submit –driver-memory 10G ./tix_scripts/tix_normalize.py¬</dd>
+</dl>
+<p><a href="#id59"><span class="problematic" id="id60">``</span></a><a href="#id61"><span class="problematic" id="id62">`</span></a></p>
+<ol class="arabic" start="3">
+<li><blockquote class="first">
+<div><dl class="docutils">
+<dt><a href="#id63"><span class="problematic" id="id64">``</span></a><a href="#id65"><span class="problematic" id="id66">`</span></a>python</dt>
+<dd><p class="first last">conf = pyspark.SparkConf().set(“spark.executor.memory”, “10G”).set(“spa
+sc = pyspark.SparkContext(conf=conf)
+spark = pyspark.sql.SparkSession(sc)</p>
+</dd>
+</dl>
+<p><a href="#id67"><span class="problematic" id="id68">``</span></a><a href="#id69"><span class="problematic" id="id70">`</span></a></p>
+</div></blockquote>
+<dl class="docutils">
+<dt><a href="#id71"><span class="problematic" id="id72">``</span></a><a href="#id73"><span class="problematic" id="id74">`</span></a>¬</dt>
+<dd><p class="first last">/usr/local/spark/spark/bin/spark-submit –master spark://10.205.18.36:7077  –driver-memory 10G ./tix_scripts/tix_normalize.py¬</p>
+</dd>
+</dl>
+<p><a href="#id75"><span class="problematic" id="id76">``</span></a><a href="#id77"><span class="problematic" id="id78">`</span></a></p>
+</li>
+</ol>
+<p>## Submission</p>
+<dl class="docutils">
+<dt><a href="#id79"><span class="problematic" id="id80">``</span></a><a href="#id81"><span class="problematic" id="id82">`</span></a>bash</dt>
+<dd><p class="first">sparkcluster start  –memory-per-executor 10000 –memory-per-core 1000 10</p>
+<p>sparkcluster launch –memory 5G –cores-per-executor 10
+sparkcluster launch –memory 500G –cores-per-executor 20
+sparkcluster launch –timeout 10 –memory 500G –cores-per-executor 20</p>
+<p>/cluster/home/simondi/spark/bin/spark-submit  –master spark://10.205.0.132:7077  tix_cluster.py</p>
+<p class="last">#working: no memory at all: only executors
+/cluster/home/simondi/spark/bin/spark-submit  –master spark://10.205.0
+.134:7077  –num-executors 2 –executor-cores 10  tix_scripts/tix_cluster.py</p>
+</dd>
+</dl>
+<p><a href="#id83"><span class="problematic" id="id84">``</span></a><a href="#id85"><span class="problematic" id="id86">`</span></a></p>
+<dl class="docutils">
+<dt><a href="#id87"><span class="problematic" id="id88">``</span></a><a href="#id89"><span class="problematic" id="id90">`</span></a></dt>
+<dd><dl class="first docutils">
+<dt>sparkcluster start –memory-per-executor 15000 –memory-per-core 10000</dt>
+<dd><blockquote class="first">
+<div>–walltime 4:00 –cores-per-executor 1  20</div></blockquote>
+<p class="last"># DO NOT GO OVER LIMITS</p>
+</dd>
+</dl>
+<p>sparkcluster launch –memory 190G –timeout 1000 –cores-per-executor 2</p>
+<p># DO NOT GO OVER LIMTITS
+/cluster/home/simondi/spark/bin/spark-submit  –master spark://10.205.0.129:7078</p>
+<blockquote class="last">
+<div>–num-executors 20 –executor-cores 1  tix_scripts/tix_cluster.py</div></blockquote>
+</dd>
+</dl>
+<p><a href="#id91"><span class="problematic" id="id92">``</span></a><a href="#id93"><span class="problematic" id="id94">`</span></a></p>
+<dl class="docutils">
+<dt><a href="#id95"><span class="problematic" id="id96">``</span></a><a href="#id97"><span class="problematic" id="id98">`</span></a></dt>
+<dd><blockquote class="first">
+<div># take all memory: give one core per executor</div></blockquote>
+<p class="last">sparkcluster launch –timeout 10 –memory 100G –cores-per-executor 1</p>
+</dd>
+</dl>
+<p><a href="#id99"><span class="problematic" id="id100">``</span></a><a href="#id101"><span class="problematic" id="id102">`</span></a></p>
+<p># Working solution for SINGLE core: how is this extended to many?</p>
+<dl class="docutils">
+<dt><a href="#id103"><span class="problematic" id="id104">``</span></a><a href="#id105"><span class="problematic" id="id106">`</span></a></dt>
+<dd><dl class="first last docutils">
+<dt># seems to work: single core exe</dt>
+<dd><p class="first">sparkcluster start –memory-per-executor 15000 –memory-per-core 10000  –walltime 4:00 –cores-per-executor 1 20</p>
+<p class="last">sparkcluster launch –memory 190G –timeout 10</p>
+</dd>
+<dt>/cluster/home/simondi/spark/bin/spark-submit  –master spark://10.205.0.129:7078</dt>
+<dd><blockquote class="first">
+<div>–num-executors 20 –executor-cores 1  –total-executor-cores 20</div></blockquote>
+<p class="last">tix_scripts/tix_cluster.py</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>## Author</p>
+<ul class="simple">
+<li>Simon Dirmeier &lt;a href=”<a class="reference external" href="mailto:simon&#46;dirmeier&#37;&#52;&#48;gmx&#46;de">mailto:simon<span>&#46;</span>dirmeier<span>&#64;</span>gmx<span>&#46;</span>de</a>”&gt;simon.dirmeier&#64;gmx.de&lt;/a&gt;</li>
+</ul>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><p class="logo">
+  <a href="index.html">
+    <img src="_static/biospark_logo.png"
+         title="biospark"/>
+  </a>
+</p><h3>Contents</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usecase.html">Use case</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Spark examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline.html">TargetInfectX data analysis</a></li>
+</ul>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Simon Dirmeier.
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
