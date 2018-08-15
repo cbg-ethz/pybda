@@ -34,70 +34,92 @@ The library consists of the following steps:
 The library is still under development, so if you'd like to contribute,
 `fork us on GitHub <https://github.com/cbg-ethz/biospark>`_.
 
+Dependencies
+------------
+
+* Apache Spark >= 2.3.0
+* JDK >= 1.7
+* openmpi
+* Scala >= 2.12.0
+* R >= 3.5.0
+* Python >= 3.6
+* sparkhpc
 
 Installation
 ------------
 
-Make sure to have ``python3`` installed. ``biospark`` does not support
+1) Make sure to have ``python3`` installed. ``biospark`` does not support
 previous versions. The best way to do that is to download `anaconda <https://www.continuum.io/downloads>`_ and create a
 virtual `environment <https://conda.io/docs/using/envs.html>`_.
 
-Download the latest `release <https://github.com/cbg-ethz/biospark/releases>`_ first and install it using:
+2) Download the latest `release <https://github.com/cbg-ethz/biospark/releases>`_ first and unpack it.
 
-//# TODOD
+3) Install the required dependencies using:
 
+.. code-block:: bash
+
+  ./install_dependencies.sh
+
+4) Install the Apache Spark from `here <https://spark.apache.org/downloads.html>`_ . Use the *prebuilt for Apache Hadoop* package type.
+
+5) That is it.
 
 Usage
 -----
 
-## Dependencies
+Using ``biospark`` requires providing a config file and starting a spark cluster.
+We assume that you are familiar with using a spark standalone cluster, so we only briefly
+discuss how the cluster is started.
 
-Make sure to have `spark >= 2.2.0` and all the dependencies given in `requirements.txt` installed.
+Config
+======
 
-# TODO: add r requirements
+Your configuration file will need to have the following format:
 
-`org.Hs.eg.db`
-`hgu95av2.db`
+.. literalinclude:: ../../biospark-local.config
+  :caption: Contents of ``biospark-local.config`` file
+  :name: biospark-local.config
 
-## Usage
 
-### Config
+The first line points to the ``spark-submit`` command which is provided by Apache Spark.
+The second line contains the ``tsv`` with your data, while the third line is the *folder* where all outputs are saved to.
+We use a factor analysis, PCA or kPCA for dimension reduction.
+The number of latent features is determined by ``factors``.
+The output of the dimension reduction will be used for clustering.
+We apply a recursive clustering method that finds the optimal number of cluster
+centers *K*. For this, you need to provide the maximal number of cluster centers,
+since we use this as a reference point.
+Finally ``sparkparams`` contains the parameters you want to provide spark with.
+The Spark `documentation <https://spark.apache.org/docs/latest/submitting-applications.html>`_
+for submitting applications provides details which arguments are valid here.
 
-We start by configuring the config file `biospark.config`:
+Spark
+=====
 
-```bash
-spark: /usr/local/spark/spark/bin/spark-submit
-infile: data/single_cell_samples.tsv
-outfolder: data
-factors: 15
-centers:
-  - 2
-  - 5
-sparkparams:
-  - "--driver-memory=3G"
-  - "--executor-memory=6G"
-```
+In order for `biospark` to work you need to have a working
+*standalone spark environment* set up, running and listening to some IP.
+You can find a good introduction
+ `here <https://spark.apache.org/docs/latest/spark-standalone.html>`_ on how
+ to start the standalone Spark cluster.
 
-Here, you only need to change the infile parameter, the folder where you want to save the results and the number of cluster centers we want to test.
 
-### Spark
+Local Spark context
+....................
 
-In order for `biospark` to work you need to have a working *standalone spark environment* already set up and running. This part needs to be done by the user. You can find a good introduction [here](https://spark.apache.org/docs/latest/spark-standalone.html).
+On a local ressource, such as a laptop or PC, you would start the spark environment using:
 
-If you started your local spark context, you will receive the IP of the master, fo instance something like: `spark://5.6.7.8:7077`.
+.. code-block:: bash
 
-#### Local environment
+  $SPARK_HOME/sbin/start-master.sh
+  $SPARK_HOME/sbin/start-slave.sh <sparkip>
 
-On a laptop you would start the spark environment using:
+where ``$SPARK_HOME`` is the installation path of Spark.
 
-```bash
-$SPARK_HOME/sbin/start-master.sh
-$SPARK_HOME/sbin/start-slave.sh <sparkip>
-```
 
 #### Cluster environment
 
-If you are working on a cluster, I recommend using `sparkhpc` to start a cluster. You can use the provided scripts to start a cluster. **Make sure to have a working `openmpi` and `java` installed**.
+If you are working on a cluster, you can use the provided scripts to start a cluster.
+ **Make sure to have a working `openmpi` and `java` installed**.
 
 ```bash
 ./0a-start-cluster.sh &

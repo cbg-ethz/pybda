@@ -286,7 +286,7 @@ oras <- function(which.clusters, gene.frequency.table, how.many.clusters)
 }
 
 
-make.random.oras <- function(gene.frequency.table, how.many.clusters, subset.cnt=how.many.clusters - 1)
+make.random.oras <- function(gene.frequency.table, how.many.clusters, subset.cnt)
 {
     random.oras <- purrr::map_dfr(
       seq(subset.cnt),
@@ -294,49 +294,62 @@ make.random.oras <- function(gene.frequency.table, how.many.clusters, subset.cnt
       {
         which.clusters <- sample(gene.frequency.table$prediction, 5, replace=F)
         orai <- oras(which.clusters, gene.frequency.table, how.many.clusters)
-        add_column(Sample=1, orai, .before=TRUE)
+        add_column(Sample=i, orai, .before=TRUE)
       }
     )
+
+    random.oras
 }
 
-plot.oras <- function(best.clusters, gene.pred.fold, how.many.clusters=10, data.dir)
+
+.plot.go.term.distribution<- function(random.oras, data.dir, how.many.clusters)
+{
+  flog.info('\tplotting and writing distribution of GO-terms', name=logr)
+  oras.table <- random.oras %>%
+    dplyr::mutate(Sample = factor(Sample)) %>%
+    dplyr::filter(Qvalue <= .05) %>%
+    dplyr::select(Sample, Term) %>%
+    dplyr::group_by(Sample, Term) %>%
+    dplyr::summarize(Count=n())
+
+  p <-
+    ggplot(oras.table) +
+      geom_bar(aes(Count, fill=Sample), color="black", bins=20, position = "dodge") +
+      scale_x_continuous(breaks=seq(how.many.clusters), limits=c(0, 10)) +
+      colorspace::scale_fill_discrete_sequential() +
+      hrbrthemes::theme_ipsum("Helvetica") +
+      #my.theme() +
+      theme(
+        axis.title.x = element_text(size = 15, face = "bold"),
+        axis.title.y = element_blank(),
+        plot.title   = element_text(face = "bold"),
+        axis.line.y = element_line(colour = "black", size = .5, linetype = "solid"),
+        axis.text.x  = element_text(size=12),
+        axis.text.y  = element_text(size=12),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor = element_blank()) +
+      labs(
+        x = sprintf("# same GO-term found in %d different clusters", how.many.clusters),
+        y = "", title = "Frequency of GO-terms",
+        caption ="Every color represents a subsample of clusters") +
+      guides(fill=FALSE)
+
+  for (i in c("eps", "svg", "png"))
+  {
+    ggsave(paste0(data.dir, "/go-term_distribution.", i), p, width=10, height=6, dpi=720)
+  }
+}
+
+
+test.for.overenrichment <- function(best.clusters, gene.pred.fold, how.many.clusters=10, data.dir)
 {
     flog.info('Computing ORAs.', name=logr)
     gene.frequency.table <- .get.gene.stats(gene.pred.fold)
-    random.oras   <- make.random.oras(gene.frequency.table, how.many.clusters - 1)
+    random.oras   <- make.random.oras(gene.frequency.table, 10, 10)
+    .plot.go.term.distribution(random.oras)
 
     which.clusters <- best.clusters$prediction[seq(how.many.clusters)]
     oras.flat      <- oras(which.clusters, gene.frequency.table, how.many.clusters)
-
-    if (nrow(oras.flat) == 0) {
-      flog.info('\tno significant OR was found. Writing nothing...', name=logr)
-      return(NULL)
-    }
-
-    flog.info('\tplotting and writing ORA table.', name=logr)
-    p <-  oras.flat[ oras.flat$Qvalue <= .01,
-                     c("Index", "Qvalue", "Term")] %>%
-      group_by(Term) %>%
-      summarize(Count=n()) %>%
-      ggplot() +
-        geom_bar(aes(Count), bins=20) +
-        geom_text(stat='count', aes(Count, label=..count..), vjust=-.5) +
-        hrbrthemes::theme_ipsum() +
-        scale_x_continuous(breaks=seq(how.many.clusters)) +
-        theme(
-          axis.title.x = element_text(size = 15, face = "bold"),
-          axis.title.y = element_blank(),
-          panel.grid = element_blank(),
-
-          axis.text.y = element_blank()) +
-       labs(x = sprintf("# same GO-term found in %d different clusters", how.many.clusters),
-            y = "", title = "Frequency of GO-terms")
-
-    for (i in c("eps", "svg", "png"))
-    {
-      ggsave(paste0(data.dir, "/go-term_distribution.", i), p, width=10, height=6, dpi=720)
-    }
-
 
 
 
@@ -460,7 +473,7 @@ plot.best.clusters <- function(best.clusters, dir, how.many.clusters=5)
   silhouette.plot(silhouette.file)
 
   tabs <- create.table(gene.pred.fold)
-  plot.oras(tabs$best.clusters, gene.pred.fold, 10, data.dir)
+  test.for.overenrichment(tabs$best.clusters, gene.pred.fold, 10, data.dir)
   plot.best.clusters(tabs$best.clusters, dir)
 
 
