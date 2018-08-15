@@ -8,7 +8,6 @@ n  <- 100 * 100
 set.seed(23)
 m <- sample(c(rnorm(n/2, -3, 5), rnorm(n/2, 3, 5))) %>%
   matrix(., sqrt(n))
-m[20:40, 30] <- 20 + rnorm(21, -3, 5)
 
 df <-  melt(m)
 # TODO: write biospark into text

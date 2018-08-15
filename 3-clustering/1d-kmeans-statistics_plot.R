@@ -318,7 +318,6 @@ make.random.oras <- function(gene.frequency.table, how.many.clusters, subset.cnt
       scale_x_continuous(breaks=seq(how.many.clusters), limits=c(0, 10)) +
       colorspace::scale_fill_discrete_sequential() +
       hrbrthemes::theme_ipsum("Helvetica") +
-      #my.theme() +
       theme(
         axis.title.x = element_text(size = 15, face = "bold"),
         axis.title.y = element_blank(),
@@ -341,73 +340,80 @@ make.random.oras <- function(gene.frequency.table, how.many.clusters, subset.cnt
 }
 
 
+.plot.go.term.bubble <- function(oras.flat, data.dir)
+{
+
+  unique.ora.terms <- dplyr::filter(oras.flat, Qvalue <= .01) %>%
+    dplyr::select(Index, Qvalue, Term) %>%
+    dplyr::group_by(Term) %>%
+    dplyr::mutate(Count=n()) %>%
+    dplyr::filter(Count == 1) %>%
+    dplyr::select(-Count)
+
+  unique.ora.table <- tidyr::spread(unique.ora.terms, Index, Qvalue)
+  readr::write_tsv(unique.ora.table, paste0(data.dir, "/ora-table.tsv"))
+
+  unique.ora.table <- unique.ora.table %>%
+    tidyr::gather(Cluster, Qvalue ,-Term) %>%
+    dplyr::mutate(Qvalue = replace(Qvalue, is.na(Qvalue), 1))
+
+  most.significant.terms <- unique.ora.table %>%
+    dplyr::arrange(Qvalue) %>%
+    .[seq(25),] %>%
+    pull(Term)
+
+  unique.ora.table <- unique.ora.table %>%
+    dplyr::filter(Term %in% most.significant.terms)
+  unique.ora.table$Term <- factor(
+    unique.ora.table$Term, levels=rev(unique(unique.ora.table$Term)))
+  unique.ora.table <- unique.ora.table %>%
+    dplyr::mutate(Significant = Qvalue <= 0.05) %>%
+    dplyr::group_by(Term) %>%
+    dplyr::mutate(S = sum(Significant)) %>%
+    ungroup() %>%
+    dplyr::mutate(
+      Color   = factor(S == 1 & Significant==TRUE),
+      Cluster = as.integer(Cluster))
+  unique.ora.table$Cluster <- factor(
+    unique.ora.table$Cluster, levels=rev(unique(unique.ora.table$Cluster)))
+
+  p <- ggplot(unique.ora.table, aes(Cluster, Term), fill="black") +
+    hrbrthemes::theme_ipsum_rc() +
+    geom_point(aes(size=Color, color=Cluster)) +
+    scale_color_discrete_sequential("viridis") +
+    scale_size_manual(values= c(-1, 5)) +
+    ylab("Different clusters") +
+    ylab("GO-term") +
+    ggplot2::scale_x_discrete(expand = c(0, 1)) +
+    ggplot2::scale_y_discrete(expand = c(0, 1)) +
+    ggplot2::theme(
+      axis.title.y=element_blank(),
+      axis.title.x=element_text(size=17, hjust=.5),
+      axis.text.y=element_text(size=15),
+      axis.text.x=element_blank(),
+      legend.text=element_text(size=15),
+      legend.title=element_text(size=17)) +
+    guides(color=FALSE, size=FALSE)
+
+  for (i in c("eps", "png", "svg"))
+  {
+    ggsave(filename=paste0(data.dir, "/ora_bubbles.", i), plot=p, dpi=1000, width=13)
+  }
+}
+
+
 test.for.overenrichment <- function(best.clusters, gene.pred.fold, how.many.clusters=10, data.dir)
 {
     flog.info('Computing ORAs.', name=logr)
     gene.frequency.table <- .get.gene.stats(gene.pred.fold)
+
     random.oras   <- make.random.oras(gene.frequency.table, 10, 10)
     .plot.go.term.distribution(random.oras)
 
     which.clusters <- best.clusters$prediction[seq(how.many.clusters)]
     oras.flat      <- oras(which.clusters, gene.frequency.table, how.many.clusters)
+    .plot.go.term.bubble(oras.flat, data.dir)
 
-
-
-    unique.ora.terms <- oras.flat[oras.flat$Qvalue <= .01, c("Index", "Qvalue", "Term")] %>%
-      dplyr::group_by(Term) %>%
-      dplyr::mutate(Count=n()) %>%
-      dplyr::filter(Count == 1) %>%
-      dplyr::select(-Count)
-
-
-    unique.ora.table <- tidyr::spread(unique.ora.terms, Index, Qvalue)
-    readr::write_tsv(unique.ora.table, paste0(data.dir, "/ora-table.tsv"))
-
-    unique.ora.table <- unique.ora.table %>%
-      tidyr::gather(Cluster, Qvalue ,-Term) %>%
-      dplyr::mutate(Qvalue = replace(Qvalue, is.na(Qvalue), 1))
-
-    most.significant.terms <- unique.ora.table %>%
-      dplyr::arrange(Qvalue)
-
-    unique.ora.table <- unique.ora.table %>%
-      dplyr::filter(Term %in% most.significant.terms)
-
-    unique.ora.table$Term <- factor(
-      unique.ora.table$Term, levels=rev(unique(unique.ora.table$Term)))
-    unique.ora.table <- unique.ora.table %>%
-      dplyr::mutate(Significant = Qvalue <= 0.05) %>%
-      dplyr::group_by(Term) %>%
-      dplyr::mutate(S = sum(Significant)) %>%
-      ungroup() %>%
-      dplyr::mutate(
-        Color   = factor(S == 1 & Significant==TRUE),
-        Cluster = as.character(Cluster))
-
-    ggplot(unique.ora.table, aes(Cluster, Term), fill="black") +
-      hrbrthemes::theme_ipsum_rc() +
-      geom_point(aes(color=Color, size=Color)) +
-      scale_color_manual(name="Significant in\nonly one cluster", values=c("black", "#65ADC2")) +
-      ylab("Different clusters") +
-      ylab("GO-term") +
-      ggplot2::scale_x_discrete(expand = c(0, 1)) +
-      ggplot2::scale_y_discrete(expand = c(0, 1)) +
-      ggplot2::theme(
-        axis.title.y=element_blank(),
-        panel.grid.major.x=element_blank(),
-        axis.title.x=element_text(size=17, hjust=.5),
-        axis.text.y=element_text(size=15),
-        axis.text.x=element_blank(),
-        legend.text=element_text(size=15),
-        legend.title=element_text(size=17))
-
-    dir <- stringr::str_match(string=gene.pred.file, pattern="(.*).tsv")[2]
-    readr::write_tsv(oras.flast, path=paste0(dir, "-", "ora.tsv"))
-    for (i in c("eps", "png", "svg"))
-    {
-      ggsave(filename=paste0(dir, "-ora.", i),
-             plot=plt, dpi=1000, width=13)
-    }
 }
 
 
