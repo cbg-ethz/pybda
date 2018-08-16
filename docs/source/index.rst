@@ -30,13 +30,13 @@ A library for analysis of big biological data sets using Snakemake and Apache Sp
 Introduction
 ------------
 
-Welcome to ``biospark``.
+Welcome to ``koios``.
 
-``biospark`` is a Python/Scala library for analysis of big biological data sets.
+``koios`` is a Python/Scala library for analysis of big biological data sets.
 We use Apache Spark as analytics engine for big data processing and machine learning,
 and Snakemake for scheduling.
 
-With ``apollon``
+With ``koios``
 
 * Preprocessing: dimension reduction and outlier removal
 * Clustering
@@ -78,7 +78,7 @@ virtual `environment <https://conda.io/docs/using/envs.html>`_.
 Usage
 -----
 
-Using ``biospark`` requires providing a config file and starting a spark cluster.
+Using ``koios`` requires providing a config file and starting a spark cluster.
 We assume that you are familiar with using a spark standalone cluster, so we only briefly
 discuss how the cluster is started.
 
@@ -109,10 +109,10 @@ Spark
 In order for `biospark` to work you need to have a working
 *standalone spark environment* set up, running and listening to some ``IP``.
 You can find a good introduction
- `here <https://spark.apache.org/docs/latest/spark-standalone.html>`_ on how
- to start the standalone Spark cluster.
+`here <https://spark.apache.org/docs/latest/spark-standalone.html>`_ on how
+to start the standalone Spark cluster.
 
-We assume that you know how to use Apache Spark and start a cluster.
+.. note::  We assume that you know how to use Apache Spark and start a cluster.
 However, for the sake of demonstration the next two sections show how Spark can
 be easily started.
 
@@ -141,7 +141,7 @@ in order to start a standalone cluster on an LSF/SGE high-performance computing 
   ./0a-start-cluster.sh &
   ./0b-launch-cluster.sh &
 
-**NOTE**: for your own cluster, you should modify the number of workers, nodes, cores and memory.
+.. note::  For your own cluster, you should modify the number of workers, nodes, cores and memory.
 After the job has started, you need to call
 
 .. code-block:: bash
