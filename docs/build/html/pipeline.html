@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>TargetInfectX data analysis</title>
+    <title>Big data analysis</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -16,7 +16,7 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Spark examples" href="spark.html" />
+    <link rel="prev" title="Use Case" href="usecase.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -33,224 +33,181 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="targetinfectx-data-analysis">
-<h1>TargetInfectX data analysis<a class="headerlink" href="#targetinfectx-data-analysis" title="Permalink to this headline">¶</a></h1>
-<p>This document describes the steps taken for the data analysis of the <em>TargetInfectX</em> project.</p>
-<p>## Installation information</p>
-<ul class="simple">
-<li>sparkhpc</li>
-<li>spark</li>
-<li><cite>sparksubmit</cite> in bashrc</li>
-</ul>
-<p>## Parsing</p>
-<p>We first downloaded the complete data-set using the <cite>BeeDataDownloader</cite>.
-Subsequently we do some preprocessing using our in-house python tool <cite>rnaitutilities</cite>.</p>
+  <div class="section" id="big-data-analysis">
+<h1>Big data analysis<a class="headerlink" href="#big-data-analysis" title="Permalink to this headline">¶</a></h1>
+<p>This document describes the workflow for the data analysis of the <em>TargetInfectX</em> (TiX) project.
+The TiX project consists of single-cell microscopy images of multiple channels.
+Cells have been grown on 384 well plates and been knocked down using RNA interference.
+Afterwards cells have been infected with different pathogens.
+The resulting data has measurements of cell features, nuclei features, pathogenic features, etc.</p>
+<div class="section" id="parsing">
+<h2>Parsing<a class="headerlink" href="#parsing" title="Permalink to this headline">¶</a></h2>
+<p>We started by downloading the complete data-set of features as extracted from the i
+mages using <a class="reference external" href="http://cellprofiler.org/">CellProfiler</a>.
+Subsequently we do some preprocessing using our in-house python tool
+<a class="reference external" href="https://cbg-ethz.github.io/rnaiutilities/">rnaiutilities</a>.</p>
 <p>First we check for the correct number of downloads:</p>
-<dl class="docutils">
-<dt><a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a>bash</dt>
-<dd>rnai-parse checkdownload /cluster/home/simondi/PROJECTS/config_leonhard.yml</dd>
-</dl>
-<p><a href="#id5"><span class="problematic" id="id6">``</span></a><a href="#id7"><span class="problematic" id="id8">`</span></a></p>
-<p>This should give some files that are <strong>not</strong> downloaded. These are indeed <strong>empty on the openBIS instance</strong>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rnai-parse checkdownload /path/config_leonhard.yml
+</pre></div>
+</div>
+<p>This should give some files that are <strong>not</strong> downloaded.
+These are indeed <strong>empty</strong> on the
+<a class="reference external" href="https://infectx.biozentrum.unibas.ch/openbis/">openBIS</a> instance from which we
+downloaded the data.</p>
 <p>Afterwards we parse the files using:</p>
-<dl class="docutils">
-<dt><a href="#id9"><span class="problematic" id="id10">``</span></a><a href="#id11"><span class="problematic" id="id12">`</span></a>bash</dt>
-<dd>rnai-parse parse /cluster/home/simondi/PROJECTS/config_leonhard.yml</dd>
-</dl>
-<p><a href="#id13"><span class="problematic" id="id14">``</span></a><a href="#id15"><span class="problematic" id="id16">`</span></a></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rnai-parse parse /path/config_leonhard.yml
+</pre></div>
+</div>
 <p>Having parsed all files, we can check fif everything went as expected by creating a download report:</p>
-<dl class="docutils">
-<dt><a href="#id17"><span class="problematic" id="id18">``</span></a><a href="#id19"><span class="problematic" id="id20">`</span></a>bash</dt>
-<dd>rnai-parse report /cluster/home/simondi/PROJECTS/config_leonhard.yml</dd>
-</dl>
-<p><a href="#id21"><span class="problematic" id="id22">``</span></a><a href="#id23"><span class="problematic" id="id24">`</span></a></p>
-<p>Furthermore, to see which feature-sets make most sense to take, we can compute pairwise Jaccard indexes between the feature sets using:</p>
-<dl class="docutils">
-<dt><a href="#id25"><span class="problematic" id="id26">``</span></a><a href="#id27"><span class="problematic" id="id28">`</span></a>bash</dt>
-<dd>rnai-parse featuresets /cluster/home/simondi/PROJECTS/config_leonhard.yml</dd>
-</dl>
-<p><a href="#id29"><span class="problematic" id="id30">``</span></a><a href="#id31"><span class="problematic" id="id32">`</span></a></p>
-<p>## Preprocessing</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rnai-parse report /path/config_leonhard.yml
+</pre></div>
+</div>
+<p>Furthermore, to see which feature-sets make most sense to take,
+we can compute pairwise Jaccard indexes between the feature sets. We need that,
+because the different experiments in the data sets don’t have the same features.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rnai-parse featuresets /path/config_leonhard.yml
+</pre></div>
+</div>
+</div>
+<div class="section" id="preprocessing">
+<h2>Preprocessing<a class="headerlink" href="#preprocessing" title="Permalink to this headline">¶</a></h2>
 <p>Next the parsed data’s meta information are stored in a indexed data-based in
 order to quickly retrieve plate information. The mentioned files are found in the
-<cite>results/1-preprocessing/0-features/current_analysis</cite> folder.
-The entry to this part is <cite>featuresets_feature_files.tsv</cite> which been created using <cite>rnai-parse featuresets</cite>.</p>
-<p>First we created a index for the complete data-set using <cite>sqlite</cite>.
-<a href="#id33"><span class="problematic" id="id34">``</span></a><a href="#id35"><span class="problematic" id="id36">`</span></a>bash</p>
-<blockquote>
-<div><dl class="docutils">
-<dt>rnai-query insert</dt>
-<dd>–db /cluster/home/simondi/simondi/data/tix/database/tix_index.db
-/cluster/home/simondi/simondi/data/tix/screening_data</dd>
-</dl>
-</div></blockquote>
-<p><a href="#id37"><span class="problematic" id="id38">``</span></a><a href="#id39"><span class="problematic" id="id40">`</span></a></p>
-<p>Then create the feature sets created from calling <cite>rnai-parse featuresets</cite> (from terminal):
-<a href="#id41"><span class="problematic" id="id42">``</span></a><a href="#id43"><span class="problematic" id="id44">`</span></a>bash</p>
-<blockquote>
-<div>./0-create_maximal_feature_sets.py featuresets_feature_files.tsv &gt; feature_sets_max.tsv</div></blockquote>
-<p><a href="#id45"><span class="problematic" id="id46">``</span></a><a href="#id47"><span class="problematic" id="id48">`</span></a></p>
-<p>Create plots (<cite>feature_overlap.eps</cite> and <cite>feature_histogram.eps</cite>) from the files created during the step (from terminal).
-<a href="#id49"><span class="problematic" id="id50">``</span></a><a href="#id51"><span class="problematic" id="id52">`</span></a>bash</p>
-<blockquote>
-<div>./1-plot_featuresets.R</div></blockquote>
-<p><a href="#id53"><span class="problematic" id="id54">``</span></a><a href="#id55"><span class="problematic" id="id56">`</span></a></p>
-<p>Print the plates with maximal feature sets (from terminal):
-<a href="#id57"><span class="problematic" id="id58">``</span></a><a href="#id59"><span class="problematic" id="id60">`</span></a>bash</p>
-<blockquote>
-<div><p>./2-extract_plates_from_screens.py experiment_meta_file.tsv feature_sets_max.tsv 100 &gt; feature_plates_and_screens_100.tsv</p>
-<p>./2-extract_plates_from_screens.py experiment_meta_file.tsv feature_sets_max.tsv 250 &gt; feature_plates_and_screens_250.tsv</p>
-<p>./2-extract_plates_from_screens.py experiment_meta_file.tsv feature_sets_max.tsv 500 &gt; feature_plates_and_screens_500.tsv</p>
-</div></blockquote>
-<p><a href="#id61"><span class="problematic" id="id62">``</span></a><a href="#id63"><span class="problematic" id="id64">`</span></a></p>
-<p>Parse the file created above (from terminal):
-<a href="#id65"><span class="problematic" id="id66">``</span></a><a href="#id67"><span class="problematic" id="id68">`</span></a>bash</p>
-<blockquote>
-<div>./3-plate_names.awk feature_plates_and_screens_x.tsv &gt; feature_plate_names_x.tsv</div></blockquote>
-<p><a href="#id69"><span class="problematic" id="id70">``</span></a><a href="#id71"><span class="problematic" id="id72">`</span></a></p>
-<p>Query the database and write result to file (since the API does not work with such a large plate list, from terminal):
-<a href="#id73"><span class="problematic" id="id74">``</span></a><a href="#id75"><span class="problematic" id="id76">`</span></a>bash</p>
-<blockquote>
-<div>./4-get_file_sets_from_db.sh feature_plate_names_x.tsv feature_dbq_x.tsv.tsv</div></blockquote>
-<p><a href="#id77"><span class="problematic" id="id78">``</span></a><a href="#id79"><span class="problematic" id="id80">`</span></a></p>
-<p>The last file (<cite>feature_dbq_x.tsv</cite>) can be used with <cite>rnai-query compose</cite> to get the data from the database (from <em>leonhard</em>):
-<a href="#id81"><span class="problematic" id="id82">``</span></a><a href="#id83"><span class="problematic" id="id84">`</span></a>bash</p>
-<blockquote>
-<div>./5-rnai_query.sh 10/100/1000 feature_dbq_250.tsv</div></blockquote>
-<p><a href="#id85"><span class="problematic" id="id86">``</span></a><a href="#id87"><span class="problematic" id="id88">`</span></a></p>
-<p>After that you should lpot the reults of <cite>rnai-query</cite> to make sure your data is approximately Gaussian.
-I recommend to do querying on only 10 cells, too, such that plotting is easier
-<a href="#id89"><span class="problematic" id="id90">``</span></a><a href="#id91"><span class="problematic" id="id92">`</span></a>bash</p>
-<blockquote>
-<div>./6-plot_feature_distribution.R100/1000 feature_dbq_250.tsv</div></blockquote>
-<p><a href="#id93"><span class="problematic" id="id94">``</span></a><a href="#id95"><span class="problematic" id="id96">`</span></a></p>
-<p><strong>This creates the data also normalizes them which are now ready for use.</strong></p>
-<p>## Dimension reduction</p>
+<code class="docutils literal notranslate"><span class="pre">results/1-preprocessing/0-features/current_analysis</span></code> folder.
+The entry to this part is <code class="docutils literal notranslate"><span class="pre">featuresets_feature_files.tsv</span></code>
+which has been created using <code class="docutils literal notranslate"><span class="pre">rnai-parse</span> <span class="pre">featuresets</span></code>.</p>
+<p>First we created a index for the complete data-set using <code class="docutils literal notranslate"><span class="pre">sqlite</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rnai-query insert
+           --db /path/to/tix_index.db
+           /path/screening_data
+</pre></div>
+</div>
+<p>Then create the feature sets created from calling
+<code class="docutils literal notranslate"><span class="pre">rnai-parse</span> <span class="pre">featuresets</span></code> (from terminal):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./0-create_maximal_feature_sets.py featuresets_feature_files.tsv &gt; feature_sets_max.tsv
+</pre></div>
+</div>
+<p>Create plots (<cite>feature_overlap.eps</cite> and <cite>feature_histogram.eps</cite>)
+from the files created during the step (from terminal).</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./1-plot_featuresets.R
+</pre></div>
+</div>
+<p>Print the plates with maximal feature sets (from terminal):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./2-extract_plates_from_screens.py experiment_meta_file.tsv feature_sets_max.tsv <span class="m">100</span> &gt; feature_plates_and_screens_100.tsv
+./2-extract_plates_from_screens.py experiment_meta_file.tsv feature_sets_max.tsv <span class="m">250</span> &gt; feature_plates_and_screens_250.tsv
+./2-extract_plates_from_screens.py experiment_meta_file.tsv feature_sets_max.tsv <span class="m">500</span> &gt; feature_plates_and_screens_500.tsv
+</pre></div>
+</div>
+<p>Parse the file created above (from terminal):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./3-plate_names.awk feature_plates_and_screens_x.tsv &gt; feature_plate_names_x.tsv
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./4-get_file_sets_from_db.sh feature_plate_names_x.tsv feature_dbq_x.tsv.tsv
+</pre></div>
+</div>
+<p>The last file (<cite>feature_dbq_x.tsv</cite>) can be used with <cite>rnai-query compose</cite> to get the data from the database (from <em>leonhard</em>):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./5-rnai_query.sh <span class="m">10</span>/100/1000 feature_dbq_250.tsv
+</pre></div>
+</div>
+<p>After that you should plots the reults of <cite>rnai-query</cite> to make sure your data is approximately Gaussian.
+I recommend to do querying on only 10 cells, too, such that plotting is easier</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./6-plot_feature_distribution.R <span class="m">100</span>/1000 feature_dbq_250.tsv
+</pre></div>
+</div>
+</div>
+<div class="section" id="setting-the-config-file">
+<h2>Setting the config file<a class="headerlink" href="#setting-the-config-file" title="Permalink to this headline">¶</a></h2>
+<p>I use the following config files for the analysis.
+Before I ran everything I do a test run using:</p>
+<div class="literal-block-wrapper docutils container" id="biospark-grid-test-config">
+<div class="code-block-caption"><span class="caption-text">Contents of <code class="docutils literal notranslate"><span class="pre">biospark-grid-test.config</span></code> file</span><a class="headerlink" href="#biospark-grid-test-config" title="Permalink to this code">¶</a></div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">spark</span><span class="p">:</span> <span class="o">/</span><span class="n">cluster</span><span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">simondi</span><span class="o">/</span><span class="n">spark</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">spark</span><span class="o">-</span><span class="n">submit</span>
+<span class="n">infile</span><span class="p">:</span> <span class="o">/</span><span class="n">cluster</span><span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">simondi</span><span class="o">/</span><span class="n">simondi</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">tix</span><span class="o">/</span><span class="mi">2</span><span class="o">-</span><span class="n">analysis</span><span class="o">-</span><span class="n">test</span><span class="o">/</span><span class="n">test_file</span><span class="o">.</span><span class="n">tsv</span>
+<span class="n">outfolder</span><span class="p">:</span> <span class="o">/</span><span class="n">cluster</span><span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">simondi</span><span class="o">/</span><span class="n">simondi</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">tix</span><span class="o">/</span><span class="mi">2</span><span class="o">-</span><span class="n">analysis</span><span class="o">-</span><span class="n">test</span>
+<span class="n">factors</span><span class="p">:</span> <span class="mi">15</span>
+<span class="n">max_centers</span><span class="p">:</span> <span class="mi">1000</span>
+<span class="n">centers</span><span class="p">:</span>
+  <span class="o">-</span> <span class="mi">2</span>
+  <span class="o">-</span> <span class="mi">5</span>
+  <span class="o">-</span> <span class="mi">10</span>
+  <span class="o">-</span> <span class="mi">100</span>
+<span class="n">sparkparams</span><span class="p">:</span>
+  <span class="o">-</span> <span class="s2">&quot;--executor-memory=345G&quot;</span>
+</pre></div>
+</div>
+</div>
+<p>The config of the main run looks like this:</p>
+<div class="literal-block-wrapper docutils container" id="biospark-grid-config">
+<div class="code-block-caption"><span class="caption-text">Contents of <code class="docutils literal notranslate"><span class="pre">biospark-grid.config</span></code> file</span><a class="headerlink" href="#biospark-grid-config" title="Permalink to this code">¶</a></div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">spark</span><span class="p">:</span> <span class="o">/</span><span class="n">cluster</span><span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">simondi</span><span class="o">/</span><span class="n">spark</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">spark</span><span class="o">-</span><span class="n">submit</span>
+<span class="n">infile</span><span class="p">:</span> <span class="o">/</span><span class="n">cluster</span><span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">simondi</span><span class="o">/</span><span class="n">simondi</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">tix</span><span class="o">/</span><span class="mi">2</span><span class="o">-</span><span class="n">analysis</span><span class="o">/</span><span class="n">all_optimal_from_file_feature_dbq_250_cells_100</span><span class="o">.</span><span class="n">tsv</span>
+<span class="n">outfolder</span><span class="p">:</span> <span class="o">/</span><span class="n">cluster</span><span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">simondi</span><span class="o">/</span><span class="n">simondi</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">tix</span><span class="o">/</span><span class="mi">2</span><span class="o">-</span><span class="n">analysis</span>
+<span class="n">factors</span><span class="p">:</span> <span class="mi">15</span>
+<span class="n">max_centers</span><span class="p">:</span> <span class="mi">50000</span>
+<span class="n">centers</span><span class="p">:</span>
+  <span class="o">-</span> <span class="mi">2</span>
+  <span class="o">-</span> <span class="mi">5</span>
+  <span class="o">-</span> <span class="mi">10</span>
+  <span class="o">-</span> <span class="mi">100</span>
+  <span class="o">-</span> <span class="mi">200</span>
+  <span class="o">-</span> <span class="mi">500</span>
+  <span class="o">-</span> <span class="mi">1000</span>
+  <span class="o">-</span> <span class="mi">1500</span>
+<span class="n">sparkparams</span><span class="p">:</span>
+  <span class="o">-</span> <span class="s2">&quot;--executor-memory=480G&quot;</span>
+
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="staring-the-cluster">
+<h2>Staring the cluster<a class="headerlink" href="#staring-the-cluster" title="Permalink to this headline">¶</a></h2>
+<p>First we start the cluster. Locally that would be done like this:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">$SPARK_HOME</span>/sbin/start-master.sh
+<span class="nv">$SPARK_HOME</span>/sbin/start-slave.sh &lt;IP&gt;
+</pre></div>
+</div>
+<p>In a cluster environment, this is the command to be executed:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>module load jdk/8u92
+module load openmpi/2.1.0
+
+./0a-start_cluster.sh
+./0b-launch_cluster.sh
+
+sparkcluster info
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><code class="docutils literal notranslate"><span class="pre">openmpi</span></code> and <code class="docutils literal notranslate"><span class="pre">java</span></code> needs to be loaded on every shell session.</p>
+</div>
+</div>
+<div class="section" id="analysis">
+<h2>Analysis<a class="headerlink" href="#analysis" title="Permalink to this headline">¶</a></h2>
 <p>Before we start analysing the data we do a dimension reduction into a 15-dimensional space using
-factor analysis using <cite>1-factor_analysis-spark.py</cite> on data generated by <cite>rnai-query compile</cite>.
-The respective <cite>1-factor_analysis*</cite> files are for testing.
-The input file is a data set created using <cite>rnai-query compose</cite> (see above). The output is a parquet folder.</p>
-<p><strong>Note that mpi and java needs to be loaded on every shell session.</strong> The job is submitted on a grid using:</p>
-<p>The factor analysis can be done like this locally:
-<a href="#id97"><span class="problematic" id="id98">``</span></a><a href="#id99"><span class="problematic" id="id100">`</span></a>bash</p>
-<blockquote>
-<div><dl class="docutils">
-<dt>spark-submit –master “local[*]” –driver-memory 3G –executor-memory 6G</dt>
-<dd>1-factor_analysis-spark.py
--o ./query_data/cells_sample_10_normalized_cut_100_factors
--f ./query_data/cells_sample_10_normalized_cut_100.tsv</dd>
-</dl>
-</div></blockquote>
-<p><a href="#id101"><span class="problematic" id="id102">``</span></a><a href="#id103"><span class="problematic" id="id104">`</span></a></p>
-<p>On leonhard this is the command to be executed:</p>
-<dl class="docutils">
-<dt><a href="#id105"><span class="problematic" id="id106">``</span></a><a href="#id107"><span class="problematic" id="id108">`</span></a>bash</dt>
-<dd><p class="first">module load jdk/8u92
-module load openmpi/2.1.0</p>
-<p>./0a-start_cluster.sh
-./0b-launch_cluster.sh &amp;</p>
-<p># get master
-sparkcluster info</p>
-<p class="last">./1a-factor_analysis.sh MASTER &amp;</p>
-</dd>
-</dl>
-<p><a href="#id109"><span class="problematic" id="id110">``</span></a><a href="#id111"><span class="problematic" id="id112">`</span></a></p>
-<p>Afterwards the results can be visualized using:</p>
-<dl class="docutils">
-<dt><a href="#id113"><span class="problematic" id="id114">``</span></a><a href="#id115"><span class="problematic" id="id116">`</span></a>bash</dt>
-<dd>Rscript 1b-factor_analysis_plot.R</dd>
-</dl>
-<p><a href="#id117"><span class="problematic" id="id118">``</span></a>`
-If you also want to visualize the distribution of the components it makes sense
-to run the factor analysis on a smaller data set,for instance with only 10 cells
-and then run the following:</p>
-<dl class="docutils">
-<dt><a href="#id119"><span class="problematic" id="id120">``</span></a><a href="#id121"><span class="problematic" id="id122">`</span></a>bash</dt>
-<dd>2a-parquet_to_tsv.sh
-2b-plot_feature_distributions.R</dd>
-</dl>
-<p><a href="#id123"><span class="problematic" id="id124">``</span></a><a href="#id125"><span class="problematic" id="id126">`</span></a></p>
-<p>Finally we remove some outliers. As before we are assuming <strong>GAUSSIAN</strong> features,
-so the output of <cite>2b-plot_feature_distributions.R</cite> should be approximately normal
-(or whatever).</p>
-<p>Locally you would call:
-<a href="#id127"><span class="problematic" id="id128">``</span></a><a href="#id129"><span class="problematic" id="id130">`</span></a>bash</p>
-<blockquote>
-<div><dl class="docutils">
-<dt>spark-submit –master “local[*]” –driver-memory 3G –executor-memory 6G</dt>
-<dd>3-outlier_removal.py
--o ./query_data/cells_sample_10_normalized_cut_100_factors
--f ./query_data/cells_sample_10_normalized_cut_100.tsv</dd>
-</dl>
-</div></blockquote>
-<p><a href="#id131"><span class="problematic" id="id132">``</span></a><a href="#id133"><span class="problematic" id="id134">`</span></a></p>
-<p>On leonhard this is the command to be executed:</p>
-<dl class="docutils">
-<dt><a href="#id135"><span class="problematic" id="id136">``</span></a><a href="#id137"><span class="problematic" id="id138">`</span></a>bash</dt>
-<dd><p class="first">module load jdk/8u92
-module load openmpi/2.1.0</p>
-<p>./0a-start_cluster.sh
-./0b-launch_cluster.sh &amp;</p>
-<p># get master
-sparkcluster info</p>
-<p class="last">./3a-remove_outliers.sh MASTER &amp;</p>
-</dd>
-</dl>
-<p><a href="#id139"><span class="problematic" id="id140">``</span></a><a href="#id141"><span class="problematic" id="id142">`</span></a></p>
-<p>## Analysis</p>
-<p>### Clustering</p>
-<p><cite>1-kmeans_spark.py</cite> clusters data generated using the previous factor analysis (or raw data). The respective
-<cite>1-kmeans_spark.ipynp</cite> is a trial-and-error script for testing.
-The input file and output folder should be always the same, for example <em>cells_sample_10_100lines.tsv</em>  as input file or the output folder created by the factor analysis (cells_sample_10_normalized_cut_100_factors) and some folder <em>out</em> as output.</p>
-<p>First run the script using <cite>fit</cite> on a couple of different cluster centers`k`s,
-then plot the results to determine how many cluster centers you need and
-finally transform the data with the respective <cite>k</cite>.</p>
-<p>The clustering can be done like this locally:
-<a href="#id143"><span class="problematic" id="id144">``</span></a><a href="#id145"><span class="problematic" id="id146">`</span></a>bash</p>
-<blockquote>
-<div><p>for i in {2..15};
-do</p>
-<blockquote>
-<div><dl class="docutils">
-<dt>spark-submit –master “local[*]” –driver-memory 3G –executor-memory 6G </dt>
-<dd>1-kmeans_spark.py -o ./1-clustering/test -f ./query_data/cells_sample_10_normalized_cut_100_factors fit -k ${i}</dd>
-</dl>
-</div></blockquote>
-<p>done</p>
-<dl class="docutils">
-<dt>spark-submit –master “local[*]” –driver-memory 3G –executor-memory 6G </dt>
-<dd>1-kmeans_spark.py -o ./1-clustering/test -f ./query_data/cells_sample_10_normalized_cut_100_factors plot</dd>
-<dt>spark-submit –master “local[*]” –driver-memory 3G –executor-memory 6G </dt>
-<dd>1-kmeans_spark.py -o ./1-clustering/test -f ./query_data/cells_sample_10_normalized_cut_100_factors transform -k BEST_K_FROM_PLOT</dd>
-<dt>spark-submit –master “local[*]” –driver-memory 3G –executor-memory 6G </dt>
-<dd>1-kmeans_statistics-spark.py -f ./1-clustering/test/kmeans_transform-cells_sample_10_normalized_cut_100_factors_K005</dd>
-</dl>
-</div></blockquote>
-<p><a href="#id147"><span class="problematic" id="id148">``</span></a><a href="#id149"><span class="problematic" id="id150">`</span></a></p>
-<p><strong>Note that mpi and java needs to be loaded on every shell session.</strong> The job is submitted on a grid using:</p>
-<dl class="docutils">
-<dt><a href="#id151"><span class="problematic" id="id152">``</span></a><a href="#id153"><span class="problematic" id="id154">`</span></a>bash</dt>
-<dd><p class="first">module load jdk/8u92
-module load openmpi/2.1.0</p>
-<p>./1a-start_cluster.sh
-./1b-launch_cluster.sh &amp;</p>
-<p># get master
-sparkcluster info</p>
-<p>./1a-kmeans-fit-all.sh spark:master K
-./1b-kmeans-plot.sh spark:master
-./1c-kmeans-transform.sh spark:master K</p>
-<p class="last">./1d-kmeans-statistics spark:master kmeans_transformed_folder</p>
-</dd>
-</dl>
-<p><a href="#id155"><span class="problematic" id="id156">``</span></a><a href="#id157"><span class="problematic" id="id158">`</span></a></p>
-<p>Then plot the results from the statistics and the clusterings.</p>
-<dl class="docutils">
-<dt><a href="#id159"><span class="problematic" id="id160">``</span></a><a href="#id161"><span class="problematic" id="id162">`</span></a>bash</dt>
-<dd>Rscript 1e-kmeans-statistics_plot.R
-Rscript 1g-kmeans-plot_clusters.R</dd>
-</dl>
-<p><a href="#id163"><span class="problematic" id="id164">``</span></a><a href="#id165"><span class="problematic" id="id166">`</span></a></p>
-<p><strong>The other script `1f-kmeans-sample` has not been very much used to far.</strong></p>
+<code class="docutils literal notranslate"><span class="pre">koios</span></code>.
+The input file is a data set created using <code class="docutils literal notranslate"><span class="pre">rnai-query</span> <span class="pre">compose</span></code> (see above).
+The output is a parquet folder.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./koios --configfile biospark-local.config
+        --ip IP
+        dimension-reduction
+</pre></div>
+</div>
+<p>Youn will receive a couple of plots which you should check for Gaussianity.</p>
+<p>Afterwards we use the outlier removal:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./koios --configfile biospark-local.config
+     --ip IP
+     outlier-removal
+</pre></div>
+</div>
+<p>Finally we do the clustering:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./koios --configfile biospark-local.config
+     --ip IP
+     clustering
+</pre></div>
+</div>
+<p>That’s it. You get some plots to that which you should have a look at.</p>
+</div>
 </div>
 
 
@@ -267,9 +224,20 @@ Rscript 1g-kmeans-plot_clusters.R</dd>
 </p><h3>Contents</h3>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="index.html">Home</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usecase.html">Use case</a></li>
-<li class="toctree-l1"><a class="reference internal" href="spark.html">Spark examples</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">TargetInfectX data analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usecase.html">Use Case</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="usecase.html#setting-the-config-file">Setting the config file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usecase.html#starting-the-cluster">Starting the cluster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usecase.html#analysis">Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Big data analysis</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#parsing">Parsing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#preprocessing">Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setting-the-config-file">Setting the config file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#staring-the-cluster">Staring the cluster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#analysis">Analysis</a></li>
+</ul>
+</li>
 </ul>
 
         </div>

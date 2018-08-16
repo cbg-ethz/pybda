@@ -16,7 +16,7 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Use case" href="usecase.html" />
+    <link rel="next" title="Use Case" href="usecase.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -37,19 +37,19 @@
 <h1>koios<a class="headerlink" href="#koios" title="Permalink to this headline">¶</a></h1>
 <a class="reference external image-reference" href="http://www.repostatus.org/#active"><img alt="http://www.repostatus.org/badges/latest/active.svg" src="http://www.repostatus.org/badges/latest/active.svg" /></a>
 <a class="reference external image-reference" href="https://travis-ci.org/cbg-ethz/biospark/"><img alt="https://travis-ci.org/cbg-ethz/biospark.svg?branch=master" src="https://travis-ci.org/cbg-ethz/biospark.svg?branch=master" /></a>
-<a class="reference external image-reference" href="https://codecov.io/gh/cbg-ethz/biospark"><img alt="https://codecov.io/gh/cbg-ethz/biospark/branch/master/graph/badge.svg" src="https://codecov.io/gh/cbg-ethz/biospark/branch/master/graph/badge.svg" /></a>
+<a class="reference external image-reference" href="https://codecov.io/gh/cbg-ethz/biospark/"><img alt="https://codecov.io/gh/cbg-ethz/biospark/branch/master/graph/badge.svg" src="https://codecov.io/gh/cbg-ethz/biospark/branch/master/graph/badge.svg" /></a>
 <a class="reference external image-reference" href="https://www.codacy.com/app/simon-dirmeier/rnaiutilities_2?utm_source=github.com&amp;amp;utm_medium=referral&amp;amp;utm_content=cbg-ethz/rnaiutilities&amp;amp;utm_campaign=Badge_Grade"><img alt="https://api.codacy.com/project/badge/Grade/1822ba83768d4d7389ba667a9c839638" src="https://api.codacy.com/project/badge/Grade/1822ba83768d4d7389ba667a9c839638" /></a>
 <a class="reference external image-reference" href="http://biospark.readthedocs.io/en/latest/"><img alt="doc" src="https://readthedocs.org/projects/biospark/badge/?version=latest" /></a>
-<p>A library for analysis of big biological data sets using Snakemake and Apache Spark.</p>
+<p>A library for analysis of big biological data sets using Snakemake, powered by Apache Spark.</p>
 <div class="toctree-wrapper compound">
 </div>
-<div class="section" id="introduction">
+<object data="_static/snakeflow.svg" type="image/svg+xml" width="600"></object><div class="section" id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
-<p>Welcome to <code class="docutils literal notranslate"><span class="pre">biospark</span></code>.</p>
-<p><code class="docutils literal notranslate"><span class="pre">biospark</span></code> is a Python/Scala library for analysis of big biological data sets.
+<p>Welcome to <code class="docutils literal notranslate"><span class="pre">koios</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">koios</span></code> is a Python/Scala library for analysis of big biological data sets.
 We use Apache Spark as analytics engine for big data processing and machine learning,
 and Snakemake for scheduling.</p>
-<p>With <code class="docutils literal notranslate"><span class="pre">apollon</span></code></p>
+<p>With <code class="docutils literal notranslate"><span class="pre">koios</span></code></p>
 <ul class="simple">
 <li>Preprocessing: dimension reduction and outlier removal</li>
 <li>Clustering</li>
@@ -83,13 +83,13 @@ virtual <a class="reference external" href="https://conda.io/docs/using/envs.htm
 </pre></div>
 </div>
 <ol class="arabic simple" start="4">
-<li>Install the Apache Spark from <a class="reference external" href="https://spark.apache.org/downloads.html">here</a> . Use the <em>prebuilt for Apache Hadoop</em> package type.</li>
+<li>Install <a class="reference external" href="https://spark.apache.org/downloads.html">Apache Spark</a> . Use the <em>prebuilt for Apache Hadoop</em> package type.</li>
 <li>That is it.</li>
 </ol>
 </div>
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
-<p>Using <code class="docutils literal notranslate"><span class="pre">biospark</span></code> requires providing a config file and starting a spark cluster.
+<p>Using <code class="docutils literal notranslate"><span class="pre">koios</span></code> requires providing a config file and starting a spark cluster.
 We assume that you are familiar with using a spark standalone cluster, so we only briefly
 discuss how the cluster is started.</p>
 <div class="section" id="config">
@@ -126,16 +126,13 @@ for submitting applications provides details which arguments are valid here.</p>
 <h3>Spark<a class="headerlink" href="#spark" title="Permalink to this headline">¶</a></h3>
 <p>In order for <cite>biospark</cite> to work you need to have a working
 <em>standalone spark environment</em> set up, running and listening to some <code class="docutils literal notranslate"><span class="pre">IP</span></code>.
-You can find a good introduction</p>
-<blockquote>
-<div><a class="reference external" href="https://spark.apache.org/docs/latest/spark-standalone.html">here</a> on how
-to start the standalone Spark cluster.</div></blockquote>
+You can find a good introduction
+<a class="reference external" href="https://spark.apache.org/docs/latest/spark-standalone.html">here</a> on how
+to start the standalone Spark cluster.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">We assume that you know how to use Apache Spark and start a cluster.</p>
+<p class="last">We assume that you know how to use Apache Spark and start a cluster. However, for the sake of demonstration the next two sections show how Spark can be easily started.</p>
 </div>
-<p>However, for the sake of demonstration the next two sections show how Spark can
-be easily started.</p>
 <div class="section" id="local-spark-context">
 <h4>Local Spark context<a class="headerlink" href="#local-spark-context" title="Permalink to this headline">¶</a></h4>
 <p>On a local resource, such as a laptop or PC, you would start the spark environment using:</p>
@@ -154,8 +151,8 @@ in order to start a standalone cluster on an LSF/SGE high-performance computing 
 ./0b-launch-cluster.sh <span class="p">&amp;</span>
 </pre></div>
 </div>
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
 <p class="last">For your own cluster, you should modify the number of workers, nodes, cores and memory.</p>
 </div>
 <p>After the job has started, you need to call</p>
@@ -172,6 +169,7 @@ in order to start a standalone cluster on an LSF/SGE high-performance computing 
 <li>modified the config file,</li>
 <li>started a Spark standalone cluster and have the <code class="docutils literal notranslate"><span class="pre">IP</span></code> to which the Spark cluster listens.</li>
 </ol>
+<p>Now we can finally start our application.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./koios --configfile biospark-local.config
         --ip IP
 </pre></div>
@@ -219,10 +217,21 @@ For <code class="docutils literal notranslate"><span class="pre">dimension-reduc
 
  <h3>Contents</h3>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Home</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usecase.html">Use case</a></li>
-<li class="toctree-l1"><a class="reference internal" href="spark.html">Spark examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pipeline.html">TargetInfectX data analysis</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">koios</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usecase.html">Use Case</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="usecase.html#setting-the-config-file">Setting the config file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usecase.html#starting-the-cluster">Starting the cluster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usecase.html#analysis">Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline.html">Big data analysis</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pipeline.html#parsing">Parsing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pipeline.html#preprocessing">Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pipeline.html#setting-the-config-file">Setting the config file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pipeline.html#staring-the-cluster">Staring the cluster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pipeline.html#analysis">Analysis</a></li>
+</ul>
+</li>
 </ul>
 
 

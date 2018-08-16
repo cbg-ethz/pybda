@@ -6,15 +6,14 @@ koios
 .. image:: https://travis-ci.org/cbg-ethz/biospark.svg?branch=master
    :target: https://travis-ci.org/cbg-ethz/biospark/
 .. image:: https://codecov.io/gh/cbg-ethz/biospark/branch/master/graph/badge.svg
-   :target: https://codecov.io/gh/cbg-ethz/biospark
+   :target: https://codecov.io/gh/cbg-ethz/biospark/
 .. image:: https://api.codacy.com/project/badge/Grade/1822ba83768d4d7389ba667a9c839638
    :target: https://www.codacy.com/app/simon-dirmeier/rnaiutilities_2?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=cbg-ethz/rnaiutilities&amp;utm_campaign=Badge_Grade
 .. image:: https://readthedocs.org/projects/biospark/badge/?version=latest
    :target: http://biospark.readthedocs.io/en/latest/
    :alt: doc
 
-
-A library for analysis of big biological data sets using Snakemake and Apache Spark.
+A library for analysis of big biological data sets using Snakemake, powered by Apache Spark.
 
 .. toctree::
    :hidden:
@@ -22,9 +21,11 @@ A library for analysis of big biological data sets using Snakemake and Apache Sp
 
    Home <self>
    usecase
-   spark
-
    pipeline
+
+.. raw:: html
+
+    <object data="_static/snakeflow.svg" type="image/svg+xml" width="600"></object>
 
 
 Introduction
@@ -71,7 +72,7 @@ virtual `environment <https://conda.io/docs/using/envs.html>`_.
 
   ./install_dependencies.sh
 
-4) Install the Apache Spark from `here <https://spark.apache.org/downloads.html>`_ . Use the *prebuilt for Apache Hadoop* package type.
+4) Install `Apache Spark <https://spark.apache.org/downloads.html>`_ . Use the *prebuilt for Apache Hadoop* package type.
 
 5) That is it.
 
@@ -112,10 +113,7 @@ You can find a good introduction
 `here <https://spark.apache.org/docs/latest/spark-standalone.html>`_ on how
 to start the standalone Spark cluster.
 
-.. note::  We assume that you know how to use Apache Spark and start a cluster.
-However, for the sake of demonstration the next two sections show how Spark can
-be easily started.
-
+.. note::  We assume that you know how to use Apache Spark and start a cluster. However, for the sake of demonstration the next two sections show how Spark can be easily started.
 
 Local Spark context
 ....................
@@ -141,7 +139,8 @@ in order to start a standalone cluster on an LSF/SGE high-performance computing 
   ./0a-start-cluster.sh &
   ./0b-launch-cluster.sh &
 
-.. note::  For your own cluster, you should modify the number of workers, nodes, cores and memory.
+.. note:: For your own cluster, you should modify the number of workers, nodes, cores and memory.
+
 After the job has started, you need to call
 
 .. code-block:: bash
