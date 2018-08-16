@@ -130,8 +130,11 @@ You can find a good introduction</p>
 <blockquote>
 <div><a class="reference external" href="https://spark.apache.org/docs/latest/spark-standalone.html">here</a> on how
 to start the standalone Spark cluster.</div></blockquote>
-<p>We assume that you know how to use Apache Spark and start a cluster.
-However, for the sake of demonstration the next two sections show how Spark can
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">We assume that you know how to use Apache Spark and start a cluster.</p>
+</div>
+<p>However, for the sake of demonstration the next two sections show how Spark can
 be easily started.</p>
 <div class="section" id="local-spark-context">
 <h4>Local Spark context<a class="headerlink" href="#local-spark-context" title="Permalink to this headline">¶</a></h4>
@@ -151,8 +154,11 @@ in order to start a standalone cluster on an LSF/SGE high-performance computing 
 ./0b-launch-cluster.sh <span class="p">&amp;</span>
 </pre></div>
 </div>
-<p><strong>NOTE</strong>: for your own cluster, you should modify the number of workers, nodes, cores and memory.
-After the job has started, you need to call</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">For your own cluster, you should modify the number of workers, nodes, cores and memory.</p>
+</div>
+<p>After the job has started, you need to call</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sparkcluster info
 </pre></div>
 </div>
@@ -166,7 +172,6 @@ After the job has started, you need to call</p>
 <li>modified the config file,</li>
 <li>started a Spark standalone cluster and have the <code class="docutils literal notranslate"><span class="pre">IP</span></code> to which the Spark cluster listens.</li>
 </ol>
-<p>Now we can finally start our application.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./koios --configfile biospark-local.config
         --ip IP
 </pre></div>

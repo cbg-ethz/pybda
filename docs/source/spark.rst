@@ -1,39 +1,6 @@
 Spark examples
 ==============
 
-## Remote hpcnotebook
-
-* Open a browser and change to SOCKS proxy port 9999.
-* Enable forwarding on your local machine
-
-```sh
-  ssh -Nf -D 9999 username@cluster >& ssh_errors
-```
-
-* Submit a job like this
-
-```sh
-  bsub -R light -Is -n 4 -W 1:00 bash
-```
-
-* Then launch the notebook **BUT DONT FORGET LOADING JAVA BEFORE**
-
-```sh
-  module load java
-  module load open_mpi
-  hpcnotebook launch
-```
-
-## Sparkcluster
-
-
-```sh
-  module load java
-  module load open_mpi
-  sparkcluster .... start
-  sparkcluster launch
-```
-## Spark examples
 
 
 It seems that the pyspark api overwrites the command line configurations.

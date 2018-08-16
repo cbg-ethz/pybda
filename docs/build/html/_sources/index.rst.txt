@@ -112,7 +112,7 @@ You can find a good introduction
  `here <https://spark.apache.org/docs/latest/spark-standalone.html>`_ on how
  to start the standalone Spark cluster.
 
-We assume that you know how to use Apache Spark and start a cluster.
+.. note::  We assume that you know how to use Apache Spark and start a cluster.
 However, for the sake of demonstration the next two sections show how Spark can
 be easily started.
 
@@ -141,7 +141,7 @@ in order to start a standalone cluster on an LSF/SGE high-performance computing 
   ./0a-start-cluster.sh &
   ./0b-launch-cluster.sh &
 
-**NOTE**: for your own cluster, you should modify the number of workers, nodes, cores and memory.
+.. warning::  For your own cluster, you should modify the number of workers, nodes, cores and memory.
 After the job has started, you need to call
 
 .. code-block:: bash
@@ -158,7 +158,7 @@ If you made it thus far, you successfully
 1) modified the config file,
 2) started a Spark standalone cluster and have the ``IP`` to which the Spark cluster listens.
 
-Now we can finally start our application.
+.. comment Now we can finally start our application.
 
 .. code-block:: bash
 
