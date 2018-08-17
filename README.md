@@ -19,6 +19,7 @@ and Snakemake for scheduling.
   <img src="https://rawgit.com/cbg-ethz/biospark/develop/fig/snakeflow.svg" alt="Drawing" width="50%" />
 </div>
 
+
 With `koios` you can easily
 
 * preprocess your data with dimension reduction and outlier removal,
@@ -34,7 +35,5 @@ The documentation will walk you though
 * the installation process,
 * setting up Apache Spark,
 * using `koios`.
-
-## Author
 
 Simon Dirmeier <a href="mailto:simon.dirmeier@bsse.ethz.ch">simon.dirmeier@bsse.ethz.ch</a>
