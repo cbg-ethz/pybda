@@ -338,7 +338,7 @@ theme_paper <- function(title.hjust = 0, legend_pos="bottom") {
                                    levels=unique(Cluster), ordered=TRUE)) %>%
     dplyr::mutate(Term = factor(Term, levels = unique(Term)))
 
-  ggplot(unique.ora.table, aes(Cluster, Term), fill="black") +
+  p <- ggplot(unique.ora.table, aes(Cluster, Term), fill="black") +
     hrbrthemes::theme_ipsum_rc() +
     geom_point(size=3) +
     labs(x="Random sample of 10 clusters", title="Go-term") +
@@ -353,8 +353,6 @@ theme_paper <- function(title.hjust = 0, legend_pos="bottom") {
       legend.text=element_text(size=15),
       legend.title=element_text(size=17)) +
     guides(color=FALSE, size=FALSE)
-
-  p
 
   for (i in c("eps", "png", "svg"))
   {
