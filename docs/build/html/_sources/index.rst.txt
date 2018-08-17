@@ -19,7 +19,7 @@ A library for analysis of big biological data sets using Snakemake, powered by A
    :hidden:
    :maxdepth: 4
 
-   self
+   Home <self>
    usecase
    pipeline
 

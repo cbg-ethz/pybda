@@ -11,7 +11,7 @@ suppressPackageStartupMessages(library(hrbrthemes))
 suppressPackageStartupMessages(library(ggthemes))
 suppressPackageStartupMessages(library(ggthemr))
 suppressPackageStartupMessages(library(purrr))
-suppressPackageStartupMessages(library(viridis))
+suppressPackageStartupMessages(library(colorspace))
 suppressPackageStartupMessages(library(cowplot))
 
 
@@ -256,7 +256,7 @@ create.table <- function(gene.pred.fold)
 }
 
 
-oras <- function(which.clusters, gene.frequency.table, how.many.clusters)
+oras <- function(which.clusters, gene.frequency.table)
 {
   pre   <- gene.frequency.table %>%
     dplyr::filter(prediction %in% which.clusters)
@@ -286,28 +286,35 @@ oras <- function(which.clusters, gene.frequency.table, how.many.clusters)
 }
 
 
-make.random.oras <- function(gene.frequency.table, how.many.clusters, subset.cnt)
+make.random.oras <- function(gene.frequency.table, how.many.clusters, subset.cnt, data.dir)
 {
-    random.oras <- purrr::map_dfr(
-      seq(subset.cnt),
-      function(i)
-      {
-        which.clusters <- sample(gene.frequency.table$prediction, 5, replace=F)
-        orai <- oras(which.clusters, gene.frequency.table, how.many.clusters)
-        add_column(Sample=i, orai, .before=TRUE)
-      }
-    )
+  set.seed(42)
+  fl.out <- paste0(data.dir, "/random_oras.rds")
+  if (!file.exists(fl.out)) {
+      random.oras <- purrr::map_dfr(
+        seq(subset.cnt),
+        function(i)
+        {
+          which.clusters <- sample(gene.frequency.table$prediction, how.many.clusters, replace=F)
+          orai <- oras(which.clusters, gene.frequency.table)
+          add_column(Sample=i, orai, .before=TRUE)
+        })
+    saveRDS(random.oras, paste0(fl.out))
+  }
+  else {
+    random.oras <- readRDS(fl.out)
+  }
 
     random.oras
 }
 
 
-.plot.go.term.distribution<- function(random.oras, data.dir, how.many.clusters)
+.plot.go.term.distribution <- function(random.oras, data.dir, how.many.clusters)
 {
   flog.info('\tplotting and writing distribution of GO-terms', name=logr)
   oras.table <- random.oras %>%
     dplyr::mutate(Sample = factor(Sample)) %>%
-    dplyr::filter(Qvalue <= .05) %>%
+    dplyr::filter(Qvalue <= .01) %>%
     dplyr::select(Sample, Term) %>%
     dplyr::group_by(Sample, Term) %>%
     dplyr::summarize(Count=n())
@@ -342,11 +349,10 @@ make.random.oras <- function(gene.frequency.table, how.many.clusters, subset.cnt
 
 .plot.go.term.bubble <- function(oras.flat, data.dir)
 {
-
   unique.ora.terms <- dplyr::filter(oras.flat, Qvalue <= .01) %>%
     dplyr::select(Index, Qvalue, Term) %>%
     dplyr::group_by(Term) %>%
-    dplyr::mutate(Count=n()) %>%
+    dplyr::mutate(Count = n()) %>%
     dplyr::filter(Count == 1) %>%
     dplyr::select(-Count)
 
@@ -407,11 +413,11 @@ test.for.overenrichment <- function(best.clusters, gene.pred.fold, how.many.clus
     flog.info('Computing ORAs.', name=logr)
     gene.frequency.table <- .get.gene.stats(gene.pred.fold)
 
-    random.oras   <- make.random.oras(gene.frequency.table, 10, 10)
-    .plot.go.term.distribution(random.oras)
+    random.oras <- make.random.oras(gene.frequency.table, 10, 10, data.dir)
+    .plot.go.term.distribution(random.oras, data.dir, how.many.clusters)
 
     which.clusters <- best.clusters$prediction[seq(how.many.clusters)]
-    oras.flat      <- oras(which.clusters, gene.frequency.table, how.many.clusters)
+    oras.flat <- oras(which.clusters, gene.frequency.table)
     .plot.go.term.bubble(oras.flat, data.dir)
 
 }
@@ -479,7 +485,8 @@ plot.best.clusters <- function(best.clusters, dir, how.many.clusters=5)
   silhouette.plot(silhouette.file)
 
   tabs <- create.table(gene.pred.fold)
-  test.for.overenrichment(tabs$best.clusters, gene.pred.fold, 10, data.dir)
+  best.clusters <- tabs$best.clusters
+  test.for.overenrichment(best.clusters, gene.pred.fold, 10, data.dir)
   # TODO plot single clusters, i.e. look into the clusters we found and what they do
   #??plot.best.clusters(tabs$best.clusters, dir)
 
