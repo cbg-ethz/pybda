@@ -182,7 +182,6 @@ create.table <- function(gene.pred.fold)
        best.genes    = best.genes)
 }
 
-
 oras <- function(which.clusters, gene.frequency.table)
 {
   pre   <- gene.frequency.table %>%
@@ -275,6 +274,29 @@ make.random.oras <- function(gene.frequency.table, how.many.clusters, subset.cnt
 }
 
 
+theme_paper <- function(title.hjust = 0, legend_pos="bottom") {
+  theme(
+    axis.text = element_text(size = 8),
+    axis.title.x = element_text(size = 8, face = "bold",
+                                hjust = 1),
+    axis.title.y = element_text(size = 8, face = "bold"),
+    plot.title = element_text(size = 8, face = "bold",
+                              hjust = title.hjust),
+    plot.margin = rep(grid::unit(1, "cm"), 4),
+    strip.text.x = element_text(size = 8),
+    strip.text.y = element_text(size = 8),
+    axis.line = element_blank(),
+    legend.position = legend_pos,
+    legend.text = element_text(size = 8),
+    legend.title = element_text(size = 8)
+  ) +
+    background_grid(
+      major = "y", minor = "y",
+      colour.major = "grey80", colour.minor = "grey90",
+      size.major = 0.2, size.minor = 0.2
+    )
+}
+
 .plot.go.term.bubble <- function(oras.flat, data.dir)
 {
   unique.ora.terms <- dplyr::filter(oras.flat, Qvalue <= .01) %>%
@@ -316,7 +338,7 @@ make.random.oras <- function(gene.frequency.table, how.many.clusters, subset.cnt
                                    levels=unique(Cluster), ordered=TRUE)) %>%
     dplyr::mutate(Term = factor(Term, levels = unique(Term)))
 
-  p <- ggplot(unique.ora.table, aes(Cluster, Term), fill="black") +
+  ggplot(unique.ora.table, aes(Cluster, Term), fill="black") +
     hrbrthemes::theme_ipsum_rc() +
     geom_point(size=3) +
     labs(x="Random sample of 10 clusters", title="Go-term") +
@@ -331,6 +353,8 @@ make.random.oras <- function(gene.frequency.table, how.many.clusters, subset.cnt
       legend.text=element_text(size=15),
       legend.title=element_text(size=17)) +
     guides(color=FALSE, size=FALSE)
+
+  p
 
   for (i in c("eps", "png", "svg"))
   {
@@ -350,7 +374,6 @@ test.for.overenrichment <- function(best.clusters, gene.pred.fold, how.many.clus
     #which.clusters <- best.clusters$prediction[seq(how.many.clusters)]
     #oras.flat <- oras(which.clusters, gene.frequency.table)
     .plot.go.term.bubble(random.oras, data.dir)
-
 }
 
 
@@ -375,11 +398,12 @@ test.for.overenrichment <- function(best.clusters, gene.pred.fold, how.many.clus
   gene.pred.fold  <- list.files(data.dir, pattern="gene_prediction_counts$", full.names=T)
   silhouette.file <- list.files(data.dir, pattern="silhouette.tsv", full.names=T)
 
-  # plot.gene.cluster.frequency(gene.pred.fold)
-  # silhouette.plot(silhouette.file)
-  #
-  # tabs <- create.table(gene.pred.fold)
-  # best.clusters <- tabs$best.clusters
-  # test.for.overenrichment(best.clusters, gene.pred.fold, 10, data.dir)
+  plot.gene.cluster.frequency(gene.pred.fold)
+  silhouette.plot(silhouette.file)
 
+  tabs <- create.table(gene.pred.fold)
+  best.clusters <- tabs$best.clusters
+  test.for.overenrichment(best.clusters, gene.pred.fold, 10, data.dir)
+  # TODO plot single clusters, i.e. look into the clusters we found and what they do
+  #??plot.best.clusters(tabs$best.clusters, dir)
 })()
