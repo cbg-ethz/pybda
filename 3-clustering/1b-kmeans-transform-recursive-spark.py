@@ -162,8 +162,16 @@ def check_cluster_stability(brst_model, data,
     for seed in range(stab_cnt):
         km = KMeans(k=k, seed=seed)
         model = km.fit(data)
-        data_t = _select_desired_col(model.transform(data))
-        write_clusters(data_t, outpath, suff="-seed_{}".format(seed), sort_me=False)
+
+        ccf = outpath + "-seed_{}".format(seed) + "_cluster_centers.tsv"
+        logger.info("\tWriting cluster centers to: {}".format(ccf))
+        with open(ccf, "w") as fh:
+            fh.write("#Clustercenters\n")
+            for center in model.clusterCenters():
+                fh.write("\t".join(map(str, center)) + '\n')
+
+        #data_t = _select_desired_col(model.transform(data))
+        #write_clusters(data_t, outpath, suff="-seed_{}".format(seed), sort_me=False)
         logger.info("Writing stability computation number {}".format(seed))
 
 
