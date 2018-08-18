@@ -160,6 +160,7 @@ def check_cluster_stability(brst_model, data,
     logger.info("Computing cluster stabilitiies")
     k = brst_model[0]
     for seed in range(stab_cnt):
+        logger.info("Doing cluster with K={} and seed={}".format(k, seed))
         km = KMeans(k=k, seed=seed)
         model = km.fit(data)
 
