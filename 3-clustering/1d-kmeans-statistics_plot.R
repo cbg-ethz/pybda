@@ -103,6 +103,7 @@ silhouette.plot <- function(silhouette.file)
   }
 }
 
+
 #' @description Plots the frequencies how often a gene fits into the same cluster
 plot.gene.cluster.frequency <- function(gene.pred.fold)
 {
@@ -180,6 +181,7 @@ create.table <- function(gene.pred.fold)
   list(best.clusters = best.clusters,
        best.genes    = best.genes)
 }
+
 
 oras <- function(which.clusters, gene.frequency.table)
 {
@@ -378,11 +380,4 @@ test.for.overenrichment <- function(best.clusters, gene.pred.fold, how.many.clus
   # tabs <- create.table(gene.pred.fold)
   # best.clusters <- tabs$best.clusters
   # test.for.overenrichment(best.clusters, gene.pred.fold, 10, data.dir)
-
-
-  tabs <- create.table(gene.pred.fold)
-  best.clusters <- tabs$best.clusters
-  test.for.overenrichment(best.clusters, gene.pred.fold, 10, data.dir)
-  # TODO plot single clusters, i.e. look into the clusters we found and what they do
-  #??plot.best.clusters(tabs$best.clusters, dir)
 })()

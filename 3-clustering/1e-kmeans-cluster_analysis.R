@@ -13,7 +13,13 @@ suppressPackageStartupMessages(library(ggthemr))
 suppressPackageStartupMessages(library(purrr))
 suppressPackageStartupMessages(library(colorspace))
 suppressPackageStartupMessages(library(cowplot))
+suppressPackageStartupMessages(library(here))
 suppressMessages(hrbrthemes::import_roboto_condensed())
+
+
+.path <- here("3-clustering/")
+source(paste0(.path, "_ora.R"))
+source(paste0(.path, "_util.R"))
 
 
 library(futile.logger)
@@ -21,7 +27,7 @@ logr <- "logger"
 flog.logger(logr, futile.logger::INFO)
 
 
-find.interesting.clusters <- function(cc.file)
+.find.interesting.clusters <- function(cc.file)
 {
   cell.counts <- readr::read_csv(cc.file, col_names = c("X1", "LineCount", "File")) %>%
     dplyr::mutate(CellCount = LineCount - 1) %>%
@@ -36,15 +42,53 @@ find.interesting.clusters <- function(cc.file)
     which(cell.counts$CellCount == quantile(cell.counts$CellCount, .5))),
   ]
 
-  cell.counts$File
+  cell.counts
+}
+
+
+.get.two.clusters <- function(good.clusters, clusters)
+{
+  two.clusters <- good.clusters %>%
+    dplyr::mutate(Order = order(good.clusters$CellCount)) %>%
+    dplyr::filter(CellCount == max(CellCount) |
+                  CellCount == min(CellCount)) %>%
+    dplyr::group_by(File) %>%
+    dplyr::mutate(Cluster =  stringr::str_match(File, pattern="cluster_(\\d+).tsv")[2]) %>%
+    ungroup()
+
+  # image.clusters <- dplyr::filter(clusters, Cluster %in% two.clusters$Cluster)
+  # image.clusters %>%
+  #   group_by(Cluster, study, pathogen, library, design, replicate, well, gene, sirna) %>%
+  #   dplyr::summarise(n=n()) %>%
+  #   arrange(-n) %>%
+  #   filter(! gene %in% c("cdc42", "abl2", "ptk2"), !sirna == "none") %>%
+  #   group_by(Cluster) %>%
+  #   top_n(2, n)
+  #
+  two.clusters
+
+}
+
+
+.ora <- function(good.clusters, clusters, universe)
+{
+  two.clusters <- .get.two.clusters(good.clusters, clusters)
+
+  oras <-
+  for (clust in two.clusters$Cluster)
+  {
+    cluster.genes <- dplyr::filter(clusters, prediction==i) %>%
+      dplyr::pull(gene) %>%
+      unique()
+    oras[[paste(i)]] <- .ora(cluster.genes, universe)
+  }
 }
 
 
 (run <- function() {
   parser <- ArgumentParser()
   parser$add_argument(
-    "-f", "--folder", help = paste("tsv file that contains clustering, e.g. kmeans-transformed-recursive-clusters"),
-    "-c", "--cel0counts", help = paste("cell count file, e.g. 'kmeans-transformed-recursive-clusters-cell_counts.tsv'")
+    "-f", "--folder", help = paste("folder that contains all output")
   )
 
   opt <- parser$parse_args()
@@ -53,19 +97,26 @@ find.interesting.clusters <- function(cc.file)
     stop(parser$print_help())
   }
 
-  data.dir <- "/Users/simondi/PROJECTS/target_infect_x_project/results/2-analysis/2-clustering/current/kmeans-transformed-recursive-clusters"
+  data.dir <- "/Users/simondi/PROJECTS/target_infect_x_project/results/2-analysis/2-clustering/current"
+  gene.pred.fold  <- list.files(data.dir, pattern="gene_prediction_counts$", full.names=T)
+  #clusters.dir    <- paste0(data.dir,  "/kmeans-transformed-recursive-clusters")
   cc.file <- "/Users/simondi/PROJECTS/target_infect_x_project/results/2-analysis/2-clustering/current/kmeans-transformed-recursive-clusters-cell_counts.tsv"
 
-  data.dir <- opt$folder
+
   lg.file  <- paste0(data.dir, "/kmeans-transformed-cluster_analysis.log")
   flog.appender(appender.file(lg.file), name=logr)
 
-  good.clusters <- find.interesting.clusters(cc.file)
-  purrr:::map_dfr(good.clusters, function(.) {
-    cluster.idx <- stringr::str_match(good.clusters[1], pattern="cluster_(.*).tsv")[1]
-    df <- read_tsv(.)
-    cbind(Cluster = cluster.idx, df)
-  }
+  universe <- .read.gene.predictions(gene.pred.fold) %>%
+    unique(gene.preductions$gene)
+  good.clusters <- .find.interesting.clusters(cc.file)
 
+  clusters <- purrr:::map_dfr(good.clusters$File, function(.) {
+    cluster.idx <- as.integer(stringr::str_match(., pattern="cluster_(.*).tsv")[2])
+    df <- read_tsv(.)
+    add_column(Cluster = cluster.idx, df, .before=TRUE)
+  })
+
+  .get.cells.for.images(good.clusters, clusters)
+  .ora(good.clusters, clusters, universe)
 
 })()
