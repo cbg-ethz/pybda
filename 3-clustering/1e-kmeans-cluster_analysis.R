@@ -56,32 +56,39 @@ flog.logger(logr, futile.logger::INFO)
     dplyr::mutate(Cluster =  stringr::str_match(File, pattern="cluster_(\\d+).tsv")[2]) %>%
     ungroup()
 
-  # image.clusters <- dplyr::filter(clusters, Cluster %in% two.clusters$Cluster)
-  # image.clusters %>%
-  #   group_by(Cluster, study, pathogen, library, design, replicate, well, gene, sirna) %>%
-  #   dplyr::summarise(n=n()) %>%
-  #   arrange(-n) %>%
-  #   filter(! gene %in% c("cdc42", "abl2", "ptk2"), !sirna == "none") %>%
-  #   group_by(Cluster) %>%
-  #   top_n(2, n)
-  #
   two.clusters
-
 }
 
 
 .ora <- function(good.clusters, clusters, universe)
 {
-  two.clusters <- .get.two.clusters(good.clusters, clusters)
+  two.clusters.idx <- .get.two.clusters(good.clusters, clusters)
+  two.clusters <- dplyr::filter(clusters, prediction %in% two.clusters.idx$Cluster)
 
-  oras <-
-  for (clust in two.clusters$Cluster)
+  oras <- list()
+  for (i in two.clusters$Cluster)
   {
     cluster.genes <- dplyr::filter(clusters, prediction==i) %>%
       dplyr::pull(gene) %>%
       unique()
     oras[[paste(i)]] <- .ora(cluster.genes, universe)
   }
+
+  oras.flat <- map_dfr(
+    seq(oras),
+    function(i)
+    {
+      cbind(Cluster=names(oras)[i],  oras[[i]]$summary) %>%
+        as.tibble() %>%
+        dplyr::filter(!is.na(Pvalue))
+    })
+
+  two.cluster.ora <- oras.flat %>% filter(Qvalue < .05)
+  two.cluster.ora$Size <- "Big"
+  two.cluster.ora$Size[two.cluster.ora$Cluster == 3652] <- "Small"
+  saveRDS(two.cluster.ora, paste0(data.dir, "/two_cluster_ora.rds"))
+
+
 }
 
 
