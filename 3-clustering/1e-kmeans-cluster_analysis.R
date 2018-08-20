@@ -87,7 +87,16 @@ flog.logger(logr, futile.logger::INFO)
   two.cluster.ora$Size <- "Big"
   two.cluster.ora$Size[two.cluster.ora$Cluster == 3652] <- "Small"
   saveRDS(two.cluster.ora, paste0(data.dir, "/two_cluster_ora.rds"))
+  readr::write_tsv(two.cluster.ora, paste0(data.dir, "/two_cluster_ora.tsv"))
 
+  some.cells <- filter(two.clusters,
+         pathogen=="bartonella",
+         gene!="none",
+         gene!="unknown",
+         sirna!="none",
+         library=="d",
+         design=="p") %>%
+    group_by(Cluster) %>% top_n(10, row_number())
 
 }
 
@@ -123,7 +132,5 @@ flog.logger(logr, futile.logger::INFO)
     add_column(Cluster = cluster.idx, df, .before=TRUE)
   })
 
-  .get.cells.for.images(good.clusters, clusters)
   .ora(good.clusters, clusters, universe)
-
 })()
