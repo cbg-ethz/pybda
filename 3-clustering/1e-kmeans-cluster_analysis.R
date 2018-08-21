@@ -113,7 +113,7 @@ flog.logger(logr, futile.logger::INFO)
     stop(parser$print_help())
   }
 
-  data.dir <- "/Users/simondi/PROJECTS/target_infect_x_project/results/2-analysis/2-clustering/current"
+  data.dir        <- "/Users/simondi/PROJECTS/target_infect_x_project/results/2-analysis/2-clustering/current"
   gene.pred.fold  <- list.files(data.dir, pattern="gene_prediction_counts$", full.names=T)
   #clusters.dir    <- paste0(data.dir,  "/kmeans-transformed-recursive-clusters")
   cc.file <- "/Users/simondi/PROJECTS/target_infect_x_project/results/2-analysis/2-clustering/current/kmeans-transformed-recursive-clusters-cell_counts.tsv"
