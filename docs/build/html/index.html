@@ -43,7 +43,10 @@
 <p>A library for analysis of big biological data sets using Snakemake, powered by Apache Spark.</p>
 <div class="toctree-wrapper compound">
 </div>
-<object data="_static/snakeflow.svg" type="image/svg+xml" width="600"></object><div class="section" id="introduction">
+<div align="center" style="text-align: middle">
+<object data="_static/snakeflow.svg" type="image/svg+xml" width="700"></object>
+The <i>koios</i> workflow.
+</div><div class="section" id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
 <p>Welcome to <code class="docutils literal notranslate"><span class="pre">koios</span></code>.</p>
 <p><code class="docutils literal notranslate"><span class="pre">koios</span></code> is a Python/Scala library for analysis of big biological data sets.
@@ -100,6 +103,8 @@ discuss how the cluster is started.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">spark</span><span class="p">:</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">spark</span><span class="o">/</span><span class="n">spark</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">spark</span><span class="o">-</span><span class="n">submit</span>
 <span class="n">infile</span><span class="p">:</span> <span class="n">data</span><span class="o">/</span><span class="n">single_cell_samples</span><span class="o">.</span><span class="n">tsv</span>
 <span class="n">outfolder</span><span class="p">:</span> <span class="n">data</span>
+<span class="n">dimred</span><span class="p">:</span> <span class="n">fa</span>
+<span class="n">clustering</span><span class="p">:</span> <span class="n">kmeans</span>
 <span class="n">factors</span><span class="p">:</span> <span class="mi">15</span>
 <span class="n">max_centers</span><span class="p">:</span> <span class="mi">10</span>
 <span class="n">centers</span><span class="p">:</span>
