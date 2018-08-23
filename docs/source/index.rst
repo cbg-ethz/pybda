@@ -14,7 +14,7 @@ koios
    :alt: doc
 
 
-A library for analysis of big biological data sets using Snakemake, powered by Apache Spark.
+A workflow manager for analysis of big biological data sets using Snakemake, powered by Apache Spark.
 
 
 .. toctree::
@@ -27,8 +27,10 @@ A library for analysis of big biological data sets using Snakemake, powered by A
 
 .. raw:: html
 
-    <object data="_static/snakeflow.svg" type="image/svg+xml" width="600"></object>
-
+    <div align="center" style="text-align: middle">
+    <object data="_static/snakeflow.svg" type="image/svg+xml" width="700"></object>
+    The <i>koios</i> workflow.
+    </div>
 
 Introduction
 ------------
