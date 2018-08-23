@@ -29,14 +29,13 @@ def read_args(args):
     return opts.f, opts
 
 
-
 def write_clusters(outfolder):
     files = [x for x in glob.glob(outfolder + "/*") if x.endswith(".csv")]
     for fl in files:
         logger.info("Reading file".format(fl))
         df = pandas.read_csv(fl, sep="\t")
         for i in df["prediction"].unique():
-            sub  = df[df.prediction == i]
+            sub = df[df.prediction == i]
             out = outfolder + "/cluster_" + str(i) + ".tsv"
             if not pathlib.Path(out).exists():
                 logger.info("Logging to {}".format(out))
@@ -53,7 +52,7 @@ def run():
         logger.error("Folder does not exist: " + folder)
         return
 
-        # logging format
+    # logging format
     hdlr = logging.FileHandler(folder + "-write-clusters-statistics.log")
     hdlr.setFormatter(frmtr)
     logger.addHandler(hdlr)

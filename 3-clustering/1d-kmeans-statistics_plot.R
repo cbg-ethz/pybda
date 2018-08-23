@@ -13,9 +13,12 @@ suppressPackageStartupMessages(library(ggthemr))
 suppressPackageStartupMessages(library(purrr))
 suppressPackageStartupMessages(library(colorspace))
 suppressPackageStartupMessages(library(cowplot))
-
-
 suppressMessages(hrbrthemes::import_roboto_condensed())
+
+
+.path <- here("3-clustering/")
+source(paste0(.path, "_ora.R"))
+source(paste0(.path, "_util.R"))
 
 
 library(futile.logger)
@@ -101,40 +104,6 @@ silhouette.plot <- function(silhouette.file)
 }
 
 
-#' @description Create a table where every row counts
-#'  how many single cells belong to every gene-pathogen group
-.get.cell.count.per.gene.group <- . %>%
-  group_by(gene) %>%
-  dplyr::summarize(n=sum(count)) %>%
-  ungroup()
-
-
-#' @description Compute a table where every row shows the frequency
-#' of a single cell belonging to a specific gene-pathogen group maps to a cluster
-#' I.e: what is the frequency of a gene-pathogen group in a cluster
-.compute.cell.cluster.frequencies <- function(dat, gpc, by)
-{
-  dat <- dplyr::left_join(dat, gpc, by=by)
-  dat <- dplyr::mutate(dat, Frequency=count/n) %>%
-    arrange(-Frequency)
-  dat
-}
-
-
-.get.gene.stats <- function(gene.pred.fold)
-{
-  dat <- purrr:::map_dfr(list.files(gene.pred.fold, full.names=T), function(.)
-  {
-    read_tsv(.)
-  })
-  gene.pathogen.combinations <- .get.cell.count.per.gene.group(dat)
-  dat <- .compute.cell.cluster.frequencies(
-    dat, gene.pathogen.combinations, "gene")
-
-  dat
-}
-
-
 #' @description Plots the frequencies how often a gene fits into the same cluster
 plot.gene.cluster.frequency <- function(gene.pred.fold)
 {
@@ -214,54 +183,13 @@ create.table <- function(gene.pred.fold)
 }
 
 
-.ora <- function(cluster.genes, universe)
-{
-  .to.entrez <- function(dat)
-  {
-    frame.hugo <- AnnotationDbi::toTable(org.Hs.eg.db::org.Hs.egSYMBOL) %>%
-      as.tibble()
-    dat <- dplyr::left_join(
-      tibble(symbol=toupper(dat)),
-      frame.hugo, by="symbol") %>%
-      dplyr::filter(!is.na(gene_id))
-
-    dat
-  }
-
-  suppressPackageStartupMessages(library(GOstats))
-  hit.list <- .to.entrez(cluster.genes)
-  universe <- .to.entrez(universe)
-  GOparams <- new("GOHyperGParams",
-                  geneIds = unique(hit.list$gene_id),
-                  universeGeneIds = unique(universe$gene_id),
-                  annotation="hgu95av2.db",
-                  ontology="BP",
-                  pvalueCutoff=0.05,
-                  conditional=TRUE,
-                  testDirection="over")
-  ora <- GOstats::hyperGTest(GOparams)
-
-  test.count <- length(ora@pvalue.order)
-  summ <- summary(ora)
-  if (nrow(summ) != 0)
-  {
-    pvals <- c(summ$Pvalue, rep(1, test.count - nrow(summ)))
-    qvals <- p.adjust(pvals, method="BH")
-    summ$Qvalue <- qvals[1:nrow(summ)]
-  }
-
-  li <- list(ora=ora, summary=summ)
-
-  li
-}
-
-
 oras <- function(which.clusters, gene.frequency.table)
 {
   pre   <- gene.frequency.table %>%
     dplyr::filter(prediction %in% which.clusters)
   universe <- gene.frequency.table %>%
-    dplyr::pull(gene) %>% unique()
+    dplyr::pull(gene) %>%
+    unique()
 
   oras <- list()
   for (i in which.clusters)
@@ -350,6 +278,7 @@ make.random.oras <- function(gene.frequency.table, how.many.clusters, subset.cnt
 .plot.go.term.bubble <- function(oras.flat, data.dir)
 {
   unique.ora.terms <- dplyr::filter(oras.flat, Qvalue <= .01) %>%
+    dplyr::select(Sa)
     dplyr::select(Index, Qvalue, Term) %>%
     dplyr::group_by(Term) %>%
     dplyr::mutate(Count = n()) %>%
@@ -382,14 +311,15 @@ make.random.oras <- function(gene.frequency.table, how.many.clusters, subset.cnt
       Cluster = as.integer(Cluster))
   unique.ora.table$Cluster <- factor(
     unique.ora.table$Cluster, levels=rev(unique(unique.ora.table$Cluster)))
+  unique.ora.table <- unique.ora.table %>%
+    dplyr::mutate(Cluster = factor(Cluster,
+                                   levels=unique(Cluster), ordered=TRUE)) %>%
+    dplyr::mutate(Term = factor(Term, levels = unique(Term)))
 
   p <- ggplot(unique.ora.table, aes(Cluster, Term), fill="black") +
     hrbrthemes::theme_ipsum_rc() +
-    geom_point(aes(size=Color, color=Cluster)) +
-    scale_color_discrete_sequential("viridis") +
-    scale_size_manual(values= c(-1, 5)) +
-    ylab("Different clusters") +
-    ylab("GO-term") +
+    geom_point(size=3) +
+    labs(x="Random sample of 10 clusters", title="Go-term") +
     ggplot2::scale_x_discrete(expand = c(0, 1)) +
     ggplot2::scale_y_discrete(expand = c(0, 1)) +
     ggplot2::theme(
@@ -397,6 +327,7 @@ make.random.oras <- function(gene.frequency.table, how.many.clusters, subset.cnt
       axis.title.x=element_text(size=17, hjust=.5),
       axis.text.y=element_text(size=15),
       axis.text.x=element_blank(),
+      panel.grid.major.y = element_blank(),
       legend.text=element_text(size=15),
       legend.title=element_text(size=17)) +
     guides(color=FALSE, size=FALSE)
@@ -416,54 +347,17 @@ test.for.overenrichment <- function(best.clusters, gene.pred.fold, how.many.clus
     random.oras <- make.random.oras(gene.frequency.table, 10, 10, data.dir)
     .plot.go.term.distribution(random.oras, data.dir, how.many.clusters)
 
-    which.clusters <- best.clusters$prediction[seq(how.many.clusters)]
-    oras.flat <- oras(which.clusters, gene.frequency.table)
-    .plot.go.term.bubble(oras.flat, data.dir)
+    #which.clusters <- best.clusters$prediction[seq(how.many.clusters)]
+    #oras.flat <- oras(which.clusters, gene.frequency.table)
+    .plot.go.term.bubble(random.oras, data.dir)
 
-}
-
-
-plot.best.clusters <- function(best.clusters, dir, how.many.clusters=5)
-{
-  flog.info('PLotting best clusters.', name=logr)
-  cluster.folder <- paste0(dir, "/kmeans-transformed-clusters/")
-  cluster.files  <- list.files(cluster.folder, full.names=T)
-  fls <- purrr::map_chr(best.clusters$prediction, function(i) {
-    idx <- grep(paste0("/cluster-", i, ".tsv"), cluster.files)
-    cluster.files[idx]
-  })
-
-  dat <- purrr::map_dfr(fls , function(f) readr::read_tsv(f, col_names=TRUE)) %>%
-    dplyr::mutate(Factor1:=as.double(f_0),
-                  Factor2:=as.double(f_1),
-                  prediction=as.factor(prediction))
-
-  plt <-
-    ggplot(dat) +
-    geom_point(aes(x=Factor1, y=Factor2, color = prediction, shape=prediction), size=.75) +
-    hrbrthemes::theme_ipsum_rc() +
-    xlab("Factor 1") + ylab("Factor 2") +
-    ggplot2::theme(axis.text.x  = ggplot2::element_text( size=18),
-                   axis.text.y  = ggplot2::element_text(size=18),
-                   axis.title.x   = ggplot2::element_text(size=20),
-                   axis.title.y   = ggplot2::element_text(size=20)) +
-    viridis::scale_colour_viridis(discrete=T, guide=FALSE, option="D") +
-    guides(shape=FALSE)
-
-  plot.out  <- paste0(dir, "/kmeans-transformed-clusters")
-  flog.info(paste0("\tplotting to: ", plot.out), name=logr)
-  for (i in c("png", "svg", "eps"))
-  {
-    ggsave(paste0(plot.out, "-gene_clusters.", i), plot=plt, dpi=720, height=7, width=7)
-  }
 }
 
 
 (run <- function() {
   parser <- ArgumentParser()
   parser$add_argument(
-    "-f", "--folder", help = paste("tsv file that contains gene-pathogen predictions, e.g.",
-                      "sth like 'kmeans-transformed-statistics-gene_pathogen_prediction_counts.tsv'")
+    "-f", "--folder", help = paste("folder that contains output")
   )
 
   opt <- parser$parse_args()
@@ -481,14 +375,11 @@ plot.best.clusters <- function(best.clusters, dir, how.many.clusters=5)
   gene.pred.fold  <- list.files(data.dir, pattern="gene_prediction_counts$", full.names=T)
   silhouette.file <- list.files(data.dir, pattern="silhouette.tsv", full.names=T)
 
-  plot.gene.cluster.frequency(gene.pred.fold)
-  silhouette.plot(silhouette.file)
-
-  tabs <- create.table(gene.pred.fold)
-  best.clusters <- tabs$best.clusters
-  test.for.overenrichment(best.clusters, gene.pred.fold, 10, data.dir)
-  # TODO plot single clusters, i.e. look into the clusters we found and what they do
-  #??plot.best.clusters(tabs$best.clusters, dir)
-
+  # plot.gene.cluster.frequency(gene.pred.fold)
+  # silhouette.plot(silhouette.file)
+  #
+  # tabs <- create.table(gene.pred.fold)
+  # best.clusters <- tabs$best.clusters
+  # test.for.overenrichment(best.clusters, gene.pred.fold, 10, data.dir)
 
 })()
