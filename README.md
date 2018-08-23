@@ -1,4 +1,4 @@
-# Κοῖος /ˈci.os/ <img src="https://github.com/cbg-ethz/biospark/blob/develop/fig/sticker_koios.png" align="right" width="160px"/>
+# Κοῖος /ˈci.os/ <img src="https://github.com/cbg-ethz/koios/blob/develop/fig/sticker_koios.png" align="right" width="160px"/>
 
 [![Project Status](http://www.repostatus.org/badges/latest/wip.svg)](http://www.repostatus.org/#wip)
 [![Build Status](https://travis-ci.org/cbg-ethz/koios.svg?branch=master)](https://travis-ci.org/cbg-ethz/koios/)
@@ -16,7 +16,7 @@ and Snakemake for scheduling.
 
 <div align="center" style="margin: 2%;">
 	<p><b>The <i>koios</i></b> pipeline.</p>
-  <img src="https://rawgit.com/cbg-ethz/biospark/develop/fig/snakeflow.svg" alt="Drawing" width="50%" />
+  <img src="https://rawgit.com/cbg-ethz/koios/develop/fig/snakeflow.svg" alt="Drawing" width="50%" />
 </div>
 
 With `koios` you can easily

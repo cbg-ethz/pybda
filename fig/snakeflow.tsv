@@ -1,32 +1,42 @@
-clustering_stat 	 all
-transform 	 all
-fa 	 all
-dimred_stat 	 all
-fa_plot 	 all
-outliers 	 all
-kpca 	 all
-kmeans_fit 	 all
-gmm_fit 	 all
-dimred_plot 	 all
-pca 	 all
-kpca_plot 	 all
-clustering_fit_plot 	 all
-pca_plot 	 all
-transform 	 clustering_stat
-kmeans_fit 	 transform
-outliers 	 transform
-gmm_fit 	 transform
-pca 	 dimred_stat
-fa 	 dimred_stat
-kpca 	 dimred_stat
-fa 	 fa_plot
-pca 	 outliers
-fa 	 outliers
-kpca 	 outliers
-outliers 	 kmeans_fit
-outliers 	 gmm_fit
-dimred_stat 	 dimred_plot
-kpca 	 kpca_plot
-kmeans_fit 	 clustering_fit_plot
-gmm_fit 	 clustering_fit_plot
-pca 	 pca_plot
+digraph snakemake_dag {
+	graph[bgcolor=white, margin=0,fontname="Roboto"];
+	node[shape=rectangle, fontname="Roboto", fontsize=10, penwidth=2];
+	edge[penwidth=1, color=grey80, arrowsize=.8];
+	nodesep=1.5;
+	1[label = "gmm_fit", shape="rectangle"]
+	2[label = "dimred_stat", shape="rectangle"]
+	3[label = "cluster_transform", shape="rectangle"]
+	4[label = "clustering_stat", shape="rectangle"]
+	5[label = "kpca_plot", shape="rectangle"]
+	6[label = "fa", shape="rectangle"]
+	7[label = "pca", shape="rectangle"]
+	8[label = "fa_plot", shape="rectangle"]
+	9[label = "outliers", shape="rectangle"]
+	10[label = "kpca", shape="rectangle"]
+	11[label = "dimred_plot", shape="rectangle"]
+	12[label = "clustering_fit_plot", shape="rectangle"]
+	13[label = "kmeans_fit", shape="rectangle"]
+	14[label = "pca_plot", shape="rectangle"]
+	15[label = "data", shape="rectangle"];
+	15 -> 6
+	15 -> 7
+	15 -> 10
+	9 -> 1
+	7 -> 2
+	6 -> 2
+	10 -> 2
+	13 -> 3
+	9 -> 3
+	1 -> 3
+	3 -> 4
+	10 -> 5
+	6 -> 8
+	7 -> 9
+	6 -> 9
+	10 -> 9
+	2 -> 11
+	13 -> 12
+	1 -> 12
+	9 -> 13
+	7 -> 14
+}
