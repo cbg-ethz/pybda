@@ -27,12 +27,35 @@ logr <- "logger"
 flog.logger(logr, futile.logger::INFO)
 
 
+my.theme <- function(title.hjust = 0, legend_pos="bottom") {
+  theme(
+    axis.text = element_text(size = 8),
+    axis.title.x = element_text(size = 8, face = "bold",
+                                hjust = 1),
+    axis.title.y = element_text(size = 8, face = "bold"),
+    plot.title = element_text(size = 8, face = "bold",
+                              hjust = title.hjust),
+    plot.margin = rep(grid::unit(1, "cm"), 4),
+    strip.text.x = element_text(size = 8),
+    strip.text.y = element_text(size = 8),
+    axis.line = element_blank(),
+    legend.position = legend_pos) +
+    background_grid(
+      major = "y", minor = "y",
+      colour.major = "grey80", colour.minor = "grey90",
+      size.major = 0.2, size.minor = 0.2
+    )
+}
+
 .find.interesting.clusters <- function(cc.file)
 {
   cell.counts <- readr::read_csv(cc.file, col_names = c("X1", "LineCount", "File")) %>%
     dplyr::mutate(CellCount = LineCount - 1) %>%
     dplyr::select(CellCount, File) %>%
-    dplyr::arrange(CellCount)
+    dplyr::arrange(CellCount) %>%
+    dplyr::group_by(File) %>%
+    dplyr::mutate(Cluster =  stringr::str_match(File, pattern="cluster_(\\d+).tsv")[2]) %>%
+    ungroup()
 
   which(cell.counts$CellCount == quantile(cell.counts$CellCount, .5))
 
@@ -60,7 +83,7 @@ flog.logger(logr, futile.logger::INFO)
 }
 
 
-.ora <- function(good.clusters, clusters, universe)
+.ora <- function(good.clusters, clusters, universe, data.dir)
 {
   two.clusters.idx <- .get.two.clusters(good.clusters, clusters)
   two.clusters <- dplyr::filter(clusters, prediction %in% two.clusters.idx$Cluster)
@@ -71,7 +94,7 @@ flog.logger(logr, futile.logger::INFO)
     cluster.genes <- dplyr::filter(clusters, prediction==i) %>%
       dplyr::pull(gene) %>%
       unique()
-    oras[[paste(i)]] <- .ora(cluster.genes, universe)
+    oras[[paste(i)]] <- ora(cluster.genes, universe)
   }
 
   oras.flat <- map_dfr(
@@ -101,6 +124,55 @@ flog.logger(logr, futile.logger::INFO)
 }
 
 
+.plot.factors <- function(clusters, good.clusters)
+{
+  good.cluster.idx <- good.clusters %>%
+    dplyr::pull(Cluster) %>%
+    unique()
+
+  cnt <- 5
+  plot.clusters <- good.clusters %>%
+    dplyr::arrange(CellCount)  %>%
+    .[c(seq(cnt), seq(nrow(.) - cnt  + 1, nrow(.))),] %>%
+    dplyr::mutate(Size = rep(c("Small", "Big"), each=nrow(.)/2)) %>%
+    dplyr::select(Cluster, Size) %>%
+    dplyr::mutate(Cluster = as.integer(Cluster))
+
+  two.clusters.idx <- .get.two.clusters(good.clusters, clusters)
+  two.clusters <- dplyr::filter(clusters, prediction %in% two.clusters.idx$Cluster)
+
+  factors <- dplyr::filter(clusters, Cluster %in% plot.clusters$Cluster) %>%
+    dplyr::left_join(plot.clusters, by="Cluster") %>%
+   dplyr::filter(Cluster %in% c(3652, 13295, 3654, 13315, 3579, 9902))
+
+  p <- ggplot2::ggplot(data=factors) +
+    geom_point(aes(f_0, f_1, color = as.factor(Cluster), shape=as.factor(Size)), size = 1.75, alpha=.7) +
+    scale_x_continuous("Factor 1") +
+    scale_y_continuous("Factor 2") +
+    scale_shape_discrete("Cluster size") +
+    colorspace::scale_color_discrete_sequential("viridis", c1=20, c2=70, l1=25, l2=98) +
+    guides(color=FALSE, shape=guide_legend(override.aes = list(size = 5))) +
+    hrbrthemes::theme_ipsum_rc("Helvetica") +
+    my.theme()  +
+    theme(panel.grid.major=element_blank(),
+          axis.text.x=element_text(size=12),
+          axis.text.y=element_text(size=12),
+          panel.grid.minor = element_blank(),
+          legend.title=element_text(size=18),
+          plot.title=element_text(size=22),
+          legend.text=element_text(size=18),
+          axis.title.y=element_text(size=18),
+          axis.title.x=element_text(size=18)) +
+    ggthemes::geom_rangeframe(aes(f_0, f_1)) +
+    labs(title = "Separation of six clusters")
+
+  for (i in c("pdf", "svg", "png")) {
+    cowplot::ggsave2(paste0(data.dir, "/plot-factors-extreme_clusters.", i), p, width=9, height=6, dpi=720)
+  }
+
+}
+
+
 (run <- function() {
   parser <- ArgumentParser()
   parser$add_argument(
@@ -122,8 +194,9 @@ flog.logger(logr, futile.logger::INFO)
   lg.file  <- paste0(data.dir, "/kmeans-transformed-cluster_analysis.log")
   flog.appender(appender.file(lg.file), name=logr)
 
-  universe <- .read.gene.predictions(gene.pred.fold) %>%
-    unique(gene.preductions$gene)
+  universe <- read.gene.predictions(gene.pred.fold) %>%
+    dplyr::pull(gene) %>%
+    unique()
   good.clusters <- .find.interesting.clusters(cc.file)
 
   clusters <- purrr:::map_dfr(good.clusters$File, function(.) {
@@ -132,5 +205,6 @@ flog.logger(logr, futile.logger::INFO)
     add_column(Cluster = cluster.idx, df, .before=TRUE)
   })
 
-  .ora(good.clusters, clusters, universe)
+  .ora(good.clusters, clusters, universe, data.dir)
+  .plot.factors(clusters, good.clusters, data.dir)
 })()
