@@ -146,11 +146,13 @@ my.theme <- function(title.hjust = 0, legend_pos="bottom") {
    dplyr::filter(Cluster %in% c(3652, 13295, 3654, 13315, 3579, 9902))
 
   p <- ggplot2::ggplot(data=factors) +
-    geom_point(aes(f_0, f_1, color = as.factor(Cluster), shape=as.factor(Size)), size = 1.75, alpha=.7) +
-    scale_x_continuous("Factor 1") +
+    geom_point(aes(f_0, f_1, color = as.factor(Cluster), shape=as.factor(Size)), size = 1.75, alpha=.6) +
+    scale_x_continuous("Factor 1", labels=0:1, breaks=0:1) +
     scale_y_continuous("Factor 2") +
     scale_shape_discrete("Cluster size") +
-    colorspace::scale_color_discrete_sequential("viridis", c1=20, c2=70, l1=25, l2=98) +
+    scale_color_manual(
+      values = colorspace::desaturate(amount=.5, viridis::viridis(6, end=.85))
+    ) +
     guides(color=FALSE, shape=guide_legend(override.aes = list(size = 5))) +
     hrbrthemes::theme_ipsum_rc("Helvetica") +
     my.theme()  +
@@ -159,15 +161,15 @@ my.theme <- function(title.hjust = 0, legend_pos="bottom") {
           axis.text.y=element_text(size=12),
           panel.grid.minor = element_blank(),
           legend.title=element_text(size=18),
+          legend.text=element_text(size=16),
           plot.title=element_text(size=22),
-          legend.text=element_text(size=18),
-          axis.title.y=element_text(size=18),
-          axis.title.x=element_text(size=18)) +
+          axis.title.y=element_text(size=16),
+          axis.title.x=element_text(size=16)) +
     ggthemes::geom_rangeframe(aes(f_0, f_1)) +
     labs(title = "Separation of six clusters")
 
   for (i in c("pdf", "svg", "png")) {
-    cowplot::ggsave2(paste0(data.dir, "/plot-factors-extreme_clusters.", i), p, width=9, height=6, dpi=720)
+    cowplot::ggsave2(paste0(data.dir, "/plot-factors-extreme_clusters.", i), p, width=10, height=6, dpi=720)
   }
 
 }

@@ -353,7 +353,7 @@ test.for.overenrichment <- function(best.clusters, gene.pred.fold, how.many.clus
 }
 
 
-(run <- function() {
+(function() {
   parser <- ArgumentParser()
   parser$add_argument(
     "-f", "--folder", help = paste("folder that contains output")
