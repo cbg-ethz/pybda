@@ -1,16 +1,16 @@
-koios
-=====
+Κοῖος /ˈci.os/ 
+==============
 
 .. image:: http://www.repostatus.org/badges/latest/active.svg
    :target: http://www.repostatus.org/#active
-.. image:: https://travis-ci.org/cbg-ethz/biospark.svg?branch=master
-   :target: https://travis-ci.org/cbg-ethz/biospark/
-.. image:: https://codecov.io/gh/cbg-ethz/biospark/branch/master/graph/badge.svg
-   :target: https://codecov.io/gh/cbg-ethz/biospark/
+.. image:: https://travis-ci.org/cbg-ethz/koios.svg?branch=master
+   :target: https://travis-ci.org/cbg-ethz/koios/
+.. image:: https://codecov.io/gh/cbg-ethz/koios/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/cbg-ethz/koios/
 .. image:: https://api.codacy.com/project/badge/Grade/1822ba83768d4d7389ba667a9c839638
    :target: https://www.codacy.com/app/simon-dirmeier/rnaiutilities_2?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=cbg-ethz/rnaiutilities&amp;utm_campaign=Badge_Grade
-.. image:: https://readthedocs.org/projects/biospark/badge/?version=latest
-   :target: http://biospark.readthedocs.io/en/latest/
+.. image:: https://readthedocs.org/projects/koios/badge/?version=latest
+   :target: http://koios.readthedocs.io/en/latest/
    :alt: doc
 
 
