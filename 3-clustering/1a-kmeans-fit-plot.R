@@ -14,7 +14,6 @@ suppressPackageStartupMessages(library(purrr))
 suppressPackageStartupMessages(library(viridis))
 suppressPackageStartupMessages(library(cowplot))
 suppressPackageStartupMessages(library(ggridges))
-
 suppressMessages(hrbrthemes::import_roboto_condensed())
 
 library(futile.logger)
@@ -125,7 +124,7 @@ plot.cluster.stats <- function(data.dir, dat)
 }
 
 
-(run <- function() {
+(function() {
   parser <- ArgumentParser()
   parser$add_argument(
     "-f", "--folder", help = paste("folder where the kmeans clustering has been written to.",
@@ -138,12 +137,13 @@ plot.cluster.stats <- function(data.dir, dat)
     stop(parser$print_help())
   }
 
+  data.dir <- "/Users/simondi/PROJECTS/target_infect_x_project/results/2-analysis/2-clustering/current"
   data.dir <- opt$folder
   lg.file <- paste0(data.dir, "/kmeans-fit-statistics-plot.log")
   flog.appender(appender.file(lg.file), name=logr)
 
-  loglik.file      <- list.files(data.dir, full.names=T, pattern="lrt_path")
-  loglik.path  <- read_tsv(loglik.file) %>%
+  loglik.file <- list.files(data.dir, full.names=T, pattern="lrt_path")
+  loglik.path <- read_tsv(loglik.file) %>%
     dplyr::mutate(iteration = seq(nrow(.)))
 
   pls <- list.files(
@@ -166,7 +166,6 @@ plot.cluster.stats <- function(data.dir, dat)
     tidyr::gather(Criteria, Value, -ClusterCount)
 
   plot.explained.variance(data.dir, loglik.path)
-
   plot.cluster.sizes(data.dir, dat, crit)
   plot.cluster.stats(data.dir, dat)
 })()
