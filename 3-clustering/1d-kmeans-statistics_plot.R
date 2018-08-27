@@ -6,6 +6,7 @@ suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(tibble))
 suppressPackageStartupMessages(library(readr))
 suppressPackageStartupMessages(library(tidyr))
+suppressPackageStartupMessages(library(here))
 suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(hrbrthemes))
 suppressPackageStartupMessages(library(ggthemes))
@@ -54,7 +55,7 @@ silhouette.plot <- function(silhouette.file)
   flog.info('Plotting silhouette scores for single cell measurements.', name=logr)
 
   dat <- read_tsv(silhouette.file) %>%
-    rename(Cluster = "#Cluster")
+    dplyr::rename(Cluster = "#Cluster")
 
   hs <- hist(dat$Silhouette, plot=FALSE, breaks=100)
   neg.mids.idxs <- which(hs$mids <= 0)
@@ -62,37 +63,34 @@ silhouette.plot <- function(silhouette.file)
   scors <- c(hs$mids[neg.mids.idxs], hs$mids[pos.mids.idxs])
   freqs <- c(-hs$counts[neg.mids.idxs]/sum(hs$counts),
              hs$counts[pos.mids.idxs]/sum(hs$counts))
-  trends <- c(rep("Negative", length(neg.mids.idxs)),
-              rep("Postive", length(pos.mids.idxs)))
+  trends <- c(rep("Bad", length(neg.mids.idxs)),
+              rep("Good", length(pos.mids.idxs)))
   df <- tibble(Silhouette=scors, Frequency=freqs, Trend=trends)
 
   plt <- ggplot(df) +
-    geom_bar(stat = "identity", aes(x=Silhouette, y=Frequency), fill="darkgrey") +
+    geom_bar(stat = "identity", aes(x=Silhouette, y=Frequency, fill=Trend)) +
     xlab("Silhouette score") +
-    ylab("Frequency")
-  if (length(unique(df$Trend)) != 1)
-    plt <- plt +
-    scale_y_continuous(limits=c(-max(df$Frequency), max(df$Frequency)),
-                       breaks=seq(from=-round(max(df$Frequency), digits=2), to=round(max(df$Frequency), digits=2), length.out=5),
-                       labels=abs(seq(from=-round(max(df$Frequency), digits=2), to=round(max(df$Frequency), digits=2), length.out=5)))
-  plt <- plt +
+    ylab("Frequency") +
+    scale_fill_manual(values = rutil::manual_discrete_colors()[c(4, 3)]) +
+    scale_x_continuous(breaks=c(-0.25 , 0, 0.25, .5), labels=c(-0.25 , 0, 0.25, .5), limits=c(-0.25, 0.75)) +
+    scale_y_continuous(limits=c(-0.01, 0.045),
+                       breaks=c(-0.01, 0, 0.01, 0.02, 0.03, 0.04),
+                       labels=abs(c(-0.01, 0, 0.01, 0.02,0.03,  0.04))) +
     hrbrthemes::theme_ipsum_rc("Helvetica") +
     #my.theme()  +
     theme(panel.grid.minor=element_blank(),
-          axis.line.x=element_line(arrow=arrow(),
-          axis.text.x=element_text(size=18, color="black"),
-          axis.text.y=element_text(size=18, color="black"),
+          axis.text.x=element_text(size=14, color="grey30"),
+          legend.position="bottom",
+          legend.title = element_text(size=16),
+          legend.text =  element_text(size=14),
+          axis.text.y=element_text(size=14, color="grey30"),
           axis.title.y=element_text(size=20, color="black", face="bold"),
-          axis.title.x=element_text(size=20, color="black", face="bold")) +
-    guides(fill=FALSE) +
-    coord_flip()
-
+          axis.title.x=element_text(size=20, color="black", face="bold"))
 
   outfi <- sub(".tsv", "", silhouette.file)
   for (i in c("eps", "png", "svg"))
   {
-    ggsave(filename=paste0(outfi, ".", i),
-           plot=plt, device=i, width=8, height=8, dpi=1080)
+    ggsave(filename=paste0(outfi, ".", i), plot=plt, device=i, width=10, height=6, dpi=1080)
   }
 }
 
@@ -107,8 +105,8 @@ plot.gene.cluster.frequency <- function(gene.pred.fold)
     read_tsv(.)
   })
 
-  gene.pathogen.combinations <- .get.cell.count.per.gene.group(dat)
-  dat <- .compute.cell.cluster.frequencies(
+  gene.pathogen.combinations <- get.cell.count.per.gene.group(dat)
+  dat <- compute.cell.cluster.frequencies(
     dat, gene.pathogen.combinations, c("gene"))
 
   hs  <- hist(dat$Frequency, breaks=200, plot=FALSE)
@@ -116,10 +114,10 @@ plot.gene.cluster.frequency <- function(gene.pred.fold)
   fre <- mean(dat$Frequency)
 
   plt <-
-    ggplot(df) +
+    ggplot() +
     scale_x_continuous(limits=c(0 , 0.01)) +
-    geom_histogram(aes(x=Frequency, y=Density),  stat="identity", fill="darkgray") +
-    hrbrthemes::theme_ipsum() +
+    geom_histogram(data=df, aes(x=Frequency, y=Density),  stat="identity", fill="darkgray") +
+    hrbrthemes::theme_ipsum_rc("Helvetica") +
     my.theme() +
     ylab("Density") +
     xlab("Relative frequency of single-cells mapping to same cluster") +
@@ -128,12 +126,14 @@ plot.gene.cluster.frequency <- function(gene.pred.fold)
     geom_vline(data=NULL, aes(xintercept=fre), color="red", lwd=1) +
     geom_text(data=NULL, aes(x=fre, y=.15), label=paste0("Mean=", round(fre, 3)), hjust=-.25, size=5) +
     my.theme() +
-    ggplot2::theme(axis.text.x  = ggplot2::element_text( size=18, color="black"),
-                   axis.text.y  = ggplot2::element_text(size=18, color="black"),
+    ggplot2::theme(axis.text.x  = ggplot2::element_text(size=14, color="grey30"),
+                   axis.text.y  = ggplot2::element_text(size=14, color="grey30"),
                    panel.grid.minor = element_blank(),
                    plot.caption  = ggplot2::element_text(size=14, color="black"),
                    axis.title.x   = ggplot2::element_text(size=20),
-                   axis.title.y   = ggplot2::element_text(size=20))
+                   axis.title.y   = ggplot2::element_text(size=20, vjust=2))
+
+  plt
 
   flog.info('Plotting histograms for gene pathogen predictions. ', name=logr)
   for (i in c("eps", "png", "svg"))
@@ -367,7 +367,7 @@ test.for.overenrichment <- function(best.clusters, gene.pred.fold, how.many.clus
   gene.pred.fold  <- list.files(data.dir, pattern="gene_prediction_counts$", full.names=T)
   silhouette.file <- list.files(data.dir, pattern="silhouette.tsv", full.names=T)
 
-  # plot.gene.cluster.frequency(gene.pred.fold)
+   plot.gene.cluster.frequency(gene.pred.fold)
   # silhouette.plot(silhouette.file)
   #
   # tabs <- create.table(gene.pred.fold)
