@@ -66,34 +66,27 @@ silhouette.plot <- function(silhouette.file)
               rep("Postive", length(pos.mids.idxs)))
   df <- tibble(Silhouette=scors, Frequency=freqs, Trend=trends)
 
-  plt <- ggplot(df)
-  if (length(unique(df$Trend)) != 1)
-    plt <- plt + geom_bar(stat = "identity", aes(x=Silhouette, y=Frequency), fill="darkgrey")
-  if (length(unique(df$Trend)) == 1)
-    plt <- plt + geom_bar(stat = "identity", aes(x=Silhouette, y=Frequency), fill="darkgrey")
-  plt <- plt +
+  plt <- ggplot(df) +
+    geom_bar(stat = "identity", aes(x=Silhouette, y=Frequency), fill="darkgrey") +
     xlab("Silhouette score") +
-    ylab("Frequency") +
-    hrbrthemes::theme_ipsum_rc()
+    ylab("Frequency")
   if (length(unique(df$Trend)) != 1)
     plt <- plt +
-    #scale_x_continuous(limits=c(-max(abs(df$Silhouette)), max(abs(df$Silhouette)))) +
     scale_y_continuous(limits=c(-max(df$Frequency), max(df$Frequency)),
                        breaks=seq(from=-round(max(df$Frequency), digits=2), to=round(max(df$Frequency), digits=2), length.out=5),
                        labels=abs(seq(from=-round(max(df$Frequency), digits=2), to=round(max(df$Frequency), digits=2), length.out=5)))
   plt <- plt +
-    ggplot2::theme(axis.text.x  = ggplot2::element_text( size=18),
-                   axis.text.y  = ggplot2::element_text(size=18),
-                   plot.caption  = ggplot2::element_text(size=14),
-                   axis.title.x   = ggplot2::element_text(size=20),
-                   legend.position="bottom",
-                   panel.grid.minor.x = element_blank(),
-                   panel.grid.major.x = element_blank(),
-                   legend.title=element_blank(),
-                   legend.text=element_text(size=14),
-                   axis.title.y   = ggplot2::element_text(size=20)) +
+    hrbrthemes::theme_ipsum_rc("Helvetica") +
+    #my.theme()  +
+    theme(panel.grid.minor=element_blank(),
+          axis.line.x=element_line(arrow=arrow(),
+          axis.text.x=element_text(size=18, color="black"),
+          axis.text.y=element_text(size=18, color="black"),
+          axis.title.y=element_text(size=20, color="black", face="bold"),
+          axis.title.x=element_text(size=20, color="black", face="bold")) +
     guides(fill=FALSE) +
     coord_flip()
+
 
   outfi <- sub(".tsv", "", silhouette.file)
   for (i in c("eps", "png", "svg"))
