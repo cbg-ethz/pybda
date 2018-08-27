@@ -37,7 +37,7 @@ my.theme <- function(title.hjust = 0, legend_pos="bottom") {
     legend.text = element_text(size = 8),
     legend.title = element_text(size = 8)) +
     background_grid(
-      major = "y", minor = "y",
+      minor = "y", major = "y",
       colour.major = "grey80", colour.minor = "grey90",
       size.major = 0.2, size.minor = 0.2
     )
@@ -48,24 +48,51 @@ plot.explained.variance <- function(data.dir, loglik.path)
 {
   flog.info('Plotting explained variance', name=logr)
 
+  sel.max <- loglik.path %>%
+    dplyr::filter(current_model == max(current_model))
+  sel.max$Ref <- c("Reference")
+  sel.take <- loglik.path %>%
+    dplyr::filter(row_number() == nrow(.))
+  sel.take$Ref <- c("Selected K")
+
   p1 <- ggplot(data = loglik.path, aes(iteration, current_model)) +
     geom_point(size = 0.5) +
-    cowplot::theme_cowplot()+
-    my.theme(-0.7) +
     geom_line(lwd = 0.5) +
-    scale_x_continuous(breaks = seq(1, 13, 3)) +
-    scale_y_continuous(breaks = seq(0, 50000, 25000),
-                       limits = c(0, 51000)) +
-    labs(x = "Iteration", y = "", title = "Number of clusters")
+    geom_point(data = sel.max, color = "red", size=0.5) +
+    geom_point(data = sel.take, color = "red", size=0.5) +
+    geom_text(data = sel.max, aes(iteration, current_model, label = Ref), hjust=-.1, size=2.5) +
+    geom_text(data = sel.take, aes(iteration, current_model, label = Ref),hjust=.85, vjust=-.75, size=2.5) +
+    cowplot::theme_cowplot() +
+    theme(axis.ticks.x = element_blank(), axis.text.x = element_blank(),
+          axis.ticks.y = element_line(size=.2)) +
+    my.theme(-0.7) +
+    scale_x_continuous(breaks = seq(0, 13, 3), limits=c(0, 13)) +
+    scale_y_continuous(breaks = seq(0, 50000, 25000),limits = c(0, 51000)) +
+    theme(panel.grid.major.y = element_line(size=.2, colour = "white"),
+          panel.grid.minor.y = element_line(size=.2, colour = "white")) +
+    geom_segment(aes(x = 1, y = 0, xend = 13, yend = 0),
+                 arrow = arrow(length = unit(0.075, "cm"))) +
+    labs(x = "# of recursions", y = "", title = "Number of clusters")
+
   p2 <-  ggplot(data = loglik.path, aes(iteration, current_expl)) +
     geom_point(size=0.5) +
-    cowplot::theme_cowplot()+
-    my.theme(-0.25) +
     geom_line(lwd = 0.5) +
-    scale_x_continuous(breaks = seq(1, 13, 3)) +
+    geom_point(data = sel.max, color = "red", size=0.5) +
+    geom_point(data = sel.take, color = "red", size=0.5) +
+    geom_text(data = sel.max, aes(iteration, current_expl, label = Ref), hjust=-.1, size=2.5) +
+    geom_text(data = sel.take, aes(iteration, current_expl, label = Ref),hjust=.85, vjust=-.75, size=2.5) +
+    cowplot::theme_cowplot()+
+    theme(axis.ticks.x = element_blank(), axis.text.x = element_blank(),
+          axis.ticks.y = element_line(size=.2)) +
+    my.theme(-0.25) +
+    scale_x_continuous(breaks = seq(1, 13, 3), limits=c(1, 13)) +
     scale_y_continuous(labels = scales::percent, limits = c(0.93, 0.96),
                        position = "right") +
-    labs(x = "Iteration", y = "", title = "Explained variance")
+    theme(panel.grid.major.y = element_line(size=.2, colour = "white"),
+          panel.grid.minor.y = element_line(size=.2, colour = "white")) +
+    geom_segment(aes(x = 1, y = 0.93, xend = 13, yend = 0.93),
+                 arrow = arrow(length = unit(0.075, "cm"))) +
+    labs(x = "# of recursions", y = "", title = "Explained variance")
 
   p <- ggdraw() +
     draw_plot(p1, 0, 0, 0.5, 1) +
@@ -150,8 +177,10 @@ plot.cluster.stats <- function(data.dir, dat)
     data.dir,
     pattern=paste0(".*cluster_?[s|S]izes.tsv"),
     full.names=TRUE)
+
   flog.info('Reading cluster size data:', name=logr)
   flog.info(paste0("\n\t", paste0(collapse="\n\t", pls)), name=logr)
+
   dat <- purrr::map_dfr(pls, function(e) {
     fl.suf <- as.integer(str_match(string=e, pattern=".*K(\\d+).*tsv")[2])
     tab    <- readr::read_tsv(e, col_names="K", col_types="i")
