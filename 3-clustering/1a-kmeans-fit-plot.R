@@ -23,10 +23,10 @@ flog.logger(logr, futile.logger::INFO)
 
 my.theme <- function(title.hjust = 0, legend_pos="bottom") {
   theme(
-    axis.text = element_text(size = 8),
+    axis.text = element_text(size = 6,  color="grey30"),
     axis.title.x = element_text(size = 8, face = "bold",
                                 hjust = 1),
-    axis.title.y = element_text(size = 8, face = "bold"),
+    axis.title.y = element_text(size = 8, face = "bold", vjust=1),
     plot.title = element_text(size = 8, face = "bold",
                               hjust = title.hjust),
     plot.margin = rep(grid::unit(1, "cm"), 4),
@@ -63,16 +63,18 @@ plot.explained.variance <- function(data.dir, loglik.path)
     geom_text(data = sel.max, aes(iteration, current_model, label = Ref), hjust=-.1, size=2.5) +
     geom_text(data = sel.take, aes(iteration, current_model, label = Ref),hjust=.85, vjust=-.75, size=2.5) +
     cowplot::theme_cowplot() +
-    theme(axis.ticks.x = element_blank(), axis.text.x = element_blank(),
+    theme(axis.ticks.x = element_blank(),
+          axis.text.x = element_blank(),
           axis.ticks.y = element_line(size=.2)) +
     my.theme(-0.7) +
     scale_x_continuous(breaks = seq(0, 13, 3), limits=c(0, 13)) +
-    scale_y_continuous(breaks = seq(0, 50000, 25000),limits = c(0, 51000)) +
+    scale_y_continuous(breaks = c(0, 25000, 50000), limits = c(-5000, 51000),
+                       labels = c(0, 25000, 50000)) +
     theme(panel.grid.major.y = element_line(size=.2, colour = "white"),
           panel.grid.minor.y = element_line(size=.2, colour = "white")) +
-    geom_segment(aes(x = 1, y = 0, xend = 13, yend = 0),
-                 arrow = arrow(length = unit(0.075, "cm"))) +
-    labs(x = "# of recursions", y = "", title = "Number of clusters")
+    geom_segment(aes(x = 1, y = -5000, xend = 13, yend = -5000),
+                 arrow = arrow(length = unit(0.1, "cm"))) +
+    labs(x = "# of recursions", y = "", title  = "Number of clusters")
 
   p2 <-  ggplot(data = loglik.path, aes(iteration, current_expl)) +
     geom_point(size=0.5) +
@@ -91,16 +93,20 @@ plot.explained.variance <- function(data.dir, loglik.path)
     theme(panel.grid.major.y = element_line(size=.2, colour = "white"),
           panel.grid.minor.y = element_line(size=.2, colour = "white")) +
     geom_segment(aes(x = 1, y = 0.93, xend = 13, yend = 0.93),
-                 arrow = arrow(length = unit(0.075, "cm"))) +
-    labs(x = "# of recursions", y = "", title = "Explained variance")
+                 arrow = arrow(length = unit(0.1, "cm"))) +
+    labs(x = "# of recursions",  y = "", title = "Explained variance")
 
   p <- ggdraw() +
     draw_plot(p1, 0, 0, 0.5, 1) +
-    draw_plot(p2, 0.5, 0, 0.5, 1)
+    draw_plot(p2, 0.45, 0, 0.5, 1)
 
-  for (i in c("svg", "eps", "png")) {
+  for (i in c("svg", "eps", "png"))
+  {
     ggsave(paste0(data.dir, "/kmeans-recurive-transform-explained_variance.", i),
            p, dpi = 720, height = 7, width = 15, units = "cm")
+    ggsave(
+      paste0("/Users/simondi/PHD/Sci/phd/presentations/2018_08_29_group_meeting/fig/", "/kmeans-recurive-transform-explained_variance.", i),
+      p, dpi = 720, height = 7, width = 15, units = "cm")
   }
 }
 
@@ -112,11 +118,11 @@ plot.cluster.sizes <- function(data.dir, dat, crit)
   plt <-
     ggplot() +
     geom_density_ridges(
-      data=dat,  aes(x = dat$K, y = dat$ClusterCount, ), fill="gray",
+      data=dat,  aes(x = dat$K, y = dat$ClusterCount), fill="gray",
       stat = "binline", scale = .4, draw_baseline = FALSE, bins=100, alpha=.5) +
     geom_text(data=crit, aes(x=crit$Value, y=crit$ClusterCount, label=crit$Value), vjust=1.5) +
     theme_ridges() +
-    hrbrthemes::theme_ipsum() +
+    hrbrthemes::theme_ipsum_rc("Helvetica") +
     colorspace::scale_fill_discrete_sequential("Blues", c1 = 20, c2 = 70, l1 = 25, l2 = 100) +
     scale_y_discrete("# clusters", expand = c(0, 1)) +
     scale_x_log10("# cells per cluster") +
@@ -124,16 +130,22 @@ plot.cluster.sizes <- function(data.dir, dat, crit)
     my.theme() +
     theme(axis.title.x = element_text(size=20),
           axis.title.y = element_text(size=20),
-          axis.text.x = element_text(size=12),
+          axis.text.y = element_text(size=12, color="grey30"),
+          axis.text.x = element_text(size=12, color="grey30"),
           panel.grid.major.x = element_blank(),
-          panel.grid.minor = element_blank(),
-          axis.text.y = element_text(size=12))
+          panel.grid.minor = element_blank())
+
+  plt
 
   for (i in c("svg", "png", "eps"))
   {
     ggsave(
       plt,
       filename=paste0(data.dir,"/",  "kmeans-fit-cluster_sizes-histogram.", i),
+      width=10, height=7)
+    ggsave(
+      plt,
+      filename=paste0("/Users/simondi/PHD/Sci/phd/presentations/2018_08_29_group_meeting/fig/",  "kmeans-fit-cluster_sizes-histogram.", i),
       width=10, height=7)
   }
 
@@ -188,7 +200,9 @@ plot.cluster.stats <- function(data.dir, dat)
     tab
   })
 
-  dat <- dat %>% dplyr::filter(ClusterCount >= 1000)
+  dat <- dat %>%
+    dplyr::filter(ClusterCount %in% loglik.path$current_model)
+
   dat$ClusterCount <- factor(dat$ClusterCount, levels=rev(sort(unique(dat$ClusterCount))))
   crit <-  group_by(dat, ClusterCount) %>%
     summarize(Min=min(K), Max=max(K)) %>%

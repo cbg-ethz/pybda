@@ -7,6 +7,7 @@ suppressPackageStartupMessages(library(tibble))
 suppressPackageStartupMessages(library(readr))
 suppressPackageStartupMessages(library(tidyr))
 suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(here))
 suppressPackageStartupMessages(library(hrbrthemes))
 suppressPackageStartupMessages(library(ggthemes))
 suppressPackageStartupMessages(library(ggthemr))
@@ -46,6 +47,7 @@ my.theme <- function(title.hjust = 0, legend_pos="bottom") {
       size.major = 0.2, size.minor = 0.2
     )
 }
+
 
 .find.interesting.clusters <- function(cc.file)
 {
@@ -124,7 +126,7 @@ my.theme <- function(title.hjust = 0, legend_pos="bottom") {
 }
 
 
-.plot.factors <- function(clusters, good.clusters)
+.plot.factors <- function(clusters, good.clusters, data.dir)
 {
   good.cluster.idx <- good.clusters %>%
     dplyr::pull(Cluster) %>%
@@ -166,7 +168,9 @@ my.theme <- function(title.hjust = 0, legend_pos="bottom") {
           axis.title.y=element_text(size=16),
           axis.title.x=element_text(size=16)) +
     ggthemes::geom_rangeframe(aes(f_0, f_1)) +
-    labs(title = "Separation of six clusters")
+    labs(title = "")
+
+  p
 
   for (i in c("pdf", "svg", "png")) {
     cowplot::ggsave2(paste0(data.dir, "/plot-factors-extreme_clusters.", i), p, width=10, height=6, dpi=720)
