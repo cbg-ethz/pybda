@@ -88,17 +88,25 @@ plot.factors <- function(plotout, factors.file)
   plt <-
     ggplot2::ggplot(X, aes(x=Factor1, y=Factor2, label=Feature)) +
     geom_point(color = "red") +
-    geom_text_repel( point.padding = NA, size=2.5, arrow=NULL, segment.size = 0, force=4) +
+    geom_text_repel( point.padding = NA, size=3, arrow=NULL, segment.size = 0, force=4) +
     ggplot2::geom_segment(aes(x=0, y=0, xend=Factor1, yend=Factor2),
                           data=X, alpha=.5,
                           linetype="dashed",
                           arrow = arrow(length = unit(0.25,"cm") )) +
-    hrbrthemes::theme_ipsum() +
-    ggplot2::theme(axis.text.x  = ggplot2::element_text( size=18),
-                   axis.text.y  = ggplot2::element_text(size=18),
-                   panel.grid.minor = element_blank(),
-                   axis.title.x   = ggplot2::element_text(size=20),
-                   axis.title.y   = ggplot2::element_text(size=20))
+    hrbrthemes::theme_ipsum_rc("Helvetica") +
+    scale_x_continuous("Factor 1") +
+    scale_y_continuous("Factor 2") +
+    theme(panel.grid.minor=element_blank(),
+          axis.text.x=element_text(size=14, color="grey30"),
+          legend.position="bottom",
+          legend.title = element_blank(),
+          legend.text =  element_text(size=16),
+          axis.text.y=element_text(size=14, color="grey30"),
+          legend.spacing.x = unit(.1, "cm"),
+          axis.title.y=element_text(size=20, color="black", face="bold"),
+          axis.title.x=element_text(size=20, color="black", face="bold"))
+
+  plt
 
   for (i in c("png", "svg", "eps"))
   {
@@ -113,8 +121,10 @@ plot.factors <- function(plotout, factors.file)
   opt <- parser$parse_args()
   dir <- opt$folder
 
-  likelhood.file <- list.files(dir, pattern="likelihood.tsv", full.names=TRUE)
-  factors.file   <- list.files(dir, pattern="factors.tsv", full.names=TRUE)
+  data.dir <- "/Users/simondi/PROJECTS/target_infect_x_project/results/2-analysis/1-fa/current/"
+
+  likelhood.file <- list.files(data.dir, pattern="likelihood.tsv", full.names=TRUE)
+  factors.file   <- list.files(data.dir, pattern="factors.tsv", full.names=TRUE)
   plotout <- sub(".tsv", "", likelhood.file)
 
   plot.likelihood(paste0(dir, "/fa-likelihood_path"), likelhood.file)
