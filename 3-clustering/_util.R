@@ -2,6 +2,7 @@
 suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(purrr))
 
+
 #' @description Create a table where every row counts
 #'  how many single cells belong to every gene-pathogen group
 get.cell.count.per.gene.group <- function(df)
@@ -36,9 +37,9 @@ read.gene.predictions <- function(gene.pred.fold)
 
 get.gene.stats <- function(gene.pred.fold)
 {
-  dat <- .read.gene.predictions(gene.pred.fold)
-  gene.combinations <- .get.cell.count.per.gene.group(dat)
-  dat <- .compute.cell.cluster.frequencies(
+  dat <- read.gene.predictions(gene.pred.fold)
+  gene.combinations <- get.cell.count.per.gene.group(dat)
+  dat <- compute.cell.cluster.frequencies(
     dat, gene.combinations, "gene")
 
   dat

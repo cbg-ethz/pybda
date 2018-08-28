@@ -68,10 +68,12 @@ plot.explained.variance <- function(data.dir, loglik.path)
           axis.ticks.y = element_line(size=.2)) +
     my.theme(-0.7) +
     scale_x_continuous(breaks = seq(0, 13, 3), limits=c(0, 13)) +
-    scale_y_continuous(breaks = c(0, 25000, 50000), limits = c(-5000, 51000),
-                       labels = c(0, 25000, 50000)) +
+    scale_y_continuous(breaks = c(0, 19947, 25000, 50000), limits = c(-5000, 51000),
+                       labels = c(0, 19947, 25000, 50000)) +
     theme(panel.grid.major.y = element_line(size=.2, colour = "white"),
-          panel.grid.minor.y = element_line(size=.2, colour = "white")) +
+          panel.grid.minor.y = element_line(size=.2, colour = "white"),
+          axis.text.y = element_text(color=c("black", "red", "black", "black"))
+          ) +
     geom_segment(aes(x = 1, y = -5000, xend = 13, yend = -5000),
                  arrow = arrow(length = unit(0.1, "cm"))) +
     labs(x = "# of recursions", y = "", title  = "Number of clusters")
@@ -130,8 +132,10 @@ plot.cluster.sizes <- function(data.dir, dat, crit)
     my.theme() +
     theme(axis.title.x = element_text(size=20),
           axis.title.y = element_text(size=20),
-          axis.text.y = element_text(size=12, color="grey30"),
           axis.text.x = element_text(size=12, color="grey30"),
+          axis.text.y = element_text(size=12, color=c(
+            rep("grey30", 7), "red", rep("grey30", 11)
+          )),
           panel.grid.major.x = element_blank(),
           panel.grid.minor = element_blank())
 
@@ -199,7 +203,6 @@ plot.cluster.stats <- function(data.dir, dat)
     tab$ClusterCount <- fl.suf
     tab
   })
-
   dat <- dat %>%
     dplyr::filter(ClusterCount %in% loglik.path$current_model)
 
