@@ -1,0 +1,27 @@
+language: python
+
+sudo: required
+cache: packages
+
+python:
+  - "3.6"
+
+before_install:
+  - pip install --upgrade pip
+
+install:
+  - pip install -r requirements.txt
+  - pip install -e .
+  - pip install codecov
+  - pip install pytest-cov
+  - pip install tox-travis
+
+script:
+  - rnai-query query --help
+  - rnai-parse parse --help
+  - tox
+  - py.test --cov=./
+
+after_success:
+  - codecov
+
