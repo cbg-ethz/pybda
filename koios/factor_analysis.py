@@ -1,85 +1,50 @@
-#!/usr/bin/env python3
+# Copyright (C) 2018 Simon Dirmeier
+#
+# This file is part of koios.
+#
+# koios is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# koios is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with koios. If not, see <http://www.gnu.org/licenses/>.
+#
+# @author = 'Simon Dirmeier'
+# @email = 'simon.dirmeier@bsse.ethz.ch'
 
-import argparse
+
 import logging
 import pathlib
 import sys
-import numpy
-import scipy
-import pyspark
-import pandas
-from scipy import linalg
 
-from pyspark.rdd import reduce
-import pyspark.sql.functions as func
+import numpy
+import pandas
+import pyspark
 import pyspark.mllib.linalg.distributed
-from pyspark.sql.functions import udf
+import pyspark.sql.functions as func
+import scipy
 from pyspark.ml.linalg import VectorUDT
 from pyspark.mllib.linalg.distributed import RowMatrix, DenseMatrix
 from pyspark.mllib.stat import Statistics
+from pyspark.rdd import reduce
+from pyspark.sql.functions import udf
+
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-frmtr = logging.Formatter(
-  '[%(levelname)-1s/%(processName)-1s/%(name)-1s]: %(message)s')
+logger.setLevel(logging.WARNING)
 
-spark = None
+class FactorAnalysis:
 
+    def __init__(self, spark, config):
+        self.__spark =  spark
+        self.__config = config
 
-def read_args(args):
-    parser = argparse.ArgumentParser(description='Do a factor analysis.')
-    parser.add_argument('-o',
-                        type=str,
-                        help='the output folder the results are written to',
-                        required=True,
-                        metavar="output-folder")
-    parser.add_argument('-f',
-                        type=str,
-                        help='the file you want to do FA on'
-                             'from rnai-query like '
-                             'cells_sample_10_normalized_cut_100.tsv',
-                        required=True,
-                        metavar="input-file")
-    parser.add_argument('-c',
-                        type=int,
-                        help='number of factors',
-                        required=True,
-                        metavar="input-file")
-    opts = parser.parse_args(args)
-
-    return opts.f, opts.o, opts.c, opts
-
-
-def get_feature_columns(data):
-    return list(filter(
-      lambda x: any(x.startswith(f) for f in ["cells", "perin", "nucle"]),
-      data.columns))
-
-
-def data_path(file_name):
-    return file_name.replace(".tsv", "_parquet")
-
-
-def write_parquet_data(outpath, data):
-    logger.info("Writing parquet: {}".format(outpath))
-    data.write.parquet(outpath, mode="overwrite")
-
-
-def get_frame(file_name):
-    logger.info("Reading: {}".format(file_name))
-
-    df = spark.read.csv(path=file_name, sep="\t", header='true')
-    old_cols = df.columns
-    new_cols = list(map(lambda x: x.replace(".", "_"), old_cols))
-    df = reduce(
-      lambda data, idx: data.withColumnRenamed(old_cols[idx], new_cols[idx]),
-      range(len(new_cols)), df)
-    feature_columns = get_feature_columns(df)
-    for x in feature_columns:
-        df = df.withColumn(x, df[x].cast("double"))
-    df = df.fillna(0)
-
-    return df
 
 
 def svd(X, comps):
@@ -191,38 +156,3 @@ def fa(file_name, outpath, ncomp):
     logger.info("\twriting likelihood profile")
     L = pandas.DataFrame(data=ll)
     L.to_csv(outpath + "_likelihood.tsv", sep="\t", index=False)
-
-
-def run():
-    # check files
-    file_name, outpath, ncomp, opts = read_args(sys.argv[1:])
-
-    if outpath.endswith("/"):
-        outpath = outpath[:-1]
-    hdlr = logging.FileHandler(outpath + ".log")
-    hdlr.setFormatter(frmtr)
-    logger.addHandler(hdlr)
-
-    if not file_name.endswith(".tsv"):
-        logger.error("Please provide a tsv file: " + file_name)
-        return
-
-    logger.info("Initializing pyspark context")
-    # spark settings
-    pyspark.StorageLevel(True, True, False, False, 1)
-    conf = pyspark.SparkConf()
-    sc = pyspark.SparkContext(conf=conf)
-    global spark
-    spark = pyspark.sql.SparkSession(sc)
-
-    try:
-        fa(file_name, outpath, ncomp)
-    except Exception as e:
-        logger.error("Some error: {}".format(str(e)))
-
-    logger.info("Stopping pyspark context")
-    spark.stop()
-
-
-if __name__ == "__main__":
-    run()
