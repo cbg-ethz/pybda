@@ -1,0 +1,21 @@
+[run]
+branch = True
+source = codecov
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    if .debug:
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    pass
+    def __str_
+    def __hash__
+    def __eq__
+    def __iter__
+    def __getitem__
+ignore_errors = True
+omit =
+    tests/*
+    setup.py
