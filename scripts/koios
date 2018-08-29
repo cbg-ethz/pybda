@@ -1,0 +1,92 @@
+#!/usr/bin/env python3
+
+# Copyright (C) 2018 Simon Dirmeier
+#
+# This file is part of koios.
+#
+# koios is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# koios is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with koios. If not, see <http://www.gnu.org/licenses/>.
+#
+# @author = 'Simon Dirmeier'
+# @email = 'simon.dirmeier@bsse.ethz.ch'
+
+import logging
+import click
+
+
+@click.group()
+def cli():
+    logging.basicConfig(
+      format='[%(levelname)-1s/%(processName)-1s/%(name)-1s]: %(message)s')
+
+
+
+def read_args(args):
+    parser = argparse.ArgumentParser(description='Do a factor analysis.')
+    parser.add_argument('-o',
+                        type=str,
+                        help='the output folder the results are written to',
+                        required=True,
+                        metavar="output-folder")
+    parser.add_argument('-f',
+                        type=str,
+                        help='the file you want to do FA on'
+                             'from rnai-query like '
+                             'cells_sample_10_normalized_cut_100.tsv',
+                        required=True,
+                        metavar="input-file")
+    parser.add_argument('-c',
+                        type=int,
+                        help='number of factors',
+                        required=True,
+                        metavar="input-file")
+    opts = parser.parse_args(args)
+    return opts.f, opts.o, opts.c, opts
+
+@cli.command()
+@click.argument("config", type=str)
+def factor_analysis():
+    # check files
+    file_name, outpath, ncomp, opts = read_args(sys.argv[1:])
+
+    if outpath.endswith("/"):
+        outpath = outpath[:-1]
+    hdlr = logging.FileHandler(outpath + ".log")
+    hdlr.setFormatter(frmtr)
+    logger.addHandler(hdlr)
+
+    if not file_name.endswith(".tsv"):
+        logger.error("Please provide a tsv file: " + file_name)
+        return
+
+    logger.info("Initializing pyspark context")
+    # spark settings
+    pyspark.StorageLevel(True, True, False, False, 1)
+    conf = pyspark.SparkConf()
+    sc = pyspark.SparkContext(conf=conf)
+    global spark
+    spark = pyspark.sql.SparkSession(sc)
+
+    try:
+        fa(file_name, outpath, ncomp)
+    except Exception as e:
+        logger.error("Some error: {}".format(str(e)))
+
+    logger.info("Stopping pyspark context")
+    spark.stop()
+
+
+
+if __name__ == "__main__":
+    cli()
+
