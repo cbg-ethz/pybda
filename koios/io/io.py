@@ -65,7 +65,7 @@ def read_tsv(spark, file_name, header='true'):
     return spark.read.csv(path=file_name, sep="\t", header=header)
 
 
-def get_frame_from_tsv(file_name, spark, config):
+def get_frame_from_tsv(file_name, spark):
     """
     Reads a data frame from a tsv file.
 

@@ -20,139 +20,120 @@
 
 
 import logging
-import pathlib
-import sys
 
 import numpy
 import pandas
-import pyspark
-import pyspark.mllib.linalg.distributed
 import pyspark.sql.functions as func
 import scipy
 from pyspark.ml.linalg import VectorUDT
 from pyspark.mllib.linalg.distributed import RowMatrix, DenseMatrix
-from pyspark.mllib.stat import Statistics
-from pyspark.rdd import reduce
 from pyspark.sql.functions import udf
 
+from koios.dimension_reduction import DimensionReduction
+from koios.util.stats import svd, column_statistics
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
 
-class FactorAnalysis:
 
-    def __init__(self, spark, config):
-        self.__spark =  spark
-        self.__config = config
+class FactorAnalysis(DimensionReduction):
 
+    def __init__(self, spark, threshold=1e-9, max_iter=100):
+        super().__init__(spark, threshold, max_iter)
 
+    @staticmethod
+    def _tilde(X, psi_sqrt, n_sqrt):
+        norm = psi_sqrt * n_sqrt
+        Xtilde = RowMatrix(X.rows.map(lambda x: x / norm))
+        return Xtilde
 
-def svd(X, comps):
-    svd = X.computeSVD(X.numCols(), computeU=False)
-    s = svd.s.toArray()
-    V = svd.V.toArray().T
-    var = numpy.dot(s[comps:], s[comps:])
-    return s[:comps], V[:comps], var
+    @staticmethod
+    def _loglik(llconst, unexp_var, s, psi, n):
+        ll = llconst + numpy.sum(numpy.log(s))
+        ll += unexp_var + numpy.sum(numpy.log(psi))
+        ll *= -n / 2.
 
+        return ll
 
-def tilde(X, psi_sqrt, n_sqrt):
-    norm = psi_sqrt * n_sqrt
-    Xtilde = RowMatrix(X.rows.map(lambda x: x / norm))
-    return Xtilde
-
-
-def stats(data):
-    logger.info("\tcomputing data statistics")
-    rdd = data.select(get_feature_columns(data)).rdd.map(list)
-    summary = Statistics.colStats(rdd)
-    return RowMatrix(rdd), summary.mean(), summary.variance()
-
-
-def fit(X, var, n_components):
-    iter, DELTA, MAX_ITER = 0, 1e-12, 100
-    N, P = X.numRows(), X.numCols()
-
-    ll = old_ll = -numpy.inf
-    llconst = P * numpy.log(2. * numpy.pi) + n_components
-    logliks = []
-
-    psi = numpy.ones(P, dtype=numpy.float64)
-    nsqrt = numpy.sqrt(N)
-
-    logger.info("\tcomputing factor analysis")
-    for i in range(MAX_ITER):
-        sqrt_psi = numpy.sqrt(psi) + DELTA
-        s, V, unexp_var = svd(tilde(X, sqrt_psi, nsqrt), n_components)
-        s = s ** 2
-
-        # factor updated
+    @staticmethod
+    def _update_factors(s, V, sqrt_psi):
         W = numpy.sqrt(numpy.maximum(s - 1., 0.))[:, numpy.newaxis] * V
         W *= sqrt_psi
 
-        # loglik update
-        ll = llconst + numpy.sum(numpy.log(s))
-        ll += unexp_var + numpy.sum(numpy.log(psi))
-        ll *= -N / 2.
-        logliks.append(ll)
+        return W
 
-        # variance update
-        psi = numpy.maximum(var - numpy.sum(W ** 2, axis=0), DELTA)
-        if numpy.abs(ll - old_ll) < 0.001:
-            break
-        old_ll = ll
+    def _update_variance(self, var, W):
+        psi = numpy.maximum(var - numpy.sum(W ** 2, axis=0), self.__threshold)
+        return psi
 
-    return W, logliks, psi
+    def _estimate(self, X, var, n_factors):
+        n, p = X.numRows(), X.numCols()
+        old_ll = -numpy.inf
+        llconst = p * numpy.log(2. * numpy.pi) + n_factors
+        psi = numpy.ones(p, dtype=numpy.float32)
+        nsqrt = numpy.sqrt(n)
+        logliks = []
+
+        logger.info("\tcomputing factor analysis")
+        for i in range(self.__max_iter):
+            sqrt_psi = numpy.sqrt(psi) + self.__threshold
+            s, V, unexp_var = svd(self._tilde(X, sqrt_psi, nsqrt), n_factors)
+            s = s ** 2
+
+            # factor updated
+            W = self._update_factors(s, V, sqrt_psi)
+            # loglik update
+            ll = self._loglik(llconst, unexp_var, s, psi, n)
+            logliks.append(ll)
+            # variance update
+            psi = self._update_variance(var, W)
+
+            if numpy.abs(ll - old_ll) < 0.001:
+                break
+            old_ll = ll
+
+        return W, logliks, psi
+
+    def _transform(self, X, W, psi):
+        logger.info("\ttransforming data")
+        Ih = numpy.eye(len(W))
+        Wpsi = W / psi
+        cov_z = scipy.linalg.inv(Ih + numpy.dot(Wpsi, W.T))
+        tmp = numpy.dot(Wpsi.T, cov_z)
+        tmp_dense = DenseMatrix(
+          numRows=tmp.shape[0], numCols=tmp.shape[1], values=tmp.flatten())
+
+        as_ml = udf(lambda v: v.asML() if v is not None else None, VectorUDT())
+
+        X = X.multiply(tmp_dense)
+        X = self.__spark.createDataFrame(X.rows.map(lambda x: (x,)))
+        X = X.withColumnRenamed("_1", "features")
+        X = X.withColumn("features", as_ml("features"))
+
+        return X
 
 
-def transform(X, W, psi):
-    logger.info("\ttransforming data")
-    Ih = numpy.eye(len(W))
-    Wpsi = W / psi
-    cov_z = scipy.linalg.inv(Ih + numpy.dot(Wpsi, W.T))
-    tmp = numpy.dot(Wpsi.T, cov_z)
-    tmp_dense = DenseMatrix(
-      numRows=tmp.shape[0], numCols=tmp.shape[1], values=tmp.flatten())
+    def fit(self, data, n_factors):
+        logger.info("Running factor analysis ...")
+        X = data.rdd
+        X, means, var = column_statistics(data)
+        X = RowMatrix(X.rows.map(lambda x: x - means))
+        W, ll, psi = self._estimate(X, var, n_factors)
+        X = self._transform(X, W, psi)
 
-    as_ml = udf(lambda v: v.asML() if v is not None else None, VectorUDT())
+        X = X.withColumn('row_index', func.monotonically_increasing_id())
+        data = data.withColumn('row_index', func.monotonically_increasing_id())
+        data = data.join(X["row_index", "features"],
+                         on=["row_index"]).drop("row_index")
+        del X
 
-    X = X.multiply(tmp_dense)
-    X = spark.createDataFrame(X.rows.map(lambda x: (x,)))
-    X = X.withColumnRenamed("_1", "features")
-    X = X.withColumn("features", as_ml("features"))
+        write_parquet_data(outpath, data)
 
-    return X
+        logger.info("\twriting factor to data")
+        W = pandas.DataFrame(data=W)
+        W.columns = features
+        W.to_csv(outpath + "_factors.tsv", sep="\t", index=False)
 
-
-def fa(file_name, outpath, ncomp):
-    if not pathlib.Path(file_name).is_file():
-        logger.error("File doesnt exist: {}".format(file_name))
-        return
-    if pathlib.Path(outpath).is_file():
-        logger.error("Not a path: {}".format(outpath))
-        return
-
-    data = get_frame(file_name)
-    features = get_feature_columns(data)
-
-    logger.info("Running factor analysis ...")
-    X, means, var = stats(data)
-    X = RowMatrix(X.rows.map(lambda x: x - means))
-    W, ll, psi = fit(X, var, ncomp)
-    X = transform(X, W, psi)
-
-    X = X.withColumn('row_index', func.monotonically_increasing_id())
-    data = data.withColumn('row_index', func.monotonically_increasing_id())
-    data = data.join(X["row_index", "features"],
-                     on=["row_index"]).drop("row_index")
-    del X
-
-    write_parquet_data(outpath, data)
-
-    logger.info("\twriting factor to data")
-    W = pandas.DataFrame(data=W)
-    W.columns = features
-    W.to_csv(outpath + "_factors.tsv", sep="\t", index=False)
-
-    logger.info("\twriting likelihood profile")
-    L = pandas.DataFrame(data=ll)
-    L.to_csv(outpath + "_likelihood.tsv", sep="\t", index=False)
+        logger.info("\twriting likelihood profile")
+        L = pandas.DataFrame(data=ll)
+        L.to_csv(outpath + "_likelihood.tsv", sep="\t", index=False)
