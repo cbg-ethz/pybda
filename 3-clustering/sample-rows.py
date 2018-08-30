@@ -28,7 +28,8 @@ spark = None
 
 
 def read_args(args):
-    parser = argparse.ArgumentParser(description='Sample genes from clustered dataset.')
+    parser = argparse.ArgumentParser(
+      description='Sample genes from clustered dataset.')
     parser.add_argument('-f',
                         type=str,
                         help='parquet folder with data',
@@ -46,7 +47,7 @@ def read_args(args):
                         metavar="input-folder")
     opts = parser.parse_args(args)
 
-    return opts.f, opts.g, opts
+    return opts.f, opts.o, opts.n, opts
 
 
 def read_parquet_data(file_name):
@@ -58,7 +59,7 @@ def write_pandas_tsv(file_name, data):
     data.to_csv(file_name, sep="\t", index=False)
 
 
-def sample(folder, output, n_samples):
+def sample(folder, outfile, n_samples):
     if not pathlib.Path(folder).is_dir():
         logger.error("Directory doesnt exist: {}".format(folder))
         return
@@ -67,12 +68,12 @@ def sample(folder, output, n_samples):
     data = read_parquet_data(folder)
     opath = folder + "_sampled_genes.tsv"
     data = data.sample(False, 0.1, seed=23).limit(n_samples)
-    write_pandas_tsv(opath, data.toPandas())
+    write_pandas_tsv(outfile, data.toPandas())
 
 
 def run():
     # check files
-    folder, out, n_samplesm  opts = read_args(sys.argv[1:])
+    folder, out, n_samples,   opts = read_args(sys.argv[1:])
     if not pathlib.Path(folder).is_dir():
         logger.error("Folder does not exist: " + folder)
         return
@@ -84,7 +85,7 @@ def run():
     global spark
     spark = pyspark.sql.SparkSession(sc)
     try:
-        sample(folder, genes)
+        sample(folder, out, n_samples)
     except Exception as e:
         logger.error("Random exception: {}".format(str(e)))
     spark.stop()
