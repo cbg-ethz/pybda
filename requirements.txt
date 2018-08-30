@@ -1,3 +1,4 @@
+pyspark
 argparse
 click
 findspark
