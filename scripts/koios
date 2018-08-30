@@ -22,6 +22,14 @@
 
 import logging
 import click
+import pyspark
+
+from koios.factor_analysis import FactorAnalysis
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+frmtr = logging.Formatter(
+  '[%(levelname)-1s/%(processName)-1s/%(name)-1s]: %(message)s')
 
 
 @click.group()
@@ -30,34 +38,16 @@ def cli():
       format='[%(levelname)-1s/%(processName)-1s/%(name)-1s]: %(message)s')
 
 
-
-def read_args(args):
-    parser = argparse.ArgumentParser(description='Do a factor analysis.')
-    parser.add_argument('-o',
-                        type=str,
-                        help='the output folder the results are written to',
-                        required=True,
-                        metavar="output-folder")
-    parser.add_argument('-f',
-                        type=str,
-                        help='the file you want to do FA on'
-                             'from rnai-query like '
-                             'cells_sample_10_normalized_cut_100.tsv',
-                        required=True,
-                        metavar="input-file")
-    parser.add_argument('-c',
-                        type=int,
-                        help='number of factors',
-                        required=True,
-                        metavar="input-file")
-    opts = parser.parse_args(args)
-    return opts.f, opts.o, opts.c, opts
-
 @cli.command()
-@click.argument("config", type=str)
-def factor_analysis():
-    # check files
-    file_name, outpath, ncomp, opts = read_args(sys.argv[1:])
+@click.argument("file", type=str,)
+@click.argument("outpath", type=str)
+@click.argument("factors", type=int)
+@click.option("maxit", type=int,  default=25, help="Number of iterations.")
+def factor_analysis(file, outpath, factors, max_iter):
+    """
+    Computes a factor analysis with x FACTORS on a tsv FILE and writes to an
+    OUTPATH.
+    """
 
     if outpath.endswith("/"):
         outpath = outpath[:-1]
@@ -65,27 +55,22 @@ def factor_analysis():
     hdlr.setFormatter(frmtr)
     logger.addHandler(hdlr)
 
-    if not file_name.endswith(".tsv"):
-        logger.error("Please provide a tsv file: " + file_name)
-        return
-
-    logger.info("Initializing pyspark context")
-    # spark settings
+    logger.info("Initializing pyspark session")
     pyspark.StorageLevel(True, True, False, False, 1)
-    conf = pyspark.SparkConf()
-    sc = pyspark.SparkContext(conf=conf)
     global spark
-    spark = pyspark.sql.SparkSession(sc)
+    spark = pyspark.sql.SparkSession().getOrCreate()
 
     try:
-        fl = fa(file_name, outpath, ncomp)
-        fl.write_files(outpath)
+        from koios.io.io import read_tsv
+        data = read_tsv(file)
+        fl = FactorAnalysis(spark, max_iter=max_iter)
+        fit = fl.fit(data, factors)
+        fit.write_files(outpath)
     except Exception as e:
         logger.error("Some error: {}".format(str(e)))
 
     logger.info("Stopping pyspark context")
     spark.stop()
-
 
 
 if __name__ == "__main__":
