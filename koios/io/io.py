@@ -22,6 +22,7 @@
 import logging
 from pyspark.rdd import reduce
 
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
 
@@ -38,17 +39,17 @@ def parquet_data_path(file_name):
     return file_name.replace(".tsv", "_parquet")
 
 
-def write_parquet_data(outpath, data):
+def write_parquet_data(data, outfolder):
     """
     Write a data frama to an outpath in parquet format.
     Overwrites existing files!
 
-    :param outpath: the path where the dataframe is written to
     :param data: data frame
+    :param outfolder: the path where the dataframe is written to
     """
 
-    logger.info("Writing parquet: {}".format(outpath))
-    data.write.parquet(outpath, mode="overwrite")
+    logger.info("Writing parquet: {}".format(outfolder))
+    data.write.parquet(outfolder, mode="overwrite")
 
 
 def read_tsv(spark, file_name, header='true'):

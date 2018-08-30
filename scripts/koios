@@ -78,7 +78,8 @@ def factor_analysis():
     spark = pyspark.sql.SparkSession(sc)
 
     try:
-        fa(file_name, outpath, ncomp)
+        fl = fa(file_name, outpath, ncomp)
+        fl.write_files(outpath)
     except Exception as e:
         logger.error("Some error: {}".format(str(e)))
 

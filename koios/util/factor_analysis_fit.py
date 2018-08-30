@@ -18,21 +18,32 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import logging
 from pandas import DataFrame
-from abc import ABC, abstractmethod
+from koios.io.io import write_parquet_data
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
 
 
-class DimensionReduction(ABC):
-    def __init__(self, spark, threshold, max_iter):
-        self.__spark = spark
-        self.__threshold = threshold
-        self.__max_iter = max_iter
+class FactorAnalysisFit:
+    def __init__(self, data, W, psi, ll):
+        self.__data = data
+        self.__W = W
+        self.__psi = psi
+        self.__ll = ll
 
-    @abstractmethod
-    def fit(self):
-        pass
+    def write_files(self, outfolder):
+        write_parquet_data(self.__data, outfolder)
+        self._write_loadings(self.__W, outfolder + "_factors.tsv")
+        self._write_likelihood(self.__ll, outfolder + "_loglik.tsv")
+
+    @staticmethod
+    def _write_loadings(W, outfile, features):
+        logger.info("Writing loadings to data")
+        DataFrame(W, columns=features).to_csv(outfile, sep="\t", index=False)
+
+    @staticmethod
+    def _write_likelihood(ll, outfile):
+        logger.info("Writing likelihood profile")
+        DataFrame(data=ll).to_csv(outfile, sep="\t", index=False)
