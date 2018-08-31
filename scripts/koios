@@ -58,7 +58,8 @@ def factor_analysis(file, outpath, factors, max_iter):
     logger.info("Initializing pyspark session")
     pyspark.StorageLevel(True, True, False, False, 1)
     global spark
-    spark = pyspark.sql.SparkSession().getOrCreate()
+    spark = pyspark.sql.SparkSession()\
+        .getOrCreate()
 
     try:
         from koios.io.io import read_tsv

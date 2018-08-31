@@ -26,7 +26,7 @@ from pyspark.ml.linalg import VectorUDT
 from pyspark.mllib.linalg.distributed import RowMatrix, DenseMatrix
 from pyspark.sql.functions import udf
 from koios.dimension_reduction import DimensionReduction
-from koios.util.factor_analysis_fit import FactorAnalysisFit
+from koios.factor_analysis_fit import FactorAnalysisFit
 from koios.util.stats import svd, column_statistics
 
 logger = logging.getLogger(__name__)
