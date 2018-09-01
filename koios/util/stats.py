@@ -21,7 +21,7 @@
 
 import logging
 
-import numpy
+import scipy
 import pyspark
 from pyspark.mllib.stat import Statistics
 
@@ -56,5 +56,5 @@ def svd(data, n_components):
     svd = data.computeSVD(data.numCols(), computeU=False)
     s = svd.s.toArray()
     V = svd.V.toArray().T
-    var = numpy.dot(s[n_components:], s[n_components:])
+    var = scipy.dot(s[n_components:], s[n_components:])
     return s[:n_components], V[:n_components], var

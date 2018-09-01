@@ -1,5 +1,4 @@
 pyspark
-argparse
 click
 findspark
 ipython
