@@ -20,7 +20,6 @@
 
 
 import logging
-from pandas import DataFrame
 from abc import ABC, abstractmethod
 
 logger = logging.getLogger(__name__)

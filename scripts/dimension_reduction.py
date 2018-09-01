@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # Copyright (C) 2018 Simon Dirmeier
 #
 # This file is part of koios.
@@ -22,11 +20,8 @@
 
 
 import logging
-import subprocess
-
-import click
-
-KOIOS_SNAKE = "../koios.snake"
+import pyspark
+from koios.factor_analysis import FactorAnalysis
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -34,28 +29,25 @@ frmtr = logging.Formatter(
   '[%(levelname)-1s/%(processName)-1s/%(name)-1s]: %(message)s')
 
 
-@click.group()
-def cli():
-    logging.basicConfig(
-      format='[%(levelname)-1s/%(processName)-1s/%(name)-1s]: %(message)s')
+def factor_analysis(outpath, file, factors, maxit=25):
+    if outpath.endswith("/"):
+        outpath = outpath[:-1]
+    hdlr = logging.FileHandler(outpath + ".log")
+    hdlr.setFormatter(frmtr)
+    logger.addHandler(hdlr)
 
+    logger.info("Initializing pyspark session")
+    pyspark.StorageLevel(True, True, False, False, 1)
+    spark = pyspark.sql.SparkSession.builder.getOrCreate()
 
-@cli.command()
-@click.argument("config", type=str)
-@click.argument("spark", type=str)
-def dimension_reduction(config, spark):
-    """
-    Computes a factor analysis from a CONFIG in a SPARK session.
-    """
+    try:
+        from koios.io.io import read_tsv
+        data = read_tsv(file)
+        fl = FactorAnalysis(spark, max_iter=maxit)
+        fit = fl.fit(data, factors)
+        fit.write_files(outpath)
+    except Exception as e:
+        logger.error("Some error: {}".format(str(e)))
 
-    subprocess.run(
-        ["snakemake",
-         "dimension_reduction",
-         "-s", KOIOS_SNAKE,
-         "--configfile", config,
-         "--config", "spark=" + spark]
-    )
-
-
-if __name__ == "__main__":
-    cli()
+    logger.info("Stopping pyspark context")
+    spark.stop()

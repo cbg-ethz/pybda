@@ -1,3 +1,4 @@
+koios.egg-info/*
 data/fa*
 data/kmeans*
 data/outlier*
