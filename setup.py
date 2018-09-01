@@ -22,9 +22,11 @@ setup(
   keywords='bigdata analysis pipeline workflow spark pyspark',
   packages=find_packages(),
   scripts=['scripts/koios'],
+  include_package_data=True,
   python_requires='>=3',
   install_requires=[
       'pyspark>=2.3.0',
+      'numpy>=1.15.0',
       'scipy>=1.0.0',
       'pandas>=0.23.3',
       'click>=6.7',

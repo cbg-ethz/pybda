@@ -35,3 +35,15 @@ class DimensionReduction(ABC):
     @abstractmethod
     def fit(self):
         pass
+
+    @property
+    def spark(self):
+        return self.__spark
+
+    @property
+    def threshold(self):
+        return self.__threshold
+
+    @property
+    def max_iter(self):
+        return self.__max_iter

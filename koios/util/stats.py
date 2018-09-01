@@ -26,7 +26,7 @@ import pyspark
 from pyspark.mllib.stat import Statistics
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING)
+logger.setLevel(logging.INFO)
 
 
 def column_statistics(data: pyspark.rdd.RDD):

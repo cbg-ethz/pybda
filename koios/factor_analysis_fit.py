@@ -21,6 +21,7 @@
 import logging
 from pandas import DataFrame
 from koios.io.io import write_parquet_data
+from koios.util.features import feature_columns
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
@@ -51,7 +52,8 @@ class FactorAnalysisFit:
 
     def write_files(self, outfolder):
         write_parquet_data(self.__data, outfolder)
-        self._write_loadings(self.__W, outfolder + "_factors.tsv")
+        self._write_loadings(self.__W, outfolder + "_factors.tsv",
+                             feature_columns(self.__data))
         self._write_likelihood(self.__ll, outfolder + "_loglik.tsv")
 
     @staticmethod

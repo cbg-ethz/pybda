@@ -1,30 +1,32 @@
+from koios import dirname
+
 rule all:
     input:
         expand("{outfolder}/{dimred}",
                outfolder = config["outfolder"],
-               dimred = ["fa", "pca", "kpca"]),
+               dimred = ["factor_analysis", "pca", "kpca"]),
         expand("{outfolder}/{dimred}.log",
                outfolder = config["outfolder"],
-               dimred = ["fa", "pca", "kpca"]),
+               dimred = ["factor_analysis", "pca", "kpca"]),
 
-        expand("{outfolder}/{dimred}-factors-variance_explained.png",
+        expand("{outfolder}/{dimension_reduction}-factors-variance_explained.png",
                outfolder = config["outfolder"],
-               dimred = ["fa", "pca", "kpca"]),
-        expand("{outfolder}/{dimred}-factors-biplot.png",
-               outfolder = config["outfolder"], dimred = ["fa", "pca", "kpca"]),
-        expand("{outfolder}/{dimred}-factors.log",
+               dimension_reduction = ["fa", "pca", "kpca"]),
+        expand("{outfolder}/{dimension_reduction}-factors-biplot.png",
+               outfolder = config["outfolder"], dimension_reduction = ["fa", "pca", "kpca"]),
+        expand("{outfolder}/{dimension_reduction}-factors.log",
                outfolder = config["outfolder"],
-               dimred = config["dimred"]),
+               dimension_reduction = config["dimension_reduction"]),
 
-        expand("{outfolder}/{dimred}-sample.tsv",
+        expand("{outfolder}/{dimension_reduction}-sample.tsv",
                outfolder=config["outfolder"],
-               dimred=["fa", "pca", "kpca"]),
-        expand("{outfolder}/{dimred}-sample.log",
+               dimension_reduction=["fa", "pca", "kpca"]),
+        expand("{outfolder}/{dimension_reduction}-sample.log",
                outfolder=config["outfolder"],
-               dimred=["fa", "pca", "kpca"]),
-        expand("{outfolder}/{dimred}-sample-feature_distributions",
+               dimension_reduction=["fa", "pca", "kpca"]),
+        expand("{outfolder}/{dimension_reduction}-sample-feature_distributions",
                outfolder=config["outfolder"],
-               dimred=["fa", "pca", "kpca"]),
+               dimension_reduction=["fa", "pca", "kpca"]),
 
         expand("{outfolder}/outlier-removal", outfolder=config["outfolder"]),
         expand("{outfolder}/outlier-removal.log", outfolder=config["outfolder"]),
@@ -70,17 +72,19 @@ rule factor_analysis:
     input:
         expand("{infile}", infile=config["infile"])
     output:
-        expand("{outfolder}/fa.log", outfolder=config["outfolder"]),
-        out = expand("{outfolder}/fa", outfolder=config["outfolder"])
+        expand("{outfolder}/factor_analysis.log", outfolder=config["outfolder"]),
+        out = expand("{outfolder}/factor_analysis", outfolder=config["outfolder"])
     run:
         params = " ".join([x for x in config["sparkparams"]])
+
+        fa = os.path.join(dirname(), "factor_analysis.py")
         cmd = """{} --master {} \
                     {} \
-                    2-dimension_reduction/1a-factor_analysis-spark.py \
-                    -c {} \
-                    -f {} \
-                    -o {}""".format(
-            config["spark"], config["sparkip"], params, config["n_components"], input, output.out)
+                    {} \
+                    {} \
+                    {} \
+                    {}""".format(
+            config["spark"], config["sparkip"], params, fa, config["n_components"], input, output.out)
         shell("{cmd}")
 
 
@@ -154,12 +158,12 @@ rule kpca_plot:
         "2-dimension_reduction/1b-factor_analysis_plot.R {config[outfolder]}"
 
 
-rule dimred_stat:
+rule dimension_reduction_stat:
     input:
-        expand("{outfolder}/{dimred}", outfolder=config["outfolder"], dimred = ["fa", "pca", "kpca"])
+        expand("{outfolder}/{dimension_reduction}", outfolder=config["outfolder"], dimension_reduction = ["fa", "pca", "kpca"])
     output:
-        expand("{outfolder}/{dimred}-sample.log", outfolder=config["outfolder"], dimred = ["fa", "pca", "kpca"]),
-        out = expand("{outfolder}/{dimred}-sample.tsv", outfolder=config["outfolder"], dimred = ["fa", "pca", "kpca"]),
+        expand("{outfolder}/{dimension_reduction}-sample.log", outfolder=config["outfolder"], dimension_reduction = ["fa", "pca", "kpca"]),
+        out = expand("{outfolder}/{dimension_reduction}-sample.tsv", outfolder=config["outfolder"], dimension_reduction = ["fa", "pca", "kpca"]),
     run:
         params = " ".join([x for x in config["sparkparams"]])
         cmd = """{} --master {} \
@@ -171,18 +175,18 @@ rule dimred_stat:
         shell("{cmd}")
 
 
-rule dimred_plot:
+rule dimension_reduction_plot:
     input:
-        expand("{outfolder}/{dimred}-sample.tsv", outfolder=config["outfolder"], dimred = ["fa", "pca", "kpca"])
+        expand("{outfolder}/{dimension_reduction}-sample.tsv", outfolder=config["outfolder"], dimension_reduction = ["fa", "pca", "kpca"])
     output:
-        expand("{outfolder}/{dimred}-sample-feature_distributions", outfolder=config["outfolder"], dimred = ["fa", "pca", "kpca"])
+        expand("{outfolder}/{dimension_reduction}-sample-feature_distributions", outfolder=config["outfolder"], dimension_reduction = ["fa", "pca", "kpca"])
     shell:
         "2-dimension_reduction/2b-plot_feature_distribution.R {input}"
 
 
 rule outliers:
     input:
-        expand("{outfolder}/{dimred}", outfolder=config["outfolder"], dimred = ["fa", "pca", "kpca"])
+        expand("{outfolder}/{dimension_reduction}", outfolder=config["outfolder"], dimension_reduction = ["fa", "pca", "kpca"])
     output:
         expand("{outfolder}/outlier-removal.log", outfolder=config["outfolder"]),
         out = expand("{outfolder}/outlier-removal", outfolder=config["outfolder"])
