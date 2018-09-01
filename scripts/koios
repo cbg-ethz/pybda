@@ -23,11 +23,9 @@
 
 import logging
 import subprocess
-
 import click
 import yaml
-
-KOIOS_SNAKE = "../koios.snake"
+import os
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -46,20 +44,22 @@ def cli():
 @click.argument("spark", type=str)
 def dimension_reduction(config, spark):
     """
-    Computes a factor analysis from a CONFIG in a SPARK session.
+    Computes a dimension reduction from a CONFIG in a SPARK session.
     """
 
     dr = "dimension_reduction"
-    conf_ = yaml.load(config)
+    with open(config, 'r') as fh:
+        conf_ = yaml.load(fh)
     if dr not in conf_.keys():
         raise ValueError("'{}' argument not found in config file".format(dr))
 
+    from koios import snake_file
     subprocess.run(
-        ["snakemake",
-         conf_[dr],
-         "-s", KOIOS_SNAKE,
-         "--configfile", config,
-         "--config", "spark=" + spark]
+      ["snakemake",
+       conf_[dr],
+       "-s", snake_file(),
+       "--configfile", config,
+       "--config", "sparkip=" + spark]
     )
 
 

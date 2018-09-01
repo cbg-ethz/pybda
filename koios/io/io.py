@@ -24,7 +24,7 @@ from pyspark.rdd import reduce
 
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING)
+logger.setLevel(logging.INFO)
 
 
 def parquet_data_path(file_name):

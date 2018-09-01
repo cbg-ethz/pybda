@@ -1,3 +1,5 @@
+build/*
+dist/*
 koios.egg-info/*
 data/fa*
 data/kmeans*

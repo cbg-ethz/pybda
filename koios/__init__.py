@@ -17,3 +17,14 @@
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
+
+
+def snake_file():
+    import os
+    return os.path.join(os.path.dirname(__file__), "koios.snake")
+
+
+def dirname():
+    import os
+    return os.path.dirname(__file__)
+

@@ -19,3 +19,14 @@
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
 
+def feature_columns(data):
+    """
+    Takes a DataFrame and returns a list of feature columns
+
+    :param data: sql.DataFrame
+    :return: list of feature columns
+    """
+
+    return list(filter(
+      lambda x: any(x.startswith(f) for f in ["cells", "perin", "nucle"]),
+      data.columns))
