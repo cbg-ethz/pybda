@@ -11,7 +11,7 @@ rule all:
 
         expand("{outfolder}/{dimension_reduction}-factors-variance_explained.png",
                outfolder = config["outfolder"],
-               dimension_reduction = ["fa", "pca", "kpca"]),
+               dimension_reduction = ["factor_analysis", "pca", "kpca"]),
         expand("{outfolder}/{dimension_reduction}-factors-biplot.png",
                outfolder = config["outfolder"], dimension_reduction = ["fa", "pca", "kpca"]),
         expand("{outfolder}/{dimension_reduction}-factors.log",
@@ -73,7 +73,7 @@ rule factor_analysis:
         expand("{infile}", infile=config["infile"])
     output:
         expand("{outfolder}/factor_analysis.log", outfolder=config["outfolder"]),
-        out = expand("{outfolder}/factor_analysis", outfolder=config["outfolder"])
+        out = directory(expand("{outfolder}/factor_analysis", outfolder=config["outfolder"]))
     run:
         params = " ".join([x for x in config["sparkparams"]])
 

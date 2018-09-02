@@ -19,11 +19,7 @@
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
 
-import logging
 from abc import ABC, abstractmethod
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING)
 
 
 class DimensionReduction(ABC):
