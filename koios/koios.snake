@@ -9,15 +9,6 @@ rule all:
                outfolder = config["outfolder"],
                dimred = ["factor_analysis", "pca", "kpca"]),
 
-        expand("{outfolder}/{dimension_reduction}-factors-variance_explained.png",
-               outfolder = config["outfolder"],
-               dimension_reduction = ["factor_analysis", "pca", "kpca"]),
-        expand("{outfolder}/{dimension_reduction}-factors-biplot.png",
-               outfolder = config["outfolder"], dimension_reduction = ["fa", "pca", "kpca"]),
-        expand("{outfolder}/{dimension_reduction}-factors.log",
-               outfolder = config["outfolder"],
-               dimension_reduction = config["dimension_reduction"]),
-
         expand("{outfolder}/{dimension_reduction}-sample.tsv",
                outfolder=config["outfolder"],
                dimension_reduction=["fa", "pca", "kpca"]),
@@ -73,10 +64,14 @@ rule factor_analysis:
         expand("{infile}", infile=config["infile"])
     output:
         expand("{outfolder}/factor_analysis.log", outfolder=config["outfolder"]),
+        expand("{outfolder}/factor_analysis-loglik.tsv", outfolder=config["outfolder"]),
+        expand("{outfolder}/factor_analysis-loadings.tsv", outfolder=config["outfolder"]),
+        expand("{outfolder}/factor_analysis-plot/factor_analysis-likelihood_path.{out}", outfolder=config["outfolder"], out=["svg", "eps", "png", "pdf"]),
+        expand("{outfolder}/factor_analysis-plot/factor_analysis-loadings-biplot.{out}", outfolder=config["outfolder"], out=["svg", "eps", "png", "pdf"]),
+        expand("{outfolder}/factor_analysis-plot/factor_analysis-loadings-explained_variance.{out}", outfolder=config["outfolder"], out=["svg", "eps", "png", "pdf"]),
         out = directory(expand("{outfolder}/factor_analysis", outfolder=config["outfolder"]))
     run:
         params = " ".join([x for x in config["sparkparams"]])
-
         fa = os.path.join(dirname(), "factor_analysis.py")
         cmd = """{} --master {} \
                     {} \
@@ -86,7 +81,6 @@ rule factor_analysis:
                     {}""".format(
             config["spark"], config["sparkip"], params, fa, config["n_components"], input, output.out)
         shell("{cmd}")
-
 
 rule pca:
     input:
@@ -122,18 +116,6 @@ rule kpca:
                     -o {}""".format(
             config["spark"], config["sparkip"], params, config["factors"], input, output.out)
         shell("{cmd}")
-
-
-rule fa_plot:
-    input:
-        expand("{outfolder}/fa", outfolder=config["outfolder"])
-    output:
-        expand("{outfolder}/fa-factors.log", outfolder=config["outfolder"]),
-        expand("{outfolder}/fa-likelihood_path.png", outfolder=config["outfolder"]),
-        expand("{outfolder}/fa-factors-variance_explained.png", outfolder=config["outfolder"]),
-        expand("{outfolder}/fa-factors-biplot.png", outfolder=config["outfolder"])
-    shell:
-        "2-dimension_reduction/1b-factor_analysis_plot.R {config[outfolder]}"
 
 
 rule pca_plot:

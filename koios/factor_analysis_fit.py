@@ -19,10 +19,13 @@
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
 import logging
+import os
+
 from pandas import DataFrame
 from koios.io.io import write_parquet_data
 
-from koios.plot.dimension_reduction_plot import biplot, plot_cumulative_variance
+from koios.plot.dimension_reduction_plot import biplot, \
+    plot_cumulative_variance, plot_likelihood_path
 from koios.util.features import feature_columns
 from koios.util.stats import cumulative_explained_variance, explained_variance
 
@@ -57,7 +60,10 @@ class FactorAnalysisFit:
         write_parquet_data(self.__data, outfolder)
         self._write_loadings(outfolder + "-loadings.tsv")
         self._write_likelihood(outfolder + "-loglik.tsv")
-        self._plot(outfolder)
+        plot_fold = os.path.join(outfolder + "-plot", "factor_analysis")
+        if not os.path.exists(plot_fold):
+            os.mkdir(plot_fold)
+        self._plot(plot_fold)
 
     def _write_loadings(self, outfile):
         logger.info("Writing loadings to data")
@@ -71,14 +77,17 @@ class FactorAnalysisFit:
 
     def _plot(self, outfile):
         logger.info("Plotting")
-        ev = explained_variance(self.__W.transpose())
         cev = cumulative_explained_variance(self.__W.transpose())
         features = feature_columns(self.__data)
         for suf in ["png", "pdf", "svg", "eps"]:
             plot_cumulative_variance(
               outfile + "-loadings-explained_variance." + suf,
               cev, "# factors")
-            biplot(outfile + "-loadings-biplot." + suf,
-                   DataFrame(self.__W, columns=features),
-                   "Factor 1",
-                   "Factor 2")
+            biplot(
+              outfile + "-loadings-biplot." + suf,
+              DataFrame(self.__W, columns=features),
+              "Factor 1",
+              "Factor 2")
+            plot_likelihood_path(
+              outfile + "-likelihood_path." + suf,
+              DataFrame({"L": self.__ll}))
