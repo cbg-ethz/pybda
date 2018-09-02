@@ -38,8 +38,6 @@ from koios.util.stats import svd, column_statistics
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-frmtr = logging.Formatter(
-  '[%(asctime)s - %(levelname)s - %(name)s]: %(message)s')
 
 
 class FactorAnalysis(DimensionReduction):
@@ -78,7 +76,7 @@ class FactorAnalysis(DimensionReduction):
         nsqrt = numpy.sqrt(n)
         logliks = []
 
-        logger.info("\tcomputing factor analysis")
+        logger.info("Computing factor analysis")
         for i in range(self.max_iter):
             sqrt_psi = numpy.sqrt(psi) + self.threshold
             s, V, unexp_var = svd(self._tilde(X, sqrt_psi, nsqrt), n_factors)
@@ -119,9 +117,7 @@ class FactorAnalysis(DimensionReduction):
     def fit(self, data, n_factors):
         logger.info("Running factor analysis ...")
         X = data.select(feature_columns(data)).rdd.map(numpy.array)
-        print("\n\n\n\n\n\nasgsdgsa\n\n\n\n\n")
         means, var = column_statistics(X)
-        print("\n\n\n\n\n\nasgsdgsa\n\n\n\n\n")
         X = RowMatrix(X.map(lambda x: x - means))
         W, ll, psi = self._estimate(X, var, n_factors)
         X = self._transform(X, W, psi)
@@ -149,8 +145,12 @@ def run(factors, file, outpath):
     if outpath.endswith("/"):
         outpath = outpath[:-1]
     hdlr = logging.FileHandler(outpath + ".log")
-    hdlr.setFormatter(frmtr)
-    logger.addHandler(hdlr)
+    hdlr.setFormatter(
+      logging.Formatter(
+        '[%(asctime)s - %(levelname)s - %(name)s]: %(message)s')
+    )
+    root_logger = logging.getLogger()
+    root_logger.addHandler(hdlr)
 
     logger.info("Initializing pyspark session")
     pyspark.StorageLevel(True, True, False, False, 1)

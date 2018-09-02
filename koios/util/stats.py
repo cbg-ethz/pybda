@@ -20,7 +20,7 @@
 
 
 import logging
-
+import numpy
 import scipy
 import pyspark
 from pyspark.mllib.stat import Statistics
@@ -53,8 +53,39 @@ def svd(data, n_components):
     :rtype: a triple of (s, V, var)
     """
 
+    logger.info("Computing SVD")
     svd = data.computeSVD(data.numCols(), computeU=False)
     s = svd.s.toArray()
     V = svd.V.toArray().T
     var = scipy.dot(s[n_components:], s[n_components:])
     return s[:n_components], V[:n_components], var
+
+
+def explained_variance(data):
+    """
+    Compute the explained variance for the columns of a numpy matrix.
+
+    :param data: a numpy matrix
+    :return: returns a numpy array with explained variances per column
+    """
+
+    n, p = data.shape
+    var = numpy.apply_along_axis(lambda x: sum(x ** 2) / p, 0, data)
+
+    return var
+
+
+def cumulative_explained_variance(data, sort=True):
+    """
+    Compute the cumulative explained variance for the columns of a
+    numpy matrix. If sorted is set to false, the variances are not sorted
+    before cumulation.
+
+    :param data: a numpy matrix
+    :param sort: boolean of the variances should be sorted decreasingly.
+     This is the default.
+    :return: returns a numpy array with cumulative variances
+    """
+
+    var = explained_variance(data)
+    return numpy.cumsum(sorted(var, reverse=sort))

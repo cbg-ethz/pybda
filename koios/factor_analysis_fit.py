@@ -21,10 +21,13 @@
 import logging
 from pandas import DataFrame
 from koios.io.io import write_parquet_data
+
+from koios.plot.dimension_reduction_plot import biplot, plot_cumulative_variance
 from koios.util.features import feature_columns
+from koios.util.stats import cumulative_explained_variance, explained_variance
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING)
+logger.setLevel(logging.INFO)
 
 
 class FactorAnalysisFit:
@@ -52,16 +55,30 @@ class FactorAnalysisFit:
 
     def write_files(self, outfolder):
         write_parquet_data(self.__data, outfolder)
-        self._write_loadings(self.__W, outfolder + "_factors.tsv",
-                             feature_columns(self.__data))
-        self._write_likelihood(self.__ll, outfolder + "_loglik.tsv")
+        self._write_loadings(outfolder + "-loadings.tsv")
+        self._write_likelihood(outfolder + "-loglik.tsv")
+        self._plot(outfolder)
 
-    @staticmethod
-    def _write_loadings(W, outfile, features):
+    def _write_loadings(self, outfile):
         logger.info("Writing loadings to data")
-        DataFrame(W, columns=features).to_csv(outfile, sep="\t", index=False)
+        features = feature_columns(self.__data)
+        DataFrame(self.__W, columns=features).to_csv(
+          outfile, sep="\t", index=False)
 
-    @staticmethod
-    def _write_likelihood(ll, outfile):
+    def _write_likelihood(self, outfile):
         logger.info("Writing likelihood profile")
-        DataFrame(data=ll).to_csv(outfile, sep="\t", index=False)
+        DataFrame(data=self.__ll).to_csv(outfile, sep="\t", index=False)
+
+    def _plot(self, outfile):
+        logger.info("Plotting")
+        ev = explained_variance(self.__W.transpose())
+        cev = cumulative_explained_variance(self.__W.transpose())
+        features = feature_columns(self.__data)
+        for suf in ["png", "pdf", "svg", "eps"]:
+            plot_cumulative_variance(
+              outfile + "-loadings-explained_variance." + suf,
+              cev, "# factors")
+            biplot(outfile + "-loadings-biplot." + suf,
+                   DataFrame(self.__W, columns=features),
+                   "Factor 1",
+                   "Factor 2")
