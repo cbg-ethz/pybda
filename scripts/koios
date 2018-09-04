@@ -63,5 +63,33 @@ def dimension_reduction(config, spark):
     )
 
 
+@cli.command()
+@click.argument("config", type=str)
+@click.argument("spark", type=str)
+@click.argument("input", type=str)
+@click.argument("output", type=str)
+@click.argument("n", type=int)
+@click.option("--split", type=bool, default=True)
+def sample(config, spark, input, output, n, split):
+    """
+    Computes a dimension reduction from a CONFIG in a SPARK session.
+    """
+
+    from koios import snake_file
+    subprocess.run(
+      ["snakemake",
+       "sample",
+       "-s", snake_file(),
+       "--configfile", config,
+       "--config",
+       "sparkip=" + spark,
+       "input=" + input,
+       "output=" + output,
+       "n=" + n,
+       "split=" + split
+       ]
+    )
+
+
 if __name__ == "__main__":
     cli()
