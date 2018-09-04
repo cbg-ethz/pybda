@@ -20,8 +20,6 @@
 
 
 import logging
-from pyspark.rdd import reduce
-
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -39,7 +37,7 @@ def parquet_data_path(file_name):
     return file_name.replace(".tsv", "_parquet")
 
 
-def write_parquet_data(data, outfolder):
+def write_parquet(data, outfolder):
     """
     Write a data frama to an outpath in parquet format.
     Overwrites existing files!
@@ -50,6 +48,19 @@ def write_parquet_data(data, outfolder):
 
     logger.info("Writing parquet: {}".format(outfolder))
     data.write.parquet(outfolder, mode="overwrite")
+
+
+def write_tsv(data, outfile):
+    """
+    Write a data frama to an outpath as tsv file.
+    Overwrites existing files!
+
+    :param data: data frame
+    :param outfile: the path where the dataframe is written to
+    """
+
+    logger.info("Writing tsv: {}".format(outfile))
+    data.write.csv(outfile, mode="overwrite")
 
 
 def read_tsv(spark, file_name, header='true'):
@@ -67,66 +78,16 @@ def read_tsv(spark, file_name, header='true'):
     return spark.read.csv(path=file_name, sep="\t", header=header)
 
 
-def get_frame_from_tsv(file_name, spark):
+def read_parquet(spark, folder_name):
     """
-    Reads a data frame from a tsv file.
+    Reads a data frame from a parquet folder.
 
-    :param file_name: the tsv file name as string
     :param spark: a running sparksession
     :type spark: pyspark.sql.SparkSession
-    :return: returns a dataframe
+    :param folder_name: the parquet folder to read
+    :return: returns a data frame
     """
 
-    logger.info("Reading: {}".format(file_name))
-    return read_tsv(spark, file_name)
+    logger.info("Reading parquet folder: {}".format(folder_name))
+    return spark.read.parquet(folder_name)
 
-
-def fill_na(data, what=0):
-    """
-    Fill NA elements of a data frame with a value.
-
-    :param data: a data frame
-    :param what: the value with what the NAs are filled
-    :return: returns the data frame with filled values
-    """
-
-    return data.fillna(what)
-
-
-def to_double(data, columns):
-    """
-    Convert columns to double.
-
-    :param data: a data frame
-    :param columns: the column names of which the data should be converted.
-    :type columns: list(str)
-    :return: returns the data frame with newly cast colunms
-    """
-
-    feature_columns = columns
-    for x in feature_columns:
-        data = data.withColumn(x, data[x].cast("double"))
-
-    return data
-
-
-def replace_column_names(data, fro=".", to="_"):
-    """
-    Rename single characters columns of a data frame. After renaming the columns
-    returns the data frame as well as the vector of new column names.
-
-    :param data: the data frame of which you want to rename the columns
-    :param fro: sequence which you want to replace in the column name
-    :param to: sequence to which the columns are renamed
-    :return: returns a tuple consisting of a data frame with new column names as
-      well as the vector of new column names
-    """
-
-    old_cols = data.columns
-    new_cols = list(map(lambda x: x.replace(fro, to), old_cols))
-
-    data = reduce(
-      lambda d, idx: d.withColumnRenamed(old_cols[idx], new_cols[idx]),
-      range(len(new_cols)), data)
-
-    return data, new_cols

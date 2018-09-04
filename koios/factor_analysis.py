@@ -31,8 +31,8 @@ from pyspark.sql.functions import udf
 
 from koios.dimension_reduction import DimensionReduction
 from koios.factor_analysis_fit import FactorAnalysisFit
-from koios.io.io import to_double, fill_na, read_tsv
-from koios.util.features import feature_columns
+from koios.io.io import read_tsv
+from koios.util.features import feature_columns, to_double, fill_na
 from koios.util.stats import svd, column_statistics
 
 

@@ -22,7 +22,7 @@ import logging
 import os
 
 from pandas import DataFrame
-from koios.io.io import write_parquet_data
+from koios.io.io import write_parquet
 
 from koios.plot.dimension_reduction_plot import biplot, \
     plot_cumulative_variance, plot_likelihood_path
@@ -57,7 +57,7 @@ class FactorAnalysisFit:
         return self.__ll
 
     def write_files(self, outfolder):
-        write_parquet_data(self.__data, outfolder)
+        write_parquet(self.__data, outfolder)
         self._write_loadings(outfolder + "-loadings.tsv")
         self._write_likelihood(outfolder + "-loglik.tsv")
         plot_fold = os.path.join(outfolder + "-plot", "factor_analysis")
