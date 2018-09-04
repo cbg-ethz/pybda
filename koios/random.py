@@ -23,8 +23,8 @@ import logging
 
 import click
 import pyspark
-from koios.util.features import split_features
 
+from koios.util.features import split_vector
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -41,7 +41,7 @@ def sample(data, n):
 @click.argument("input", type=str)
 @click.argument("output", type=str)
 @click.argument("n", type=int)
-@click.option("--split", type=bool )
+@click.argument("split", type=bool)
 def run(input, output, n, split):
 
     if output.endswith("/"):
@@ -82,7 +82,7 @@ def run(input, output, n, split):
 
     subsamp = sample(spark, reader(spark, input), n)
     if output.endswith(".tsv") and split:
-        subsamp = split_features(subsamp)
+        subsamp = split_vector(subsamp)
     writer(subsamp, output)
 
     logger.info("Stopping Spark context")
