@@ -20,9 +20,9 @@
 
 
 import logging
-
 import click
 
+from koios.logger import set_logger
 from koios.spark_session import SparkSession
 from koios.util.features import split_vector
 
@@ -50,15 +50,7 @@ def run(input, output, n, split):
     from koios.io.io import read_tsv, read_parquet, write_parquet, write_tsv
 
     output = drop_suffix(output, "/")
-    logfile = as_logfile(output)
-
-    hdlr = logging.FileHandler(logfile)
-    hdlr.setFormatter(
-      logging.Formatter(
-        '[%(asctime)s - %(levelname)s - %(name)s]: %(message)s')
-    )
-    root_logger = logging.getLogger()
-    root_logger.addHandler(hdlr)
+    set_logger(as_logfile(output))
 
     if input.endswith(".tsv") and pathlib.Path(input).is_file():
         logger.info("Found suffix 'tsv', expecting tsv file as input")
