@@ -119,27 +119,6 @@ rule kpca:
         shell("{cmd}")
 
 
-rule pca_plot:
-    input:
-        expand("{outfolder}/pca", outfolder=config["outfolder"])
-    output:
-        expand("{outfolder}/pca-factors.log", outfolder=config["outfolder"]),
-        expand("{outfolder}/pca-factors-variance_explained.png", outfolder=config["outfolder"]),
-        expand("{outfolder}/pca-factors-biplot.png", outfolder=config["outfolder"])
-    shell:
-        "2-dimension_reduction/1b-factor_analysis_plot.R {config[outfolder]}"
-
-
-rule kpca_plot:
-    input:
-        expand("{outfolder}/kpca", outfolder=config["outfolder"])
-    output:
-        expand("{outfolder}/kpca-factors.log", outfolder=config["outfolder"]),
-        expand("{outfolder}/kpca-factors-variance_explained.png", outfolder=config["outfolder"]),
-        expand("{outfolder}/kpca-factors-biplot.png", outfolder=config["outfolder"])
-    shell:
-        "2-dimension_reduction/1b-factor_analysis_plot.R {config[outfolder]}"
-
 
 rule dimension_reduction_stat:
     input:
