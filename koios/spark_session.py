@@ -26,11 +26,19 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-def session():
-    logger.info("Initializing pyspark session")
-    pyspark.StorageLevel(True, True, False, False, 1)
-    spark = pyspark.sql.SparkSession.builder.getOrCreate()
-    for conf in spark.sparkContext.getConf().getAll():
-        logger.info("Config: {}, value: {}".format(conf[0], conf[1]))
+class SparkSession:
+    def __init__(self):
+        pyspark.StorageLevel(True, True, False, False, 1)
 
-    return spark
+    def __enter__(self):
+        logger.info("Initializing pyspark session")
+        spark = pyspark.sql.SparkSession.builder.getOrCreate()
+        for conf in spark.sparkContext.getConf().getAll():
+            logger.info("Config: {}, value: {}".format(conf[0], conf[1]))
+
+        self.__session = spark
+        return self.__session
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        logger.info("Stopping Spark context")
+        self.__session.stop()
