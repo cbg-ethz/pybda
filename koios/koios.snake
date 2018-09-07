@@ -119,6 +119,21 @@ rule kpca:
         shell("{cmd}")
 
 
+rule sample:
+    run:
+        params = " ".join([x for x in config["sparkparams"]])
+        sam = os.path.join(dirname(), "sampler.py")
+        cmd = """{} --master {} \
+                 {} \
+                 {} \
+                 {} \
+                 {} \
+                 {} \
+                 {}""".format(
+           config["spark"], config["sparkip"], params, sam,
+           config["input"], config["output"], config["n"], config["split"])
+        shell("{cmd}")
+
 
 rule dimension_reduction_stat:
     input:

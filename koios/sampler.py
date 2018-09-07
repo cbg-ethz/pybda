@@ -22,7 +22,6 @@
 import logging
 
 import click
-import pyspark
 
 from koios.util.features import split_vector
 
@@ -44,12 +43,13 @@ def sample(data, n):
 @click.argument("split", type=bool)
 def run(input, output, n, split):
 
-    if output.endswith("/"):
-        output = output[:-1]
-    if output.endswith(".tsv"):
-        logfile = output.replace(".tsv", ".log")
-    else:
-        logfile = output + ".log"
+    from koios.util.string import drop_suffix
+    from koios.io.io import as_logfile
+    import pathlib
+    from koios.io.io import read_tsv, read_parquet, write_parquet, write_tsv
+
+    output = drop_suffix(output, "/")
+    logfile = as_logfile(output)
 
     hdlr = logging.FileHandler(logfile)
     hdlr.setFormatter(
@@ -59,31 +59,32 @@ def run(input, output, n, split):
     root_logger = logging.getLogger()
     root_logger.addHandler(hdlr)
 
-    logger.info("Initializing pyspark session")
-    pyspark.StorageLevel(True, True, False, False, 1)
-    spark = pyspark.sql.SparkSession.builder.getOrCreate()
-    for conf in spark.sparkContext.getConf().getAll():
-        logger.info("Config: {}, value: {}".format(conf[0], conf[1]))
 
-    import pathlib
-    from koios.io.io import read_tsv, read_parquet, write_parquet, write_tsv
+
     if input.endswith(".tsv") and pathlib.Path(input).is_file():
         logger.info("Found suffix 'tsv', expecting tsv file as input")
         reader = read_tsv
-    elif pathlib.Path(input).is_folder():
+    elif pathlib.Path(input).is_dir():
         logger.info("Found folder, expecting parquet file as input")
-        reader = read_parquet,
+        reader = read_parquet
     if output.endswith(".tsv"):
-        logger.info("Found suffix 'tsv', writing tsv file as output")
+        logger.info("Found suffix 'tsv', writing RDDs as tsvs")
+        output = output.replace(".tsv", "")
+        if not split:
+            split = True
+            logger.info("Setting split=true since 'tsv' output detected.")
         writer = write_tsv
     else:
-        logger.info("Writing parquet as output")
+        logger.info("Found no suffix, writing RDD as parquet!")
         writer = write_parquet
 
-    subsamp = sample(spark, reader(spark, input), n)
-    if output.endswith(".tsv") and split:
-        subsamp = split_vector(subsamp)
-    writer(subsamp, output)
+    try:
+        subsamp = sample(reader(spark, input), n)
+        if split:
+            subsamp = split_vector(subsamp, "features")
+        writer(subsamp, output)
+    except Exception as e:
+        logger.error("Some error: {}".format(str(e)))
 
     logger.info("Stopping Spark context")
     spark.stop()
