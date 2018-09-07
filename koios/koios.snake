@@ -82,6 +82,7 @@ rule factor_analysis:
             config["spark"], config["sparkip"], params, fa, config["n_components"], input, output.out)
         shell("{cmd}")
 
+
 rule pca:
     input:
         expand("{infile}", infile=config["infile"])
