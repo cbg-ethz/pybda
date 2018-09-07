@@ -21,5 +21,5 @@
 
 def drop_suffix(string, suffix):
     if string.endswith(suffix):
-        ret = string.rstrip(suffix)
-    return ret
+        string = string.rstrip(suffix)
+    return string
