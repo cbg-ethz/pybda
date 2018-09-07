@@ -23,6 +23,7 @@ import logging
 
 import click
 
+from koios.spark_session import SparkSession
 from koios.util.features import split_vector
 
 logger = logging.getLogger(__name__)
@@ -59,8 +60,6 @@ def run(input, output, n, split):
     root_logger = logging.getLogger()
     root_logger.addHandler(hdlr)
 
-
-
     if input.endswith(".tsv") and pathlib.Path(input).is_file():
         logger.info("Found suffix 'tsv', expecting tsv file as input")
         reader = read_tsv
@@ -78,16 +77,14 @@ def run(input, output, n, split):
         logger.info("Found no suffix, writing RDD as parquet!")
         writer = write_parquet
 
-    try:
-        subsamp = sample(reader(spark, input), n)
-        if split:
-            subsamp = split_vector(subsamp, "features")
-        writer(subsamp, output)
-    except Exception as e:
-        logger.error("Some error: {}".format(str(e)))
-
-    logger.info("Stopping Spark context")
-    spark.stop()
+    with SparkSession() as spark:
+        try:
+            subsamp = sample(reader(spark, input), n)
+            if split:
+                subsamp = split_vector(subsamp, "features")
+            writer(subsamp, output)
+        except Exception as e:
+            logger.error("Some error: {}".format(str(e)))
 
 
 if __name__ == "__main__":
