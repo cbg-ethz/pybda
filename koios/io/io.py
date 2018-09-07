@@ -60,7 +60,7 @@ def write_tsv(data, outfile):
     """
 
     logger.info("Writing tsv: {}".format(outfile))
-    data.write.csv(outfile, mode="overwrite")
+    data.write.csv(outfile, mode="overwrite", sep="\t", header=True)
 
 
 def read_tsv(spark, file_name, header='true'):
@@ -74,7 +74,7 @@ def read_tsv(spark, file_name, header='true'):
     :return: returns a data frame
     """
 
-    logger.info("Reading  tsv: {}".format(file_name))
+    logger.info("Reading tsv: {}".format(file_name))
     return spark.read.csv(path=file_name, sep="\t", header=header)
 
 
@@ -91,3 +91,10 @@ def read_parquet(spark, folder_name):
     logger.info("Reading parquet folder: {}".format(folder_name))
     return spark.read.parquet(folder_name)
 
+
+def as_logfile(fl):
+    if fl.endswith(".tsv"):
+        logfile = fl.replace(".tsv", ".log")
+    else:
+        logfile = fl + ".log"
+    return logfile

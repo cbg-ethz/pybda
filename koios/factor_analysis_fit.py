@@ -18,6 +18,7 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
+
 import logging
 import os
 
@@ -27,7 +28,8 @@ from koios.io.io import write_parquet
 from koios.plot.dimension_reduction_plot import biplot, \
     plot_cumulative_variance, plot_likelihood_path
 from koios.util.features import feature_columns
-from koios.util.stats import cumulative_explained_variance, explained_variance
+from koios.util.stats import cumulative_explained_variance
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

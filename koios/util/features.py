@@ -112,8 +112,13 @@ def split_vector(data, col_name):
     """
 
     cols = data.columns
-    cols.remove(col_name)
+    if col_name not in cols:
+        logger.info("Vector columns '{}' not found. Returning".format(col_name))
+        return data
 
+    logger.info("Splitting vector columns: {}".format(col_name))
+
+    cols.remove(col_name)
     len_vec = len(data.select(col_name).take(1)[0][0])
     data = (
         data.withColumn("f", _as_array(col(col_name)))
