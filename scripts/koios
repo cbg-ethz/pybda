@@ -72,7 +72,7 @@ def dimension_reduction(config, spark):
 @click.option("--split", type=bool, default=True)
 def sample(config, spark, input, output, n, split):
     """
-    Computes a dimension reduction from a CONFIG in a SPARK session.
+    Take a sample from a data set.
     """
 
     from koios import snake_file
@@ -85,8 +85,8 @@ def sample(config, spark, input, output, n, split):
        "sparkip=" + spark,
        "input=" + input,
        "output=" + output,
-       "n=" + n,
-       "split=" + split
+       "n=" + str(n),
+       "split=" + str(split)
        ]
     )
 
