@@ -22,9 +22,6 @@
 import logging
 import click
 
-from koios.logger import set_logger
-from koios.spark_session import SparkSession
-from koios.util.features import split_vector
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -43,10 +40,12 @@ def sample(data, n):
 @click.argument("n", type=int)
 @click.argument("split", type=bool)
 def run(input, output, n, split):
-
+    import pathlib
+    from koios.logger import set_logger
+    from koios.spark_session import SparkSession
+    from koios.util.features import split_vector
     from koios.util.string import drop_suffix
     from koios.io.io import as_logfile
-    import pathlib
     from koios.io.io import read_tsv, read_parquet, write_parquet, write_tsv
 
     output = drop_suffix(output, "/")

@@ -22,7 +22,6 @@
 import logging
 import click
 import numpy
-import pyspark
 
 import pyspark.sql.functions as func
 from pyspark.ml.linalg import VectorUDT
@@ -31,9 +30,9 @@ from pyspark.sql.functions import udf
 
 from koios.dimension_reduction import DimensionReduction
 from koios.factor_analysis_fit import FactorAnalysisFit
-from koios.io.io import read_tsv
-from koios.util.features import feature_columns, to_double, fill_na
-from koios.util.stats import svd, column_statistics
+from koios.util.features import feature_columns, to_double, fill_na, \
+    split_vector
+from koios.util.stats import column_statistics
 
 
 logger = logging.getLogger(__name__)
@@ -142,31 +141,37 @@ class FactorAnalysis(DimensionReduction):
 @click.argument("file", type=str)
 @click.argument("outpath", type=str)
 def run(factors, file, outpath):
-    if outpath.endswith("/"):
-        outpath = outpath[:-1]
-    hdlr = logging.FileHandler(outpath + ".log")
-    hdlr.setFormatter(
-      logging.Formatter(
-        '[%(asctime)s - %(levelname)s - %(name)s]: %(message)s')
-    )
-    root_logger = logging.getLogger()
-    root_logger.addHandler(hdlr)
+    from koios.sampler import sample
+    from koios.util.functions import as_pandas
+    from koios.util.string import drop_suffix
+    from koios.logger import set_logger
+    from koios.plot.descriptive import scatter, histogram
+    from koios.spark_session import SparkSession
+    from koios.io.io import read_tsv, as_logfile
 
-    logger.info("Initializing pyspark session")
-    pyspark.StorageLevel(True, True, False, False, 1)
-    spark = pyspark.sql.SparkSession.builder.getOrCreate()
-    for conf in spark.sparkContext.getConf().getAll():
-        logger.info("Config: {}, value: {}".format(conf[0], conf[1]))
+    outpath = drop_suffix(outpath, "/")
+    set_logger(as_logfile(outpath))
 
-    try:
-        data = read_tsv(spark, file)
-        data = to_double(data, feature_columns(data))
-        data = fill_na(data)
-        fl = FactorAnalysis(spark, max_iter=25)
-        fit = fl.fit(data, factors)
-        fit.write_files(outpath)
-    except Exception as e:
-        logger.error("Some error: {}".format(str(e)))
+    with SparkSession() as spark:
+        try:
+            data = read_tsv(spark, file)
+            data = to_double(data, feature_columns(data))
+            data = fill_na(data)
+
+            fl = FactorAnalysis(spark, max_iter=25)
+            fit = fl.fit(data, factors)
+            fit.write_files(outpath)
+
+            subsamp = as_pandas(
+              split_vector(
+                sample(fit.data, 10000), "features"))
+            for i in map(lambda x: "f_" + str(x), range(10)):
+                # TODO
+                scatter(subsamp)
+                histogram(subsamp)
+
+        except Exception as e:
+            logger.error("Some error: {}".format(str(e)))
 
     logger.info("Stopping pyspark context")
     spark.stop()
