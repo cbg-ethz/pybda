@@ -69,6 +69,8 @@ rule factor_analysis:
         expand("{outfolder}/factor_analysis-plot/factor_analysis-likelihood_path.{out}", outfolder=config["outfolder"], out=["svg", "eps", "png", "pdf"]),
         expand("{outfolder}/factor_analysis-plot/factor_analysis-loadings-biplot.{out}", outfolder=config["outfolder"], out=["svg", "eps", "png", "pdf"]),
         expand("{outfolder}/factor_analysis-plot/factor_analysis-loadings-explained_variance.{out}", outfolder=config["outfolder"], out=["svg", "eps", "png", "pdf"]),
+        expand("{outfolder}/factor_analysis-plot/factor_analysis-scatter_plot.{out}", outfolder=config["outfolder"], out=["svg", "eps", "png", "pdf"]),
+        expand("{outfolder}/factor_analysis-plot/factor_analysis-histogram_f_0.{out}", outfolder=config["outfolder"], out=["svg", "eps", "png", "pdf"]),
         out = directory(expand("{outfolder}/factor_analysis", outfolder=config["outfolder"]))
     run:
         params = " ".join([x for x in config["sparkparams"]])

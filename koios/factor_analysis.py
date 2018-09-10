@@ -31,7 +31,9 @@ from pyspark.sql.functions import udf
 from koios.dimension_reduction import DimensionReduction
 from koios.factor_analysis_fit import FactorAnalysisFit
 from koios.util.features import feature_columns, to_double, fill_na
-from koios.util.stats import column_statistics, svd
+from koios.util.functions import as_rdd_of_array
+from koios.util.stats import column_statistics, svd, center
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -113,9 +115,9 @@ class FactorAnalysis(DimensionReduction):
 
     def fit(self, data, n_factors):
         logger.info("Running factor analysis ...")
-        X = data.select(feature_columns(data)).rdd.map(numpy.array)
+        X = as_rdd_of_array(data.select(feature_columns(data)))
         means, var = column_statistics(X)
-        X = RowMatrix(X.map(lambda x: x - means))
+        X = RowMatrix(center(X, means=means))
         W, ll, psi = self._estimate(X, var, n_factors)
         X = self._transform(X, W, psi)
 
@@ -156,7 +158,6 @@ def run(factors, file, outpath):
             fl = FactorAnalysis(spark, max_iter=25)
             fit = fl.fit(data, factors)
             fit.write_files(outpath)
-
         except Exception as e:
             logger.error("Some error: {}".format(str(e)))
 
