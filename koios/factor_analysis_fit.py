@@ -24,10 +24,13 @@ import os
 
 from pandas import DataFrame
 from koios.io.io import write_parquet
+from koios.plot.descriptive import scatter, histogram
 
 from koios.plot.dimension_reduction_plot import biplot, \
     plot_cumulative_variance, plot_likelihood_path
-from koios.util.features import feature_columns
+from koios.sampler import sample
+from koios.util.features import feature_columns, split_vector
+from koios.util.functions import as_pandas
 from koios.util.stats import cumulative_explained_variance
 
 
@@ -62,10 +65,10 @@ class FactorAnalysisFit:
         write_parquet(self.__data, outfolder)
         self._write_loadings(outfolder + "-loadings.tsv")
         self._write_likelihood(outfolder + "-loglik.tsv")
-        plot_fold = os.path.join(outfolder + "-plot", "factor_analysis")
+        plot_fold = outfolder + "-plot"
         if not os.path.exists(plot_fold):
             os.mkdir(plot_fold)
-        self._plot(plot_fold)
+        self._plot(os.path.join(plot_fold, "factor_analysis"))
 
     def _write_loadings(self, outfile):
         logger.info("Writing loadings to data")
@@ -81,6 +84,8 @@ class FactorAnalysisFit:
         logger.info("Plotting")
         cev = cumulative_explained_variance(self.__W.transpose())
         features = feature_columns(self.__data)
+        subsamp = as_pandas(
+          split_vector(sample(self.__data, 10000), "features"))
         for suf in ["png", "pdf", "svg", "eps"]:
             plot_cumulative_variance(
               outfile + "-loadings-explained_variance." + suf,
@@ -93,3 +98,11 @@ class FactorAnalysisFit:
             plot_likelihood_path(
               outfile + "-likelihood_path." + suf,
               DataFrame({"L": self.__ll}))
+            scatter(
+              outfile + "-scatter_plot." + suf,
+              subsamp["f_0"].values, subsamp["f_1"].values,
+              "Factor 1", "Factor 2")
+            for i in map(lambda x: "f_" + str(x), range(10)):
+                histogram(
+                  outfile + "-histogram_{}.".format(i) + suf,
+                  subsamp[i].values, i)
