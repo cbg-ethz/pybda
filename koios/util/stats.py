@@ -20,10 +20,13 @@
 
 
 import logging
+
 import numpy
 import scipy
+from scipy import stats
 import pyspark
 from pyspark.mllib.stat import Statistics
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -89,3 +92,27 @@ def cumulative_explained_variance(data, sort=True):
 
     var = explained_variance(data)
     return numpy.cumsum(sorted(var, reverse=sort))
+
+
+def center(data: pyspark.rdd.RDD, means=None):
+    logger.info("Centering data")
+    if means is None:
+        means, _ = column_statistics(data)
+    data = data.map(lambda x: x - means)
+    return data
+
+
+def precision(data: pyspark.rdd.RDD):
+    logger.info("\tcomputing precision")
+    return numpy.linalg.inv(data.computeCovariance().toArray())
+
+
+def chisquare(data, pval):
+    thresh = 1 - pval
+    n, _ = data.shape
+
+    logger.info(
+      "Computing chi-square ppf with {} degrees of freedom and {}"
+      " percentile".format(n, 100 * thresh))
+
+    return stats.chi2.ppf(q=thresh, df=n)

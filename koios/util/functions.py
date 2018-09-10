@@ -20,6 +20,7 @@
 
 
 import logging
+import numpy
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -36,3 +37,5 @@ def as_pandas(data):
     return data.toPandas()
 
 
+def as_rdd_of_array(data):
+    return data.rdd.map(numpy.array)
