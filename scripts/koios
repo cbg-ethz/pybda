@@ -65,13 +65,34 @@ def dimension_reduction(config, spark):
 @cli.command()
 @click.argument("config", type=str)
 @click.argument("spark", type=str)
+def outliers(config, spark):
+    """
+    Removes outliers using a Chi-Squared distribution
+    from a CONFIG in a SPARK session.
+    """
+
+    from koios import snake_file
+    subprocess.run(
+      ["snakemake",
+       "outliers",
+       "-s", snake_file(),
+       "--configfile", config,
+       "--config", "sparkip=" + spark]
+    )
+
+
+@cli.command()
+@click.argument("config", type=str)
+@click.argument("spark", type=str)
 @click.argument("input", type=str)
 @click.argument("output", type=str)
 @click.argument("n", type=int)
 @click.option("--split", type=bool, default=True)
 def sample(config, spark, input, output, n, split):
     """
-    Take a sample from a data set.
+    Take a sample from a data set from a CONFIG in a SPARK session. In addition
+    an INPUT and OUTPUT as well as the number of samples N and if features
+    should be SPLIT must be provided.
     """
 
     from koios import snake_file

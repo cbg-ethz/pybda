@@ -10,7 +10,7 @@ from pyspark.sql.functions import udf, col
 from pyspark.sql.types import DoubleType
 
 from koios.util.functions import as_rdd_of_array
-from koios.util.stats import column_statistics, center, precision, chisquare
+from koios.util.stats import center, precision, chisquare
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
