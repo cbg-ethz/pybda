@@ -1,4 +1,23 @@
-#!/usr/bin/env python3
+# Copyright (C) 2018 Simon Dirmeier
+#
+# This file is part of koios.
+#
+# koios is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# koios is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with koios. If not, see <http://www.gnu.org/licenses/>.
+#
+# @author = 'Simon Dirmeier'
+# @email = 'simon.dirmeier@bsse.ethz.ch'
+
 
 import argparse
 import logging
@@ -13,7 +32,7 @@ import scipy.stats
 import matplotlib
 
 matplotlib.use('Agg')
-import matplotlib.pyplot as plt
+
 
 from pyspark.ml.clustering import KMeansModel, KMeans
 from pyspark.ml.feature import VectorAssembler
@@ -23,15 +42,8 @@ from pyspark.sql.types import ArrayType, DoubleType, StringType
 from pyspark.mllib.linalg.distributed import RowMatrix, DenseMatrix
 from pyspark.mllib.stat import Statistics
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-frmtr = logging.Formatter(
-  '[%(levelname)-1s/%(processName)-1s/%(name)-1s]: %(message)s')
 
-spark = None
-
-
-class ExplainedVariance():
+class ExplainedVariance:
     def __init__(self, left_boundary, current, right_boundary, K,
                  K_explained_variance, curr_explained_variance,
                  K_sse, curr_sse, max_sse,
@@ -62,6 +74,9 @@ class ExplainedVariance():
           self.__max_sse, self.__K_sse, self.__curr_sse,
           self.__percent_explained_variance)
 
+
+
+class KMeans(Clustering):
 
 def read_args(args):
     parser = argparse.ArgumentParser(description='Cluster an RNAi dataset.')
