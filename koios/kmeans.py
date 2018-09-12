@@ -25,6 +25,8 @@ import pathlib
 import re
 import sys
 import glob
+
+import click
 import pyspark
 import pandas
 import scipy
@@ -35,7 +37,6 @@ from koios.clustering import Clustering
 
 matplotlib.use('Agg')
 
-
 from pyspark.ml.clustering import KMeansModel, KMeans
 from pyspark.ml.feature import VectorAssembler
 from pyspark.rdd import reduce
@@ -43,6 +44,10 @@ from pyspark.sql.functions import udf, col, struct
 from pyspark.sql.types import ArrayType, DoubleType, StringType
 from pyspark.mllib.linalg.distributed import RowMatrix, DenseMatrix
 from pyspark.mllib.stat import Statistics
+
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class ExplainedVariance:
@@ -77,30 +82,7 @@ class ExplainedVariance:
           self.__percent_explained_variance)
 
 
-
 class KMeans(Clustering):
-
-def read_args(args):
-    parser = argparse.ArgumentParser(description='Cluster an RNAi dataset.')
-    parser.add_argument('-o',
-                        type=str,
-                        help='the output folder the results are written to',
-                        required=True,
-                        metavar="output-folder")
-    parser.add_argument('-f',
-                        type=str,
-                        help="the file or folder you want to cluster, This should be a parquet folder"
-                             " like 'fa' or 'outlier-removal'",
-                        required=True,
-                        metavar="input")
-    parser.add_argument('-k',
-                        type=int,
-                        help='maximum numbers of clusters',
-                        required=True,
-                        metavar="cluster-count")
-    opts = parser.parse_args(args)
-
-    return opts.f, opts.o, opts.k, opts
 
 
 def k_fit_path(outpath, k):
@@ -259,7 +241,7 @@ def load_precomputed_models(lrt_file, K, outpath):
             sse, expl = tab["SSE"][0], tab["ExplainedVariance"][0]
             k, p = tab["K"][0], tab["P"][0]
             logger.info("\tusing k={}, p={}, sse={}, expl={} from {}"
-                        .format(k, p, sse,expl, f))
+                        .format(k, p, sse, expl, f))
             mod[k] = {"sse": sse, "expl": expl}
     else:
         logger.info("Starting from scratch...")
@@ -277,7 +259,8 @@ def estimate_model(total_sse, mods, k, n, p, data, outpath):
     return model
 
 
-def recursive_clustering(file_name, K, outpath, lrt_file, threshold=.01, maxit=10):
+def recursive_clustering(file_name, K, outpath, lrt_file, threshold=.01,
+                         maxit=10):
     data = get_frame(file_name)
     logger.info("Recursively clustering with a maximal K: {}".format(K))
 
@@ -294,10 +277,10 @@ def recursive_clustering(file_name, K, outpath, lrt_file, threshold=.01, maxit=1
     lrts = []
     K_mod = estimate_model(total_sse, mods, right, n, p, data, outpath)
     lrts.append(
-          ExplainedVariance(
-            left, K, K, K,
-            K_mod['expl'], K_mod['expl'], K_mod["sse"], K_mod['sse'],
-            total_sse, improved_variance))
+      ExplainedVariance(
+        left, K, K, K,
+        K_mod['expl'], K_mod['expl'], K_mod["sse"], K_mod['sse'],
+        total_sse, improved_variance))
     itr = 0
 
     while True:
@@ -348,34 +331,30 @@ def loggername(outpath):
     return outpath + ".log"
 
 
-def run():
-    # check files
-    file_name, outpath, k, opts = read_args(sys.argv[1:])
+@click.command()
+@click.argument("infolder", type=str)
+@click.argument("outfolder", type=str)
+@click.argument("clusters", type=int)
+@click.option(
+  '--recursive',
+  is_flag=True,
+  help="Boolean flag if clustering should be done recursively to find the best K.")
+def run(infolder, outfolder, clusters, recursive):
+    from koios.util.string import drop_suffix
+    from koios.logger import set_logger
+    from koios.spark_session import SparkSession
+    from koios.io.io import read_parquet, as_logfile
 
-    # logging format
-    hdlr = logging.FileHandler(loggername(outpath))
-    hdlr.setFormatter(frmtr)
-    logger.addHandler(hdlr)
+    outfolder = drop_suffix(outfolder, "/")
+    set_logger(as_logfile(outfolder))
 
-    if not pathlib.Path(file_name).exists():
-        logger.error("Please provide a file: " + file_name)
-        return
-
-    logger.info("Starting Spark context")
-
-    # spark settings
-    pyspark.StorageLevel(True, True, False, False, 1)
-    conf = pyspark.SparkConf()
-    sc = pyspark.SparkContext(conf=conf)
-    global spark
-    spark = pyspark.sql.SparkSession(sc)
-
-    # run analysis
-    fit_cluster(file_name, opts.k, outpath)
-
-    logger.info("Stopping Spark context")
-    spark.stop()
-
+    with SparkSession() as spark:
+        try:
+            km = KMeans(spark, clusters, recursive)
+            fit = km.fit(read_parquet(spark, infolder))
+            fit.write_files(outfolder)
+        except Exception as e:
+            logger.error("Some error: {}".format(str(e)))
 
 if __name__ == "__main__":
     run()
