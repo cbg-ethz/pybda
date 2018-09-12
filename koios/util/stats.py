@@ -103,7 +103,7 @@ def center(data: pyspark.rdd.RDD, means=None):
 
 
 def precision(data: pyspark.rdd.RDD):
-    logger.info("\tcomputing precision")
+    logger.info("Computing precision")
     return numpy.linalg.inv(data.computeCovariance().toArray())
 
 

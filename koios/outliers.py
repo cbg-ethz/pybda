@@ -22,21 +22,28 @@ class Outliers:
         self.__pvalue = pvalue
 
     @staticmethod
-    def _mahalanobis(col):
+    def _mahalanobis(column, prec):
         def maha_(v):
             arr = v.toArray()
-            arr = scipy.sqrt(arr.dot(precision).dot(arr))
+            arr = scipy.sqrt(arr.dot(prec).dot(arr))
             return float(arr)
 
-        return udf(maha_, DoubleType())(col)
+        return udf(maha_, DoubleType())(column)
+
+    @staticmethod
+    def _precision(data):
+        logger.info("Computing precision")
+        X = as_rdd_of_array(data.select("features"))
+        X = RowMatrix(center(X))
+        pres = precision(X)
+        return pres
 
     def remove_outliers(self, data):
         logger.info("Removing outliers..")
-        data = as_rdd_of_array(data.select("features"))
-        data = RowMatrix(center(data))
-        pres = precision(data)
+        pres = self._precision(data)
 
-        data = data.withColumn("maha", self._mahalanobis(col("features")))
+        data = data.withColumn("maha", self._mahalanobis(col("features"), pres))
+
         quant = chisquare(pres, self.__pvalue)
         n = data.count()
         data = data.filter(data.maha < quant)

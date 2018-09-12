@@ -146,12 +146,14 @@ rule outliers:
     run:
         params = " ".join([x for x in config["sparkparams"]])
         outr = os.path.join(dirname(), "outliers.py")
+        pval = config["pval"] or 0.05
         cmd = """{} --master {} \
                     {} \
                     {} \
                     {} \
+                    {} \
                     {}""".format(
-            config["spark"], config["sparkip"], params, outr, input, output.out)
+            config["spark"], config["sparkip"], params, outr, input, output.out, pval)
         shell("{cmd}")
 
 
