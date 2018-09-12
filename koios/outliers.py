@@ -9,6 +9,7 @@ from pyspark.mllib.linalg.distributed import RowMatrix
 from pyspark.sql.functions import udf, col
 from pyspark.sql.types import DoubleType
 
+from koios.method import Method
 from koios.util.functions import as_rdd_of_array
 from koios.util.stats import center, precision, chisquare
 
@@ -16,9 +17,9 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class Outliers:
+class Outliers(Method):
     def __init__(self, spark, pvalue):
-        self.__spark = spark
+        super.__init__(spark)
         self.__pvalue = pvalue
 
     @staticmethod
@@ -38,7 +39,7 @@ class Outliers:
         pres = precision(X)
         return pres
 
-    def remove_outliers(self, data):
+    def fit_transform(self, data):
         logger.info("Removing outliers..")
         pres = self._precision(data)
 
@@ -69,7 +70,7 @@ def run(inpath, outpath, pval):
     with SparkSession() as spark:
         try:
             outi = Outliers(spark, pval)
-            data = outi.remove_outliers(read_parquet(spark, inpath))
+            data = outi.fit_transform(read_parquet(spark, inpath))
             write_parquet(data, outpath)
         except Exception as e:
             logger.error("Some error: {}".format(str(e)))

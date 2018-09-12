@@ -30,6 +30,10 @@ class Method(ABC):
     def fit(self):
         pass
 
+    @abstractmethod
+    def fit_transform(self):
+        pass
+
     @property
     def spark(self):
         return self.__spark

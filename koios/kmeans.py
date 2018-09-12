@@ -83,252 +83,177 @@ class ExplainedVariance:
 
 
 class KMeans(Clustering):
+    def __init__(self, spark, clusters, recursive, threshold=.01, max_iter=25):
+        super.__init__(spark, clusters, recursive, threshold, max_iter)
 
+    def fit(self, data):
+        if self.do_recursive:
+            self._fit_recursive(data)
 
-def k_fit_path(outpath, k):
-    return outpath + "-K{}".format(k)
+    def _fit_recursive(self, data):
+        logger.info(
+          "Recursively clustering with a maximal K: {}".format(self.clusters))
 
+        n, p = data.count(), self._P(data)
+        logger.info("Using data with n={} and p={}".format(n, p))
 
-def data_path(file_name):
-    return file_name.replace(".tsv", "_parquet")
+        lefts, mids, rights = [], [], []
+        left, right = 2, self.clusters
+        mid = int((left + right) / 2)
 
+        mods = self.load_precomputed_models(lrt_file, K, outpath)
+        total_sse = self.sse(split_features(data), outpath)
 
-def read_parquet_data(file_name):
-    logger.info("Reading parquet: {}".format(file_name))
-    return spark.read.parquet(file_name)
-
-
-def write_parquet_data(file_name, data):
-    logger.info("Writing parquet: {}".format(file_name))
-    data.write.parquet(file_name, mode="overwrite")
-
-
-def get_feature_columns(data):
-    return list(filter(
-      lambda x: any(x.startswith(f) for f in ["cells", "perin", "nucle"]),
-      data.columns))
-
-
-def get_frame(file_name):
-    if pathlib.Path(file_name).is_dir():
-        logger.info("File is a dictionary. Assuming parquet file: {}".format(
-          file_name))
-        return read_parquet_data(file_name)
-
-    parquet_file = data_path(file_name)
-    # check if data has been loaded before
-    if pathlib.Path(parquet_file).exists():
-        logger.info("Parquet file exists already using parquet file: {}".format(
-          file_name))
-        return read_parquet_data(parquet_file)
-
-    logger.info("Reading: {} and writing parquet".format(file_name))
-    # if not read the file and parse some oclumns
-    df = spark.read.csv(path=file_name, sep="\t", header='true')
-    old_cols = df.columns
-    new_cols = list(map(lambda x: x.replace(".", "_"), old_cols))
-    df = reduce(
-      lambda data, idx: data.withColumnRenamed(old_cols[idx], new_cols[idx]),
-      range(len(new_cols)), df)
-    feature_columns = get_feature_columns(df)
-    for x in feature_columns:
-        df = df.withColumn(x, df[x].cast("double"))
-    df = df.fillna(0)
-    # add a DenseVector column to the frame
-    assembler = VectorAssembler(inputCols=feature_columns, outputCol='features')
-    data = assembler.transform(df)
-
-    # save the frame
-    write_parquet_data(parquet_file, data)
-
-    return data
-
-
-def P_(data):
-    return len(scipy.asarray(data.select("features").take(1)).flatten())
-
-
-def split_features(data):
-    def to_array(col):
-        def to_array_(v):
-            return v.toArray().tolist()
-
-        return udf(to_array_, ArrayType(DoubleType()))(col)
-
-    len_vec = len(data.select("features").take(1)[0][0])
-    data = (data.withColumn("f", to_array(col("features")))
-            .select([col("f")[i] for i in range(len_vec)]))
-
-    for i, x in enumerate(data.columns):
-        if x.startswith("f["):
-            data = data.withColumnRenamed(
-              x, x.replace("[", "_").replace("]", ""))
-
-    return data
-
-
-def sse(data, outpath):
-    """
-    Computes the sum of squared errors of the dataset
-    """
-
-    sse_file = outpath + "-total_sse.tsv"
-    if pathlib.Path(sse_file).exists():
-        logger.info("Loading SSE file")
-        tab = pandas.read_csv(sse_file, sep="\t")
-        sse = tab["SSE"][0]
-    else:
-        logger.info("Computing SSE of complete dataset")
-        rdd = data.rdd.map(list)
-        summary = Statistics.colStats(rdd)
-        means = summary.mean()
-
-        sse = (RowMatrix(rdd).rows
-               .map(lambda x: (x - means).T.dot(x - means))
-               .reduce(lambda x, y: x + y))
-
-        with open(sse_file, 'w') as fh:
-            fh.write("SSE\n{}\n".format(sse))
-
-    logger.info("\tsse: {}".format(sse))
-    return sse
-
-
-def _estimate_model(total_sse, k, n, p, data, outpath):
-    logger.info("\tclustering with K: {}".format(k))
-    km = KMeans(k=k, seed=23)
-    model = km.fit(data)
-
-    clustout = k_fit_path(outpath, k)
-    logger.info("\twriting cluster fit to: {}".format(clustout))
-    model.write().overwrite().save(clustout)
-
-    comp_files = clustout + "_cluster_sizes.tsv"
-    logger.info("\twriting cluster size file to: {}".format(comp_files))
-    with open(clustout + "_cluster_sizes.tsv", 'w') as fh:
-        for c in model.summary.clusterSizes:
-            fh.write("{}\n".format(c))
-
-    ccf = clustout + "_cluster_centers.tsv"
-    logger.info("\tWriting cluster centers to: {}".format(ccf))
-    with open(ccf, "w") as fh:
-        fh.write("#Clustercenters\n")
-        for center in model.clusterCenters():
-            fh.write("\t".join(map(str, center)) + '\n')
-
-    sse_file = clustout + "_loglik.tsv"
-    logger.info("\twriting SSE and BIC to: {}".format(sse_file))
-
-    sse = model.computeCost(data)
-    expl = 1 - sse / total_sse
-    bic = sse + scipy.log(n) * (k * p + 1)
-    with open(sse_file, 'w') as fh:
-        fh.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(
-          "K", "SSE", "ExplainedVariance", "BIC", "N", "P"))
-        fh.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(
-          k, sse, expl, bic, n, p))
-
-    return {"sse": sse, "expl": expl}
-
-
-def load_precomputed_models(lrt_file, K, outpath):
-    mod = {}
-    fls = glob.glob(outpath + "*_loglik.tsv")
-    if fls:
-        logger.info("Found precomputed ll-files. ")
-        for f in fls:
-            tab = pandas.read_csv(f, sep="\t")
-            sse, expl = tab["SSE"][0], tab["ExplainedVariance"][0]
-            k, p = tab["K"][0], tab["P"][0]
-            logger.info("\tusing k={}, p={}, sse={}, expl={} from {}"
-                        .format(k, p, sse, expl, f))
-            mod[k] = {"sse": sse, "expl": expl}
-    else:
-        logger.info("Starting from scratch...")
-    return mod
-
-
-def estimate_model(total_sse, mods, k, n, p, data, outpath):
-    if k in mods.keys():
-        logger.info("Loading model k={}".format(k))
-        model = mods[k]
-    else:
-        logger.info("Newly estimating model k={}".format(k))
-        model = _estimate_model(total_sse, k, n, p, data, outpath)
-        mods[k] = model
-    return model
-
-
-def recursive_clustering(file_name, K, outpath, lrt_file, threshold=.01,
-                         maxit=10):
-    data = get_frame(file_name)
-    logger.info("Recursively clustering with a maximal K: {}".format(K))
-
-    n, p = data.count(), P_(data)
-    logger.info("Using data with n={} and p={}".format(n, p))
-
-    lefts, mids, rights = [], [], []
-    left, right = 2, K
-    mid = int((left + right) / 2)
-
-    mods = load_precomputed_models(lrt_file, K, outpath)
-    total_sse = sse(split_features(data), outpath)
-
-    lrts = []
-    K_mod = estimate_model(total_sse, mods, right, n, p, data, outpath)
-    lrts.append(
-      ExplainedVariance(
-        left, K, K, K,
-        K_mod['expl'], K_mod['expl'], K_mod["sse"], K_mod['sse'],
-        total_sse, improved_variance))
-    itr = 0
-
-    while True:
-        mids.append(mid)
-        lefts.append(left)
-        rights.append(right)
-
-        m_mod = estimate_model(total_sse, mods, mid, n, p, data, outpath)
-
-        improved_variance = 1 - m_mod['expl'] / K_mod['expl']
+        lrts = []
+        K_mod = estimate_model(total_sse, mods, right, n, p, data, outpath)
         lrts.append(
           ExplainedVariance(
-            left, mid, right, K,
-            K_mod['expl'], m_mod['expl'], K_mod["sse"], m_mod['sse'],
+            left, K, K, K,
+            K_mod['expl'], K_mod['expl'], K_mod["sse"], K_mod['sse'],
             total_sse, improved_variance))
-        logger.info("\tVariance reduction for K={} to {}"
-                    .format(mid, improved_variance))
+        itr = 0
 
-        if improved_variance < threshold:
-            mid, right = int((left + mid) / 2), mid + 1
-        elif improved_variance > threshold:
-            mid, left = int((right + mid) / 2), mid
-        if left == lefts[-1] and right == rights[-1]:
-            break
-        if itr >= maxit:
-            logger.info("Breaking")
-            break
-        itr += 1
+        while True:
+            mids.append(mid)
+            lefts.append(left)
+            rights.append(right)
 
-    return lrts
+            m_mod = self.estimate_model(total_sse, mods, mid, n, p, data, outpath)
+
+            improved_variance = 1 - m_mod['expl'] / K_mod['expl']
+            lrts.append(
+              ExplainedVariance(
+                left, mid, right, K,
+                K_mod['expl'], m_mod['expl'], K_mod["sse"], m_mod['sse'],
+                total_sse, improved_variance))
+            logger.info("\tVariance reduction for K={} to {}"
+                        .format(mid, improved_variance))
+
+            if improved_variance < self.threshold:
+                mid, right = int((left + mid) / 2), mid + 1
+            elif improved_variance > self.threshold:
+                mid, left = int((right + mid) / 2), mid
+            if left == lefts[-1] and right == rights[-1]:
+                break
+            if itr >= self.max_iter:
+                logger.info("Breaking")
+                break
+            itr += 1
+
+        return lrts
+
+    def k_fit_path(self, outpath, k):
+        return outpath + "-K{}".format(k)
+
+    def _P(self, data):
+        return len(scipy.asarray(data.select("features").take(1)).flatten())
+
+    def sse(self, data, outpath):
+        """
+        Computes the sum of squared errors of the dataset
+        """
+
+        sse_file = outpath + "-total_sse.tsv"
+        if pathlib.Path(sse_file).exists():
+            logger.info("Loading SSE file")
+            tab = pandas.read_csv(sse_file, sep="\t")
+            sse = tab["SSE"][0]
+        else:
+            logger.info("Computing SSE of complete dataset")
+            rdd = data.rdd.map(list)
+            summary = Statistics.colStats(rdd)
+            means = summary.mean()
+
+            sse = (RowMatrix(rdd).rows
+                   .map(lambda x: (x - means).T.dot(x - means))
+                   .reduce(lambda x, y: x + y))
+
+            with open(sse_file, 'w') as fh:
+                fh.write("SSE\n{}\n".format(sse))
+
+        logger.info("\tsse: {}".format(sse))
+        return sse
 
 
-def write_clustering(clustering, outpath, lrt_file):
-    logger.info("Writing LRT file to {}".format(lrt_file))
-    with open(lrt_file, "w") as fh:
-        fh.write(clustering[0].header())
-        for lrt in clustering:
-            fh.write(str(lrt))
+    def _estimate_model(self, total_sse, k, n, p, data, outpath):
+        logger.info("\tclustering with K: {}".format(k))
+        km = KMeans(k=k, seed=23)
+        model = km.fit(data)
+
+        clustout = k_fit_path(outpath, k)
+        logger.info("\twriting cluster fit to: {}".format(clustout))
+        model.write().overwrite().save(clustout)
+
+        comp_files = clustout + "_cluster_sizes.tsv"
+        logger.info("\twriting cluster size file to: {}".format(comp_files))
+        with open(clustout + "_cluster_sizes.tsv", 'w') as fh:
+            for c in model.summary.clusterSizes:
+                fh.write("{}\n".format(c))
+
+        ccf = clustout + "_cluster_centers.tsv"
+        logger.info("\tWriting cluster centers to: {}".format(ccf))
+        with open(ccf, "w") as fh:
+            fh.write("#Clustercenters\n")
+            for center in model.clusterCenters():
+                fh.write("\t".join(map(str, center)) + '\n')
+
+        sse_file = clustout + "_loglik.tsv"
+        logger.info("\twriting SSE and BIC to: {}".format(sse_file))
+
+        sse = model.computeCost(data)
+        expl = 1 - sse / total_sse
+        bic = sse + scipy.log(n) * (k * p + 1)
+        with open(sse_file, 'w') as fh:
+            fh.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(
+              "K", "SSE", "ExplainedVariance", "BIC", "N", "P"))
+            fh.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(
+              k, sse, expl, bic, n, p))
+
+        return {"sse": sse, "expl": expl}
 
 
-def fit_cluster(file_name, K, outpath):
-    lrt_file = outpath + "-lrt_path.tsv"
-    clustering = recursive_clustering(file_name, K, outpath, lrt_file)
-    write_clustering(clustering, outpath, lrt_file)
+    def load_precomputed_models(lrt_file, K, outpath):
+        mod = {}
+        fls = glob.glob(outpath + "*_loglik.tsv")
+        if fls:
+            logger.info("Found precomputed ll-files. ")
+            for f in fls:
+                tab = pandas.read_csv(f, sep="\t")
+                sse, expl = tab["SSE"][0], tab["ExplainedVariance"][0]
+                k, p = tab["K"][0], tab["P"][0]
+                logger.info("\tusing k={}, p={}, sse={}, expl={} from {}"
+                            .format(k, p, sse, expl, f))
+                mod[k] = {"sse": sse, "expl": expl}
+        else:
+            logger.info("Starting from scratch...")
+        return mod
 
 
-def loggername(outpath):
-    return outpath + ".log"
+    def estimate_model(total_sse, mods, k, n, p, data, outpath):
+        if k in mods.keys():
+            logger.info("Loading model k={}".format(k))
+            model = mods[k]
+        else:
+            logger.info("Newly estimating model k={}".format(k))
+            model = _estimate_model(total_sse, k, n, p, data, outpath)
+            mods[k] = model
+        return model
+
+
+
+
+    def write_clustering(clustering, outpath, lrt_file):
+        logger.info("Writing LRT file to {}".format(lrt_file))
+        with open(lrt_file, "w") as fh:
+            fh.write(clustering[0].header())
+            for lrt in clustering:
+                fh.write(str(lrt))
+
+
+    def fit_cluster(file_name, K, outpath):
+        lrt_file = outpath + "-lrt_path.tsv"
+        clustering = recursive_clustering(file_name, K, outpath, lrt_file)
+        write_clustering(clustering, outpath, lrt_file)
 
 
 @click.command()
