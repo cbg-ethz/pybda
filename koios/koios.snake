@@ -90,7 +90,7 @@ rule pca:
         expand("{infile}", infile=config["infile"])
     output:
         expand("{outfolder}/pca.log", outfolder=config["outfolder"]),
-        out = expand("{outfolder}/pca", outfolder=config["outfolder"])
+        out = directory(expand("{outfolder}/pca", outfolder=config["outfolder"]))
     run:
         params = " ".join([x for x in config["sparkparams"]])
         cmd = """{} --master {} \
@@ -99,7 +99,7 @@ rule pca:
                     -c {} \
                     -f {} \
                     -o {}""".format(
-            config["spark"], config["sparkip"], params, config["factors"], input, output.out)
+            config["spark"], config["sparkip"], params, config["n_components"], input, output.out)
         shell("{cmd}")
 
 
@@ -108,7 +108,7 @@ rule kpca:
         expand("{infile}", infile=config["infile"])
     output:
         expand("{outfolder}/kpca.log", outfolder=config["outfolder"]),
-        out = expand("{outfolder}/kpca", outfolder=config["outfolder"])
+        out = directory(expand("{outfolder}/kpca", outfolder=config["outfolder"]))
     run:
         params = " ".join([x for x in config["sparkparams"]])
         cmd = """{} --master {} \
@@ -117,7 +117,7 @@ rule kpca:
                     -c {} \
                     -f {} \
                     -o {}""".format(
-            config["spark"], config["sparkip"], params, config["factors"], input, output.out)
+            config["spark"], config["sparkip"], params, config["n_components"], input, output.out)
         shell("{cmd}")
 
 
@@ -137,46 +137,21 @@ rule sample:
         shell("{cmd}")
 
 
-rule dimension_reduction_stat:
-    input:
-        expand("{outfolder}/{dimension_reduction}", outfolder=config["outfolder"], dimension_reduction = ["fa", "pca", "kpca"])
-    output:
-        expand("{outfolder}/{dimension_reduction}-sample.log", outfolder=config["outfolder"], dimension_reduction = ["fa", "pca", "kpca"]),
-        out = expand("{outfolder}/{dimension_reduction}-sample.tsv", outfolder=config["outfolder"], dimension_reduction = ["fa", "pca", "kpca"]),
-    run:
-        params = " ".join([x for x in config["sparkparams"]])
-        cmd = """{} --master {} \
-                    {} \
-                    2-dimension_reduction/2a-sample-spark.py \
-                    -f {} \
-                    -o {}""".format(
-            config["spark"], config["sparkip"], params, input, output.out)
-        shell("{cmd}")
-
-
-rule dimension_reduction_plot:
-    input:
-        expand("{outfolder}/{dimension_reduction}-sample.tsv", outfolder=config["outfolder"], dimension_reduction = ["fa", "pca", "kpca"])
-    output:
-        expand("{outfolder}/{dimension_reduction}-sample-feature_distributions", outfolder=config["outfolder"], dimension_reduction = ["fa", "pca", "kpca"])
-    shell:
-        "2-dimension_reduction/2b-plot_feature_distribution.R {input}"
-
-
 rule outliers:
     input:
-        expand("{outfolder}/{dimension_reduction}", outfolder=config["outfolder"], dimension_reduction = ["fa", "pca", "kpca"])
+        expand("{outfolder}/{dimred}", outfolder = config["outfolder"], dimred = config["dimension_reduction"])
     output:
         expand("{outfolder}/outlier-removal.log", outfolder=config["outfolder"]),
-        out = expand("{outfolder}/outlier-removal", outfolder=config["outfolder"])
+        out = directory(expand("{outfolder}/outlier-removal", outfolder=config["outfolder"]))
     run:
         params = " ".join([x for x in config["sparkparams"]])
+        outr = os.path.join(dirname(), "outliers.py")
         cmd = """{} --master {} \
                     {} \
-                    2-dimension_reduction/3-remove_outliers.py \
-                    -f {} \
-                    -o {}""".format(
-            config["spark"], config["sparkip"], params, input, output.out)
+                    {} \
+                    {} \
+                    {}""".format(
+            config["spark"], config["sparkip"], params, outr, input, output.out)
         shell("{cmd}")
 
 
