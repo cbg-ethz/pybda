@@ -31,6 +31,8 @@ import scipy
 import scipy.stats
 import matplotlib
 
+from koios.clustering import Clustering
+
 matplotlib.use('Agg')
 
 

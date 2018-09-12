@@ -19,20 +19,17 @@
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
 
-from abc import ABC
-from koios.method import Method
+from abc import ABC, abstractmethod
 
 
-class DimensionReduction(ABC, Method):
-    def __init__(self, spark, threshold, max_iter):
-        super().__init__(spark)
-        self.__threshold = threshold
-        self.__max_iter = max_iter
+class Method(ABC):
+    def __init__(self, spark):
+        self.__spark = spark
 
-    @property
-    def threshold(self):
-        return self.__threshold
+    @abstractmethod
+    def fit(self):
+        pass
 
     @property
-    def max_iter(self):
-        return self.__max_iter
+    def spark(self):
+        return self.__spark

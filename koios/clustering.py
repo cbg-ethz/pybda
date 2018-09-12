@@ -19,17 +19,10 @@
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
 
-from abc import ABC, abstractmethod
+from abc import ABC
+from koios.method import Method
 
 
-class Clustering(ABC):
+class Clustering(ABC, Method):
     def __init__(self, spark):
-        self.__spark = spark
-
-    @abstractmethod
-    def fit(self):
-        pass
-
-    @property
-    def spark(self):
-        return self.__spark
+        super().__init__(spark)
