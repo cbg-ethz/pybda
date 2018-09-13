@@ -27,9 +27,23 @@ from scipy import stats
 import pyspark
 from pyspark.mllib.stat import Statistics
 
+from koios.util.functions import as_rdd_of_array
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+
+def column_mean(data: pyspark.rdd.RDD):
+    """
+    Compute vectors of column means.
+`
+    :param data: an RDD
+    :return: returns column means as vector
+    """
+
+    logger.info("Computing column means")
+    summary = Statistics.colStats(data)
+    return summary.mean()
 
 
 def column_statistics(data: pyspark.rdd.RDD):
@@ -116,3 +130,13 @@ def chisquare(data, pval):
       " percentile".format(n, 100 * thresh))
 
     return stats.chi2.ppf(q=thresh, df=n)
+
+
+def sum_of_squared_errors(data: pyspark.sql.DataFrame):
+    logger.info("Computing SSE of complete dataset")
+    rdd = as_rdd_of_array(data)
+    means = column_mean(rdd)
+    sse = (rdd
+           .map(lambda x: (x - means).T.dot(x - means))
+           .reduce(lambda x, y: x + y))
+    return sse

@@ -90,11 +90,3 @@ def read_parquet(spark, folder_name):
 
     logger.info("Reading parquet folder: {}".format(folder_name))
     return spark.read.parquet(folder_name)
-
-
-def as_logfile(fl):
-    if fl.endswith(".tsv"):
-        logfile = fl.replace(".tsv", ".log")
-    else:
-        logfile = fl + ".log"
-    return logfile

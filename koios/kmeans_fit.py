@@ -20,22 +20,30 @@
 
 
 import logging
-import numpy
+
+from koios.io.as_filename import as_ssefile
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-def as_pandas(data):
-    """
-    Takes a sqlDataFrame and returns a pandas data frame
+class KMeansFit:
+    def __init__(self, data, sse):
+        self.__data = data
+        self.__sse = sse
 
-    :param data: sql.DataFrame
-    :return: pandas.DataFrame
-    """
+    @property
+    def data(self):
+        return self.__data
 
-    return data.toPandas()
+    @property
+    def sse(self):
+        return self.__sse
 
+    def write_files(self, outfolder):
+        self._write_sse(as_ssefile(outfolder))
 
-def as_rdd_of_array(data):
-    return data.rdd.map(numpy.array)
+    def _write_sse(self, outfile):
+        logger.info("Writing SSE")
+        with open(outfile, 'w') as fh:
+            fh.write("SSE\n{}\n".format(self.__sse))
