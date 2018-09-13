@@ -20,9 +20,13 @@
 
 
 import logging
+import scipy
+
+import pyspark.sql.DataFrame
 from pyspark.rdd import reduce
-from pyspark.sql.functions import udf, col
-from pyspark.sql.types import ArrayType, DoubleType
+from pyspark.sql.functions import col
+
+from koios.util.cast_as import as_array
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -92,16 +96,6 @@ def replace_column_names(data, fro=".", to="_"):
     return data, new_cols
 
 
-def _as_array(vector):
-    def to_array(col):
-        def to_array_(v):
-            return v.toArray().tolist()
-
-        return udf(to_array_, ArrayType(DoubleType()))(col)
-
-    return to_array(vector)
-
-
 def split_vector(data, col_name):
     """
     Split a column which is a DenseVector into separate columns.
@@ -121,7 +115,7 @@ def split_vector(data, col_name):
     cols.remove(col_name)
     len_vec = len(data.select(col_name).take(1)[0][0])
     data = (
-        data.withColumn("f", _as_array(col(col_name)))
+        data.withColumn("f", as_array(col(col_name)))
             .select(cols + [col("f")[i] for i in range(len_vec)])
     )
 
@@ -131,3 +125,7 @@ def split_vector(data, col_name):
               x, x.replace("[", "_").replace("]", ""))
 
     return data
+
+
+def n_features(data: pyspark.sql.DataFrame, col_name):
+    return len(scipy.asarray(data.select(col_name).take(1)).flatten())

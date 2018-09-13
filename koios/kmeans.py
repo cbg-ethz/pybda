@@ -19,32 +19,22 @@
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
 
-import argparse
+import glob
 import logging
 import pathlib
-import re
-import sys
-import glob
 
 import click
-import pyspark
+import matplotlib
 import pandas
 import scipy
 import scipy.stats
-import matplotlib
 
 from koios.clustering import Clustering
+from koios.io.as_filename import as_ssefile
+from koios.util.features import n_features, split_vector
+from koios.util.stats import sum_of_squared_errors
 
 matplotlib.use('Agg')
-
-from pyspark.ml.clustering import KMeansModel, KMeans
-from pyspark.ml.feature import VectorAssembler
-from pyspark.rdd import reduce
-from pyspark.sql.functions import udf, col, struct
-from pyspark.sql.types import ArrayType, DoubleType, StringType
-from pyspark.mllib.linalg.distributed import RowMatrix, DenseMatrix
-from pyspark.mllib.stat import Statistics
-
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -86,26 +76,28 @@ class KMeans(Clustering):
     def __init__(self, spark, clusters, recursive, threshold=.01, max_iter=25):
         super.__init__(spark, clusters, recursive, threshold, max_iter)
 
-    def fit(self, data):
+    def fit(self, data, precomputed_models_path=None):
         if self.do_recursive:
-            self._fit_recursive(data)
+            self._fit_recursive(data, precomputed_models_path)
 
-    def _fit_recursive(self, data):
+    def _fit_recursive(self, data, precomputed_models_path):
         logger.info(
           "Recursively clustering with a maximal K: {}".format(self.clusters))
 
-        n, p = data.count(), self._P(data)
+        n, p = data.count(), n_features(data, "features")
         logger.info("Using data with n={} and p={}".format(n, p))
 
         lefts, mids, rights = [], [], []
         left, right = 2, self.clusters
         mid = int((left + right) / 2)
 
-        mods = self.load_precomputed_models(lrt_file, K, outpath)
-        total_sse = self.sse(split_features(data), outpath)
+        mods = self.load_precomputed_models(precomputed_models_path)
+        total_sse = self._sse(split_vector(data, "features"),
+                              precomputed_models_path)
 
         lrts = []
-        K_mod = estimate_model(total_sse, mods, right, n, p, data, outpath)
+        K_mod = self._estimate_model(total_sse, mods, right, n, p, data,
+                                     precomputed_models_path)
         lrts.append(
           ExplainedVariance(
             left, K, K, K,
@@ -118,7 +110,8 @@ class KMeans(Clustering):
             lefts.append(left)
             rights.append(right)
 
-            m_mod = self.estimate_model(total_sse, mods, mid, n, p, data, outpath)
+            m_mod = self.estimate_model(total_sse, mods, mid, n, p, data,
+                                        outpath)
 
             improved_variance = 1 - m_mod['expl'] / K_mod['expl']
             lrts.append(
@@ -145,42 +138,31 @@ class KMeans(Clustering):
     def k_fit_path(self, outpath, k):
         return outpath + "-K{}".format(k)
 
-    def _P(self, data):
-        return len(scipy.asarray(data.select("features").take(1)).flatten())
-
-    def sse(self, data, outpath):
+    @staticmethod
+    def _sse(data, outpath=None):
         """
         Computes the sum of squared errors of the dataset
         """
 
-        sse_file = outpath + "-total_sse.tsv"
-        if pathlib.Path(sse_file).exists():
+        if outpath:
+            sse_file = as_ssefile(outpath)
+        else:
+            sse_file = None
+        if outpath and pathlib.Path(sse_file).exists():
             logger.info("Loading SSE file")
             tab = pandas.read_csv(sse_file, sep="\t")
             sse = tab["SSE"][0]
         else:
-            logger.info("Computing SSE of complete dataset")
-            rdd = data.rdd.map(list)
-            summary = Statistics.colStats(rdd)
-            means = summary.mean()
-
-            sse = (RowMatrix(rdd).rows
-                   .map(lambda x: (x - means).T.dot(x - means))
-                   .reduce(lambda x, y: x + y))
-
-            with open(sse_file, 'w') as fh:
-                fh.write("SSE\n{}\n".format(sse))
-
-        logger.info("\tsse: {}".format(sse))
+            sse = sum_of_squared_errors(data)
+        logger.info("\tSSE: {}".format(sse))
         return sse
-
 
     def _estimate_model(self, total_sse, k, n, p, data, outpath):
         logger.info("\tclustering with K: {}".format(k))
         km = KMeans(k=k, seed=23)
         model = km.fit(data)
 
-        clustout = k_fit_path(outpath, k)
+        clustout = self._k_fit_path(outpath, k)
         logger.info("\twriting cluster fit to: {}".format(clustout))
         model.write().overwrite().save(clustout)
 
@@ -211,12 +193,16 @@ class KMeans(Clustering):
 
         return {"sse": sse, "expl": expl}
 
+    @classmethod
+    def load_precomputed_models(cls, precomputed_models):
 
-    def load_precomputed_models(lrt_file, K, outpath):
         mod = {}
-        fls = glob.glob(outpath + "*_loglik.tsv")
+        if precomputed_models is not None:
+            fls = glob.glob(precomputed_models + "*_loglik.tsv")
+        else:
+            fls = []
         if fls:
-            logger.info("Found precomputed ll-files. ")
+            logger.info("Found precomputed ll-files.")
             for f in fls:
                 tab = pandas.read_csv(f, sep="\t")
                 sse, expl = tab["SSE"][0], tab["ExplainedVariance"][0]
@@ -228,7 +214,6 @@ class KMeans(Clustering):
             logger.info("Starting from scratch...")
         return mod
 
-
     def estimate_model(total_sse, mods, k, n, p, data, outpath):
         if k in mods.keys():
             logger.info("Loading model k={}".format(k))
@@ -239,16 +224,12 @@ class KMeans(Clustering):
             mods[k] = model
         return model
 
-
-
-
     def write_clustering(clustering, outpath, lrt_file):
         logger.info("Writing LRT file to {}".format(lrt_file))
         with open(lrt_file, "w") as fh:
             fh.write(clustering[0].header())
             for lrt in clustering:
                 fh.write(str(lrt))
-
 
     def fit_cluster(file_name, K, outpath):
         lrt_file = outpath + "-lrt_path.tsv"
@@ -263,7 +244,7 @@ class KMeans(Clustering):
 @click.option(
   '--recursive',
   is_flag=True,
-  help="Boolean flag if clustering should be done recursively to find the best K.")
+  help="Flag if clustering should be done recursively to find the best K.")
 def run(infolder, outfolder, clusters, recursive):
     from koios.util.string import drop_suffix
     from koios.logger import set_logger
@@ -276,10 +257,12 @@ def run(infolder, outfolder, clusters, recursive):
     with SparkSession() as spark:
         try:
             km = KMeans(spark, clusters, recursive)
-            fit = km.fit(read_parquet(spark, infolder))
+            fit = km.fit(read_parquet(spark, infolder),
+                         precomputed_models_path=outfolder)
             fit.write_files(outfolder)
         except Exception as e:
             logger.error("Some error: {}".format(str(e)))
+
 
 if __name__ == "__main__":
     run()
