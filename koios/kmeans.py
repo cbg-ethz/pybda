@@ -30,13 +30,13 @@ import pyspark
 from koios.clustering import Clustering
 from koios.explained_variance import ExplainedVariance
 from koios.io.as_filename import as_ssefile
+from koios.io.io import write_line
 from koios.kmeans_fit import KMeansFit
 from koios.util.features import n_features, split_vector
 from koios.util.stats import sum_of_squared_errors
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-
 
 WITHIN_CLUSTER_VARIANCE = "within_cluster_variance"
 TOTAL_VARIANCE = "total_variance"
@@ -51,48 +51,36 @@ class KMeans(Clustering):
         if self.do_recursive:
             self._fit_recursive(data, precomputed_models_path)
 
-    def _fit_recursive(self, data, precomputed_models_path):
+    def _fit_recursive(self, data, precomp_mod_path):
         logger.info(
-          "Recursively clustering with a maximal K: {}".format(self.clusters))
+          "Recursively clustering with max K: {}".format(self.clusters))
 
         n, p = data.count(), n_features(data, "features")
         logger.info("Using data with n={} and p={}".format(n, p))
 
-        lefts, mids, rights = [], [], []
-        left, right = 2, self.clusters
+        models = self.load_precomputed_models(precomp_mod_path)
+        tot_var = self._total_variance(
+          split_vector(data, "features"), precomp_mod_path)
+
+        lefts, mids, rights, lrts = [], [], [], []
+        left, mid, right = 2, self.clusters, self.clusters
         mid = int((left + right) / 2)
 
-        mods = self.load_precomputed_models(precomputed_models_path)
-        total_sse = self._sse(split_vector(data, "features"),
-                              precomputed_models_path)
+        model_max = self._find_or_fit(
+          tot_var, models, right, n, p, data, precomp_mod_path)
+        lrts, _ = self._append_lrt(
+          lrts, left, self.K, self.K, self.K, model_max, model_max, tot_var)
 
-        lrts = []
-        K_mod = self._estimate_model(
-          total_sse, mods, right, n, p, data, precomputed_models_path)
-
-        lrts.append(
-          ExplainedVariance(
-            left, K, K, K,
-            K_mod['expl'], K_mod['expl'], K_mod["sse"], K_mod['sse'],
-            total_sse, improved_variance))
         itr = 0
-
         while True:
             mids.append(mid)
             lefts.append(left)
             rights.append(right)
 
-            m_mod = self.estimate_model(total_sse, mods, mid, n, p, data,
-                                        outpath)
-
-            improved_variance = 1 - m_mod['expl'] / K_mod['expl']
-            lrts.append(
-              ExplainedVariance(
-                left, mid, right, K,
-                K_mod['expl'], m_mod['expl'], K_mod["sse"], m_mod['sse'],
-                total_sse, improved_variance))
-            logger.info("\tVariance reduction for K={} to {}"
-                        .format(mid, improved_variance))
+            m_mod = self._find_or_fit(
+              tot_var, models, mid, n, p, data, precomp_mod_path)
+            lrts, improved_variance = self._append_lrt(
+              lrts, left, mid, right, self.K, model_max, m_mod, tot_var)
 
             if improved_variance < self.threshold:
                 mid, right = int((left + mid) / 2), mid + 1
@@ -107,8 +95,20 @@ class KMeans(Clustering):
 
         return lrts
 
+    def _append_lrt(self, lrts, left, mid, right, K_max, model_max, model, tot_var):
+        improved_variance = 1 - model[EXPLAINED_VARIANCE] / model_max[EXPLAINED_VARIANCE]
+        lrts.append(
+          ExplainedVariance(
+            left, mid, right, K_max,
+            model_max[EXPLAINED_VARIANCE], model[EXPLAINED_VARIANCE],
+            model_max[TOTAL_VARIANCE], model[TOTAL_VARIANCE],
+            tot_var, improved_variance))
+        logger.info("Variance reduction for K={} to {}"
+                    .format(mid, improved_variance))
+        return lrts, improved_variance
+
     @staticmethod
-    def _sse(data, outpath=None):
+    def _total_variance(data, outpath=None):
         """
         Computes the sum of squared errors of the dataset
         """
@@ -123,10 +123,8 @@ class KMeans(Clustering):
             sse = tab[TOTAL_VARIANCE][0]
         else:
             sse = sum_of_squared_errors(data)
-            # TODO change place
             if sse_file:
-                with open(sse_file, 'w') as fh:
-                    fh.write("{}\n{}\n".format(TOTAL_VARIANCE, sse))
+                write_line("{}\n{}\n".format(TOTAL_VARIANCE, sse), sse_file)
         logger.info("\t{}: {}".format(TOTAL_VARIANCE, sse))
         return sse
 
@@ -139,7 +137,7 @@ class KMeans(Clustering):
                           total_variance=sse, n=n, p=p)
         return model
 
-    def _estimate_model(self, total_sse, k, n, p, data, outpath):
+    def _fit(self, total_sse, k, n, p, data, outpath):
         logger.info("Clustering with K: {}".format(k))
 
         model = self._cluster(data, k, total_sse, n, p)
@@ -171,13 +169,13 @@ class KMeans(Clustering):
             logger.info("Starting from scratch...")
         return mod
 
-    def estimate_model(total_sse, mods, k, n, p, data, outpath):
+    def _find_or_fit(self, total_sse, mods, k, n, p, data, outpath):
         if k in mods.keys():
             logger.info("Loading model k={}".format(k))
             model = mods[k]
         else:
             logger.info("Newly estimating model k={}".format(k))
-            model = _estimate_model(total_sse, k, n, p, data, outpath)
+            model = self._fit(total_sse, k, n, p, data, outpath)
             mods[k] = model
         return model
 

@@ -20,19 +20,22 @@
 
 
 class ExplainedVariance:
-    def __init__(self, left_boundary, current, right_boundary, K,
-                 K_explained_variance, curr_explained_variance,
-                 K_sse, curr_sse, max_sse,
+    def __init__(self, left_boundary, k, right_boundary, K_max,
+                 K_max_explained_variance,
+                 explained_variance,
+                 K_max_within_cluster_variance,
+                 k_within_cluster_variance,
+                 total_variance,
                  percent_explained_variance):
         self.__left_boundary = left_boundary
-        self.__current = current
+        self.__current = k
         self.__right_boundary = right_boundary
-        self.__K = K
-        self.__K_explained_variance = K_explained_variance
-        self.__curr_explained_variance = curr_explained_variance
-        self.__K_sse = K_sse
-        self.__curr_sse = curr_sse
-        self.__max_sse = max_sse
+        self.__K = K_max
+        self.__K_explained_variance = K_max_explained_variance
+        self.__curr_explained_variance = explained_variance
+        self.__K_sse = K_max_within_cluster_variance
+        self.__curr_sse = k_within_cluster_variance
+        self.__max_sse = total_variance
         self.__percent_explained_variance = percent_explained_variance
 
     def header(self):

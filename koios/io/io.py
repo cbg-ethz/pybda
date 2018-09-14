@@ -90,3 +90,8 @@ def read_parquet(spark, folder_name):
 
     logger.info("Reading parquet folder: {}".format(folder_name))
     return spark.read.parquet(folder_name)
+
+
+def write_line(string, outfile):
+    with open(outfile, 'w') as fh:
+        fh.write(string)
