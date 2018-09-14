@@ -24,52 +24,23 @@ import logging
 import pathlib
 
 import click
-import matplotlib
 import pandas
-import scipy
-import scipy.stats
+import pyspark
 
 from koios.clustering import Clustering
+from koios.explained_variance import ExplainedVariance
 from koios.io.as_filename import as_ssefile
+from koios.kmeans_fit import KMeansFit
 from koios.util.features import n_features, split_vector
 from koios.util.stats import sum_of_squared_errors
-
-matplotlib.use('Agg')
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class ExplainedVariance:
-    def __init__(self, left_boundary, current, right_boundary, K,
-                 K_explained_variance, curr_explained_variance,
-                 K_sse, curr_sse, max_sse,
-                 percent_explained_variance):
-        self.__left_boundary = left_boundary
-        self.__current = current
-        self.__right_boundary = right_boundary
-        self.__K = K
-        self.__K_explained_variance = K_explained_variance
-        self.__curr_explained_variance = curr_explained_variance
-        self.__K_sse = K_sse
-        self.__curr_sse = curr_sse
-        self.__max_sse = max_sse
-        self.__percent_explained_variance = percent_explained_variance
-
-    def header(self):
-        return "left_bound\tcurrent_model\tright_bound\t" \
-               "K_max\tK_expl\tcurrent_expl\tmax_sse\tK_sse\tcurrent_sse\t" \
-               "percent_improvement\n"
-
-    def __repr__(self):
-        return self.__str__()
-
-    def __str__(self):
-        return "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-          self.__left_boundary, self.__current, self.__right_boundary,
-          self.__K, self.__K_explained_variance, self.__curr_explained_variance,
-          self.__max_sse, self.__K_sse, self.__curr_sse,
-          self.__percent_explained_variance)
+WITHIN_CLUSTER_VARIANCE = "within_cluster_variance"
+TOTAL_VARIANCE = "total_variance"
+EXPLAINED_VARIANCE = "explained_variance"
 
 
 class KMeans(Clustering):
@@ -96,8 +67,9 @@ class KMeans(Clustering):
                               precomputed_models_path)
 
         lrts = []
-        K_mod = self._estimate_model(total_sse, mods, right, n, p, data,
-                                     precomputed_models_path)
+        K_mod = self._estimate_model(
+          total_sse, mods, right, n, p, data, precomputed_models_path)
+
         lrts.append(
           ExplainedVariance(
             left, K, K, K,
@@ -135,9 +107,6 @@ class KMeans(Clustering):
 
         return lrts
 
-    def k_fit_path(self, outpath, k):
-        return outpath + "-K{}".format(k)
-
     @staticmethod
     def _sse(data, outpath=None):
         """
@@ -148,68 +117,56 @@ class KMeans(Clustering):
             sse_file = as_ssefile(outpath)
         else:
             sse_file = None
-        if outpath and pathlib.Path(sse_file).exists():
-            logger.info("Loading SSE file")
+        if sse_file and pathlib.Path(sse_file).exists():
+            logger.info("Loading variance file")
             tab = pandas.read_csv(sse_file, sep="\t")
-            sse = tab["SSE"][0]
+            sse = tab[TOTAL_VARIANCE][0]
         else:
             sse = sum_of_squared_errors(data)
-        logger.info("\tSSE: {}".format(sse))
+            # TODO change place
+            if sse_file:
+                with open(sse_file, 'w') as fh:
+                    fh.write("{}\n{}\n".format(TOTAL_VARIANCE, sse))
+        logger.info("\t{}: {}".format(TOTAL_VARIANCE, sse))
         return sse
 
+    @staticmethod
+    def _cluster(data, k, sse, n, p):
+        km = pyspark.ml.clustering.KMeans(k=k, seed=23)
+        fit = km.fit(data)
+        model = KMeansFit(data=None, fit=fit, k=k,
+                          within_cluster_variance=fit.computeCost(data),
+                          total_variance=sse, n=n, p=p)
+        return model
+
     def _estimate_model(self, total_sse, k, n, p, data, outpath):
-        logger.info("\tclustering with K: {}".format(k))
-        km = KMeans(k=k, seed=23)
-        model = km.fit(data)
+        logger.info("Clustering with K: {}".format(k))
 
-        clustout = self._k_fit_path(outpath, k)
-        logger.info("\twriting cluster fit to: {}".format(clustout))
-        model.write().overwrite().save(clustout)
+        model = self._cluster(data, k, total_sse, n, p)
+        model.write_files(outpath)
 
-        comp_files = clustout + "_cluster_sizes.tsv"
-        logger.info("\twriting cluster size file to: {}".format(comp_files))
-        with open(clustout + "_cluster_sizes.tsv", 'w') as fh:
-            for c in model.summary.clusterSizes:
-                fh.write("{}\n".format(c))
-
-        ccf = clustout + "_cluster_centers.tsv"
-        logger.info("\tWriting cluster centers to: {}".format(ccf))
-        with open(ccf, "w") as fh:
-            fh.write("#Clustercenters\n")
-            for center in model.clusterCenters():
-                fh.write("\t".join(map(str, center)) + '\n')
-
-        sse_file = clustout + "_loglik.tsv"
-        logger.info("\twriting SSE and BIC to: {}".format(sse_file))
-
-        sse = model.computeCost(data)
-        expl = 1 - sse / total_sse
-        bic = sse + scipy.log(n) * (k * p + 1)
-        with open(sse_file, 'w') as fh:
-            fh.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(
-              "K", "SSE", "ExplainedVariance", "BIC", "N", "P"))
-            fh.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(
-              k, sse, expl, bic, n, p))
-
-        return {"sse": sse, "expl": expl}
+        return {WITHIN_CLUSTER_VARIANCE: model.within_cluster_variance,
+                EXPLAINED_VARIANCE: model.explained_variance}
 
     @classmethod
     def load_precomputed_models(cls, precomputed_models):
-
         mod = {}
-        if precomputed_models is not None:
+        if precomputed_models:
             fls = glob.glob(precomputed_models + "*_loglik.tsv")
         else:
             fls = []
         if fls:
-            logger.info("Found precomputed ll-files.")
+            logger.info("Found precomputed ll-files...")
             for f in fls:
                 tab = pandas.read_csv(f, sep="\t")
-                sse, expl = tab["SSE"][0], tab["ExplainedVariance"][0]
+                within_ss = tab[WITHIN_CLUSTER_VARIANCE][0]
+                expl = tab[EXPLAINED_VARIANCE][0]
                 k, p = tab["K"][0], tab["P"][0]
-                logger.info("\tusing k={}, p={}, sse={}, expl={} from {}"
-                            .format(k, p, sse, expl, f))
-                mod[k] = {"sse": sse, "expl": expl}
+                logger.info("\tusing k={}, p={}, within_cluster_variance={}, "
+                            "explained_variance={} from {}"
+                            .format(k, p, within_ss, expl, f))
+                mod[k] = {WITHIN_CLUSTER_VARIANCE: within_ss,
+                          EXPLAINED_VARIANCE: expl}
         else:
             logger.info("Starting from scratch...")
         return mod
@@ -249,7 +206,8 @@ def run(infolder, outfolder, clusters, recursive):
     from koios.util.string import drop_suffix
     from koios.logger import set_logger
     from koios.spark_session import SparkSession
-    from koios.io.io import read_parquet, as_logfile
+    from koios.io.io import read_parquet
+    from koios.io.as_filename import as_logfile
 
     outfolder = drop_suffix(outfolder, "/")
     set_logger(as_logfile(outfolder))
