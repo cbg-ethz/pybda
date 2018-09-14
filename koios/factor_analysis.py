@@ -30,8 +30,8 @@ from pyspark.sql.functions import udf
 
 from koios.dimension_reduction import DimensionReduction
 from koios.factor_analysis_fit import FactorAnalysisFit
+from koios.util.cast_as import as_rdd_of_array
 from koios.util.features import feature_columns, to_double, fill_na
-from koios.util.functions import as_rdd_of_array
 from koios.util.stats import column_statistics, svd, center
 
 
@@ -41,8 +41,13 @@ logger.setLevel(logging.INFO)
 
 class FactorAnalysis(DimensionReduction):
 
-    def __init__(self, spark, threshold=1e-9, max_iter=100):
+    def __init__(self, spark, n_factors, threshold=1e-9, max_iter=100):
         super().__init__(spark, threshold, max_iter)
+        self.__n_factors = n_factors
+
+    @property
+    def n_factors(self):
+        return self.__n_factors
 
     @staticmethod
     def _tilde(X, psi_sqrt, n_sqrt):
@@ -95,7 +100,7 @@ class FactorAnalysis(DimensionReduction):
 
         return W, logliks, psi
 
-    def _transform(self, X, W, psi):
+    def _transform(self, data, X, W, psi):
         logger.info("Transforming data")
         Ih = numpy.eye(len(W))
         Wpsi = W / psi
@@ -111,18 +116,22 @@ class FactorAnalysis(DimensionReduction):
         X = X.withColumnRenamed("_1", "features")
         X = X.withColumn("features", as_ml("features"))
 
-        return X
+        data = self._join(data, X)
+        del X
 
-    def fit(self, data, n_factors):
-        logger.info("Running factor analysis ...")
+        return data
+
+    def _fit(self, data):
         X = as_rdd_of_array(data.select(feature_columns(data)))
         means, var = column_statistics(X)
         X = RowMatrix(center(X, means=means))
-        W, ll, psi = self._estimate(X, var, n_factors)
-        X = self._transform(X, W, psi)
+        W, ll, psi = self._estimate(X, var, self.n_factors)
+        return X, W, ll, psi
 
-        data = self._join(data, X)
-        del X
+    def fit_transform(self, data):
+        logger.info("Running factor analysis ...")
+        X, W, ll, psi = self._fit(data)
+        data = self._transform(data, X, W, psi)
 
         return FactorAnalysisFit(data, W, psi, ll)
 
@@ -144,7 +153,8 @@ def run(factors, file, outpath):
     from koios.util.string import drop_suffix
     from koios.logger import set_logger
     from koios.spark_session import SparkSession
-    from koios.io.io import read_tsv, as_logfile
+    from koios.io.io import read_tsv
+    from koios.io.as_filename import as_logfile
 
     outpath = drop_suffix(outpath, "/")
     set_logger(as_logfile(outpath))
@@ -155,8 +165,8 @@ def run(factors, file, outpath):
             data = to_double(data, feature_columns(data))
             data = fill_na(data)
 
-            fl = FactorAnalysis(spark, max_iter=25)
-            fit = fl.fit(data, factors)
+            fl = FactorAnalysis(spark, factors, max_iter=25)
+            fit = fl.fit_transform(data)
             fit.write_files(outpath)
         except Exception as e:
             logger.error("Some error: {}".format(str(e)))
