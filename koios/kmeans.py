@@ -29,6 +29,7 @@ import pyspark
 
 from koios.clustering import Clustering
 from koios.explained_variance import ExplainedVariance
+from koios.globals import WITHIN_VAR, TOTAL_VAR, EXPL_VAR
 from koios.io.as_filename import as_ssefile
 from koios.io.io import write_line
 from koios.kmeans_fit import KMeansFit
@@ -38,10 +39,6 @@ from koios.util.stats import sum_of_squared_errors
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-WITHIN_CLUSTER_VARIANCE = "within_cluster_variance"
-TOTAL_VARIANCE = "total_variance"
-EXPLAINED_VARIANCE = "explained_variance"
-
 
 class KMeans(Clustering):
     def __init__(self, spark, clusters, recursive, threshold=.01, max_iter=25):
@@ -49,7 +46,7 @@ class KMeans(Clustering):
 
     def fit(self, data, precomputed_models_path=None):
         if self.do_recursive:
-            self._fit_recursive(data, precomputed_models_path)
+            return self._fit_recursive(data, precomputed_models_path)
 
     def _fit_recursive(self, data, precomp_mod_path):
         logger.info(
@@ -64,12 +61,6 @@ class KMeans(Clustering):
 
         lefts, mids, rights, lrts = [], [], [], []
         left, mid, right = 2, self.clusters, self.clusters
-        mid = int((left + right) / 2)
-
-        model_max = self._find_or_fit(
-          tot_var, models, right, n, p, data, precomp_mod_path)
-        lrts, _ = self._append_lrt(
-          lrts, left, self.K, self.K, self.K, model_max, model_max, tot_var)
 
         itr = 0
         while True:
@@ -80,7 +71,7 @@ class KMeans(Clustering):
             m_mod = self._find_or_fit(
               tot_var, models, mid, n, p, data, precomp_mod_path)
             lrts, improved_variance = self._append_lrt(
-              lrts, left, mid, right, self.K, model_max, m_mod, tot_var)
+              lrts, left, mid, right, models[self.K], m_mod, tot_var)
 
             if improved_variance < self.threshold:
                 mid, right = int((left + mid) / 2), mid + 1
@@ -93,26 +84,25 @@ class KMeans(Clustering):
                 break
             itr += 1
 
-        return lrts
+        return models, lrts
 
-    def _append_lrt(self, lrts, left, mid, right, K_max, model_max, model, tot_var):
-        improved_variance = 1 - model[EXPLAINED_VARIANCE] / model_max[EXPLAINED_VARIANCE]
-        lrts.append(
+    def _append_lrt(self, expl, left, mid, right, model_max, model, tot_var):
+        improved_variance = \
+            1 - model.explained_variance / model_max.explained_variance
+        expl.append(
           ExplainedVariance(
-            left, mid, right, K_max,
-            model_max[EXPLAINED_VARIANCE], model[EXPLAINED_VARIANCE],
-            model_max[TOTAL_VARIANCE], model[TOTAL_VARIANCE],
+            left, mid, right, self.K,
+            model_max.explained_variance,
+            model.explained_variance,
+            model_max.within_cluster_variance,
+            model.within_cluster_variance,
             tot_var, improved_variance))
         logger.info("Variance reduction for K={} to {}"
                     .format(mid, improved_variance))
-        return lrts, improved_variance
+        return expl, improved_variance
 
     @staticmethod
     def _total_variance(data, outpath=None):
-        """
-        Computes the sum of squared errors of the dataset
-        """
-
         if outpath:
             sse_file = as_ssefile(outpath)
         else:
@@ -120,12 +110,12 @@ class KMeans(Clustering):
         if sse_file and pathlib.Path(sse_file).exists():
             logger.info("Loading variance file")
             tab = pandas.read_csv(sse_file, sep="\t")
-            sse = tab[TOTAL_VARIANCE][0]
+            sse = tab[TOTAL_VAR][0]
         else:
             sse = sum_of_squared_errors(data)
             if sse_file:
-                write_line("{}\n{}\n".format(TOTAL_VARIANCE, sse), sse_file)
-        logger.info("\t{}: {}".format(TOTAL_VARIANCE, sse))
+                write_line("{}\n{}\n".format(TOTAL_VAR, sse), sse_file)
+        logger.info("\t{}: {}".format(TOTAL_VAR, sse))
         return sse
 
     @staticmethod
@@ -143,8 +133,7 @@ class KMeans(Clustering):
         model = self._cluster(data, k, total_sse, n, p)
         model.write_files(outpath)
 
-        return {WITHIN_CLUSTER_VARIANCE: model.within_cluster_variance,
-                EXPLAINED_VARIANCE: model.explained_variance}
+        return model
 
     @classmethod
     def load_precomputed_models(cls, precomputed_models):
@@ -156,15 +145,8 @@ class KMeans(Clustering):
         if fls:
             logger.info("Found precomputed ll-files...")
             for f in fls:
-                tab = pandas.read_csv(f, sep="\t")
-                within_ss = tab[WITHIN_CLUSTER_VARIANCE][0]
-                expl = tab[EXPLAINED_VARIANCE][0]
-                k, p = tab["K"][0], tab["P"][0]
-                logger.info("\tusing k={}, p={}, within_cluster_variance={}, "
-                            "explained_variance={} from {}"
-                            .format(k, p, within_ss, expl, f))
-                mod[k] = {WITHIN_CLUSTER_VARIANCE: within_ss,
-                          EXPLAINED_VARIANCE: expl}
+                m = KMeansFit.read_model_from_file(f)
+                mod[m.K] = m
         else:
             logger.info("Starting from scratch...")
         return mod
@@ -179,18 +161,6 @@ class KMeans(Clustering):
             mods[k] = model
         return model
 
-    def write_clustering(clustering, outpath, lrt_file):
-        logger.info("Writing LRT file to {}".format(lrt_file))
-        with open(lrt_file, "w") as fh:
-            fh.write(clustering[0].header())
-            for lrt in clustering:
-                fh.write(str(lrt))
-
-    def fit_cluster(file_name, K, outpath):
-        lrt_file = outpath + "-lrt_path.tsv"
-        clustering = recursive_clustering(file_name, K, outpath, lrt_file)
-        write_clustering(clustering, outpath, lrt_file)
-
 
 @click.command()
 @click.argument("infolder", type=str)
@@ -199,7 +169,8 @@ class KMeans(Clustering):
 @click.option(
   '--recursive',
   is_flag=True,
-  help="Flag if clustering should be done recursively to find the best K.")
+  help="Flag if clustering should be done recursively to find the best "
+       "K for a given number of maximal clusters.")
 def run(infolder, outfolder, clusters, recursive):
     from koios.util.string import drop_suffix
     from koios.logger import set_logger
@@ -215,7 +186,7 @@ def run(infolder, outfolder, clusters, recursive):
             km = KMeans(spark, clusters, recursive)
             fit = km.fit(read_parquet(spark, infolder),
                          precomputed_models_path=outfolder)
-            fit.write_files(outfolder)
+            fit.write_variance_path(outfolder)
         except Exception as e:
             logger.error("Some error: {}".format(str(e)))
 
