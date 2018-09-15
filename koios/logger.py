@@ -24,9 +24,14 @@ import logging
 
 def set_logger(logfile):
     hdlr = logging.FileHandler(logfile)
-    hdlr.setFormatter(
-      logging.Formatter(
-        '[%(asctime)s - %(levelname)s - %(name)s]: %(message)s')
-    )
+    hdlr.setFormatter(formatter())
     root_logger = logging.getLogger()
     root_logger.addHandler(hdlr)
+
+
+def formatter():
+    return logging.Formatter(logger_format())
+
+
+def logger_format():
+    return '[%(asctime)s - %(levelname)s - %(name)s]: %(message)s'
