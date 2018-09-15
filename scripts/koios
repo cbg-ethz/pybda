@@ -89,7 +89,7 @@ def clustering_fit(config, spark):
     """
 
     cl = _get_from_config(config, "clustering")
-    _run(config, spark, cl)
+    _run(config, spark, cl + "_fit")
 
 
 @cli.command()

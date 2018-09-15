@@ -40,7 +40,8 @@ class KMeansFitProfile:
         return self.__models[key]
 
     def write_variance_path(self, outpath):
-        lrt_file = outpath + "-lrt_path.tsv"
+        from koios.io.as_filename import as_profilefile
+        lrt_file = as_profilefile(outpath)
         logger.info("Writing kmeans fit profile to {}".format(lrt_file))
         with open(lrt_file, "w") as fh:
             fh.write(self._header())
