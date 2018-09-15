@@ -32,16 +32,17 @@ logger.setLevel(logging.INFO)
 class KMeansFit:
     def __init__(self, data, fit, k,
                  within_cluster_variance, total_variance,
-                 n, p):
+                 n, p, path=None):
         self.__data = data
         self.__fit = fit
+        self.__n = n
+        self.__p = p
         self.__k = k
         self.__within_cluster_variance = within_cluster_variance
         self.__total_variance = total_variance
-        self.__n = n
-        self.__p = p
         self.__explained_variance = 1 - within_cluster_variance / total_variance
         self.__bic = within_cluster_variance + scipy.log(n) * (k * p + 1)
+        self.__path = path
 
     @property
     def explained_variance(self):
@@ -102,26 +103,29 @@ class KMeansFit:
         logger.info("Writing SSE and BIC to: {}".format(sse_file))
 
         with open(sse_file, 'w') as fh:
-            fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-              "K", WITHIN_VAR, EXPL_VAR, TOTAL_VAR, "BIC", "N", "P"))
+            fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+              "K", WITHIN_VAR, EXPL_VAR, TOTAL_VAR, "BIC", "N", "P", "path"))
             fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
               self.__k,
               self.__within_cluster_variance,
               self.__explained_variance,
               self.__total_variance,
               self.__bic,
-              self.__n, self.__p))
+              self.__n,
+              self.__p,
+              outfile))
 
     @classmethod
-    def read_model_from_file(cls, file):
+    def load_model(cls, file):
         import pandas
         tab = pandas.read_csv(file, sep="\t")
         within_var = tab[WITHIN_VAR][0]
         expl = tab[EXPL_VAR][0]
         total_var = tab[TOTAL_VAR][0]
-        n, k, p = tab["N"][0] , tab["K"][0], tab["P"][0]
+        n, k, p = tab["N"][0], tab["K"][0], tab["P"][0]
+        path = tab["path"][0]
         logger.info("Loading model:K={}, P={},"
                     " within_cluster_variance={}, "
                     "explained_variance={} from file={}"
                     .format(k, p, within_var, expl, file))
-        return KMeansFit(None, None, k, within_var, total_var, n, p)
+        return KMeansFit(None, None, k, within_var, total_var, n, p, path)

@@ -26,16 +26,34 @@ import subprocess
 import click
 import yaml
 
+from koios.logger import logger_format
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-frmtr = logging.Formatter(
-  '[%(levelname)-1s/%(processName)-1s/%(name)-1s]: %(message)s')
+
+
+def _run(config, spark, cmd):
+    from koios import snake_file
+    subprocess.run(
+      ["snakemake",
+       cmd,
+       "-s", snake_file(),
+       "--configfile", config,
+       "--config", "sparkip=" + spark]
+    )
+
+
+def _get_from_config(config, key):
+    with open(config, 'r') as fh:
+        conf_ = yaml.load(fh)
+    if key not in conf_.keys():
+        raise ValueError("'{}' argument not found in config file".format(key))
+    return conf_[key]
 
 
 @click.group()
 def cli():
-    logging.basicConfig(
-      format='[%(levelname)-1s/%(processName)-1s/%(name)-1s]: %(message)s')
+    logging.basicConfig(format=logger_format())
 
 
 @cli.command()
@@ -46,20 +64,8 @@ def dimension_reduction(config, spark):
     Computes a dimension reduction from a CONFIG in a SPARK session.
     """
 
-    dr = "dimension_reduction"
-    with open(config, 'r') as fh:
-        conf_ = yaml.load(fh)
-    if dr not in conf_.keys():
-        raise ValueError("'{}' argument not found in config file".format(dr))
-
-    from koios import snake_file
-    subprocess.run(
-      ["snakemake",
-       conf_[dr],
-       "-s", snake_file(),
-       "--configfile", config,
-       "--config", "sparkip=" + spark]
-    )
+    dr = _get_from_config(config, "dimension_reduction")
+    _run(config, spark, dr)
 
 
 @cli.command()
@@ -71,14 +77,19 @@ def outliers(config, spark):
     from a CONFIG in a SPARK session.
     """
 
-    from koios import snake_file
-    subprocess.run(
-      ["snakemake",
-       "outliers",
-       "-s", snake_file(),
-       "--configfile", config,
-       "--config", "sparkip=" + spark]
-    )
+    _run(config, spark, "outliers")
+
+
+@cli.command()
+@click.argument("config", type=str)
+@click.argument("spark", type=str)
+def clustering_fit(config, spark):
+    """
+    Do a KMeans clustering fit of a data set.
+    """
+
+    cl = _get_from_config(config, "clustering")
+    _run(config, spark, cl)
 
 
 @cli.command()

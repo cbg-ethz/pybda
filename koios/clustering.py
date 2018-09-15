@@ -24,20 +24,20 @@ from koios.method import Method
 
 
 class Clustering(ABC, Method):
-    def __init__(self, spark, clusters, recursive, threshold, max_iter):
+    def __init__(self, spark, clusters, findbest, threshold, max_iter):
         super().__init__(spark)
         self.__threshold = threshold
         self.__max_iter = max_iter
         self.__clusters = clusters
-        self.__do_recursive = recursive
+        self.__findbest = findbest
 
     @property
     def clusters(self):
         return self.__clusters
 
     @property
-    def do_recursive(self):
-        return self.__do_recursive
+    def findbest(self):
+        return self.__findbest
 
     @property
     def max_iter(self):
