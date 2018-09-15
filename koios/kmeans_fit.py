@@ -22,6 +22,7 @@
 import logging
 import scipy
 
+from koios.globals import WITHIN_VAR, EXPL_VAR, TOTAL_VAR
 from koios.io.as_filename import as_ssefile
 
 logger = logging.getLogger(__name__)
@@ -67,7 +68,7 @@ class KMeansFit:
         self._write_fit(self._k_fit_path(outfolder))
         self._write_cluster_sizes(self._k_fit_path(outfolder))
         self._write_cluster_centers(self._k_fit_path(outfolder))
-        self._write_sse(self._k_fit_path(outfolder))
+        self._write_statistics(self._k_fit_path(outfolder))
 
     def _write_sse(self, outfile):
         logger.info("Writing SSEs to: {}".format(outfile))
@@ -96,14 +97,31 @@ class KMeansFit:
             for center in self.__fit.clusterCenters():
                 fh.write("\t".join(map(str, center)) + '\n')
 
-    def _write_sse(self, outfile):
-        sse_file = outfile + "_loglik.tsv"
+    def _write_statistics(self, outfile):
+        sse_file = outfile + "_statistics.tsv"
         logger.info("Writing SSE and BIC to: {}".format(sse_file))
 
         with open(sse_file, 'w') as fh:
-            fh.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(
-              "K", "SSE", "ExplainedVariance", "BIC", "N", "P"))
-            fh.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(
-              self.__k, self.__within_cluster_variance,
-              self.__explained_variance, self.__bic,
+            fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+              "K", WITHIN_VAR, EXPL_VAR, TOTAL_VAR, "BIC", "N", "P"))
+            fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+              self.__k,
+              self.__within_cluster_variance,
+              self.__explained_variance,
+              self.__total_variance,
+              self.__bic,
               self.__n, self.__p))
+
+    @classmethod
+    def read_model_from_file(cls, file):
+        import pandas
+        tab = pandas.read_csv(file, sep="\t")
+        within_var = tab[WITHIN_VAR][0]
+        expl = tab[EXPL_VAR][0]
+        total_var = tab[TOTAL_VAR][0]
+        n, k, p = tab["N"][0] , tab["K"][0], tab["P"][0]
+        logger.info("Loading model:K={}, P={},"
+                    " within_cluster_variance={}, "
+                    "explained_variance={} from file={}"
+                    .format(k, p, within_var, expl, file))
+        return KMeansFit(None, None, k, within_var, total_var, n, p)
