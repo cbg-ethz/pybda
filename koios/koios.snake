@@ -161,18 +161,27 @@ rule kmeans_fit:
     input:
         expand("{outfolder}/outlier-removal", outfolder=config["outfolder"])
     output:
-        expand("{outfolder}/kmeans-fit-lrt_path.tsv", outfolder = config["outfolder"]),
+        expand("{outfolder}/kmeans-fit-profile.tsv", outfolder = config["outfolder"]),
         expand("{outfolder}/kmeans-fit.log", outfolder = config["outfolder"])
     run:
-        out = config["outfolder"] + "/kmeans-fit-recursive"
+        out = config["outfolder"] + "/kmeans-fit"
         params = " ".join([x for x in config["sparkparams"]])
+        kme = os.path.join(dirname(), "kmeans.py")
+        if config["max_centers"]:
+            clust = config["max_centers"]
+            findbest = "--findbest"
+        if config["n_clusters"]:
+            clust = config["n_clusters"]
+            findbest = ""
+        if config["n_clusters"] and if config["max_centers"]:
+            raise ValueError("Cannot set 'n_clusters' and 'max_clusters' at same time")
         cmd = """{} --master {} \
                     {} \
-                    3-clustering/1a-kmeans-fit-recursive-spark.py \
-                    -f {} \
-                    -o {} \
-                    -k {}""".format(
-          config["spark"], config["sparkip"], params, input, out, config["max_centers"])
+                    {} \
+                    {} \
+                    {} \
+                    {}""".format(
+          config["spark"], config["sparkip"], params, kme, input, out, clust, findbest)
         shell("{cmd}")
 
 

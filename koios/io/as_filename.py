@@ -39,3 +39,11 @@ def as_ssefile(fl):
     else:
         ssefile = fl + "-total_sse.tsv"
     return ssefile
+
+
+def as_profilefile(fl):
+    if fl.endswith(".tsv"):
+        profilefile = fl.replace(".tsv", "-profile.tsv")
+    else:
+        profilefile = fl + "-profile.tsv"
+    return profilefile
