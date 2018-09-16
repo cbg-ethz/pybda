@@ -18,12 +18,11 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
+from abc import abstractmethod
+from koios.spark_model import SparkModel
 
-from abc import ABC
-from koios.method import Method
 
-
-class Clustering(ABC, Method):
+class Clustering(SparkModel):
     def __init__(self, spark, clusters, findbest, threshold, max_iter):
         super().__init__(spark)
         self.__threshold = threshold
@@ -46,3 +45,11 @@ class Clustering(ABC, Method):
     @property
     def threshold(self):
         return self.__threshold
+
+    @abstractmethod
+    def fit(self):
+        pass
+
+    @abstractmethod
+    def fit_transform(self):
+        pass

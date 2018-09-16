@@ -24,10 +24,11 @@ import logging
 import numpy
 import scipy
 from scipy import stats
+
 import pyspark
 from pyspark.mllib.stat import Statistics
 
-from koios.util.functions import as_rdd_of_array
+from koios.util.cast_as import as_rdd_of_array
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

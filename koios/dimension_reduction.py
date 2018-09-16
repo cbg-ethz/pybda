@@ -20,10 +20,10 @@
 
 
 from abc import ABC
-from koios.method import Method
+from koios.method import SparkModel
 
 
-class DimensionReduction(ABC, Method):
+class DimensionReduction(ABC, SparkModel):
     def __init__(self, spark, threshold, max_iter):
         super().__init__(spark)
         self.__threshold = threshold
