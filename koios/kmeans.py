@@ -56,6 +56,9 @@ class KMeans(Clustering):
             return self._fit_recursive(data, precomputed_models_path, outfolder)
         raise ValueError("Not implemented.")
 
+    def fit_transform(self):
+        raise Exception("Not implemented")
+
     def _fit_recursive(self, data, precomp_mod_path, outfolder):
         logger.info(
           "Recursively clustering with max K: {}".format(self.clusters))

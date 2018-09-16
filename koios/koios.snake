@@ -167,15 +167,16 @@ rule kmeans_fit:
         out = config["outfolder"] + "/kmeans-fit"
         params = " ".join([x for x in config["sparkparams"]])
         kme = os.path.join(dirname(), "kmeans.py")
-        if config["max_centers"]:
+        if "max_centers" in config:
             clust = config["max_centers"]
             findbest = "--findbest"
-        if config["n_clusters"]:
-            clust = config["n_clusters"]
+        if "n_centers" in config:
+            clust = config["n_centers"]
             findbest = ""
-        if config["n_clusters"] and if config["max_centers"]:
-            raise ValueError("Cannot set 'n_clusters' and 'max_clusters' at same time")
+        if "max_centers" in config and "n_centers" in config:
+            raise ValueError("Cannot set 'n_centers' and 'max_clusters' at same time")
         cmd = """{} --master {} \
+                    {} \
                     {} \
                     {} \
                     {} \

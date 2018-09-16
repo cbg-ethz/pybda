@@ -22,7 +22,7 @@
 import logging
 import scipy
 
-import pyspark.sql.DataFrame
+import pyspark.sql
 from pyspark.rdd import reduce
 from pyspark.sql.functions import col
 

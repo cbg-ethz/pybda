@@ -22,7 +22,7 @@
 from abc import ABC, abstractmethod
 
 
-class Method(ABC):
+class SparkModel(ABC):
     def __init__(self, spark):
         self.__spark = spark
 

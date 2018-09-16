@@ -9,7 +9,7 @@ from pyspark.mllib.linalg.distributed import RowMatrix
 from pyspark.sql.functions import udf, col
 from pyspark.sql.types import DoubleType
 
-from koios.method import Method
+from koios.method import SparkModel
 from koios.util.functions import as_rdd_of_array
 from koios.util.stats import center, precision, chisquare
 
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class Outliers(Method):
+class Outliers(SparkModel):
     def __init__(self, spark, pvalue):
         super.__init__(spark)
         self.__pvalue = pvalue
