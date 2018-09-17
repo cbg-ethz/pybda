@@ -9,8 +9,8 @@ from pyspark.mllib.linalg.distributed import RowMatrix
 from pyspark.sql.functions import udf, col
 from pyspark.sql.types import DoubleType
 
-from koios.method import SparkModel
-from koios.util.functions import as_rdd_of_array
+from koios.spark_model import SparkModel
+from koios.util.cast_as import as_rdd_of_array
 from koios.util.stats import center, precision, chisquare
 
 logger = logging.getLogger(__name__)
@@ -21,6 +21,23 @@ class Outliers(SparkModel):
     def __init__(self, spark, pvalue):
         super.__init__(spark)
         self.__pvalue = pvalue
+
+    def fit(self):
+        raise Exception("Not implemented.")
+
+    def fit_transform(self, data):
+        logger.info("Removing outliers..")
+        pres = self._precision(data)
+
+        data = data.withColumn("maha", self._mahalanobis(col("features"), pres))
+
+        quant = chisquare(pres, self.__pvalue)
+        n = data.count()
+        data = data.filter(data.maha < quant)
+        logger.info("DataFrame rowcount before/after removal: {}/{}"
+                    .format(n, data.count()))
+
+        return data
 
     @staticmethod
     def _mahalanobis(column, prec):
@@ -39,20 +56,6 @@ class Outliers(SparkModel):
         pres = precision(X)
         return pres
 
-    def fit_transform(self, data):
-        logger.info("Removing outliers..")
-        pres = self._precision(data)
-
-        data = data.withColumn("maha", self._mahalanobis(col("features"), pres))
-
-        quant = chisquare(pres, self.__pvalue)
-        n = data.count()
-        data = data.filter(data.maha < quant)
-        logger.info("DataFrame rowcount before/after removal: {}/{}"
-                    .format(n, data.count()))
-
-        return data
-
 
 @click.command()
 @click.argument("inpath", type=str)
@@ -60,7 +63,8 @@ class Outliers(SparkModel):
 @click.argument("pval", type=float)
 def run(inpath, outpath, pval):
     from koios.spark_session import SparkSession
-    from koios.io.io import read_parquet, write_parquet, as_logfile
+    from koios.io.as_filename import as_logfile
+    from koios.io.io import read_parquet, write_parquet
     from koios.util.string import drop_suffix
     from koios.logger import set_logger
 

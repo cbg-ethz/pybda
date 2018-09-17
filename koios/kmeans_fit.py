@@ -23,7 +23,6 @@ import logging
 import scipy
 
 from koios.globals import WITHIN_VAR, EXPL_VAR, TOTAL_VAR
-from koios.io.as_filename import as_ssefile
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -65,19 +64,17 @@ class KMeansFit:
         return self.__k
 
     def write_files(self, outfolder):
-        self._write_sse(as_ssefile(outfolder))
-        self._write_fit(self._k_fit_path(outfolder))
-        self._write_cluster_sizes(self._k_fit_path(outfolder))
-        self._write_cluster_centers(self._k_fit_path(outfolder))
-        self._write_statistics(self._k_fit_path(outfolder))
+        import os
+        if not os.path.exists(outfolder):
+            os.mkdir(outfolder)
+        path = os.path.join(outfolder, self._k_fit_path())
+        self._write_fit(path)
+        self._write_cluster_sizes(path)
+        self._write_cluster_centers(path)
+        self._write_statistics(path)
 
-    def _write_sse(self, outfile):
-        logger.info("Writing SSEs to: {}".format(outfile))
-        with open(outfile, 'w') as fh:
-            fh.write("SSE\n{}\n".format(self.__within_cluster_variance))
-
-    def k_fit_path(self, outpath):
-        return outpath + "-K{}".format(self.K)
+    def _k_fit_path(self):
+        return "kmeans-fit-K{}".format(self.K)
 
     def _write_fit(self, outfolder):
         logger.info("Writing cluster fit to: {}".format(outfolder))
@@ -86,7 +83,7 @@ class KMeansFit:
     def _write_cluster_sizes(self, outfile):
         comp_files = outfile + "_cluster_sizes.tsv"
         logger.info("Writing cluster size file to: {}".format(comp_files))
-        with open(comp_files + "_cluster_sizes.tsv", 'w') as fh:
+        with open(comp_files, 'w') as fh:
             for c in self.__fit.summary.clusterSizes:
                 fh.write("{}\n".format(c))
 
@@ -101,11 +98,10 @@ class KMeansFit:
     def _write_statistics(self, outfile):
         sse_file = outfile + "_statistics.tsv"
         logger.info("Writing SSE and BIC to: {}".format(sse_file))
-
         with open(sse_file, 'w') as fh:
             fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
               "K", WITHIN_VAR, EXPL_VAR, TOTAL_VAR, "BIC", "N", "P", "path"))
-            fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+            fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
               self.__k,
               self.__within_cluster_variance,
               self.__explained_variance,
