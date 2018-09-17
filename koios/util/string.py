@@ -23,3 +23,4 @@ def drop_suffix(string, suffix):
     if string.endswith(suffix):
         string = string.rstrip(suffix)
     return string
+

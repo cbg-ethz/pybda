@@ -134,7 +134,7 @@ def chisquare(data, pval):
 
 
 def sum_of_squared_errors(data: pyspark.sql.DataFrame):
-    logger.info("Computing SSE of complete dataset")
+    logger.info("Computing SSE")
     rdd = as_rdd_of_array(data)
     means = column_mean(rdd)
     sse = (rdd

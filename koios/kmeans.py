@@ -26,6 +26,7 @@ import pathlib
 import click
 import pandas
 import pyspark
+import pyspark.ml.clustering
 
 from koios.clustering import Clustering
 from koios.globals import TOTAL_VAR
@@ -42,17 +43,17 @@ logger.setLevel(logging.INFO)
 
 class KMeans(Clustering):
     def __init__(self, spark, clusters, findbest, threshold=.01, max_iter=25):
-        clusters = map(int, clusters.split(","))
+        clusters = list(map(int, clusters.split(",")))
         if findbest and len(clusters) > 1:
             raise ValueError(
               "Cannot find optimal clustering with multiple K."
               "Use only a single K or set findbest=false.")
         if findbest:
             clusters = clusters[0]
-        super.__init__(spark, clusters, findbest, threshold, max_iter)
+        super().__init__(spark, clusters, findbest, threshold, max_iter)
 
     def fit(self, data, precomputed_models_path=None, outfolder=None):
-        if self.do_recursive:
+        if self.findbest:
             return self._fit_recursive(data, precomputed_models_path, outfolder)
         raise ValueError("Not implemented.")
 
@@ -66,11 +67,11 @@ class KMeans(Clustering):
         n, p = data.count(), n_features(data, "features")
         logger.info("Using data with n={} and p={}".format(n, p))
 
-        tot_var = self._total_variance(
-          split_vector(data, "features"), outfolder)
+        data = data.select("features")
+
+        tot_var = self._total_variance(split_vector(data, "features"), outfolder)
         kmeans_prof = KMeansFitProfile(
           self.clusters, self.load_precomputed_models(precomp_mod_path))
-
         lefts, mids, rights = [], [], []
         left, mid, right = 2, self.clusters, self.clusters
 
@@ -80,12 +81,12 @@ class KMeans(Clustering):
             lefts.append(left)
             rights.append(right)
 
-            model = self._find_or_fit(tot_var, kmeans_prof,
-                                      mid, n, p, data, outfolder)
+            model = self._find_or_fit(
+              tot_var, kmeans_prof, mid, n, p, data, outfolder)
             kmeans_prof.add(model, left, mid, right)
 
             if kmeans_prof.loss < self.threshold:
-                mid, right = int((left + mid) / 2), mid + 1
+                mid, right = min(int((left + mid) / 2), self.clusters), mid + 1
             elif kmeans_prof.loss > self.threshold:
                 mid, left = int((right + mid) / 2), mid
             if left == lefts[-1] and right == rights[-1]:
@@ -108,6 +109,7 @@ class KMeans(Clustering):
             tab = pandas.read_csv(sse_file, sep="\t")
             sse = tab[TOTAL_VAR][0]
         else:
+            logger.info("Computing variance anew")
             sse = sum_of_squared_errors(data)
             if sse_file:
                 write_line("{}\n{}\n".format(TOTAL_VAR, sse), sse_file)
@@ -162,11 +164,11 @@ class KMeans(Clustering):
   help="Flag if clustering should be done recursively to find the best "
        "K for a given number of maximal clusters.")
 def run(infolder, outfolder, clusters, findbest):
-    from koios.util.string import drop_suffix
-    from koios.logger import set_logger
-    from koios.spark_session import SparkSession
     from koios.io.io import read_parquet
     from koios.io.as_filename import as_logfile
+    from koios.logger import set_logger
+    from koios.spark_session import SparkSession
+    from koios.util.string import drop_suffix
 
     outfolder = drop_suffix(outfolder, "/")
     set_logger(as_logfile(outfolder))
