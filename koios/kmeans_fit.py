@@ -20,9 +20,11 @@
 
 
 import logging
+import os
+
 import scipy
 
-from koios.globals import WITHIN_VAR, EXPL_VAR, TOTAL_VAR
+from koios.globals import WITHIN_VAR_, EXPL_VAR_, TOTAL_VAR_, K_, N_, PATH_, P_
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -42,6 +44,10 @@ class KMeansFit:
         self.__explained_variance = 1 - within_cluster_variance / total_variance
         self.__bic = within_cluster_variance + scipy.log(n) * (k * p + 1)
         self.__path = path
+
+    @property
+    def transform(self, data):
+        return self.__fit.transform(data)
 
     @property
     def explained_variance(self):
@@ -67,14 +73,20 @@ class KMeansFit:
         import os
         if not os.path.exists(outfolder):
             os.mkdir(outfolder)
-        path = os.path.join(outfolder, self._k_fit_path())
+        path = os.path.join(outfolder, KMeansFit._k_fit_path(self.K))
         self._write_fit(path)
         self._write_cluster_sizes(path)
         self._write_cluster_centers(path)
         self._write_statistics(path)
 
-    def _k_fit_path(self):
-        return "kmeans-fit-K{}".format(self.K)
+    @classmethod
+    def as_statfile(cls, fit_folder, k):
+        return os.path.join(
+          fit_folder, KMeansFit._k_fit_path(k) + "_statistics.tsv")
+
+    @classmethod
+    def _k_fit_path(cls, k):
+        return "kmeans-fit-K{}".format(k)
 
     def _write_fit(self, outfolder):
         logger.info("Writing cluster fit to: {}".format(outfolder))
@@ -100,7 +112,7 @@ class KMeansFit:
         logger.info("Writing SSE and BIC to: {}".format(sse_file))
         with open(sse_file, 'w') as fh:
             fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-              "K", WITHIN_VAR, EXPL_VAR, TOTAL_VAR, "BIC", "N", "P", "path"))
+              "K", WITHIN_VAR_, EXPL_VAR_, TOTAL_VAR_, "BIC", "N", "P", "path"))
             fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
               self.__k,
               self.__within_cluster_variance,
@@ -112,16 +124,29 @@ class KMeansFit:
               outfile))
 
     @classmethod
-    def load_model(cls, file):
+    def load_model(cls, statistics_file, load_fit=False):
         import pandas
-        tab = pandas.read_csv(file, sep="\t")
-        within_var = tab[WITHIN_VAR][0]
-        expl = tab[EXPL_VAR][0]
-        total_var = tab[TOTAL_VAR][0]
-        n, k, p = tab["N"][0], tab["K"][0], tab["P"][0]
-        path = tab["path"][0]
+        from pyspark.ml.clustering import KMeansModel
+
+        tab = pandas.read_csv(statistics_file, sep="\t")
+        n, k, p = tab[N_][0], tab[K_][0], tab[P_][0]
+        within_var = tab[WITHIN_VAR_][0]
+        expl = tab[EXPL_VAR_][0]
+        total_var = tab[TOTAL_VAR_][0]
+        path = tab[PATH_][0]
         logger.info("Loading model:K={}, P={},"
                     " within_cluster_variance={}, "
                     "explained_variance={} from file={}"
-                    .format(k, p, within_var, expl, file))
-        return KMeansFit(None, None, k, within_var, total_var, n, p, path)
+                    .format(k, p, within_var, expl, statistics_file))
+        fit = KMeansModel.load(path) if load_fit else None
+        return KMeansFit(None, fit, k, within_var, total_var, n, p, path)
+
+    @classmethod
+    def find_best_fit(cls, fit_folder):
+        import pandas
+        from koios.kmeans_fit_profile import KMeansFitProfile
+
+        profile_file = KMeansFitProfile.as_profilefile(fit_folder)
+        tab = pandas.read_csv(profile_file, sep="\t")
+        stat_file = KMeansFit.as_statfile(fit_folder, tab[K_][-1])
+        return KMeansFit.load_model(stat_file, True)

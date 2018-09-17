@@ -29,7 +29,7 @@ import pyspark
 import pyspark.ml.clustering
 
 from koios.clustering import Clustering
-from koios.globals import TOTAL_VAR
+from koios.globals import TOTAL_VAR_
 from koios.io.as_filename import as_ssefile
 from koios.io.io import write_line
 from koios.kmeans_fit import KMeansFit
@@ -42,7 +42,8 @@ logger.setLevel(logging.INFO)
 
 
 class KMeans(Clustering):
-    def __init__(self, spark, clusters, findbest, threshold=.01, max_iter=25):
+    def __init__(self, spark, clusters, findbest=None,
+                 threshold=.01, max_iter=25):
         clusters = list(map(int, clusters.split(",")))
         if findbest and len(clusters) > 1:
             raise ValueError(
@@ -56,6 +57,14 @@ class KMeans(Clustering):
         if self.findbest:
             return self._fit_recursive(data, precomputed_models_path, outfolder)
         raise ValueError("Not implemented.")
+
+    def transform(self, data, models=None, fit_folder=None):
+        if fit_folder is None and models is None:
+            raise ValueError("Provide either 'models' or a 'models_folder'")
+        if fit_folder:
+            fit = KMeansFit.find_best_fit(fit_folder)
+        # TODO
+        return fit.transform(data)
 
     def fit_transform(self):
         raise Exception("Not implemented")
@@ -107,13 +116,13 @@ class KMeans(Clustering):
         if sse_file and pathlib.Path(sse_file).exists():
             logger.info("Loading variance file")
             tab = pandas.read_csv(sse_file, sep="\t")
-            sse = tab[TOTAL_VAR][0]
+            sse = tab[TOTAL_VAR_][0]
         else:
             logger.info("Computing variance anew")
             sse = sum_of_squared_errors(data)
             if sse_file:
-                write_line("{}\n{}\n".format(TOTAL_VAR, sse), sse_file)
-        logger.info("\t{}: {}".format(TOTAL_VAR, sse))
+                write_line("{}\n{}\n".format(TOTAL_VAR_, sse), sse_file)
+        logger.info("\t{}: {}".format(TOTAL_VAR_, sse))
         return sse
 
     @classmethod
@@ -154,6 +163,11 @@ class KMeans(Clustering):
         return model
 
 
+@click.group()
+def cli():
+    pass
+
+
 @click.command()
 @click.argument("infolder", type=str)
 @click.argument("outfolder", type=str)
@@ -163,7 +177,11 @@ class KMeans(Clustering):
   is_flag=True,
   help="Flag if clustering should be done recursively to find the best "
        "K for a given number of maximal clusters.")
-def run(infolder, outfolder, clusters, findbest):
+def fit(infolder, outfolder, clusters, findbest):
+    """
+    Fit a kmeans-clustering to a data set.
+    """
+
     from koios.io.io import read_parquet
     from koios.io.as_filename import as_logfile
     from koios.logger import set_logger
@@ -184,5 +202,37 @@ def run(infolder, outfolder, clusters, findbest):
             logger.error("Some error: {}".format(str(e)))
 
 
+@click.command()
+@click.argument("infolder", type=str)
+@click.argument("outfolder", type=str)
+@click.option(
+  "clusters",
+  type=str,
+  default=None,
+  help="Comma separated list of number of clusters.")
+def transform(infolder, outfolder, clusters):
+    """
+    Transform a dataset using a kmeans-clustering fit.
+    """
+
+    from koios.io.io import read_parquet, write_parquet
+    from koios.io.as_filename import as_logfile
+    from koios.logger import set_logger
+    from koios.spark_session import SparkSession
+    from koios.util.string import drop_suffix
+
+    outfolder = drop_suffix(outfolder, "/")
+    set_logger(as_logfile(outfolder))
+
+    with SparkSession() as spark:
+        try:
+            km = KMeans(spark, clusters)
+            tr = km.transform(read_parquet(spark, infolder),
+                              fit_folder=infolder)
+            write_parquet(tr, outfolder)
+        except Exception as e:
+            logger.error("Some error: {}".format(str(e)))
+
+
 if __name__ == "__main__":
-    run()
+    cli()

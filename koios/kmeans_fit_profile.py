@@ -20,9 +20,10 @@
 
 
 import logging
+
 import numpy
 
-from koios.globals import WITHIN_VAR, EXPL_VAR, TOTAL_VAR
+from koios.globals import WITHIN_VAR_, EXPL_VAR_, TOTAL_VAR_
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -39,9 +40,16 @@ class KMeansFitProfile:
     def __getitem__(self, key):
         return self.__models[key]
 
+    @classmethod
+    def as_profilefile(cls, fl):
+        if fl.endswith(".tsv"):
+            profilefile = fl.replace(".tsv", "-profile.tsv")
+        else:
+            profilefile = fl + "-profile.tsv"
+        return profilefile
+
     def write_variance_path(self, outpath):
-        from koios.io.as_filename import as_profilefile
-        lrt_file = as_profilefile(outpath)
+        lrt_file = KMeansFitProfile.as_profilefile(outpath)
         logger.info("Writing kmeans fit profile to {}".format(lrt_file))
         with open(lrt_file, "w") as fh:
             fh.write(self._header())
@@ -53,9 +61,9 @@ class KMeansFitProfile:
         return "left_bound\t" \
                "k\t" \
                "right_bound\t" \
-               "{}\t".format(WITHIN_VAR) + \
-               "{}\t".format(EXPL_VAR) + \
-               "{}\t".format(TOTAL_VAR) + \
+               "{}\t".format(WITHIN_VAR_) + \
+               "{}\t".format(EXPL_VAR_) + \
+               "{}\t".format(TOTAL_VAR_) + \
                "percent_loss\n"
 
     @property
@@ -107,5 +115,6 @@ class KMeansFitProfile:
               self.__model.explained_variance,
               self.__model.total_variance,
               self.__loss)
+
 
 

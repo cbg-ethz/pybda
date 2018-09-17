@@ -181,8 +181,9 @@ rule kmeans_fit:
                     {} \
                     {} \
                     {} \
+                    {} \
                     {}""".format(
-          config["spark"], config["sparkip"], params, kme, input, out, clust, findbest)
+          config["spark"], config["sparkip"], params, kme, "fit", input, out, clust, findbest)
         shell("{cmd}")
 
 

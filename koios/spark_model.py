@@ -34,6 +34,10 @@ class SparkModel(ABC):
     def fit_transform(self):
         pass
 
+    @abstractmethod
+    def transform(self):
+        pass
+
     @property
     def spark(self):
         return self.__spark
