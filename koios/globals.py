@@ -19,6 +19,8 @@
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
 
-WITHIN_VAR = "within_cluster_variance"
-TOTAL_VAR = "total_variance"
-EXPL_VAR = "explained_variance"
+WITHIN_VAR_ = "within_cluster_variance"
+TOTAL_VAR_ = "total_variance"
+EXPL_VAR_ = "explained_variance"
+N_, P_, K_ = "n", "p", "k"
+PATH_ = "path"
