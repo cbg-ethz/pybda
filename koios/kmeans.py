@@ -34,6 +34,7 @@ from koios.io.as_filename import as_ssefile
 from koios.io.io import write_line
 from koios.kmeans_fit import KMeansFit
 from koios.kmeans_fit_profile import KMeansFitProfile
+from koios.kmeans_transformed import KMeansTransformed
 from koios.util.features import n_features, split_vector
 from koios.util.stats import sum_of_squared_errors
 
@@ -63,11 +64,10 @@ class KMeans(Clustering):
             raise ValueError("Provide either 'models' or a 'models_folder'")
         if fit_folder:
             fit = KMeansFit.find_best_fit(fit_folder)
-        # TODO
-        return fit.transform(data)
+        return KMeansTransformed(fit.transform(data))
 
     def fit_transform(self):
-        raise Exception("Not implemented")
+        raise NotImplementedError()
 
     def _fit_recursive(self, data, precomp_mod_path, outfolder):
         logger.info(
@@ -78,7 +78,8 @@ class KMeans(Clustering):
 
         data = data.select("features")
 
-        tot_var = self._total_variance(split_vector(data, "features"), outfolder)
+        tot_var = self._total_variance(split_vector(data, "features"),
+                                       outfolder)
         kmeans_prof = KMeansFitProfile(
           self.clusters, self.load_precomputed_models(precomp_mod_path))
         lefts, mids, rights = [], [], []
@@ -229,7 +230,11 @@ def transform(infolder, outfolder, clusters):
             km = KMeans(spark, clusters)
             tr = km.transform(read_parquet(spark, infolder),
                               fit_folder=infolder)
-            write_parquet(tr, outfolder)
+            tr = tr.select(
+              "study", "pathogen", "library", "design", "replicate",
+              "plate", "well", "gene", "sirna", "well_type",
+              "image_idx", "object_idx", "prediction", "features")
+            tr.write_files(outfolder)
         except Exception as e:
             logger.error("Some error: {}".format(str(e)))
 
