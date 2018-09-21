@@ -44,7 +44,6 @@ class KMeansTransformed:
 
     @staticmethod
     def _write_clusters(data, outfolder, suff="", sort_me=True):
-
         outpath = outfolder + "-clusters" + str(suff)
         if not pathlib.Path(outpath).exists():
             pathlib.Path(outpath).mkdir()
@@ -53,6 +52,6 @@ class KMeansTransformed:
         logger.info("Writing clusters to: {}".format(outpath))
         if sort_me:
             data.sort(col('prediction')).write.csv(
-                path=outpath, sep='\t', mode='overwrite', header=True)
+              path=outpath, sep='\t', mode='overwrite', header=True)
         else:
             data.write.csv(path=outpath, sep='\t', mode='overwrite', header=True)

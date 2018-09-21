@@ -226,7 +226,7 @@ rule clustering_fit_plot:
         "3-clustering/1a-clustering-fit-plot.R -f {config[outfolder]} -a kmeans"
 
 
-rule cluster_transform:
+rule kmeans_transform:
     input:
         expand("{outfolder}/{clustering}-fit-lrt_path.tsv",
                outfolder = config["outfolder"],
