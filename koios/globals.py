@@ -24,3 +24,7 @@ TOTAL_VAR_ = "total_variance"
 EXPL_VAR_ = "explained_variance"
 N_, P_, K_ = "n", "p", "k"
 PATH_ = "path"
+
+PLOT_FONT_ = "Tahoma"
+PLOT_FONT_FAMILY_ = 'sans-serif'
+PLOT_STYLE_ = "seaborn-whitegrid"
