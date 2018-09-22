@@ -51,6 +51,7 @@ plot.explained.variance <- function(data.dir, loglik.path)
   sel.max <- loglik.path %>%
     dplyr::filter(current_model == max(current_model))
   sel.max$Ref <- c("Reference")
+
   sel.take <- loglik.path %>%
     dplyr::filter(row_number() == nrow(.))
   sel.take$Ref <- c("Selected K")
