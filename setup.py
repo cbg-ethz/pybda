@@ -32,7 +32,8 @@ setup(
       'click>=6.7',
       'pytest>=3.6.2',
       'matplotlib>=2.2.3',
-      'snakemake>=5.2.2'
+      'snakemake>=5.2.2',
+      'joypy>=0.1.9'
   ],
   classifiers=[
       'Development Status :: 3 - Alpha',
