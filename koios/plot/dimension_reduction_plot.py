@@ -23,11 +23,15 @@ import logging
 import matplotlib.pyplot as plt
 import numpy
 
+from koios.globals import PLOT_FONT_, PLOT_FONT_FAMILY_, PLOT_STYLE_
+
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-plt.style.use(["seaborn-whitegrid"])
-plt.rcParams['font.family'] = 'sans-serif'
-plt.rcParams['font.sans-serif'] = ['Verdana']
+
+plt.style.use([PLOT_STYLE_])
+plt.rcParams['font.family'] = PLOT_FONT_FAMILY_
+plt.rcParams['font.sans-serif'] = [PLOT_FONT_]
 
 
 def plot_cumulative_variance(file_name, cum_exp_var, xlab):
