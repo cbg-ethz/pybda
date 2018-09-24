@@ -20,7 +20,6 @@
 
 
 import logging
-import scipy
 import matplotlib.pyplot as plt
 
 from koios.globals import PLOT_FONT_, PLOT_FONT_FAMILY_, PLOT_STYLE_, RED_
@@ -40,7 +39,7 @@ def plot_profile(file_name, profile):
     min_mod = profile.loc[[profile["k"].idxmin()]]
     min_idx = profile["k"].values.argsort()[1]
 
-    _ = plt.figure(figsize=(12, 7), dpi=720)
+    _ = plt.figure(figsize=(15, 4), dpi=720)
 
     ax = plt.subplot(221)
     ax.spines["top"].set_visible(False)

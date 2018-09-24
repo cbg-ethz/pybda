@@ -20,10 +20,12 @@
 
 
 import logging
+import pandas
 
 import numpy
 
-from koios.globals import WITHIN_VAR_, EXPL_VAR_, TOTAL_VAR_
+from koios.globals import WITHIN_VAR_, EXPL_VAR_, TOTAL_VAR_, K_
+from koios.plot.cluster_plot import plot_profile
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -48,13 +50,27 @@ class KMeansFitProfile:
             profilefile = fl + "-profile.tsv"
         return profilefile
 
-    def write_variance_path(self, outpath):
+    def write_files(self, outpath):
+        self._write_variance_path(outpath)
+        self._plot(outpath)
+
+    def _write_variance_path(self, outpath):
         lrt_file = KMeansFitProfile.as_profilefile(outpath)
         logger.info("Writing kmeans fit profile to {}".format(lrt_file))
         with open(lrt_file, "w") as fh:
             fh.write(self._header())
             for el in self.__variance_path:
                 fh.write(str(el))
+
+    def as_pandas(self):
+        df = [None] * len(self.__variance_path)
+        for i, e in enumerate(self.__variance_path):
+            df[i] = e.values
+        return pandas.DataFrame(df)
+
+    def _plot(self, outpath):
+        for suf in ["png", "pdf", "svg", "eps"]:
+            plot_profile(outpath + "-profile." + suf, self.as_pandas())
 
     @staticmethod
     def _header():
@@ -95,7 +111,8 @@ class KMeansFitProfile:
         self.__ks.append(k)
         self.__models[k] = model
         self.__loss = self._loss(model)
-        self.__variance_path.append(self.Element(left, k, right, model, self.loss))
+        self.__variance_path.append(
+          self.Element(left, k, right, model, self.loss))
         logger.info("Loss for K={} to {}".format(k, self.loss))
         return self
 
@@ -112,6 +129,18 @@ class KMeansFitProfile:
         def model(self):
             return self.__model
 
+        @property
+        def values(self):
+            return {
+                'left_bound': self.__left_boundary,
+                K_: self.__current,
+                'right_bound': self.__right_boundary,
+                WITHIN_VAR_: self.__model.within_cluster_variance,
+                EXPL_VAR_: self.__model.explained_variance,
+                TOTAL_VAR_: self.__model.total_variance,
+                'percent_loss': self.__loss
+            }
+
         def __repr__(self):
             return self.__str__()
 
@@ -124,6 +153,3 @@ class KMeansFitProfile:
               self.__model.explained_variance,
               self.__model.total_variance,
               self.__loss)
-
-
-

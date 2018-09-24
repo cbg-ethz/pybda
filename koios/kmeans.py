@@ -196,15 +196,14 @@ def fit(infolder, outfolder, clusters, findbest):
     set_logger(as_logfile(outfolder))
 
     with SparkSession() as spark:
-        # try:
+        try:
             km = KMeans(spark, clusters, findbest)
             fit = km.fit(read_parquet(spark, infolder),
                          precomputed_models_path=outfolder,
                          outfolder=outfolder)
-            fit.write_variance_path(outfolder)
-        # except Exception as e:
-        #     logger.error("Some error: {}".format(1))
-        #     logger.error(e)
+            fit.write_files(outfolder)
+        except Exception as e:
+            logger.error("Some error: {}".format(e))
 
 
 @cli.command()
