@@ -28,3 +28,4 @@ PATH_ = "path"
 PLOT_FONT_ = "Tahoma"
 PLOT_FONT_FAMILY_ = 'sans-serif'
 PLOT_STYLE_ = "seaborn-whitegrid"
+RED_ = "#990000"
