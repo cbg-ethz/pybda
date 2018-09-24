@@ -80,8 +80,11 @@ class KMeans(Clustering):
 
         tot_var = self._total_variance(split_vector(data, "features"),
                                        outfolder)
+
         kmeans_prof = KMeansFitProfile(
-          self.clusters, self.load_precomputed_models(precomp_mod_path))
+          self.clusters, self.load_precomputed_models(precomp_mod_path)) \
+            .add(KMeansFit(None, None, 0, tot_var, tot_var, n, p), 0, 0, 0)
+
         lefts, mids, rights = [], [], []
         left, mid, right = 2, self.clusters, self.clusters
 
@@ -169,7 +172,7 @@ def cli():
     pass
 
 
-@click.command()
+@cli.command()
 @click.argument("infolder", type=str)
 @click.argument("outfolder", type=str)
 @click.argument("clusters", type=str)
@@ -193,21 +196,22 @@ def fit(infolder, outfolder, clusters, findbest):
     set_logger(as_logfile(outfolder))
 
     with SparkSession() as spark:
-        try:
+        # try:
             km = KMeans(spark, clusters, findbest)
             fit = km.fit(read_parquet(spark, infolder),
                          precomputed_models_path=outfolder,
                          outfolder=outfolder)
             fit.write_variance_path(outfolder)
-        except Exception as e:
-            logger.error("Some error: {}".format(str(e)))
+        # except Exception as e:
+        #     logger.error("Some error: {}".format(1))
+        #     logger.error(e)
 
 
-@click.command()
+@cli.command()
 @click.argument("infolder", type=str)
 @click.argument("outfolder", type=str)
 @click.option(
-  "clusters",
+  "--clusters",
   type=str,
   default=None,
   help="Comma separated list of number of clusters.")
@@ -216,7 +220,7 @@ def transform(infolder, outfolder, clusters):
     Transform a dataset using a kmeans-clustering fit.
     """
 
-    from koios.io.io import read_parquet, write_parquet
+    from koios.io.io import read_parquet
     from koios.io.as_filename import as_logfile
     from koios.logger import set_logger
     from koios.spark_session import SparkSession

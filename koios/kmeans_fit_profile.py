@@ -76,19 +76,28 @@ class KMeansFitProfile:
 
     @property
     def max_model(self):
+        if not self.has_max_model():
+            return None
         return self.__models[self.__maximum]
+
+    def has_max_model(self):
+        return self.__maximum in self.__models.keys()
 
     def keys(self):
         return self.__models.keys()
 
+    def _loss(self, model):
+        if self.has_max_model():
+            return 1 - model.explained_variance / self.max_model.explained_variance
+        return 1
+
     def add(self, model, left, k, right):
         self.__ks.append(k)
         self.__models[k] = model
-        self.__loss = \
-            1 - model.explained_variance / self.max_model.explained_variance
-
+        self.__loss = self._loss(model)
         self.__variance_path.append(self.Element(left, k, right, model, self.loss))
         logger.info("Loss for K={} to {}".format(k, self.loss))
+        return self
 
     class Element:
         def __init__(self, left, k, right, model, loss):
