@@ -20,12 +20,12 @@
 
 
 import logging
-import pandas
 
 import numpy
+import pandas
 
 from koios.globals import WITHIN_VAR_, EXPL_VAR_, TOTAL_VAR_, K_
-from koios.plot.cluster_plot import plot_profile
+from koios.plot.cluster_plot import plot_profile, plot_cluster_sizes
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -52,6 +52,7 @@ class KMeansFitProfile:
 
     def write_files(self, outpath):
         self._write_variance_path(outpath)
+        self._write_cluster_quantiles(outpath)
         self._plot(outpath)
 
     def _write_variance_path(self, outpath):
@@ -62,6 +63,22 @@ class KMeansFitProfile:
             for el in self.__variance_path:
                 fh.write(str(el))
 
+    def _write_cluster_quantiles(self, outpath):
+        from koios.io.io import write_tsv
+        cs_file = outpath + "-cluster_stats.tsv"
+        logger.info("Writing cluster quantiles to {}".format(cs_file))
+
+        data, _ = self._cluster_sizes(outpath)
+        data[K_] = data[K_].astype(int)
+        data = data.groupby(K_).quantile([0, 0.25, 0.5, 0.75, 1])
+        data = data.unstack(K_)["c"]
+        data.columns = list(map(lambda x : "K{}".format(x), data.columns))
+        data.insert(loc=0,
+                    column="quantile",
+                    value=list(map(lambda x: x, data.index)))
+
+        write_tsv(data, cs_file, index=False)
+
     def as_pandas(self):
         df = [None] * len(self.__variance_path)
         for i, e in enumerate(self.__variance_path):
@@ -69,8 +86,34 @@ class KMeansFitProfile:
         return pandas.DataFrame(df)
 
     def _plot(self, outpath):
+        data, labels = self._cluster_sizes(outpath)
         for suf in ["png", "pdf", "svg", "eps"]:
             plot_profile(outpath + "-profile." + suf, self.as_pandas())
+            plot_cluster_sizes(
+              outpath + "-cluster_sizes-histogram." + suf, data, labels)
+
+    def _cluster_sizes(self, path):
+        import glob
+        import re
+
+        fls = glob.glob(path + "*/*cluster_sizes.tsv")
+        reg = re.compile(".*K(\d+)_cluster_sizes.tsv")
+        ll = self.as_pandas()
+
+        frames = [None] * len(fls)
+        for i, fl in enumerate(fls):
+            t = pandas.read_csv(fl, sep="\t", header=-1, names="c")
+            idx = int(reg.match(fl).group(1))
+            t[K_] = str(idx).zfill(9)
+            frames[i] = [idx, t]
+
+        frames = sorted(frames, key=lambda x: x[0])
+        frames = list(filter(lambda x: x[0] in ll["k"].values, frames))
+
+        labels = list(map(lambda x: "K = {}".format(x[0]), frames))
+        data = pandas.concat(map(lambda x: x[1], frames))
+
+        return data, labels
 
     @staticmethod
     def _header():
