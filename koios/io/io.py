@@ -50,7 +50,7 @@ def write_parquet(data, outfolder):
     data.write.parquet(outfolder, mode="overwrite")
 
 
-def write_tsv(data, outfile):
+def write_tsv(data, outfile, header=True, index=True):
     """
     Write a data frama to an outpath as tsv file.
     Overwrites existing files!
@@ -59,8 +59,12 @@ def write_tsv(data, outfile):
     :param outfile: the path where the dataframe is written to
     """
 
+    import pandas
     logger.info("Writing tsv: {}".format(outfile))
-    data.write.csv(outfile, mode="overwrite", sep="\t", header=True)
+    if isinstance(data, pandas.DataFrame):
+        data.to_csv(outfile, sep="\t", header=header, index=index)
+    else:
+        data.write.csv(outfile, mode="overwrite", sep="\t", header=True)
 
 
 def read_tsv(spark, file_name, header='true'):
