@@ -20,7 +20,7 @@
 
 
 from abc import ABC
-from koios.method import SparkModel
+from koios.spark_model import SparkModel
 
 
 class DimensionReduction(ABC, SparkModel):
