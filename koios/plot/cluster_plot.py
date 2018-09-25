@@ -53,7 +53,7 @@ def plot_profile(file_name, profile):
     min_mod = profile.loc[[profile[K_].idxmin()]]
     min_idx = profile[K_].values.argsort()[1]
 
-    _ = plt.figure(figsize=(8, 8), dpi=720)
+    fig = plt.figure(figsize=(7, 3), dpi=720)
 
     ax = plt.subplot(221)
     ax.spines["top"].set_visible(False)
@@ -122,5 +122,5 @@ def plot_profile(file_name, profile):
     plt.xlabel("# of recursions", fontsize=12)
     plt.ylabel("", fontsize=15)
     plt.title("Explained Variance", x=0.13, fontsize=12)
-
+    plt.subplots_adjust(bottom=-.75)
     plt.savefig(file_name, dpi=720)
