@@ -141,3 +141,7 @@ def sum_of_squared_errors(data: pyspark.sql.DataFrame):
            .map(lambda x: (x - means).T.dot(x - means))
            .reduce(lambda x, y: x + y))
     return sse
+
+
+def sample(x, n, replace=False):
+    return numpy.random.choice( x, n, replace=replace)
