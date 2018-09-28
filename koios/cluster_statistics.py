@@ -38,7 +38,8 @@ class ClusterStatistics:
     def __init__(self, spark):
         self.__spark = spark
 
-    def count_statistics(self, data, what):
+    @staticmethod
+    def count_statistics(data, what):
         return (data
                 .groupby(what)
                 .count()
@@ -104,7 +105,7 @@ def run(path):
     from koios.io.io import read_parquet
     from koios.io.as_filename import as_logfile
 
-    outpath = drop_suffix(path, "/")
+    path = drop_suffix(path, "/")
     set_logger(as_logfile(path + "-statistics"))
 
     with SparkSession() as spark:
@@ -113,7 +114,7 @@ def run(path):
             cs = ClusterStatistics(spark)
             gene_pred = cs.count_statistics(data, ["gene", "prediction"])
             path_pred = cs.count_statistics(data, ["pathogen", "prediction"])
-            cs.compute_silhouettes(data)
+            silhouettes = cs.compute_silhouettes(data)
         except Exception as e:
             logger.error("Some error: {}".format(str(e)))
 
