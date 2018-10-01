@@ -23,6 +23,7 @@ WITHIN_VAR_ = "within_cluster_variance"
 TOTAL_VAR_ = "total_variance"
 EXPL_VAR_ = "explained_variance"
 N_, P_, K_ = "n", "p", "k"
+BIC_ = "BIC"
 PATH_ = "path"
 
 PLOT_FONT_ = "Tahoma"
