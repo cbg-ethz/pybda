@@ -38,8 +38,20 @@ class ClusterStatistics:
     def __init__(self, spark):
         self.__spark = spark
 
+    def write_statistics(self, data, path):
+        from koios.io.io import write_tsv
+        write_tsv(
+          self._count_statistics(data, ["gene", "prediction"]),
+          path + "-gene_prediction_counts.tsv")
+        write_tsv(
+            self._count_statistics(data, ["pathogen", "prediction"]),
+          path + "-pathogen_prediction_counts.tsv")
+        write_tsv(self._compute_silhouettes(data),
+          "-statistics-silhouette.tsv"
+        )
+
     @staticmethod
-    def count_statistics(data, what):
+    def _count_statistics(data, what):
         return (data
                 .groupby(what)
                 .count()
@@ -60,7 +72,7 @@ class ClusterStatistics:
 
         return frame
 
-    def compute_silhouettes(self, path, n=100):
+    def _compute_silhouettes(self, path, n=100):
         out_silhouette = path + "-statistics-silhouette.tsv"
         logger.info("Writing silhouette scores to: {}".format(out_silhouette))
 
@@ -111,10 +123,7 @@ def run(path):
     with SparkSession() as spark:
         try:
             data = read_parquet(spark, path)
-            cs = ClusterStatistics(spark)
-            gene_pred = cs.count_statistics(data, ["gene", "prediction"])
-            path_pred = cs.count_statistics(data, ["pathogen", "prediction"])
-            silhouettes = cs.compute_silhouettes(data)
+            ClusterStatistics(spark).write_statistics(data, path)
         except Exception as e:
             logger.error("Some error: {}".format(str(e)))
 
