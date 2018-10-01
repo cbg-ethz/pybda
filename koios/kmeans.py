@@ -45,13 +45,14 @@ logger.setLevel(logging.INFO)
 class KMeans(Clustering):
     def __init__(self, spark, clusters, findbest=None,
                  threshold=.01, max_iter=25):
-        clusters = list(map(int, clusters.split(",")))
-        if findbest and len(clusters) > 1:
-            raise ValueError(
-              "Cannot find optimal clustering with multiple K."
-              "Use only a single K or set findbest=false.")
-        if findbest:
-            clusters = clusters[0]
+        if clusters is not None and isinstance(clusters, str):
+            clusters = list(map(int, clusters.split(",")))
+            if findbest and len(clusters) > 1:
+                raise ValueError(
+                  "Cannot find optimal clustering with multiple K."
+                  "Use only a single K or set findbest=false.")
+            if findbest:
+                clusters = clusters[0]
         super().__init__(spark, clusters, findbest, threshold, max_iter)
 
     def fit(self, data, precomputed_models_path=None, outfolder=None):
@@ -63,6 +64,7 @@ class KMeans(Clustering):
         if fit_folder is None and models is None:
             raise ValueError("Provide either 'models' or a 'models_folder'")
         if fit_folder:
+            logger.info("nice")
             fit = KMeansFit.find_best_fit(fit_folder)
         return KMeansTransformed(fit.transform(data))
 
@@ -208,13 +210,9 @@ def fit(infolder, outfolder, clusters, findbest):
 
 @cli.command()
 @click.argument("infolder", type=str)
+@click.argument("fitfolder", type=str)
 @click.argument("outfolder", type=str)
-@click.option(
-  "--clusters",
-  type=str,
-  default=None,
-  help="Comma separated list of number of clusters.")
-def transform(infolder, outfolder, clusters):
+def transform(infolder, fitfolder, outfolder):
     """
     Transform a dataset using a kmeans-clustering fit.
     """
@@ -230,10 +228,10 @@ def transform(infolder, outfolder, clusters):
 
     with SparkSession() as spark:
         try:
-            km = KMeans(spark, clusters)
+            km = KMeans(spark, None)
             tr = km.transform(read_parquet(spark, infolder),
-                              fit_folder=infolder)
-            tr = tr.select(
+                              fit_folder=fitfolder)
+            tr.data = tr.data.select(
               "study", "pathogen", "library", "design", "replicate",
               "plate", "well", "gene", "sirna", "well_type",
               "image_idx", "object_idx", "prediction", "features")

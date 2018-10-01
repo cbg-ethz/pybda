@@ -42,14 +42,22 @@ class KMeansTransformed:
         write_parquet(self.__data, outfolder)
         self._write_clusters(outfolder)
 
-    @staticmethod
-    def _write_clusters(data, outfolder, suff="", sort_me=True):
+    @property
+    def data(self):
+        return self.__data
+
+    @data.setter
+    def data(self, data):
+        self.__data = data
+
+    def _write_clusters(self, outfolder, suff="", sort_me=True):
         outpath = outfolder + "-clusters" + str(suff)
+        logger.info("Writing clusters to: {}".format(outpath))
+
         if not pathlib.Path(outpath).exists():
             pathlib.Path(outpath).mkdir()
-        data = split_vector(data, "features")
+        data = split_vector(self.__data, "features")
 
-        logger.info("Writing clusters to: {}".format(outpath))
         if sort_me:
             data.sort(col('prediction')).write.csv(
               path=outpath, sep='\t', mode='overwrite', header=True)

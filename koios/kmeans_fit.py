@@ -24,7 +24,8 @@ import os
 
 import scipy
 
-from koios.globals import WITHIN_VAR_, EXPL_VAR_, TOTAL_VAR_, K_, N_, PATH_, P_
+from koios.globals import WITHIN_VAR_, EXPL_VAR_, TOTAL_VAR_, K_, N_, PATH_, \
+    P_, BIC_
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -45,7 +46,6 @@ class KMeansFit:
         self.__bic = within_cluster_variance + scipy.log(n) * (k * p + 1)
         self.__path = path
 
-    @property
     def transform(self, data):
         return self.__fit.transform(data)
 
@@ -112,7 +112,7 @@ class KMeansFit:
         logger.info("Writing SSE and BIC to: {}".format(sse_file))
         with open(sse_file, 'w') as fh:
             fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-              "K", WITHIN_VAR_, EXPL_VAR_, TOTAL_VAR_, "BIC", "N", "P", "path"))
+              K_, WITHIN_VAR_, EXPL_VAR_, TOTAL_VAR_, BIC_, N_, P_, "path"))
             fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
               self.__k,
               self.__within_cluster_variance,
@@ -127,7 +127,7 @@ class KMeansFit:
     def load_model(cls, statistics_file, load_fit=False):
         import pandas
         from pyspark.ml.clustering import KMeansModel
-
+        logger.info(statistics_file)
         tab = pandas.read_csv(statistics_file, sep="\t")
         n, k, p = tab[N_][0], tab[K_][0], tab[P_][0]
         within_var = tab[WITHIN_VAR_][0]
@@ -145,8 +145,7 @@ class KMeansFit:
     def find_best_fit(cls, fit_folder):
         import pandas
         from koios.kmeans_fit_profile import KMeansFitProfile
-
         profile_file = KMeansFitProfile.as_profilefile(fit_folder)
         tab = pandas.read_csv(profile_file, sep="\t")
-        stat_file = KMeansFit.as_statfile(fit_folder, tab[K_][-1])
+        stat_file = KMeansFit.as_statfile(fit_folder, tab[K_].values[-1])
         return KMeansFit.load_model(stat_file, True)

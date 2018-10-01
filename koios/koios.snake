@@ -22,12 +22,11 @@ rule all:
         expand("{outfolder}/outlier-removal", outfolder=config["outfolder"]),
         expand("{outfolder}/outlier-removal.log", outfolder=config["outfolder"]),
 
-        expand("{outfolder}/{clustering}-fit-lrt_path.tsv",
-               outfolder = config["outfolder"],
-               clustering = ["kmeans", "gmm"]),
-        expand("{outfolder}/{clustering}-fit.log",
-               outfolder = config["outfolder"],
-               clustering = ["kmeans", "gmm"]),
+        expand("{outfolder}/{clustering}-fit", outfolder = config["outfolder"], clustering = ["kmeans", "gmm"]),
+        expand("{outfolder}/{clustering}-fit.log", outfolder = config["outfolder"], clustering = ["kmeans", "gmm"]),
+        expand("{outfolder}/{clustering}-fit-profile.{out}", outfolder = config["outfolder"], out = ["svg", "eps", "pdf", "png", "tsv"], clustering = ["kmeans", "gmm"]),
+        expand("{outfolder}/{clustering}-fit-cluster_sizes-histogram.{out}, outfolder = config["outfolder"], out = ["svg", "eps", "pdf", "png"], clustering = ["kmeans", "gmm"]),
+        expand("{outfolder}/{clustering}-fit-total_sse.tsv", outfolder = config["outfolder"], clustering = ["kmeans", "gmm"]),
 
         expand("{outfolder}/{clustering}-fit-plot.log",
                outfolder=config["outfolder"], clustering = ["kmeans", "gmm"]),
@@ -40,7 +39,7 @@ rule all:
         expand("{outfolder}/{clustering}-transformed.log",
                outfolder = config["outfolder"],
                clustering = ["kmeans", "gmm"]),
-#
+
         expand("{outfolder}/{clustering}-transformed-statistics.log",
                outfolder = config["outfolder"],
                clustering = ["kmeans", "gmm"]),
@@ -159,7 +158,8 @@ rule outliers:
 
 rule kmeans_fit:
     input:
-        expand("{outfolder}/outlier-removal", outfolder=config["outfolder"])
+        expand("{outfolder}/outlier-removal", outfolder=config["outfolder"]),
+        expand("{outfolder}/outlier-removal.log", outfolder=config["outfolder"])
     output:
         expand("{outfolder}/kmeans-fit-profile.tsv", outfolder = config["outfolder"]),
         expand("{outfolder}/kmeans-fit.log", outfolder = config["outfolder"])
@@ -207,35 +207,15 @@ rule gmm_fit:
         shell("{cmd}")
 
 
-rule clustering_fit_plot:
-    input:
-      expand("{outfolder}/{clustering}-fit-lrt_path.tsv",
-             outfolder = config["outfolder"],
-             clustering = ["kmeans", "gmm"]),
-      expand("{outfolder}/{clustering}-fit.log",
-              outfolder = config["outfolder"],
-              clustering = ["kmeans", "gmm"])
-    output:
-        expand("{outfolder}/{clustering}-fit-plot.log",
-               outfolder=config["outfolder"],
-               clustering = ["kmeans", "gmm"]),
-        expand("{outfolder}/{clustering}-fit-cluster_sizes-stats.tsv",
-               outfolder=config["outfolder"],
-               clustering = ["kmeans", "gmm"])
-    shell:
-        "3-clustering/1a-clustering-fit-plot.R -f {config[outfolder]} -a kmeans"
-
-
 rule kmeans_transform:
     input:
-        expand("{outfolder}/{clustering}-fit-lrt_path.tsv",
-               outfolder = config["outfolder"],
-               clustering = ["kmeans", "gmm"]),
+        fitf=expand("{outfolder}/{clustering}-fit", outfolder = config["outfolder"], clustering = ["kmeans", "gmm"]),
+        expand("{outfolder}/{clustering}-fit.log", outfolder = config["outfolder"], clustering = ["kmeans", "gmm"]),
+        expand("{outfolder}/{clustering}-fit-profile.{out}", outfolder = config["outfolder"], out = ["svg", "eps", "pdf", "png", "tsv"], clustering = ["kmeans", "gmm"]),
+        expand("{outfolder}/{clustering}-fit-cluster_sizes-histogram.{out}, outfolder = config["outfolder"], out = ["svg", "eps", "pdf", "png"], clustering = ["kmeans", "gmm"]),
+        expand("{outfolder}/{clustering}-fit-total_sse.tsv", outfolder = config["outfolder"], clustering = ["kmeans", "gmm"]),
         inf = expand("{outfolder}/outlier-removal", outfolder=config["outfolder"])
     output:
-        expand("{outfolder}/{clustering}-transformed-clusters",
-               outfolder = config["outfolder"],
-               clustering = ["kmeans", "gmm"]),
         out = expand("{outfolder}/{clustering}-transformed",
                      outfolder = config["outfolder"],
                      clustering = ["kmeans", "gmm"]),
@@ -243,14 +223,16 @@ rule kmeans_transform:
                      outfolder = config["outfolder"],
                      clustering = ["kmeans", "gmm"])
     run:
+        kme = os.path.join(dirname(), "kmeans.py")
         params = " ".join([x for x in config["sparkparams"]])
         cmd = """{} --master {} \
                     {} \
-                    3-clustering/1b-kmeans-transform-recursive-spark.py \
-                    -f {} \
-                    -c {} \
-                    -o {}""".format(
-            config["spark"], config["sparkip"], params, input.inf, output.inc , output.out)
+                    {} \
+                    {} \
+                    {} \
+                    {} \
+                    {}""".format(
+            config["spark"], config["sparkip"], params, kme, "transform", input.inf, input.fitf, output.out)
         shell("{cmd}")
 
 
