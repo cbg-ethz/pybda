@@ -1,8 +1,3 @@
-# PyBDA data analysis
-file that suff up again
+## Tix analysis
 
-
-- data normalisation
-- setting up of everything
-- final analysis 
-- why did i remove this again?
+Check out `pipeline.md`, too.
