@@ -19,12 +19,14 @@
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
 
+import glob
 import logging
+import pandas
 import pathlib
 
 from pyspark.sql.functions import col
 
-from koios.io.io import write_parquet
+from koios.io.io import write_parquet, mkdir, rm
 from koios.util.features import split_vector
 
 logger = logging.getLogger(__name__)
@@ -51,12 +53,10 @@ class KMeansTransformed:
         self.__data = data
 
     def _write_clusters(self, outfolder, suff="", sort_me=True):
-        # TODO cluster writer
         outpath = outfolder + "-clusters" + str(suff)
         logger.info("Writing clusters to: {}".format(outpath))
 
-        if not pathlib.Path(outpath).exists():
-            pathlib.Path(outpath).mkdir()
+        mkdir(outpath)
         data = split_vector(self.__data, "features")
 
         if sort_me:
@@ -64,3 +64,17 @@ class KMeansTransformed:
               path=outpath, sep='\t', mode='overwrite', header=True)
         else:
             data.write.csv(path=outpath, sep='\t', mode='overwrite', header=True)
+
+        files = [x for x in glob.glob(outpath + "/*") if x.endswith(".csv")]
+        for fl in files:
+            df = pandas.read_csv(fl, sep="\t")
+            for i in df["prediction"].unique():
+                sub = df[df.prediction == i]
+                out = outpath + "/cluster_" + str(i) + ".tsv"
+                if not pathlib.Path(out).exists():
+                    sub.to_csv(out, sep="\t", header=True, index=False)
+                else:
+                    sub.to_csv(out, sep="\t", mode="a", header=False,
+                               index=False)
+        rm(files)
+

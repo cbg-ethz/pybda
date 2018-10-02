@@ -18,6 +18,7 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 import glob
+import itertools
 import logging
 
 import click
@@ -40,15 +41,17 @@ class ClusterStatistics:
 
     def write_statistics(self, data, path):
         from koios.io.io import write_tsv
-        write_tsv(
-          self._count_statistics(data, ["gene", "prediction"]),
-          path + "-gene_prediction_counts.tsv")
-        write_tsv(
-          self._count_statistics(data, ["pathogen", "prediction"]),
-          path + "-pathogen_prediction_counts")
-        write_tsv(
-          self._compute_silhouettes(path),
-          path + "-silhouettes.tsv")
+        # write_tsv(
+        #   self._count_statistics(data, ["gene", "prediction"]),
+        #   path + "-gene_prediction_counts.tsv")
+        # write_tsv(
+        #   self._count_statistics(data, ["pathogen", "prediction"]),
+        #   path + "-pathogen_prediction_counts")
+        with open(path + "-silhouettes.tsv", "w") as fh:
+            fh.write("{}\t{}\t{}\n".format("cluster", "neighbor", "silhouette"))
+            for _ in self._compute_silhouettes(path):
+                for c, n, s in _:
+                    fh.write("{}\t{}\t{}\n".format(c, n, s))
 
     @staticmethod
     def _count_statistics(data, what):
@@ -57,6 +60,14 @@ class ClusterStatistics:
                 .count()
                 .select(what + ["count"])
                 .dropDuplicates())
+
+    def _compute_silhouettes(self, path, n=100):
+        fl = find_by_suffix(path + "-clusters/cluster*", "tsv")
+        files = sample(fl, n)
+        len_f = len(files)
+        mat = self._read_matrices(files)
+        logger.info("Computing silhouettes..")
+        return (self._compute_silhouette(c, len_f, mat) for c in range(len_f))
 
     @staticmethod
     def _read_matrices(files):
@@ -68,26 +79,18 @@ class ClusterStatistics:
               usecols=lambda x: x.startswith("f_") or x.startswith("pred"))
         frame = pandas.concat(tables)
         sh = frame.shape
+        logger.info(frame)
         logger.info("Read data frame of dim ({} x {})".format(sh[0], sh[1]))
-
         return frame
-
-    def _compute_silhouettes(self, path, n=100):
-        fl = find_by_suffix(path + "-clusters/cluster*", "tsv")
-        logger.info(fl)
-        files = sample(fl, n)
-        len_f = len(files)
-        mat = self._read_matrices(files)
-        for current_idx in range(len_f):
-            logger.info("Doing file {}".format(current_idx))
-            self._compute_silhouette(current_idx, len_f, mat)
 
     def _compute_silhouette(self, current_idx, K, mat):
         min_cluster, min_distance = self._mp_min_distance(current_idx, K, mat)
         within_distance = self._mean_distance(current_idx, current_idx, mat)
         silhouette = (min_distance - within_distance) / \
-                     numpy.maximum(min_distance, within_distance)
-        return zip(min_cluster, silhouette)
+                      numpy.maximum(min_distance, within_distance)
+        return zip(itertools.repeat(current_idx, len(min_cluster)),
+                   min_cluster,
+                   silhouette)
 
     def _mp_min_distance(self, current_idx, K, mat):
         itr = numpy.array([j for j in range(K) if j != current_idx])
