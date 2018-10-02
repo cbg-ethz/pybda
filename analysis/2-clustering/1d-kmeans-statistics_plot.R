@@ -1,4 +1,54 @@
+#!/usr/bin/env Rscript
 
+
+suppressPackageStartupMessages(library(argparse))
+suppressPackageStartupMessages(library(stringr))
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(tibble))
+suppressPackageStartupMessages(library(readr))
+suppressPackageStartupMessages(library(tidyr))
+suppressPackageStartupMessages(library(here))
+suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(hrbrthemes))
+suppressPackageStartupMessages(library(ggthemes))
+suppressPackageStartupMessages(library(ggthemr))
+suppressPackageStartupMessages(library(purrr))
+suppressPackageStartupMessages(library(colorspace))
+suppressPackageStartupMessages(library(cowplot))
+suppressMessages(hrbrthemes::import_roboto_condensed())
+
+
+.path <- here("3-clustering/")
+source(paste0(.path, "_ora.R"))
+source(paste0(.path, "_util.R"))
+
+
+library(futile.logger)
+logr <- "logger"
+flog.logger(logr, futile.logger::INFO)
+
+
+my.theme <- function(title.hjust = 0, legend_pos="bottom") {
+  theme(
+    axis.text = element_text(size = 8),
+    axis.title.x = element_text(size = 8, face = "bold",
+                                hjust = 1),
+    axis.title.y = element_text(size = 8, face = "bold"),
+    plot.title = element_text(size = 8, face = "bold",
+                              hjust = title.hjust),
+    plot.margin = rep(grid::unit(1, "cm"), 4),
+    strip.text.x = element_text(size = 8),
+    strip.text.y = element_text(size = 8),
+    axis.line = element_blank(),
+    legend.position = legend_pos,
+    legend.text = element_text(size = 8),
+    legend.title = element_text(size = 8)) +
+    background_grid(
+      major = "y", minor = "y",
+      colour.major = "grey80", colour.minor = "grey90",
+      size.major = 0.2, size.minor = 0.2
+    )
+}
 
 
 silhouette.plot <- function(silhouette.file)
