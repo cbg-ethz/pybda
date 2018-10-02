@@ -29,8 +29,8 @@ from koios.plot.descriptive import scatter, histogram
 from koios.plot.dimension_reduction_plot import biplot, \
     plot_cumulative_variance, plot_likelihood_path
 from koios.sampler import sample
+from koios.util.cast_as import as_pandas
 from koios.util.features import feature_columns, split_vector
-from koios.util.functions import as_pandas
 from koios.util.stats import cumulative_explained_variance
 
 
@@ -92,9 +92,7 @@ class FactorAnalysisFit:
               cev, "# factors")
             biplot(
               outfile + "-loadings-biplot." + suf,
-              DataFrame(self.__W, columns=features),
-              "Factor 1",
-              "Factor 2")
+              DataFrame(self.__W, columns=features), "Factor 1", "Factor 2")
             plot_likelihood_path(
               outfile + "-likelihood_path." + suf,
               DataFrame({"L": self.__ll}))

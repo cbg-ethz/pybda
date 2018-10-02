@@ -51,6 +51,7 @@ class KMeansTransformed:
         self.__data = data
 
     def _write_clusters(self, outfolder, suff="", sort_me=True):
+        # TODO cluster writer
         outpath = outfolder + "-clusters" + str(suff)
         logger.info("Writing clusters to: {}".format(outpath))
 

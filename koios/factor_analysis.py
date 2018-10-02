@@ -40,7 +40,6 @@ logger.setLevel(logging.INFO)
 
 
 class FactorAnalysis(DimensionReduction):
-
     def __init__(self, spark, n_factors, threshold=1e-9, max_iter=100):
         super().__init__(spark, threshold, max_iter)
         self.__n_factors = n_factors
@@ -127,6 +126,12 @@ class FactorAnalysis(DimensionReduction):
         X = RowMatrix(center(X, means=means))
         W, ll, psi = self._estimate(X, var, self.n_factors)
         return X, W, ll, psi
+
+    def fit(self):
+        raise NotImplementedError()
+
+    def transform(self):
+        raise NotImplementedError()
 
     def fit_transform(self, data):
         logger.info("Running factor analysis ...")

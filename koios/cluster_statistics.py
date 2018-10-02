@@ -44,11 +44,11 @@ class ClusterStatistics:
           self._count_statistics(data, ["gene", "prediction"]),
           path + "-gene_prediction_counts.tsv")
         write_tsv(
-            self._count_statistics(data, ["pathogen", "prediction"]),
-          path + "-pathogen_prediction_counts.tsv")
-        write_tsv(self._compute_silhouettes(data),
-          "-statistics-silhouette.tsv"
-        )
+          self._count_statistics(data, ["pathogen", "prediction"]),
+          path + "-pathogen_prediction_counts")
+        write_tsv(
+          self._compute_silhouettes(path),
+          path + "-silhouettes.tsv")
 
     @staticmethod
     def _count_statistics(data, what):
@@ -73,14 +73,12 @@ class ClusterStatistics:
         return frame
 
     def _compute_silhouettes(self, path, n=100):
-        out_silhouette = path + "-statistics-silhouette.tsv"
-        logger.info("Writing silhouette scores to: {}".format(out_silhouette))
-
-        files = sample(find_by_suffix(path + "-clusters/cluster*", "tsv"), n)
-
+        fl = find_by_suffix(path + "-clusters/cluster*", "tsv")
+        logger.info(fl)
+        files = sample(fl, n)
         len_f = len(files)
         mat = self._read_matrices(files)
-        for current_idx in range(len(files)):
+        for current_idx in range(len_f):
             logger.info("Doing file {}".format(current_idx))
             self._compute_silhouette(current_idx, len_f, mat)
 
@@ -109,7 +107,7 @@ class ClusterStatistics:
 
 
 @click.command()
-@click.argument("path", type=int)
+@click.argument("path", type=str)
 def run(path):
     from koios.util.string import drop_suffix
     from koios.logger import set_logger

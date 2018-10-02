@@ -107,6 +107,17 @@ def clustering_transform(config, spark):
 @cli.command()
 @click.argument("config", type=str)
 @click.argument("spark", type=str)
+def clustering_statistics(config, spark):
+    """
+    Do a KMeans clustering fit of a data set.
+    """
+
+    _run(config, spark, "clustering_statistics")
+
+
+@cli.command()
+@click.argument("config", type=str)
+@click.argument("spark", type=str)
 @click.argument("input", type=str)
 @click.argument("output", type=str)
 @click.argument("n", type=int)
