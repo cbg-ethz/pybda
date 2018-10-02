@@ -28,3 +28,8 @@ spark-warehouse
 .ipynb_checkpoints/
 job
 *.pyc
+derby.log
+spark-warehouse/*
+sparkcluster-*
+meta
+job
