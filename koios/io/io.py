@@ -20,6 +20,7 @@
 
 
 import logging
+import pathlib
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -99,3 +100,16 @@ def read_parquet(spark, folder_name):
 def write_line(string, outfile):
     with open(outfile, 'w') as fh:
         fh.write(string)
+
+
+def mkdir(path):
+    if not pathlib.Path(path).exists():
+        pathlib.Path(path).mkdir()
+        return True
+    return False
+
+
+def rm(files):
+    for file in files:
+        pathlib.Path(file).unlink()
+
