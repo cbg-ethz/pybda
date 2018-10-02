@@ -19,11 +19,14 @@ logger.setLevel(logging.INFO)
 
 class Outliers(SparkModel):
     def __init__(self, spark, pvalue):
-        super.__init__(spark)
+        super().__init__(spark)
         self.__pvalue = pvalue
 
     def fit(self):
-        raise Exception("Not implemented.")
+        raise NotImplementedError()
+
+    def transform(self):
+        raise NotImplementedError()
 
     def fit_transform(self, data):
         logger.info("Removing outliers..")

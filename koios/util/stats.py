@@ -144,4 +144,4 @@ def sum_of_squared_errors(data: pyspark.sql.DataFrame):
 
 
 def sample(x, n, replace=False):
-    return numpy.random.choice( x, n, replace=replace)
+    return numpy.random.choice(x, n, replace=replace)

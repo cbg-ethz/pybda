@@ -23,4 +23,4 @@ import glob
 
 
 def find_by_suffix(file, suffix):
-    return (x for x in glob.glob(file) if x.endswith(suffix))
+    return [x for x in glob.glob(file) if x.endswith(suffix)]
