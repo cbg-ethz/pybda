@@ -13,8 +13,9 @@ DIR=$(dirname ${FL})
 cd $DIR
 cd ..
 
-snakemake --dag -s biospark.snake --configfile biospark-local.config > "fig/snakeflow.dot"
+snakemake --dag -s koios/koios.snake --configfile koios-usecase.config > "fig/snakeflow.dot"
 python "${DIR}/parse_dag.py"  "fig/snakeflow.dot" > "fig/snakeflow.tsv"
 
-dot -Tpdf "fig/snakeflow.tsv" -o "fig/snakeflow.pdf"
-dot -Tsvg "fig/snakeflow.tsv" -o "fig/snakeflow.svg"
+dot -Tpdf "_fig/snakeflow.tsv" -o "_fig/snakeflow.pdf"
+dot -Tsvg "_fig/snakeflow.tsv" -o "_fig/snakeflow.svg"
+cp "_fig/snakeflow.svg" "docs/source/_static/"

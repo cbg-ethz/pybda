@@ -17,7 +17,7 @@ setup(
   long_description=readme(),
   url='https://github.com/cbg-ethz/koios',
   author='Simon Dirmeier',
-  author_email='simon.dirmeier@bsse.ethz.ch',
+  author_email='simon.dirmeier@web.de',
   license='GPLv3',
   keywords='bigdata analysis pipeline workflow spark pyspark',
   packages=find_packages(),
