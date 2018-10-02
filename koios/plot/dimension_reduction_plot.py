@@ -74,16 +74,12 @@ def biplot(file_name, data, xlab, ylab):
     nms[good_x_idx] = cols[good_x_idx]
     nms[good_y_idx] = cols[good_y_idx]
 
-    _, ax = plt.subplots(figsize=(8, 5), dpi=720)
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-    ax.spines["bottom"].set_visible(False)
-    ax.spines["left"].set_visible(False)
+    _, ax = plt.subplots(figsize=(9, 6), dpi=720)
+    for i in ["top", "bottom", "left", "right"]:
+        ax.spines[i].set_visible(False)
     ax.xaxis.set_label_coords(x=.9, y=-0.1)
     ax.yaxis.set_label_coords(x=-0.05, y=.90)
-    ax.grid(linestyle="")
-    ax.grid(which="major", axis="y", linestyle="-", color="gainsboro")
-    ax.grid(which="major", axis="x", linestyle="-", color="gainsboro")
+    ax.grid(which="major", axis="both", linestyle="-", color="gainsboro")
 
     for i in range(len(nms)):
         plt.arrow(0, 0, vals[i, 0], vals[i, 1], color='#696969', alpha=0.75)

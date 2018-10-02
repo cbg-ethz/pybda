@@ -17,18 +17,18 @@
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
-import glob
+
+
 import itertools
 import logging
 
 import click
-import scipy
-import time
-
 import numpy
 import pandas
+import scipy
 
 from koios.io.file import find_by_suffix
+from koios.plot.cluster_plot import plot_silhouettes
 from koios.util.stats import sample
 
 logger = logging.getLogger(__name__)
@@ -40,18 +40,24 @@ class ClusterStatistics:
         self.__spark = spark
 
     def write_statistics(self, data, path):
-        from koios.io.io import write_tsv
         # write_tsv(
         #   self._count_statistics(data, ["gene", "prediction"]),
         #   path + "-gene_prediction_counts.tsv")
         # write_tsv(
         #   self._count_statistics(data, ["pathogen", "prediction"]),
         #   path + "-pathogen_prediction_counts")
-        with open(path + "-silhouettes.tsv", "w") as fh:
+        fl_out = path + "-silhouettes"
+        with open(fl_out + ".tsv", "w") as fh:
             fh.write("{}\t{}\t{}\n".format("cluster", "neighbor", "silhouette"))
             for _ in self._compute_silhouettes(path):
                 for c, n, s in _:
                     fh.write("{}\t{}\t{}\n".format(c, n, s))
+
+        for suf in ["png", "pdf", "svg", "eps"]:
+            plot_silhouettes(
+              fl_out + "." + suf,
+              pandas.read_csv(fl_out + ".tsv", sep="\t",
+                              usecols=["silhouette"]))
 
     @staticmethod
     def _count_statistics(data, what):
@@ -79,7 +85,6 @@ class ClusterStatistics:
               usecols=lambda x: x.startswith("f_") or x.startswith("pred"))
         frame = pandas.concat(tables)
         sh = frame.shape
-        logger.info(frame)
         logger.info("Read data frame of dim ({} x {})".format(sh[0], sh[1]))
         return frame
 
@@ -104,8 +109,8 @@ class ClusterStatistics:
     @staticmethod
     def _mean_distance(it, current_idx, df):
         distances = scipy.spatial.distance.cdist(
-          df[df.prediction == current_idx].iloc[:, 1:],
-          df[df.prediction == it].iloc[:, 1:])
+          df[df.prediction == current_idx].filter(regex="f_\d+").values,
+          df[df.prediction == it].filter(regex="f_\d+").values)
         return numpy.mean(distances, axis=1)
 
 

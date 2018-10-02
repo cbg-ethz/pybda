@@ -23,6 +23,7 @@ import logging
 
 import joypy
 import matplotlib.pyplot as plt
+import numpy
 
 from koios.globals import PLOT_FONT_, PLOT_FONT_FAMILY_, PLOT_STYLE_, RED_, K_
 
@@ -53,7 +54,7 @@ def plot_profile(file_name, profile):
     min_mod = profile.loc[[profile[K_].idxmin()]]
     min_idx = profile[K_].values.argsort()[1]
 
-    fig = plt.figure(figsize=(7, 3), dpi=720)
+    plt.figure(figsize=(7, 3), dpi=720)
 
     ax = plt.subplot(221)
     ax.spines["top"].set_visible(False)
@@ -123,4 +124,38 @@ def plot_profile(file_name, profile):
     plt.ylabel("", fontsize=15)
     plt.title("Explained Variance", x=0.13, fontsize=12)
     plt.subplots_adjust(bottom=-.75)
+    plt.savefig(file_name, dpi=720)
+
+
+def plot_silhouettes(file_name, data):
+    hist = numpy.histogram(data["silhouette"].values, bins=100, density=True)
+
+    mids = (hist[1][:-2] + hist[1][1:-1]) / 2
+    widths = numpy.diff(hist[1], 1)
+    neg_idx = numpy.where(mids <= 0)[0]
+    pos_idx = numpy.where(mids > 0)[0]
+
+    _, ax = plt.subplots(figsize=(11, 7))
+    for i in ["top", "bottom", "left", "right"]:
+        ax.spines[i].set_visible(False)
+    ax.xaxis.set_label_coords(x=.9, y=-0.05)
+    ax.yaxis.set_label_coords(x=-0.05, y=.95)
+    ax.grid(which="major", axis="x", linestyle="-", color="gainsboro")
+    ax.grid(which="major", axis="y", linestyle="-", color="gainsboro")
+    ax.legend(frameon=False, loc='lower center', ncol=2)
+    ax.set_axisbelow(True)
+
+    plt.bar(mids[numpy.ix_(neg_idx)], -hist[0][numpy.ix_(neg_idx)],
+            edgecolor="black", width=widths[numpy.ix_(neg_idx)],
+            color="#464C72FF", alpha=.75)
+    plt.bar(mids[numpy.ix_(pos_idx)], hist[0][numpy.ix_(pos_idx)],
+            edgecolor="black", width=widths[numpy.ix_(pos_idx)],
+            color="#5E988BFF", alpha=.75)
+    locs, labels = plt.yticks()
+    plt.xticks(fontsize=12)
+    plt.yticks(locs[1:-1], numpy.abs(locs)[1:-1], fontsize=12)
+    plt.xlabel("Silhouette score", fontsize=17)
+    plt.ylabel("Density", fontsize=17)
+    plt.legend(["Bad", "Good"], loc=2, bbox_to_anchor=(.965, 0.5),
+               frameon=False, fontsize=15)
     plt.savefig(file_name, dpi=720)
