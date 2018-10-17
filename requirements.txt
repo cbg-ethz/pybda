@@ -10,7 +10,7 @@ sparkhpc
 statsmodels
 snakemake
 uuid
+joypy
 sphinx
 sphinxcontrib-fulltoc
 sphinx_fontawesome
-joypy
