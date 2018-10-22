@@ -18,8 +18,9 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-import click
+
 from koios.spark_model import SparkModel
+
 
 class Regression(SparkModel):
     def __init__(self, spark, family, do_crossvalidation):
@@ -39,34 +40,3 @@ class Regression(SparkModel):
 
     def transform(self):
         pass
-
-
-@click.command()
-@click.argument("factors", type=int)
-@click.argument("file", type=str)
-@click.argument("outpath", type=str)
-def run(factors, file, outpath):
-    from koios.util.string import drop_suffix
-    from koios.logger import set_logger
-    from koios.spark_session import SparkSession
-    from koios.io.io import read_tsv
-    from koios.io.as_filename import as_logfile
-
-    outpath = drop_suffix(outpath, "/")
-    set_logger(as_logfile(outpath))
-
-    with SparkSession() as spark:
-        try:
-            data = read_tsv(spark, file)
-            data = to_double(data, feature_columns(data))
-            data = fill_na(data)
-
-            fl = FactorAnalysis(spark, factors, max_iter=25)
-            fit = fl.fit_transform(data)
-            fit.write_files(outpath)
-        except Exception as e:
-            logger.error("Some error: {}".format(str(e)))
-
-
-if __name__ == "__main__":
-    run()
