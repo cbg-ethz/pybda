@@ -26,6 +26,7 @@ import pyspark.sql
 from pyspark.rdd import reduce
 from pyspark.sql.functions import col
 
+from koios.globals import DOUBLE_, FLOAT_
 from koios.util.cast_as import as_array
 
 logger = logging.getLogger(__name__)
@@ -57,19 +58,30 @@ def fill_na(data, what=0):
     return data.fillna(what)
 
 
-def to_double(data, columns):
+def to_double(data, feature_columns):
     """
     Convert columns to double.
 
     :param data: a data frame
-    :param columns: the column names of which the data should be converted.
-    :type columns: list(str)
+    :param feature_columns: the column names of which the data should be converted.
+    :type feature_columns: list(str)
     :return: returns the data frame with newly cast colunms
     """
 
-    feature_columns = columns
+    column_types = {x: y for (x, y) in data.dtypes}
     for x in feature_columns:
-        data = data.withColumn(x, data[x].cast("double"))
+        if x not in column_types.keys():
+            raise ValueError("Couldn't find column: '{}'".format(x))
+        if column_types[x] != FLOAT_:
+            data = data.withColumn(x, data[x].cast("float"))
+
+    if "features" in column_types.keys():
+        feature_type = scipy.array(data.select("features").take(1)[0][0]).dtype
+        if feature_type is not "float64":
+            raise TypeError("'features' column ist not if type float")
+
+    return data
+
 
     return data
 

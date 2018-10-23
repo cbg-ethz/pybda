@@ -18,9 +18,18 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
+import re
+
 
 def drop_suffix(string, suffix):
     if string.endswith(suffix):
         string = string.rstrip(suffix)
     return string
+
+
+def matches(string, regex):
+    reg = re.compile(regex).match(string)
+    if reg is None:
+        return False
+    return True
 
