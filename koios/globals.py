@@ -30,3 +30,8 @@ PLOT_FONT_ = "Tahoma"
 PLOT_FONT_FAMILY_ = 'sans-serif'
 PLOT_STYLE_ = "seaborn-whitegrid"
 RED_ = "#990000"
+
+TSV_ = "tsv"
+DOUBLE_ = "double"
+FLOAT_ = "float"
+FLOAT_ = "float64"

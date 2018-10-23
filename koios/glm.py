@@ -62,25 +62,28 @@ class GLM(Regression):
         raise NotImplementedError()
 
 
-
 @click.command()
-@click.argument("family", type=int)
-@click.argument("", type=str)
+@click.argument("file", type=str)
+@click.argument("meta", type=str)
+@click.argument("features", type=str)
+@click.argument("response", type=str)
+@click.argument("family", type=str)
 @click.argument("outpath", type=str)
-def run(factors, file, outpath):
+def run(file, meta, features, response, family, outpath):
     from koios.util.string import drop_suffix
     from koios.logger import set_logger
     from koios.spark_session import SparkSession
-    from koios.io.io import read_tsv
     from koios.io.as_filename import as_logfile
+    from koios.io.io import read_and_transmute
 
     outpath = drop_suffix(outpath, "/")
     set_logger(as_logfile(outpath))
 
     with SparkSession() as spark:
         try:
-            data = read_tsv(spark, file)
-            data = to_double(data, feature_columns(data))
+            data, features = read_and_transmute(spark, file, features)
+
+            data = to_double(data)
             data = fill_na(data)
 
             fl = FactorAnalysis(spark, factors, max_iter=25)

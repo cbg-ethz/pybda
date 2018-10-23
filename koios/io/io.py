@@ -22,6 +22,10 @@
 import logging
 import pathlib
 
+from koios.globals import TSV_
+from koios.util.features import to_double, fill_na
+from koios.util.string import matches
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
@@ -66,6 +70,34 @@ def write_tsv(data, outfile, header=True, index=True):
         data.to_csv(outfile, sep="\t", header=header, index=index)
     else:
         data.write.csv(outfile, mode="overwrite", sep="\t", header=True)
+
+
+def read_and_transmute(spark, file_name, feature_columns, header='true'):
+    """
+    Reads either a 'tsv' or 'parquet' file as data frame.
+
+    :param spark: a running spark session
+    :type spark: pyspark.sql.SparkSession
+    :param file_name: the name of the tsv or parquet file as string
+    :param feature_columns: a list of column names that are the features
+    :param header: boolean if the tsv has a header
+    :return: returns a data frame
+    """
+
+    if file_name.endswith(TSV_):
+        data = read_tsv(spark, file_name)
+    elif matches(file_name, ".*/.+\..+"):
+        raise ValueError("Can only parse tsv files or parquet folders.")
+    elif pathlib.Path(file_name).is_dir():
+        data = read_parquet(spark, file_name)
+    else:
+        raise ValueError("{} is neither tsv nor folder.".format(file_name))
+
+    data = to_double(data, feature_columns)
+    data = fill_na(data)
+
+    return data
+
 
 
 def read_tsv(spark, file_name, header='true'):
