@@ -22,7 +22,7 @@
 import logging
 import os
 
-import scipy
+import scipy as sp
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -31,7 +31,15 @@ logger.setLevel(logging.INFO)
 class GLMFit:
     def __init__(self, data, model):
         self.__data = data
-        self.__model = model
+        self.__coefficients = sp.append(sp.array(model.intercept),
+                                        sp.array(model.coefficients))
+        self.__se = model.summary.coefficientStandardErrors
+        self.__df = model.summary.degreesOfFreedom
+        self.__sse = model.summary.meanSquaredError
+        self.__pvalues = model.summary.pValues
+        self.__tvalues = model.summary.tValues
+        self.__r2 = model.summary.r2
+        self.__rmse = model.summary.rootMeanSquaredError
 
     @property
     def data(self):
@@ -43,30 +51,37 @@ class GLMFit:
 
     @property
     def standard_errors(self):
-        return self.__standard_errors
+        return self.__se
 
     @property
     def df(self):
         return self.__df
 
+    @property
     def sse(self):
         return self.__sse
 
+    @property
     def p_values(self):
         return self.__pvalues
 
+    @property
     def t_values(self):
         return self.__tvalues
 
+    @property
     def residuals(self):
         return self.__residuals
 
+    @property
     def r2(self):
-        return self.__cod
+        return self.__r2
 
+    @property
     def rmse(self):
         return self.__rmse
 
+    @property
     def write_files(self, outfolder):
         import os
         if not os.path.exists(outfolder):

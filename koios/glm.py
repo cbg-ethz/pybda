@@ -25,6 +25,7 @@ import click
 from pyspark.ml.regression import LinearRegression
 from pyspark.ml.classification import LogisticRegression
 
+from koios.glm_fit import GLMFit
 from koios.regression import Regression
 
 logger = logging.getLogger(__name__)
@@ -32,13 +33,29 @@ logger.setLevel(logging.INFO)
 
 
 class GLM(Regression):
-    def __init__(self, spark, family="gaussian",
-                 do_cross_validation=False, max_iter=100):
-        super().__init__(spark, family, do_cross_validation)
+    def __init__(self, spark, family="gaussian", max_iter=100):
+        super().__init__(spark, family)
         self.__max_iter = max_iter
 
-    def fit(self):
-        raise NotImplementedError()
+    def fit(self, data):
+        logger.info("Fitting GLM with family='{}'".format(self.family))
+        model = self._model().fit(data)
+        return GLMFit(model)
+
+    def cross_validate(self, data, split=[0.8, 0.2]):
+        if not isinstance(split, list):
+            raise TypeError("'split' is not a list")
+        if not len(split) == 2:
+            raise TypeError("'split' is not of length two")
+        if not sum(split) == 1:
+            raise TypeError("'split' does not sum to one")
+        train, test = data.randomSplit(split, seed=23)
+        model = self._fit(data)
+
+        return model.transform(test).select(["response", "prediction"])
+
+    def _fit(self, data):
+        return self._model().fit(data)
 
     def _model(self):
         if self.family == "gaussian":
@@ -49,17 +66,11 @@ class GLM(Regression):
             raise NotImplementedError()
         return reg
 
-    def fit_transform(self, data):
-        logger.info("Fitting GLM with family='{}'".format(self.family))
-        model = self._model().fit(data)
-        return model.transform(data).select(["response", "prediction"]), \
-               GLMFit(model)
-
-
+    def fit_transform(self):
+        raise NotImplementedError
 
     def transform(self):
         raise NotImplementedError()
-
 
 
 @click.command()

@@ -24,8 +24,8 @@ import os
 
 import scipy
 
-from koios.globals import WITHIN_VAR_, EXPL_VAR_, TOTAL_VAR_, K_, N_, PATH_, \
-    P_, BIC_
+from koios.globals import WITHIN_VAR_, EXPL_VAR_, TOTAL_VAR_,\
+    K_, N_, PATH_, P_, BIC_
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
