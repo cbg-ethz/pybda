@@ -22,6 +22,8 @@
 import logging
 import pathlib
 
+import pandas
+
 from koios.globals import TSV_
 from koios.util.features import to_double, fill_na, assemble
 from koios.util.string import matches
@@ -150,3 +152,8 @@ def rm(files):
     for file in files:
         pathlib.Path(file).unlink()
 
+
+def read_column_info(meta, features):
+    meta = list((pandas.read_csv(meta, header=None))[0].values)
+    features = list((pandas.read_csv(features, header=None))[0].values)
+    return meta, features

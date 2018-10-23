@@ -77,15 +77,14 @@ def run(file, meta, features, response, family, outpath):
     from koios.logger import set_logger
     from koios.spark_session import SparkSession
     from koios.io.as_filename import as_logfile
-    from koios.io.io import read_and_transmute
-    from koios.util.string import split
+    from koios.io.io import read_and_transmute, read_column_info
 
     outpath = drop_suffix(outpath, "/")
     set_logger(as_logfile(outpath))
 
     with SparkSession() as spark:
         try:
-            meta, features = split([meta, features], ",")
+            meta, features = read_column_info(meta, features)
             data = read_and_transmute(spark, file, features)
             fl = GLM(spark, response, family)
             fit = fl.fit(data)

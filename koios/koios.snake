@@ -273,20 +273,18 @@ rule glm:
   output:
       expand("{outfolder}/{regression}-{out}.tsv",
              outfolder=config["outfolder"],
-             regression=["glm", "rf"],
+             regression=config["regression"],
              out=["table", "statistics"])
   run:
       out = config["outfolder"] + "/" + config["regression"]
-      reg = os.path.join(dirname(), "regression.py")
+      reg = os.path.join(dirname(), "glm.py")
       params = " ".join([x for x in config["sparkparams"]])
-      cmd = """{} --master {} \
-                  {} \
-                  {} \
-                  {}""".format(config["spark"],
+      cmd = """{} --master {} {} {} {} {} {} {} {} {}""".format(
+                               config["spark"],
                                config["sparkip"],
                                params, reg,
                                input, config["meta"], config["features"],
                                config["response"], config["family"], out)
-      shell("{cmd}")
+      shell("echo {cmd}")
 
 
