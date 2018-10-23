@@ -1,0 +1,29 @@
+[2018-10-23 23:12:31,876 - INFO - koios.spark_session]: Initializing pyspark session
+[2018-10-23 23:12:35,208 - INFO - koios.spark_session]: Config: spark.driver.memory, value: 3G
+[2018-10-23 23:12:35,209 - INFO - koios.spark_session]: Config: spark.master, value: local
+[2018-10-23 23:12:35,209 - INFO - koios.spark_session]: Config: spark.driver.port, value: 50224
+[2018-10-23 23:12:35,209 - INFO - koios.spark_session]: Config: spark.driver.host, value: 192.168.1.21
+[2018-10-23 23:12:35,209 - INFO - koios.spark_session]: Config: spark.files, value: file:/Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/koios/glm.py
+[2018-10-23 23:12:35,209 - INFO - koios.spark_session]: Config: spark.rdd.compress, value: True
+[2018-10-23 23:12:35,209 - INFO - koios.spark_session]: Config: spark.serializer.objectStreamReset, value: 100
+[2018-10-23 23:12:35,209 - INFO - koios.spark_session]: Config: spark.executor.id, value: driver
+[2018-10-23 23:12:35,209 - INFO - koios.spark_session]: Config: spark.submit.deployMode, value: client
+[2018-10-23 23:12:35,209 - INFO - koios.spark_session]: Config: spark.app.id, value: local-1540329154341
+[2018-10-23 23:12:35,209 - INFO - koios.spark_session]: Config: spark.app.name, value: glm.py
+[2018-10-23 23:12:35,209 - ERROR - __main__]: Some error: module 'statsmodels.compat.pandas' has no attribute 'read_csv'
+[2018-10-23 23:12:35,209 - INFO - koios.spark_session]: Stopping Spark context
+[2018-10-23 23:22:45,312 - INFO - koios.spark_session]: Initializing pyspark session
+[2018-10-23 23:22:50,770 - INFO - koios.spark_session]: Config: spark.driver.memory, value: 3G
+[2018-10-23 23:22:50,770 - INFO - koios.spark_session]: Config: spark.master, value: local
+[2018-10-23 23:22:50,770 - INFO - koios.spark_session]: Config: spark.driver.host, value: 192.168.1.21
+[2018-10-23 23:22:50,770 - INFO - koios.spark_session]: Config: spark.app.id, value: local-1540329770190
+[2018-10-23 23:22:50,770 - INFO - koios.spark_session]: Config: spark.driver.port, value: 50306
+[2018-10-23 23:22:50,770 - INFO - koios.spark_session]: Config: spark.rdd.compress, value: True
+[2018-10-23 23:22:50,770 - INFO - koios.spark_session]: Config: spark.files, value: file:/Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/koios/glm.py
+[2018-10-23 23:22:50,770 - INFO - koios.spark_session]: Config: spark.serializer.objectStreamReset, value: 100
+[2018-10-23 23:22:50,770 - INFO - koios.spark_session]: Config: spark.executor.id, value: driver
+[2018-10-23 23:22:50,770 - INFO - koios.spark_session]: Config: spark.submit.deployMode, value: client
+[2018-10-23 23:22:50,770 - INFO - koios.spark_session]: Config: spark.app.name, value: glm.py
+[2018-10-23 23:22:50,797 - INFO - koios.io.io]: Reading tsv: data/single_cell_samples.tsv
+[2018-10-23 23:23:03,196 - ERROR - __main__]: Some error: col should be a string or a Column
+[2018-10-23 23:23:03,197 - INFO - koios.spark_session]: Stopping Spark context
