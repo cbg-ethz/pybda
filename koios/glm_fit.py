@@ -31,6 +31,7 @@ logger.setLevel(logging.INFO)
 class GLMFit:
     def __init__(self, data, model):
         self.__data = data
+        self.__model = model
         self.__coefficients = sp.append(sp.array(model.intercept),
                                         sp.array(model.coefficients))
         self.__se = model.summary.coefficientStandardErrors
@@ -40,6 +41,9 @@ class GLMFit:
         self.__tvalues = model.summary.tValues
         self.__r2 = model.summary.r2
         self.__rmse = model.summary.rootMeanSquaredError
+
+    def transform(self, data):
+        return self.__model.transform(data)
 
     @property
     def data(self):
