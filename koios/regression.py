@@ -23,10 +23,9 @@ from koios.spark_model import SparkModel
 
 
 class Regression(SparkModel):
-    def __init__(self, spark, family, do_crossvalidation):
+    def __init__(self, spark, family,):
         super().__init__(spark)
         self.__family = family
-        self.__do_crossvalidation = do_crossvalidation
 
     @property
     def family(self):
