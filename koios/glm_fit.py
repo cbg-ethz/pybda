@@ -21,6 +21,7 @@
 
 import logging
 import os
+import pandas
 
 import scipy as sp
 
@@ -29,18 +30,42 @@ logger.setLevel(logging.INFO)
 
 
 class GLMFit:
-    def __init__(self, data, model):
+    def __init__(self, data, model, response):
         self.__data = data
         self.__model = model
-        self.__coefficients = sp.append(sp.array(model.intercept),
-                                        sp.array(model.coefficients))
-        self.__se = model.summary.coefficientStandardErrors
+        self.__response = response
         self.__df = model.summary.degreesOfFreedom
-        self.__sse = model.summary.meanSquaredError
-        self.__pvalues = model.summary.pValues
-        self.__tvalues = model.summary.tValues
+        self.__mse = model.summary.meanSquaredError
         self.__r2 = model.summary.r2
         self.__rmse = model.summary.rootMeanSquaredError
+        self.__table = pandas.DataFrame(
+          {"beta": sp.append(sp.array(model.intercept),
+                             sp.array(model.coefficients)),
+           "p_values": model.summary.pValues,
+           "t_values": model.summary.tValues,
+           "se": model.summary.coefficientStandardErrors
+           }
+        )
+
+    def write_files(self, outfolder):
+        self._write_stats(outfolder)
+        self._write_table(outfolder)
+
+    def _write_table(self, outfolder):
+        self.__statistic.to_csv(outfolder + "-table.tsv",
+                                sep="\t", index=False, header=True)
+
+    def _write_stats(self, outfolder):
+        out_file = outfolder + "-statistics.tsv"
+        with open(out_file, "w") as fh:
+            fh.write("{}\t{}\t{}\t{}\t{}\n".format(
+              "response", "df", "mse", "r2", "rmse"))
+            fh.write("{}\t{}\t{}\t{}\t{}\n".format(
+              self.__response, self.__df, self.__mse, self.__r2, self.__rmse))
+
+    @property
+    def response(self):
+        return self.__response
 
     def transform(self, data):
         return self.__model.transform(data)
@@ -62,8 +87,8 @@ class GLMFit:
         return self.__df
 
     @property
-    def sse(self):
-        return self.__sse
+    def mse(self):
+        return self.__mse
 
     @property
     def p_values(self):
@@ -84,85 +109,3 @@ class GLMFit:
     @property
     def rmse(self):
         return self.__rmse
-
-    @property
-    def write_files(self, outfolder):
-        import os
-        if not os.path.exists(outfolder):
-            os.mkdir(outfolder)
-        path = os.path.join(outfolder, KMeansFit._k_fit_path(self.K))
-        self._write_fit(path)
-        self._write_cluster_sizes(path)
-        self._write_cluster_centers(path)
-        self._write_statistics(path)
-
-    @classmethod
-    def as_statfile(cls, fit_folder, k):
-        return os.path.join(
-          fit_folder, KMeansFit._k_fit_path(k) + "_statistics.tsv")
-
-    @classmethod
-    def _k_fit_path(cls, k):
-        return "kmeans-fit-K{}".format(k)
-
-    def _write_fit(self, outfolder):
-        logger.info("Writing cluster fit to: {}".format(outfolder))
-        self.__fit.write().overwrite().save(outfolder)
-
-    def _write_cluster_sizes(self, outfile):
-        comp_files = outfile + "_cluster_sizes.tsv"
-        logger.info("Writing cluster size file to: {}".format(comp_files))
-        with open(comp_files, 'w') as fh:
-            for c in self.__fit.summary.clusterSizes:
-                fh.write("{}\n".format(c))
-
-    def _write_cluster_centers(self, outfile):
-        ccf = outfile + "_cluster_centers.tsv"
-        logger.info("Writing cluster centers to: {}".format(ccf))
-        with open(ccf, "w") as fh:
-            fh.write("#Clustercenters\n")
-            for center in self.__fit.clusterCenters():
-                fh.write("\t".join(map(str, center)) + '\n')
-
-    def _write_statistics(self, outfile):
-        sse_file = outfile + "_statistics.tsv"
-        logger.info("Writing SSE and BIC to: {}".format(sse_file))
-        with open(sse_file, 'w') as fh:
-            fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-              K_, WITHIN_VAR_, EXPL_VAR_, TOTAL_VAR_, BIC_, N_, P_, "path"))
-            fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-              self.__k,
-              self.__within_cluster_variance,
-              self.__explained_variance,
-              self.__total_variance,
-              self.__bic,
-              self.__n,
-              self.__p,
-              outfile))
-
-    @classmethod
-    def load_model(cls, statistics_file, load_fit=False):
-        import pandas
-        from pyspark.ml.clustering import KMeansModel
-        logger.info(statistics_file)
-        tab = pandas.read_csv(statistics_file, sep="\t")
-        n, k, p = tab[N_][0], tab[K_][0], tab[P_][0]
-        within_var = tab[WITHIN_VAR_][0]
-        expl = tab[EXPL_VAR_][0]
-        total_var = tab[TOTAL_VAR_][0]
-        path = tab[PATH_][0]
-        logger.info("Loading model:K={}, P={},"
-                    " within_cluster_variance={}, "
-                    "explained_variance={} from file={}"
-                    .format(k, p, within_var, expl, statistics_file))
-        fit = KMeansModel.load(path) if load_fit else None
-        return KMeansFit(None, fit, k, within_var, total_var, n, p, path)
-
-    @classmethod
-    def find_best_fit(cls, fit_folder):
-        import pandas
-        from koios.kmeans_fit_profile import KMeansFitProfile
-        profile_file = KMeansFitProfile.as_profilefile(fit_folder)
-        tab = pandas.read_csv(profile_file, sep="\t")
-        stat_file = KMeansFit.as_statfile(fit_folder, tab[K_].values[-1])
-        return KMeansFit.load_model(stat_file, True)

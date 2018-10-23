@@ -33,3 +33,8 @@ def matches(string, regex):
         return False
     return True
 
+
+def split(els, split):
+    if not isinstance(els, list):
+        raise TypeError("'els' should be list.")
+    return [x.replace(" ", "").split(split) for x in els]
