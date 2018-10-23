@@ -22,6 +22,8 @@
 import logging
 
 import click
+from pyspark.ml.regression import LinearRegression
+from pyspark.ml.classification import LogisticRegression
 
 from koios.regression import Regression
 
@@ -30,8 +32,33 @@ logger.setLevel(logging.INFO)
 
 
 class GLM(Regression):
-    def __init__(self, spark, family="gaussian", ):
-        super().__init__(spark, threshold, max_iter)
+    def __init__(self, spark, family="gaussian",
+                 do_cross_validation=False, max_iter=100):
+        super().__init__(spark, family, do_cross_validation)
+        self.__max_iter = max_iter
+
+    def fit(self):
+        raise NotImplementedError()
+
+    def _model(self):
+        if self.family == "gaussian":
+            reg = LinearRegression(maxIter= self.__max_iter)
+        elif self.family == "binomial":
+            reg = LogisticRegression(maxIter= self.__max_iter)
+        else:
+            raise NotImplementedError()
+        return reg
+
+    def fit_transform(self, data):
+        logger.info("Fitting GLM with family='{}'".format(self.family))
+        model = self._model().fit(data)
+        return model.transform(data).select(["response", "prediction"]), \
+               GLMFit(model)
+
+
+
+    def transform(self):
+        raise NotImplementedError()
 
 
 

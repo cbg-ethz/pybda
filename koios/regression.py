@@ -32,6 +32,10 @@ class Regression(SparkModel):
     def family(self):
         return self.__family
 
+    @property
+    def do_cross_validation(self):
+        return self.__do_crossvalidation
+
     def fit(self):
         pass
 
