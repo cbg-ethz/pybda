@@ -118,6 +118,18 @@ def clustering_statistics(config, spark):
 @cli.command()
 @click.argument("config", type=str)
 @click.argument("spark", type=str)
+def regression(config, spark):
+    """
+    Fit a regression model to a data set
+    """
+
+    cl = _get_from_config(config, "regression")
+    _run(config, spark, cl)
+
+
+@cli.command()
+@click.argument("config", type=str)
+@click.argument("spark", type=str)
 @click.argument("input", type=str)
 @click.argument("output", type=str)
 @click.argument("n", type=int)

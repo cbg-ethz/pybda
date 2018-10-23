@@ -267,15 +267,21 @@ rule clustering_statistics:
         shell("{cmd}")
 
 
-rule clustering_plot:
-    input:
-        cnt = expand("{outfolder}/{clustering}-transformed-statistics-gene_prediction_counts",
-                     outfolder=config["outfolder"],
-                     clustering = ["kmeans", "gmm"]),
-        sil = expand("{outfolder}/{clustering}-transformed-statistics-silhouette.tsv",
-                     outfolder=config["outfolder"],
-                     clustering = ["kmeans", "gmm"])
-    output:
-        expand("{outfolder}/kmeans-transformed-statistics-plot.log", outfolder=config["outfolder"])
-    run:
-        shell("3-clustering/1d-kmeans-statistics_plot.R -g {input.cnt} -s {input.sil}")
+rule glm:
+  input:
+      expand("{infile}", infile=config["infile"])
+  output:
+      expand("{outfolder}/{regression}-{out}.tsv",
+             outfolder=config["outfolder"],
+             regression=["glm", "rf"],
+             out=["table", "statistics"])
+  run:
+      reg = os.path.join(dirname(), "regression.py")
+      params = " ".join([x for x in config["sparkparams"]])
+      cmd = """{} --master {} \
+                  {} \
+                  {} \
+                  {}""".format(config["spark"], config["sparkip"], params, reg, input)
+      shell("{cmd}")
+
+
