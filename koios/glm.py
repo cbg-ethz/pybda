@@ -33,26 +33,15 @@ logger.setLevel(logging.INFO)
 
 
 class GLM(Regression):
-    def __init__(self, spark, family="gaussian", max_iter=100):
-        super().__init__(spark, family)
+    def __init__(self, spark, feature_columns,
+                 family="gaussian", max_iter=100):
+        super().__init__(spark, feature_columns, family)
         self.__max_iter = max_iter
 
     def fit(self, data):
         logger.info("Fitting GLM with family='{}'".format(self.family))
         model = self._model().fit(data)
         return GLMFit(model)
-
-    def cross_validate(self, data, split=[0.8, 0.2]):
-        if not isinstance(split, list):
-            raise TypeError("'split' is not a list")
-        if not len(split) == 2:
-            raise TypeError("'split' is not of length two")
-        if not sum(split) == 1:
-            raise TypeError("'split' does not sum to one")
-        train, test = data.randomSplit(split, seed=23)
-        model = self._fit(data)
-
-        return model.transform(test).select(["response", "prediction"])
 
     def _fit(self, data):
         return self._model().fit(data)
@@ -71,6 +60,7 @@ class GLM(Regression):
 
     def transform(self):
         raise NotImplementedError()
+
 
 
 @click.command()
