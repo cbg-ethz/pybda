@@ -285,6 +285,6 @@ rule glm:
                                params, reg,
                                input, config["meta"], config["features"],
                                config["response"], config["family"], out)
-      shell("echo {cmd}")
+      shell("{cmd}")
 
 
