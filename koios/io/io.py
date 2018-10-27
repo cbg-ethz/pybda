@@ -76,6 +76,7 @@ def write_tsv(data, outfile, header=True, index=True):
 
 def read_and_transmute(spark, file_name,
                        feature_cols,
+                       respone=None,
                        header=True,
                        drop=True):
     """
@@ -85,6 +86,7 @@ def read_and_transmute(spark, file_name,
     :type spark: pyspark.sql.SparkSession
     :param file_name: the name of the tsv or parquet file as string
     :param feature_cols: a comma separated li
+    :param respone: the column name of the response if any
     :param header: boolean if the tsv has a header
     :param drop: boolean if feature columns should get dropped after assembly
     :return: returns a tuple (DataFrame, list(str)) where the second element is
@@ -99,12 +101,11 @@ def read_and_transmute(spark, file_name,
         data = read_parquet(spark, file_name, header)
     else:
         raise ValueError("{} is neither tsv nor folder.".format(file_name))
-
-    data = to_double(data, feature_cols)
+    data = to_double(data, feature_cols, respone)
     data = fill_na(data)
     data = assemble(data, feature_cols, drop)
 
-    return data,
+    return data
 
 
 def read_tsv(spark, file_name, header='true'):

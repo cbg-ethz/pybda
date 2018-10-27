@@ -50,12 +50,14 @@ class GLM(Regression):
 
     def _model(self):
         if self.family == GAUSSIAN_:
-            reg = LinearRegression(maxIter=self.__max_iter)
+            reg = LinearRegression()
         elif self.family == BINOMIAL_:
-            reg = LogisticRegression(maxIter=self.__max_iter)
+            reg = LogisticRegression()
         else:
             raise NotImplementedError(
               "Family '{}' not implemented".format(self.family))
+        reg.setLabelCol(self.__response)
+        reg.setMaxIter(self.__max_iter)
         return reg
 
     def fit_transform(self):
@@ -85,7 +87,7 @@ def run(file, meta, features, response, family, outpath):
     with SparkSession() as spark:
         try:
             meta, features = read_column_info(meta, features)
-            data = read_and_transmute(spark, file, features)
+            data = read_and_transmute(spark, file, features, response)
             fl = GLM(spark, response, family)
             fit = fl.fit(data)
             fit.write_files(outpath)
