@@ -33,3 +33,4 @@ spark-warehouse/*
 sparkcluster-*
 meta
 job
+/docs/build
