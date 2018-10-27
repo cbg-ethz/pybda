@@ -59,13 +59,14 @@ def fill_na(data, what=0):
     return data.fillna(what)
 
 
-def to_double(data, feature_cols):
+def to_double(data, feature_cols, response=None):
     """
     Convert columns to double.
 
     :param data: a data frame
     :param feature_cols: the column names of which the data should be converted.
     :type feature_cols: list(str)
+    :param response: the name of the response column if any
     :return: returns the data frame with newly cast colunms
     """
 
@@ -82,6 +83,7 @@ def to_double(data, feature_cols):
             raise TypeError("'features' column ist not if type float")
         has_feature_col = True
 
+    logger.info("Casting columns to double.")
     for x in feature_cols:
         if x in cols and has_feature_col:
             logger.warning("Your DataFrame has a 'features' column "
@@ -90,6 +92,10 @@ def to_double(data, feature_cols):
             raise ValueError("Couldn't find column '{}' in DataFrame".format(x))
         if column_types[x] != FLOAT_:
             data = data.withColumn(x, data[x].cast("float"))
+
+    if response:
+        if column_types[response] != FLOAT_:
+            data = data.withColumn(response, data[response].cast("float"))
 
     return data
 
@@ -107,12 +113,14 @@ def assemble(data, feature_cols, drop=True):
     """
 
     if FEATURES_ not in data.columns:
+        logger.info("Assembling column to feature vector")
         assembler = VectorAssembler(
           inputCols=feature_cols,
           outputCol=FEATURES_)
         data = assembler.transform(data)
     if drop:
-        data = data.drop(feature_cols)
+        logger.info("Droppbing redundanct columns")
+        data = data.drop(*feature_cols)
 
     return data
 
