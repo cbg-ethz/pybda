@@ -52,8 +52,8 @@ class GLMFit:
         self._write_table(outfolder)
 
     def _write_table(self, outfolder):
-        self.__statistic.to_csv(outfolder + "-table.tsv",
-                                sep="\t", index=False, header=True)
+        self.__table.to_csv(outfolder + "-table.tsv",
+                            sep="\t", index=False, header=True)
 
     def _write_stats(self, outfolder):
         out_file = outfolder + "-statistics.tsv"

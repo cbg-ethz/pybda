@@ -211,3 +211,21 @@ n
 [2018-10-27 18:37:16,373 - INFO - __main__]: Fitting GLM with family='gaussian'
 [2018-10-27 18:37:22,584 - ERROR - __main__]: Some error: 'GLMFit' object has no attribute '_GLMFit__statistic'
 [2018-10-27 18:37:22,584 - INFO - koios.spark_session]: Stopping Spark context
+[2018-10-27 18:48:01,341 - INFO - koios.spark_session]: Initializing pyspark session
+[2018-10-27 18:48:04,366 - INFO - koios.spark_session]: Config: spark.driver.memory, value: 3G
+[2018-10-27 18:48:04,366 - INFO - koios.spark_session]: Config: spark.master, value: local
+[2018-10-27 18:48:04,366 - INFO - koios.spark_session]: Config: spark.driver.host, value: 192.168.1.21
+[2018-10-27 18:48:04,366 - INFO - koios.spark_session]: Config: spark.app.id, value: local-1540658883471
+[2018-10-27 18:48:04,366 - INFO - koios.spark_session]: Config: spark.files, value: file:/Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/koios/glm.py
+[2018-10-27 18:48:04,366 - INFO - koios.spark_session]: Config: spark.rdd.compress, value: True
+[2018-10-27 18:48:04,366 - INFO - koios.spark_session]: Config: spark.serializer.objectStreamReset, value: 100
+[2018-10-27 18:48:04,366 - INFO - koios.spark_session]: Config: spark.driver.port, value: 62921
+[2018-10-27 18:48:04,367 - INFO - koios.spark_session]: Config: spark.executor.id, value: driver
+[2018-10-27 18:48:04,367 - INFO - koios.spark_session]: Config: spark.submit.deployMode, value: client
+[2018-10-27 18:48:04,367 - INFO - koios.spark_session]: Config: spark.app.name, value: glm.py
+[2018-10-27 18:48:04,395 - INFO - koios.io.io]: Reading tsv: data/single_cell_samples.tsv
+[2018-10-27 18:48:11,713 - INFO - koios.util.features]: Casting columns to double.
+[2018-10-27 18:48:12,624 - INFO - koios.util.features]: Assembling column to feature vector
+[2018-10-27 18:48:12,874 - INFO - koios.util.features]: Droppbing redundanct columns
+[2018-10-27 18:48:12,910 - INFO - __main__]: Fitting GLM with family='gaussian'
+[2018-10-27 18:48:17,655 - INFO - koios.spark_session]: Stopping Spark context
