@@ -20,6 +20,5 @@
 
 
 class Node:
-    def __init__(self, infile, parent):
-        self.__infile = infile
-        self.__parent = parent
+    def __init__(self, method):
+        self.__method = method

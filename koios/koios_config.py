@@ -21,6 +21,9 @@
 
 import os
 
+from koios.config.config_tree import ConfigTree
+from koios.config.node import Node
+
 
 class KoiosConfig:
     """
@@ -67,13 +70,13 @@ class KoiosConfig:
         setattr(self, attr, name)
         self.keys.add(attr)
 
-    def __build_path(self, folder):
+    @staticmethod
+    def __build_path(folder):
         return os.path.join(KoiosConfig.__OUTFOLDER__, folder)
 
     def __set_dimred(self):
         if not hasattr(self, KoiosConfig.__DIM_RED__):
             return
-
         inf = self.__base_infile()
         self.__set_infile(KoiosConfig.__DIM_RED_INFILE__, inf)
 
@@ -89,6 +92,13 @@ class KoiosConfig:
     def __set_clustering(self):
         if not hasattr(self, KoiosConfig.__CLUSTERING__):
             return
+        if hasattr(self, KoiosConfig.__OUTLIERS__):
+            inf = self.__build_path(getattr(self, KoiosConfig.__OUTLIERS__))
+        elif hasattr(self, KoiosConfig.__DIM_RED__):
+            inf = self.__build_path(getattr(self, KoiosConfig.__DIM_RED__))
+        else:
+            inf = self.__base_infile()
+        self.__set_infile(KoiosConfig.__CLUSTERING_INFILE__, inf)
 
     def __set_regression(self):
         if not hasattr(self, KoiosConfig.__REGRESSION__):

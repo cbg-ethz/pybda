@@ -22,3 +22,6 @@
 class ConfigTree:
     def __init__(self):
         self.__nodes = {}
+
+    def add(self, method):
+        self.__nodes[method] = Node()
