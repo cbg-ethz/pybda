@@ -19,9 +19,32 @@
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
 
-class ConfigTree:
-    def __init__(self):
-        self.__nodes = {}
+from koios.config.node import Node
+from koios.globals import PREPROCESSING_METHODS__
 
-    def add(self, method):
-        self.__nodes[method] = Node()
+
+class ConfigTree:
+    def __init__(self, infile, outfolder):
+        self.__curr = None
+        self.__nodes = {}
+        self.__infile = infile
+        self.__outfolder = outfolder
+
+    @property
+    def nodes(self):
+        return self.__nodes
+
+    def add(self, method, algorithm):
+        par = self.__get_proper_parent()
+        n = Node(method, algorithm, par, self.__infile, self.__outfolder)
+        self.__nodes[method] = n
+        self.__curr = n
+
+    def __get_proper_parent(self):
+        if self.__curr is None:
+            return self.__curr
+        n = self.__curr
+        while n.method not in PREPROCESSING_METHODS__:
+            n = n.parent
+        return n
+

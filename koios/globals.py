@@ -41,7 +41,6 @@ FEATURES_ = "features"
 GAUSSIAN_ = "gaussian"
 BINOMIAL_ = "binomial"
 
-
 SPARK__ = "spark"
 SPARKIP__ = "sparkip"
 SPARKPARAMS__ = "sparkparams"
@@ -81,9 +80,6 @@ REQUIRED_ARGS__ = [
     INFILE__,
     OUTFOLDER__
 ]
-METHODS__ = [
-    DIM_RED__,
-    OUTLIERS__,
-    CLUSTERING__,
-    REGRESSION__
-]
+
+PREPROCESSING_METHODS__ = [DIM_RED__, OUTLIERS__]
+METHODS__ = PREPROCESSING_METHODS__ + [CLUSTERING__, REGRESSION__]

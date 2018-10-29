@@ -19,6 +19,42 @@
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
 
+import os
+
+
 class Node:
-    def __init__(self, method):
+    def __init__(self, method, algorithm, parent, infile, outfolder):
+        print(method, algorithm, parent, infile, outfolder)
         self.__method = method
+        self.__algorithm = algorithm
+        self.__parent = parent
+        self.__infile = infile if parent is None else parent.outfile
+        self.__outfile = os.path.join(outfolder, algorithm)
+
+    def __str__(self):
+        return "'{}'".format(self.__method)
+
+    def __repr__(self):
+        return " -> {}-{}-{}-{}-{}".format(self.method, self.algorithm,
+                                           self.parent,
+                                           self.infile, self.outfile)
+
+    @property
+    def method(self):
+        return self.__method
+
+    @property
+    def infile(self):
+        return self.__infile
+
+    @property
+    def outfile(self):
+        return self.__outfile
+
+    @property
+    def parent(self):
+        return self.__parent
+
+    @property
+    def algorithm(self):
+        return self.__algorithm
