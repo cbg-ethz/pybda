@@ -2,6 +2,11 @@ import typing
 
 from koios import dirname
 from koios import KoiosConfig
+from koios.globals import REQUIRED_ARGS__, REGRESSION_INFILE__, REGRESSION__, \
+    CLUSTERING_INFILE__, DIM_RED__, INFILE__, OUTFOLDER__, DIM_RED_INFILE__, \
+    OUTLIERS__, OUTLIERS_INFILE__, CLUSTERING__, METHODS__, SPARKPARAMS__, \
+    SPARKIP__, SPARK__, META__, FEATURES__, RESPONSE__, FAMILY__
+
 
 koios_config = KoiosConfig(config)
 
@@ -274,27 +279,27 @@ rule clustering_statistics:
 
 rule glm:
   input:
-      expand("{infile}", infile=koios_config["regression_infile"])
+      expand("{infile}", infile=koios_config[REGRESSION_INFILE__])
   output:
       expand("{outfolder}/{regression}-{out}.tsv",
-             outfolder=koios_config["outfolder"],
-             regression=koios_config["regression"],
+             outfolder=koios_config[OUTFOLDER__],
+             regression=koios_config[REGRESSION__],
              out=["table", "statistics"])
   params:
-      out = koios_config["outfolder"] + "/" + koios_config["regression"],
+      out = os.path.join(koios_config[OUTFOLDER__], koios_config[REGRESSION__]),
       reg = os.path.join(dirname(), "glm.py"),
-      params = " ".join([x for x in koios_config["sparkparams"]])
+      params = " ".join([x for x in koios_config[SPARKPARAMS__]])
   run:
       cmd = """{} --master {} {} {} {} {} {} {} {} {}""".format(
-                               koios_config["spark"],
-                               koios_config["sparkip"],
+                               koios_config[SPARK__],
+                               koios_config[SPARKIP__],
                                params.params,
                                params.reg,
                                input,
-                               koios_config["meta"],
-                               koios_config["features"],
-                               koios_config["response"],
-                               koios_config["family"],
+                               koios_config[META__],
+                               koios_config[FEATURES__],
+                               koios_config[RESPONSE__],
+                               koios_config[FAMILY__],
                                params.out)
       shell("{cmd}")
 

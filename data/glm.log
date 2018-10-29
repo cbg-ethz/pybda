@@ -1,18 +1,214 @@
-[2018-10-27 19:06:32,189 - INFO - koios.spark_session]: Initializing pyspark session
-[2018-10-27 19:06:37,271 - INFO - koios.spark_session]: Config: spark.driver.memory, value: 3G
-[2018-10-27 19:06:37,271 - INFO - koios.spark_session]: Config: spark.master, value: local
-[2018-10-27 19:06:37,271 - INFO - koios.spark_session]: Config: spark.driver.host, value: 192.168.1.21
-[2018-10-27 19:06:37,272 - INFO - koios.spark_session]: Config: spark.driver.port, value: 63243
-[2018-10-27 19:06:37,272 - INFO - koios.spark_session]: Config: spark.files, value: file:/Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/koios/glm.py
-[2018-10-27 19:06:37,272 - INFO - koios.spark_session]: Config: spark.rdd.compress, value: True
-[2018-10-27 19:06:37,272 - INFO - koios.spark_session]: Config: spark.serializer.objectStreamReset, value: 100
-[2018-10-27 19:06:37,272 - INFO - koios.spark_session]: Config: spark.executor.id, value: driver
-[2018-10-27 19:06:37,272 - INFO - koios.spark_session]: Config: spark.submit.deployMode, value: client
-[2018-10-27 19:06:37,272 - INFO - koios.spark_session]: Config: spark.app.id, value: local-1540659996266
-[2018-10-27 19:06:37,272 - INFO - koios.spark_session]: Config: spark.app.name, value: glm.py
-[2018-10-27 19:06:37,307 - INFO - koios.io.io]: Reading tsv: data/single_cell_samples.tsv
-[2018-10-27 19:06:48,619 - INFO - koios.util.features]: Casting columns to double.
-[2018-10-27 19:06:50,027 - INFO - koios.util.features]: Assembling column to feature vector
-[2018-10-27 19:06:50,407 - INFO - koios.util.features]: Droppbing redundanct columns
-[2018-10-27 19:06:50,439 - INFO - __main__]: Fitting GLM with family='gaussian'
-[2018-10-27 19:06:59,301 - INFO - koios.spark_session]: Stopping Spark context
+[2018-10-29 23:50:32,567 - INFO - koios.spark_session]: Initializing pyspark session
+[2018-10-29 23:50:34,609 - INFO - koios.spark_session]: Config: spark.driver.memory, value: 3G
+[2018-10-29 23:50:34,609 - INFO - koios.spark_session]: Config: spark.master, value: local
+[2018-10-29 23:50:34,609 - INFO - koios.spark_session]: Config: spark.driver.host, value: 192.168.1.21
+[2018-10-29 23:50:34,609 - INFO - koios.spark_session]: Config: spark.app.id, value: local-1540853434047
+[2018-10-29 23:50:34,609 - INFO - koios.spark_session]: Config: spark.files, value: file:/Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/koios/glm.py
+[2018-10-29 23:50:34,609 - INFO - koios.spark_session]: Config: spark.rdd.compress, value: True
+[2018-10-29 23:50:34,609 - INFO - koios.spark_session]: Config: spark.serializer.objectStreamReset, value: 100
+[2018-10-29 23:50:34,610 - INFO - koios.spark_session]: Config: spark.executor.id, value: driver
+[2018-10-29 23:50:34,610 - INFO - koios.spark_session]: Config: spark.submit.deployMode, value: client
+[2018-10-29 23:50:34,610 - INFO - koios.spark_session]: Config: spark.driver.port, value: 61588
+[2018-10-29 23:50:34,610 - INFO - koios.spark_session]: Config: spark.app.name, value: glm.py
+[2018-10-29 23:50:34,623 - INFO - koios.io.io]: Reading tsv: data/single_cell_samples.tsv
+[2018-10-29 23:50:39,725 - INFO - koios.util.features]: Casting columns to double.
+[2018-10-29 23:50:40,163 - ERROR - __main__]: Some error: 'None'
+[2018-10-29 23:50:40,163 - INFO - koios.spark_session]: Stopping Spark context
+[2018-10-29 23:50:49,445 - INFO - koios.spark_session]: Initializing pyspark session
+[2018-10-29 23:50:52,150 - INFO - koios.spark_session]: Config: spark.driver.memory, value: 3G
+[2018-10-29 23:50:52,151 - INFO - koios.spark_session]: Config: spark.master, value: local
+[2018-10-29 23:50:52,151 - INFO - koios.spark_session]: Config: spark.driver.host, value: 192.168.1.21
+[2018-10-29 23:50:52,151 - INFO - koios.spark_session]: Config: spark.driver.port, value: 61593
+[2018-10-29 23:50:52,151 - INFO - koios.spark_session]: Config: spark.files, value: file:/Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/koios/glm.py
+[2018-10-29 23:50:52,151 - INFO - koios.spark_session]: Config: spark.rdd.compress, value: True
+[2018-10-29 23:50:52,151 - INFO - koios.spark_session]: Config: spark.serializer.objectStreamReset, value: 100
+[2018-10-29 23:50:52,151 - INFO - koios.spark_session]: Config: spark.executor.id, value: driver
+[2018-10-29 23:50:52,151 - INFO - koios.spark_session]: Config: spark.submit.deployMode, value: client
+[2018-10-29 23:50:52,151 - INFO - koios.spark_session]: Config: spark.app.id, value: local-1540853451414
+[2018-10-29 23:50:52,151 - INFO - koios.spark_session]: Config: spark.app.name, value: glm.py
+[2018-10-29 23:50:52,164 - INFO - koios.io.io]: Reading tsv: data/single_cell_samples.tsv
+[2018-10-29 23:50:54,986 - INFO - koios.spark_session]: Stopping Spark context
+[2018-10-29 23:50:55,405 - ERROR - root]: Exception while sending command.
+Traceback (most recent call last):
+  File "/Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/koios/glm.py", line 90, in run
+    data = read_and_transmute(spark, file, features, response)
+  File "/Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/koios/io/io.py", line 97, in read_and_transmute
+    data = read_tsv(spark, file_name, header)
+  File "/Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/koios/io/io.py", line 123, in read_tsv
+    return spark.read.csv(path=file_name, sep="\t", header=header)
+  File "/usr/local/spark/spark/python/lib/pyspark.zip/pyspark/sql/readwriter.py", line 439, in csv
+    return self._df(self._jreader.csv(self._spark._sc._jvm.PythonUtils.toSeq(path)))
+  File "/usr/local/spark/spark/python/lib/py4j-0.10.6-src.zip/py4j/java_gateway.py", line 1158, in __call__
+    answer = self.gateway_client.send_command(command)
+  File "/usr/local/spark/spark/python/lib/py4j-0.10.6-src.zip/py4j/java_gateway.py", line 908, in send_command
+    response = connection.send_command(command)
+  File "/usr/local/spark/spark/python/lib/py4j-0.10.6-src.zip/py4j/java_gateway.py", line 1055, in send_command
+    answer = smart_decode(self.stream.readline()[:-1])
+  File "/Users/simondi/miniconda3/envs/tix/lib/python3.6/socket.py", line 586, in readinto
+    return self._sock.recv_into(b)
+  File "/usr/local/spark/spark/python/lib/pyspark.zip/pyspark/context.py", line 234, in signal_handler
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/spark/spark/python/lib/py4j-0.10.6-src.zip/py4j/java_gateway.py", line 1055, in send_command
+    answer = smart_decode(self.stream.readline()[:-1])
+  File "/Users/simondi/miniconda3/envs/tix/lib/python3.6/socket.py", line 586, in readinto
+    return self._sock.recv_into(b)
+ConnectionResetError: [Errno 54] Connection reset by peer
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/spark/spark/python/lib/py4j-0.10.6-src.zip/py4j/java_gateway.py", line 908, in send_command
+    response = connection.send_command(command)
+  File "/usr/local/spark/spark/python/lib/py4j-0.10.6-src.zip/py4j/java_gateway.py", line 1067, in send_command
+    "Error while receiving", e, proto.ERROR_ON_RECEIVE)
+py4j.protocol.Py4JNetworkError: Error while receiving
+[2018-10-29 23:50:55,410 - ERROR - root]: Exception while sending command.
+Traceback (most recent call last):
+  File "/Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/koios/glm.py", line 90, in run
+    data = read_and_transmute(spark, file, features, response)
+  File "/Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/koios/io/io.py", line 97, in read_and_transmute
+    data = read_tsv(spark, file_name, header)
+  File "/Users/simondi/PROJECTS/target_infect_x_project/src/tix-analysis/koios/io/io.py", line 123, in read_tsv
+    return spark.read.csv(path=file_name, sep="\t", header=header)
+  File "/usr/local/spark/spark/python/lib/pyspark.zip/pyspark/sql/readwriter.py", line 439, in csv
+    return self._df(self._jreader.csv(self._spark._sc._jvm.PythonUtils.toSeq(path)))
+  File "/usr/local/spark/spark/python/lib/py4j-0.10.6-src.zip/py4j/java_gateway.py", line 1158, in __call__
+    answer = self.gateway_client.send_command(command)
+  File "/usr/local/spark/spark/python/lib/py4j-0.10.6-src.zip/py4j/java_gateway.py", line 908, in send_command
+    response = connection.send_command(command)
+  File "/usr/local/spark/spark/python/lib/py4j-0.10.6-src.zip/py4j/java_gateway.py", line 1055, in send_command
+    answer = smart_decode(self.stream.readline()[:-1])
+  File "/Users/simondi/miniconda3/envs/tix/lib/python3.6/socket.py", line 586, in readinto
+    return self._sock.recv_into(b)
+  File "/usr/local/spark/spark/python/lib/pyspark.zip/pyspark/context.py", line 234, in signal_handler
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/spark/spark/python/lib/py4j-0.10.6-src.zip/py4j/java_gateway.py", line 1055, in send_command
+    answer = smart_decode(self.stream.readline()[:-1])
+  File "/Users/simondi/miniconda3/envs/tix/lib/python3.6/socket.py", line 586, in readinto
+    return self._sock.recv_into(b)
+  File "/usr/local/spark/spark/python/lib/pyspark.zip/pyspark/context.py", line 233, in signal_handler
+    self.cancelAllJobs()
+  File "/usr/local/spark/spark/python/lib/pyspark.zip/pyspark/context.py", line 971, in cancelAllJobs
+    self._jsc.sc().cancelAllJobs()
+  File "/usr/local/spark/spark/python/lib/py4j-0.10.6-src.zip/py4j/java_gateway.py", line 1160, in __call__
+    answer, self.gateway_client, self.target_id, self.name)
+  File "/usr/local/spark/spark/python/lib/pyspark.zip/pyspark/sql/utils.py", line 63, in deco
+    return f(*a, **kw)
+  File "/usr/local/spark/spark/python/lib/py4j-0.10.6-src.zip/py4j/protocol.py", line 328, in get_return_value
+    format(target_id, ".", name))
+py4j.protocol.Py4JError: An error occurred while calling o11.sc
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/spark/spark/python/lib/py4j-0.10.6-src.zip/py4j/java_gateway.py", line 908, in send_command
+    response = connection.send_command(command)
+  File "/usr/local/spark/spark/python/lib/py4j-0.10.6-src.zip/py4j/java_gateway.py", line 1067, in send_command
+    "Error while receiving", e, proto.ERROR_ON_RECEIVE)
+py4j.protocol.Py4JNetworkError: Error while receiving
+[2018-10-29 23:50:55,476 - ERROR - py4j.java_gateway]: An error occurred while trying to connect to the Java server (127.0.0.1:61591)
+Traceback (most recent call last):
+  File "/usr/local/spark/spark/python/lib/py4j-0.10.6-src.zip/py4j/java_gateway.py", line 852, in _get_connection
+    connection = self.deque.pop()
+IndexError: pop from an empty deque
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/spark/spark/python/lib/py4j-0.10.6-src.zip/py4j/java_gateway.py", line 990, in start
+    self.socket.connect((self.address, self.port))
+ConnectionRefusedError: [Errno 61] Connection refused
+[2018-10-29 23:50:55,477 - ERROR - py4j.java_gateway]: An error occurred while trying to connect to the Java server (127.0.0.1:61591)
+Traceback (most recent call last):
+  File "/usr/local/spark/spark/python/lib/py4j-0.10.6-src.zip/py4j/java_gateway.py", line 852, in _get_connection
+    connection = self.deque.pop()
+IndexError: pop from an empty deque
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/spark/spark/python/lib/py4j-0.10.6-src.zip/py4j/java_gateway.py", line 990, in start
+    self.socket.connect((self.address, self.port))
+ConnectionRefusedError: [Errno 61] Connection refused
+[2018-10-29 23:50:55,478 - ERROR - py4j.java_gateway]: An error occurred while trying to connect to the Java server (127.0.0.1:61591)
+Traceback (most recent call last):
+  File "/usr/local/spark/spark/python/lib/py4j-0.10.6-src.zip/py4j/java_gateway.py", line 852, in _get_connection
+    connection = self.deque.pop()
+IndexError: pop from an empty deque
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/spark/spark/python/lib/py4j-0.10.6-src.zip/py4j/java_gateway.py", line 990, in start
+    self.socket.connect((self.address, self.port))
+ConnectionRefusedError: [Errno 61] Connection refused
+[2018-10-29 23:50:55,478 - ERROR - py4j.java_gateway]: An error occurred while trying to connect to the Java server (127.0.0.1:61591)
+Traceback (most recent call last):
+  File "/usr/local/spark/spark/python/lib/py4j-0.10.6-src.zip/py4j/java_gateway.py", line 852, in _get_connection
+    connection = self.deque.pop()
+IndexError: pop from an empty deque
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/spark/spark/python/lib/py4j-0.10.6-src.zip/py4j/java_gateway.py", line 990, in start
+    self.socket.connect((self.address, self.port))
+ConnectionRefusedError: [Errno 61] Connection refused
+[2018-10-29 23:50:55,479 - ERROR - py4j.java_gateway]: An error occurred while trying to connect to the Java server (127.0.0.1:61591)
+Traceback (most recent call last):
+  File "/usr/local/spark/spark/python/lib/py4j-0.10.6-src.zip/py4j/java_gateway.py", line 852, in _get_connection
+    connection = self.deque.pop()
+IndexError: pop from an empty deque
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/spark/spark/python/lib/py4j-0.10.6-src.zip/py4j/java_gateway.py", line 990, in start
+    self.socket.connect((self.address, self.port))
+ConnectionRefusedError: [Errno 61] Connection refused
+[2018-10-29 23:50:55,479 - ERROR - py4j.java_gateway]: An error occurred while trying to connect to the Java server (127.0.0.1:61591)
+Traceback (most recent call last):
+  File "/usr/local/spark/spark/python/lib/py4j-0.10.6-src.zip/py4j/java_gateway.py", line 852, in _get_connection
+    connection = self.deque.pop()
+IndexError: pop from an empty deque
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/spark/spark/python/lib/py4j-0.10.6-src.zip/py4j/java_gateway.py", line 990, in start
+    self.socket.connect((self.address, self.port))
+ConnectionRefusedError: [Errno 61] Connection refused
+[2018-10-29 23:50:55,515 - ERROR - py4j.java_gateway]: An error occurred while trying to connect to the Java server (127.0.0.1:61591)
+Traceback (most recent call last):
+  File "/usr/local/spark/spark/python/lib/py4j-0.10.6-src.zip/py4j/java_gateway.py", line 852, in _get_connection
+    connection = self.deque.pop()
+IndexError: pop from an empty deque
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/spark/spark/python/lib/py4j-0.10.6-src.zip/py4j/java_gateway.py", line 990, in start
+    self.socket.connect((self.address, self.port))
+ConnectionRefusedError: [Errno 61] Connection refused
+[2018-10-29 23:50:55,516 - ERROR - py4j.java_gateway]: An error occurred while trying to connect to the Java server (127.0.0.1:61591)
+Traceback (most recent call last):
+  File "/usr/local/spark/spark/python/lib/py4j-0.10.6-src.zip/py4j/java_gateway.py", line 852, in _get_connection
+    connection = self.deque.pop()
+IndexError: pop from an empty deque
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/spark/spark/python/lib/py4j-0.10.6-src.zip/py4j/java_gateway.py", line 990, in start
+    self.socket.connect((self.address, self.port))
+ConnectionRefusedError: [Errno 61] Connection refused

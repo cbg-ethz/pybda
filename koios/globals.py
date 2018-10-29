@@ -40,3 +40,50 @@ FLOAT32_ = "float64"
 FEATURES_ = "features"
 GAUSSIAN_ = "gaussian"
 BINOMIAL_ = "binomial"
+
+
+SPARK__ = "spark"
+SPARKIP__ = "sparkip"
+SPARKPARAMS__ = "sparkparams"
+INFILE__ = "infile"
+OUTFOLDER__ = "outfolder"
+
+META__ = "meta"
+FEATURES__ = "features"
+RESPONSE__ = "response"
+
+DIM_RED__ = "dimension_reduction"
+DIM_RED_INFILE__ = "dimension_reduction_infile"
+PCA__ = "pca"
+KPCA__ = "kpca"
+FACTOR_ANALYSIS__ = "factor_analysis"
+N_COMPONENTS__ = "m_components"
+
+OUTLIERS__ = "outliers"
+OUTLIERS_INFILE__ = "outliers_infile"
+
+CLUSTERING__ = "clustering"
+CLUSTERING_INFILE__ = "clustering_infile"
+KMEANS__ = "kmeans"
+GMM__ = "gmm"
+MAX_CENTERS__ = "max_centers"
+N_CENTERS__ = "n_centers"
+
+REGRESSION__ = "regression"
+REGRESSION_INFILE__ = "regression_infile"
+GLM__ = "glm"
+FAMILY__ = "family"
+
+RULE_INFILE__ = "rule_infile"
+
+REQUIRED_ARGS__ = [
+    SPARK__,
+    INFILE__,
+    OUTFOLDER__
+]
+METHODS__ = [
+    DIM_RED__,
+    OUTLIERS__,
+    CLUSTERING__,
+    REGRESSION__
+]
