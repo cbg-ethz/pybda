@@ -22,6 +22,7 @@
 import os
 import sys
 
+from koios.config.config_tree import ConfigTree
 from koios.globals import REQUIRED_ARGS__, REGRESSION_INFILE__, REGRESSION__, \
     CLUSTERING_INFILE__, DIM_RED__, INFILE__, OUTFOLDER__, DIM_RED_INFILE__, \
     OUTLIERS__, OUTLIERS_INFILE__, CLUSTERING__, METHODS__
@@ -41,6 +42,7 @@ class KoiosConfig:
     def __init__(self, config):
         for key, value in config.items():
             setattr(self, key, value)
+        self.__config_tree = ConfigTree(getattr(self, INFILE__), getattr(self, OUTFOLDER__))
         self.__check_required_args()
         self.__check_available_method()
         self.__set_filenames()
@@ -64,6 +66,12 @@ class KoiosConfig:
           "Config file does not have required element '{}'".format(item))
 
     def __set_filenames(self):
+        for m in METHODS__:
+            if hasattr(self, m):
+                self.__config_tree.add(m, getattr(self, m))
+        for key, value in self.__config_tree.nodes.items():
+            print(key,  repr(value))
+        raise ValueError()
         self.__set_dimred()
         self.__set_outliers()
         self.__set_clustering()
