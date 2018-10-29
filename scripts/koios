@@ -24,6 +24,7 @@
 import logging
 import subprocess
 import click
+import snakemake
 import yaml
 
 from koios.logger import logger_format
@@ -34,12 +35,11 @@ logger.setLevel(logging.INFO)
 
 def _run(config, spark, cmd):
     from koios import snake_file
-    subprocess.run(
-      ["snakemake",
-       cmd,
-       "-s", snake_file(),
-       "--configfile", config,
-       "--config", "sparkip=" + spark]
+    snakemake.snakemake(
+      snakefile=snake_file(),
+      targets=[cmd],
+      configfile=config,
+      config={"sparkip": spark}
     )
 
 
@@ -142,18 +142,15 @@ def sample(config, spark, input, output, n, split):
     """
 
     from koios import snake_file
-    subprocess.run(
-      ["snakemake",
-       "sample",
-       "-s", snake_file(),
-       "--configfile", config,
-       "--config",
-       "sparkip=" + spark,
-       "input=" + input,
-       "output=" + output,
-       "n=" + str(n),
-       "split=" + str(split)
-       ]
+    snakemake.snakemake(
+      snakefile=snake_file(),
+      targets=["sample"],
+      configfile=config,
+      config={"sparkip": spark,
+              "input": input,
+              "output": output,
+              "n": str(n),
+              "split": str(split)}
     )
 
 
