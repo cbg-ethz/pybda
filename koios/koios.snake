@@ -1,4 +1,39 @@
+import typing
+
 from koios import dirname
+
+class KoiosConfig:
+    __SPARK__ = "spark"
+
+    __INFILE__ = "infile"
+    __OUTFILE = "outfile"
+
+    __META__ = "meta"
+    __FEATURES__ = "features"
+    __RESPONSE__ = "response"
+
+    __DIM_RED__ = "dimension_reduction"
+    __N_COMPONSENTS__ = "N_components"
+
+    __OUTLIERS__ = "outliers"
+
+    __CLUSTERING__ = "clustering"
+    __MAX_CENTERS__ = "max_centers"
+    __N_CENTERS__ = "n_centers"
+
+    __REGRESSION__ = "regression"
+    __FAMILY__ ="family"
+
+    __ORDER__ = []
+
+    def __init__(self, config):
+        for key, value in config:
+            setattr(self, key, value)
+            print(key, value)
+        exit
+
+
+koios_config = KoiosConfig(config)
 
 rule all:
     input:
