@@ -19,15 +19,7 @@
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
 
-from koios.koios_config import KoiosConfig
-
-
-def snake_file():
-    import os
-    return os.path.join(os.path.dirname(__file__), "koios.snake")
-
-
-def dirname():
-    import os
-    return os.path.dirname(__file__)
-
+class Node:
+    def __init__(self, infile, parent):
+        self.__infile = infile
+        self.__parent = parent

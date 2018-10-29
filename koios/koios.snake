@@ -1,37 +1,7 @@
 import typing
 
 from koios import dirname
-
-class KoiosConfig:
-    __SPARK__ = "spark"
-
-    __INFILE__ = "infile"
-    __OUTFILE = "outfile"
-
-    __META__ = "meta"
-    __FEATURES__ = "features"
-    __RESPONSE__ = "response"
-
-    __DIM_RED__ = "dimension_reduction"
-    __N_COMPONSENTS__ = "N_components"
-
-    __OUTLIERS__ = "outliers"
-
-    __CLUSTERING__ = "clustering"
-    __MAX_CENTERS__ = "max_centers"
-    __N_CENTERS__ = "n_centers"
-
-    __REGRESSION__ = "regression"
-    __FAMILY__ ="family"
-
-    __ORDER__ = []
-
-    def __init__(self, config):
-        for key, value in config:
-            setattr(self, key, value)
-            print(key, value)
-        exit
-
+from koios import KoiosConfig
 
 koios_config = KoiosConfig(config)
 
@@ -304,22 +274,28 @@ rule clustering_statistics:
 
 rule glm:
   input:
-      expand("{infile}", infile=config["infile"])
+      expand("{infile}", infile=koios_config["regression_infile"])
   output:
       expand("{outfolder}/{regression}-{out}.tsv",
-             outfolder=config["outfolder"],
-             regression=config["regression"],
+             outfolder=koios_config["outfolder"],
+             regression=koios_config["regression"],
              out=["table", "statistics"])
+  params:
+      out = koios_config["outfolder"] + "/" + koios_config["regression"],
+      reg = os.path.join(dirname(), "glm.py"),
+      params = " ".join([x for x in koios_config["sparkparams"]])
   run:
-      out = config["outfolder"] + "/" + config["regression"]
-      reg = os.path.join(dirname(), "glm.py")
-      params = " ".join([x for x in config["sparkparams"]])
       cmd = """{} --master {} {} {} {} {} {} {} {} {}""".format(
-                               config["spark"],
-                               config["sparkip"],
-                               params, reg,
-                               input, config["meta"], config["features"],
-                               config["response"], config["family"], out)
+                               koios_config["spark"],
+                               koios_config["sparkip"],
+                               params.params,
+                               params.reg,
+                               input,
+                               koios_config["meta"],
+                               koios_config["features"],
+                               koios_config["response"],
+                               koios_config["family"],
+                               params.out)
       shell("{cmd}")
 
 

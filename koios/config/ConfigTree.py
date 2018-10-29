@@ -19,15 +19,6 @@
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
 
-from koios.koios_config import KoiosConfig
-
-
-def snake_file():
-    import os
-    return os.path.join(os.path.dirname(__file__), "koios.snake")
-
-
-def dirname():
-    import os
-    return os.path.dirname(__file__)
-
+class ConfigTree:
+    def __init__(self):
+        self.__nodes = {}
