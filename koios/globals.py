@@ -37,10 +37,12 @@ FLOAT_ = "float"
 FLOAT64_ = "float32"
 FLOAT32_ = "float64"
 
+
 FEATURES_ = "features"
 GAUSSIAN_ = "gaussian"
 BINOMIAL_ = "binomial"
 
+DEBUG__ = "debug"
 SPARK__ = "spark"
 SPARKIP__ = SPARK__ + "ip"
 SPARKPARAMS__ = SPARK__ + "params"
