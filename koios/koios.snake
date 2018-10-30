@@ -110,5 +110,5 @@ rule glm:
             koios_config[FAMILY__],
             params.out)
         if DEBUG__ in koios_config:
-          shell("echo -e '\033[1;33m Submitting job {cmd} \033[\033[0m'")
+          shell("echo -e '\033[1;33m Submitting job {cmd} \033[0m'")
         shell("{cmd}")

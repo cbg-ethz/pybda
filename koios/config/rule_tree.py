@@ -17,18 +17,35 @@
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
+import queue
 
-
-from koios.config.config_node import ConfigNode
+from koios.config.rule_node import RuleNode
 from koios.globals import PREPROCESSING_METHODS__, PARENT_METHODS__
 
 
-class ConfigTree:
+class RuleTree:
     def __init__(self, infile, outfolder):
-        self.__curr = None
+        self.__root = RuleNode("_", None, None, "", infile)
+        self.__curr = self.__root
         self.__nodes = {}
         self.__infile = infile
         self.__outfolder = outfolder
+
+    def __str__(self):
+        stack = [self.__root]
+        tree = ""
+        while len(stack):
+            node = stack.pop()
+            tree = self.__tree(node, tree)
+            for c in node.children:
+                stack.append(c)
+        return tree
+
+    @staticmethod
+    def __tree(node, str):
+        str += "\t" * node.level + " -> " + node.method + \
+               " (" + node.infile + ", " + node.outfile + ")\n"
+        return str
 
     @property
     def nodes(self):
@@ -36,19 +53,20 @@ class ConfigTree:
 
     def add(self, method, algorithm):
         par = self.__get_proper_parent(method)
-        n = ConfigNode(method, algorithm, par, self.__infile, self.__outfolder)
+        n = RuleNode(method, algorithm, par, self.__infile, self.__outfolder)
         self.__nodes[method] = n
+        par.add(n)
         self.__curr = n
 
     def __get_proper_parent(self, method):
-        if self.__curr is None:
-            return None
+        if self.__curr is self.__root:
+            return self.__root
         if method not in PARENT_METHODS__:
             itr = PREPROCESSING_METHODS__
         else:
             itr = PARENT_METHODS__[method]
         if itr is None:
-            return None
+            return self.__root
         n = self.__curr
         while n.method not in itr:
             n = n.parent

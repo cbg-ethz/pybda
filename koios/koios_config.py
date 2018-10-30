@@ -20,9 +20,9 @@
 
 import sys
 
-from koios.config.config_tree import ConfigTree
-from koios.globals import REQUIRED_ARGS__, INFILE__, OUTFOLDER__, METHODS__
-
+from koios.config.rule_tree import RuleTree
+from koios.globals import REQUIRED_ARGS__, INFILE__, OUTFOLDER__, METHODS__, \
+    DEBUG__
 
 sys.excepthook = lambda ex, msg, _: print("{}: {}".format(ex.__name__, msg))
 
@@ -38,8 +38,8 @@ class KoiosConfig:
     def __init__(self, config):
         for key, value in config.items():
             setattr(self, key, value)
-        self.__config_tree = ConfigTree(getattr(self, INFILE__),
-                                        getattr(self, OUTFOLDER__))
+        self.__tree = RuleTree(getattr(self, INFILE__),
+                               getattr(self, OUTFOLDER__))
         self.__check_required_args()
         self.__check_available_method()
         self.__set_filenames()
@@ -68,9 +68,11 @@ class KoiosConfig:
     def __set_filenames(self):
         for m in METHODS__:
             if hasattr(self, m):
-                self.__config_tree.add(m, getattr(self, m))
-        for node in self.__config_tree.nodes.values():
+                self.__tree.add(m, getattr(self, m))
+        for node in self.__tree.nodes.values():
             setattr(self, self.__infile_key(node.method), node.infile)
+        if hasattr(self, DEBUG__):
+            print("\033[1;33m " + str(self.__tree) + "\033[0m")
 
     @staticmethod
     def __infile_key(method):

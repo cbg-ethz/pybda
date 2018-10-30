@@ -22,21 +22,35 @@
 import os
 
 
-class ConfigNode:
+class RuleNode:
     def __init__(self, method, algorithm, parent, infile, outfolder):
         self.__method = method
         self.__algorithm = algorithm
         self.__parent = parent
+        self.__children = []
         self.__infile = infile if parent is None else parent.outfile
-        self.__outfile = os.path.join(outfolder, algorithm)
+        self.__level = 0 if parent is None else parent.level + 1
+        try:
+            self.__outfile = os.path.join(outfolder, algorithm)
+        except TypeError:
+            self.__outfile = outfolder
 
     def __str__(self):
         return "'{}'".format(self.__method)
 
     def __repr__(self):
-        return " -> {}-{}-{}-{}-{}".format(self.method, self.algorithm,
-                                           self.parent,
-                                           self.infile, self.outfile)
+        return str(self)
+
+    @property
+    def children(self):
+        return self.__children
+
+    def add(self, child):
+        self.__children.append(child)
+
+    @property
+    def level(self):
+        return self.__level
 
     @property
     def method(self):
