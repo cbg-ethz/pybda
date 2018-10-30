@@ -27,7 +27,7 @@ from koios.io.io import write_parquet
 from koios.plot.descriptive import scatter, histogram
 
 from koios.plot.dimension_reduction_plot import biplot, \
-    plot_cumulative_variance, plot_likelihood_path
+    plot_cumulative_variance
 from koios.sampler import sample
 from koios.util.cast_as import as_pandas
 from koios.util.features import feature_columns, split_vector
@@ -39,8 +39,9 @@ logger.setLevel(logging.INFO)
 
 
 class PCAFit:
-    def __init__(self, data, loadings, sds):
+    def __init__(self, data, n_components, loadings, sds):
         self.__data = data
+        self.__n_components = n_components
         self.__loadings = loadings
         self.__sds = sds
 
@@ -50,11 +51,11 @@ class PCAFit:
 
     @property
     def loadings(self):
-        return self.__W
+        return self.__loadings
 
     @property
     def sds(self):
-        return self.__psi
+        return self.__sds
 
     def write_files(self, outfolder):
         write_parquet(self.__data, outfolder)
@@ -65,36 +66,31 @@ class PCAFit:
         self._plot(os.path.join(plot_fold, "pca"))
 
     def _write_loadings(self, outfile):
-        logger.info("Writing loadings to data")
+        logger.info("Writing loadings to file")
         features = feature_columns(self.__data)
-        DataFrame(self.__W, columns=features).to_csv(
-          outfile, sep="\t", index=False)
-
-    def _write_likelihood(self, outfile):
-        logger.info("Writing likelihood profile")
-        DataFrame(data=self.__ll).to_csv(outfile, sep="\t", index=False)
+        DataFrame(self.__loadings[:self.__n_components],
+                  columns=features).to_csv(outfile, sep="\t", index=False)
 
     def _plot(self, outfile):
         logger.info("Plotting")
-        cev = cumulative_explained_variance(self.__W.transpose())
+        cev = cumulative_explained_variance(self.__sds)
         features = feature_columns(self.__data)
         subsamp = as_pandas(
           split_vector(sample(self.__data, 10000), "features"))
         for suf in ["png", "pdf", "svg", "eps"]:
             plot_cumulative_variance(
               outfile + "-loadings-explained_variance." + suf,
-              cev, "# factors")
+              cev[:self.__n_components], "# components")
             biplot(
               outfile + "-loadings-biplot." + suf,
-              DataFrame(self.__W, columns=features), "Factor 1", "Factor 2")
-            plot_likelihood_path(
-              outfile + "-likelihood_path." + suf,
-              DataFrame({"L": self.__ll}))
+              DataFrame(self.__loadings[:self.__n_components],
+                        columns=features), "PC 1", "PC 2")
             scatter(
               outfile + "-scatter_plot." + suf,
               subsamp["f_0"].values, subsamp["f_1"].values,
-              "Factor 1", "Factor 2")
-            for i in map(lambda x: "f_" + str(x), range(10)):
+              "PC 1", "PC 2")
+            for i in map(lambda x: "f_" + str(x),
+                         range(min(10, self.__n_components))):
                 histogram(
                   outfile + "-histogram_{}.".format(i) + suf,
                   subsamp[i].values, i)

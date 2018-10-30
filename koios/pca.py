@@ -23,13 +23,14 @@ import logging
 
 import click
 import numpy
+from pyspark.mllib.linalg import DenseMatrix
 from pyspark.mllib.linalg.distributed import RowMatrix
 
 from koios.dimension_reduction import DimensionReduction
 from koios.pca_fit import PCAFit
 from koios.util.cast_as import as_rdd_of_array
 from koios.util.features import feature_columns, to_double, fill_na, join
-from koios.util.stats import scale
+from koios.util.stats import scale, svd
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -47,14 +48,17 @@ class PCA(DimensionReduction):
     def _fit(self, data):
         X = as_rdd_of_array(data.select(feature_columns(data)))
         X = RowMatrix(scale(X))
-        svd = X.computeSVD(self.__n_components)
-        sds = numpy.sqrt(numpy.array(svd.s))
-        loadings = numpy.array(svd.V)
+        sds, loadings, _ = svd(X, X.numCols())
+        sds = sds / numpy.sqrt(max(1, data.count() - 1))
         return X, loadings, sds
 
     def _transform(self, data, X, loadings):
         logger.info("Transforming data")
 
+        loadings = DenseMatrix(
+          X.numCols(), self.__n_components,
+          loadings[:self.__n_components].flatten()
+        )
         X = X.multiply(loadings)
         data = join(data, X, self.spark)
         del X
@@ -71,7 +75,7 @@ class PCA(DimensionReduction):
         logger.info("Running principal component analysis ...")
         X, loadings, sds = self._fit(data)
         data = self._transform(data, X, loadings)
-        return PCAFit(data, loadings, sds)
+        return PCAFit(data, self.__n_components, loadings, sds)
 
 
 @click.command()

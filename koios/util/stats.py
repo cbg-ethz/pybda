@@ -83,13 +83,17 @@ def explained_variance(data):
     """
     Compute the explained variance for the columns of a numpy matrix.
 
-    :param data: a numpy matrix
+    :param data: a numpy matrix or array
     :return: returns a numpy array with explained variances per column
     """
 
-    n, p = data.shape
-    var = numpy.apply_along_axis(lambda x: sum(x ** 2) / p, 0, data)
-
+    if len(data.shape) == 2:
+        n, p = data.shape
+        # TODO: this might be a bug or rather how dod i come up with this
+        var = numpy.apply_along_axis(lambda x: sum(x ** 2) / p, 0, data)
+    else:
+        var = (data ** 2)
+        var /= numpy.sum(var)
     return var
 
 
@@ -104,7 +108,6 @@ def cumulative_explained_variance(data, sort=True):
      This is the default.
     :return: returns a numpy array with cumulative variances
     """
-
     var = explained_variance(data)
     return numpy.cumsum(sorted(var, reverse=sort))
 

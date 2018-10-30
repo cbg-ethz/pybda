@@ -25,7 +25,8 @@ import scipy
 import pyspark.sql
 from pyspark.ml.feature import VectorAssembler
 from pyspark.rdd import reduce
-from pyspark.sql.functions import col, func, udf
+import pyspark.sql.functions as func
+from pyspark.sql.functions import col, udf
 from pyspark.ml.linalg import VectorUDT
 
 from koios.globals import DOUBLE_, FLOAT_, FLOAT64_, FEATURES_
