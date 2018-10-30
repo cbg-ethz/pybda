@@ -17,7 +17,7 @@
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
-
+import collections
 
 WITHIN_VAR_ = "within_cluster_variance"
 TOTAL_VAR_ = "total_variance"
@@ -86,3 +86,9 @@ REQUIRED_ARGS__ = [
 
 PREPROCESSING_METHODS__ = [DIM_RED__, OUTLIERS__]
 METHODS__ = PREPROCESSING_METHODS__ + [CLUSTERING__, REGRESSION__]
+PARENT_METHODS__ = collections.OrderedDict(
+  [
+      (CLUSTERING__, PREPROCESSING_METHODS__),
+      (REGRESSION__, None)
+  ]
+)

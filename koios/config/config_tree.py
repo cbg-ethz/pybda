@@ -20,7 +20,7 @@
 
 
 from koios.config.config_node import ConfigNode
-from koios.globals import PREPROCESSING_METHODS__
+from koios.globals import PREPROCESSING_METHODS__, PARENT_METHODS__
 
 
 class ConfigTree:
@@ -35,16 +35,21 @@ class ConfigTree:
         return self.__nodes
 
     def add(self, method, algorithm):
-        par = self.__get_proper_parent()
+        par = self.__get_proper_parent(method)
         n = ConfigNode(method, algorithm, par, self.__infile, self.__outfolder)
         self.__nodes[method] = n
         self.__curr = n
 
-    def __get_proper_parent(self):
+    def __get_proper_parent(self, method):
         if self.__curr is None:
-            return self.__curr
+            return None
+        if method not in PARENT_METHODS__:
+            itr = PREPROCESSING_METHODS__
+        else:
+            itr = PARENT_METHODS__[method]
+        if itr is None:
+            return None
         n = self.__curr
-        while n.method not in PREPROCESSING_METHODS__:
+        while n.method not in itr:
             n = n.parent
         return n
-
