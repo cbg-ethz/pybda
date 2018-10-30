@@ -27,7 +27,6 @@ from koios.globals import REQUIRED_ARGS__, REGRESSION_INFILE__, REGRESSION__, \
     CLUSTERING_INFILE__, DIM_RED__, INFILE__, OUTFOLDER__, DIM_RED_INFILE__, \
     OUTLIERS__, OUTLIERS_INFILE__, CLUSTERING__, METHODS__
 
-
 sys.excepthook = lambda ex, msg, _: print("{}: {}".format(ex.__name__, msg))
 
 
@@ -42,7 +41,8 @@ class KoiosConfig:
     def __init__(self, config):
         for key, value in config.items():
             setattr(self, key, value)
-        self.__config_tree = ConfigTree(getattr(self, INFILE__), getattr(self, OUTFOLDER__))
+        self.__config_tree = ConfigTree(getattr(self, INFILE__),
+                                        getattr(self, OUTFOLDER__))
         self.__check_required_args()
         self.__check_available_method()
         self.__set_filenames()
@@ -69,13 +69,13 @@ class KoiosConfig:
         for m in METHODS__:
             if hasattr(self, m):
                 self.__config_tree.add(m, getattr(self, m))
-        for key, value in self.__config_tree.nodes.items():
-            print(key,  repr(value))
-        raise ValueError()
-        self.__set_dimred()
-        self.__set_outliers()
-        self.__set_clustering()
-        self.__set_regression()
+        for node in self.__config_tree.nodes.values():
+            setattr(self, node.method + INFILE__, node.infile)
+
+        # self.__set_dimred()
+        # self.__set_outliers()
+        # self.__set_clustering()
+        # self.__set_regression()
 
     def __base_infile(self):
         return getattr(self, INFILE__)

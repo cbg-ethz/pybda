@@ -42,8 +42,8 @@ GAUSSIAN_ = "gaussian"
 BINOMIAL_ = "binomial"
 
 SPARK__ = "spark"
-SPARKIP__ = "sparkip"
-SPARKPARAMS__ = "sparkparams"
+SPARKIP__ = SPARK__ + "ip"
+SPARKPARAMS__ = SPARK__ + "params"
 INFILE__ = "infile"
 OUTFOLDER__ = "outfolder"
 
@@ -52,28 +52,28 @@ FEATURES__ = "features"
 RESPONSE__ = "response"
 
 DIM_RED__ = "dimension_reduction"
-DIM_RED_INFILE__ = "dimension_reduction_infile"
+DIM_RED_INFILE__ = DIM_RED__ + INFILE__
 PCA__ = "pca"
 KPCA__ = "kpca"
 FACTOR_ANALYSIS__ = "factor_analysis"
-N_COMPONENTS__ = "m_components"
+N_COMPONENTS__ = "n_components"
 
 OUTLIERS__ = "outliers"
-OUTLIERS_INFILE__ = "outliers_infile"
+OUTLIERS_INFILE__ = OUTLIERS__ + "_" + INFILE__
 
 CLUSTERING__ = "clustering"
-CLUSTERING_INFILE__ = "clustering_infile"
+CLUSTERING_INFILE__ = CLUSTERING__ + "_" + INFILE__
 KMEANS__ = "kmeans"
 GMM__ = "gmm"
 MAX_CENTERS__ = "max_centers"
 N_CENTERS__ = "n_centers"
 
 REGRESSION__ = "regression"
-REGRESSION_INFILE__ = "regression_infile"
+REGRESSION_INFILE__ = REGRESSION__ + "_" + INFILE__
 GLM__ = "glm"
 FAMILY__ = "family"
 
-RULE_INFILE__ = "rule_infile"
+RULE_INFILE__ = "rule" + "_" + INFILE__
 
 REQUIRED_ARGS__ = [
     SPARK__,

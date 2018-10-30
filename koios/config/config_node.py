@@ -22,7 +22,7 @@
 import os
 
 
-class Node:
+class ConfigNode:
     def __init__(self, method, algorithm, parent, infile, outfolder):
         print(method, algorithm, parent, infile, outfolder)
         self.__method = method
