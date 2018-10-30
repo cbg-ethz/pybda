@@ -25,7 +25,8 @@ import scipy
 import pyspark.sql
 from pyspark.ml.feature import VectorAssembler
 from pyspark.rdd import reduce
-from pyspark.sql.functions import col
+from pyspark.sql.functions import col, func, udf
+from pyspark.ml.linalg import VectorUDT
 
 from koios.globals import DOUBLE_, FLOAT_, FLOAT64_, FEATURES_
 from koios.util.cast_as import as_array
@@ -180,3 +181,18 @@ def split_vector(data, col_name):
 
 def n_features(data: pyspark.sql.DataFrame, col_name):
     return len(scipy.asarray(data.select(col_name).take(1)).flatten())
+
+
+def join(data, X, spark):
+    as_ml = udf(lambda v: v.asML() if v is not None else None, VectorUDT())
+
+    X = spark.createDataFrame(X.rows.map(lambda x: (x,)))
+    X = X.withColumnRenamed("_1", "features")
+    X = X.withColumn("features", as_ml("features"))
+
+    X = X.withColumn("row_index", func.monotonically_increasing_id())
+    data = data.withColumn("row_index", func.monotonically_increasing_id())
+    data = data.join(X["row_index", "features"],
+                     on=["row_index"]).drop("row_index")
+
+    return data
