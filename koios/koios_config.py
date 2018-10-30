@@ -72,7 +72,8 @@ class KoiosConfig:
         for node in self.__tree.nodes.values():
             setattr(self, self.__infile_key(node.method), node.infile)
         if hasattr(self, DEBUG__):
-            print("\033[1;33m " + str(self.__tree) + "\033[0m")
+            print("\033[1;33m Printing rule tree:")
+            print(str(self.__tree) + "\033[0m")
 
     @staticmethod
     def __infile_key(method):
