@@ -22,15 +22,12 @@
 
 
 import logging
-import subprocess
+
 import click
 import snakemake
 import yaml
 
 from koios.logger import logger_format
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 
 def _run(config, spark, cmd):

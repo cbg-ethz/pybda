@@ -1,12 +1,12 @@
 import typing
+from snakemake.logging import logger
 
-from snakemake import logger, logging, setup_logger
-setup_logger()
 
 from koios import dirname
 from koios import KoiosConfig
 from koios.globals import CLUSTERING__
 from koios.globals import CLUSTERING_INFILE__
+from koios.globals import DEBUG__
 from koios.globals import DIM_RED__
 from koios.globals import DIM_RED_INFILE__
 from koios.globals import FAMILY__
@@ -30,11 +30,10 @@ from koios.globals import REQUIRED_ARGS__
 from koios.globals import SPARKPARAMS__
 from koios.globals import SPARKIP__
 from koios.globals import SPARK__
+from koios.logger import logger_format
 
-
+logger.propagate = True
 koios_config = KoiosConfig(config)
-logger = logging.logger
-
 
 rule factor_analysis:
     input:
@@ -55,7 +54,8 @@ rule factor_analysis:
             koios_config[N_COMPONENTS__],
             input,
             output.out),
-        logger.info("Submitting job: {}".format(cmd))
+        if DEBUG__ in koios_config:
+          shell("echo -e '\033[1;33m Submitting job {cmd} \033[\033[0m'")
         shell("{cmd}")
 
 rule outliers:
@@ -80,7 +80,8 @@ rule outliers:
             input,
             output.out,
             params.pval)
-        logger.info("Submitting job: {}".format(cmd))
+        if DEBUG__ in koios_config:
+          shell("echo -e '\033[1;33m Submitting job {cmd} \033[\033[0m'")
         shell("{cmd}")
 
 rule glm:
@@ -108,5 +109,6 @@ rule glm:
             koios_config[RESPONSE__],
             koios_config[FAMILY__],
             params.out)
-        logger.info("Submitting job: {}".format(cmd))
+        if DEBUG__ in koios_config:
+          shell("echo -e '\033[1;33m Submitting job {cmd} \033[\033[0m'")
         shell("{cmd}")

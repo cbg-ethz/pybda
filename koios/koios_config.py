@@ -18,11 +18,11 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import sys
 
 from koios.config.config_tree import ConfigTree
 from koios.globals import REQUIRED_ARGS__, INFILE__, OUTFOLDER__, METHODS__
+
 
 sys.excepthook = lambda ex, msg, _: print("{}: {}".format(ex.__name__, msg))
 
