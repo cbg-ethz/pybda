@@ -19,7 +19,7 @@
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
 
-from koios.config.node import Node
+from koios.config.config_node import ConfigNode
 from koios.globals import PREPROCESSING_METHODS__
 
 
@@ -36,7 +36,7 @@ class ConfigTree:
 
     def add(self, method, algorithm):
         par = self.__get_proper_parent()
-        n = Node(method, algorithm, par, self.__infile, self.__outfolder)
+        n = ConfigNode(method, algorithm, par, self.__infile, self.__outfolder)
         self.__nodes[method] = n
         self.__curr = n
 
