@@ -1,6 +1,7 @@
 import typing
 
-from snakemake import logger, logging
+from snakemake import logger, logging, setup_logger
+setup_logger()
 
 from koios import dirname
 from koios import KoiosConfig
@@ -54,7 +55,7 @@ rule factor_analysis:
             koios_config[N_COMPONENTS__],
             input,
             output.out),
-        shell("echo 'Submitting:' {cmd}")
+        logger.info("Submitting job: {}".format(cmd))
         shell("{cmd}")
 
 rule outliers:
@@ -79,7 +80,7 @@ rule outliers:
             input,
             output.out,
             params.pval)
-        shell("echo 'Submitting:' {cmd}")
+        logger.info("Submitting job: {}".format(cmd))
         shell("{cmd}")
 
 rule glm:
@@ -107,5 +108,5 @@ rule glm:
             koios_config[RESPONSE__],
             koios_config[FAMILY__],
             params.out)
-        logger.info("Submitting: {}".format(cmd))
+        logger.info("Submitting job: {}".format(cmd))
         shell("{cmd}")
