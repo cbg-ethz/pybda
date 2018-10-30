@@ -24,7 +24,6 @@ import os
 
 class ConfigNode:
     def __init__(self, method, algorithm, parent, infile, outfolder):
-        print(method, algorithm, parent, infile, outfolder)
         self.__method = method
         self.__algorithm = algorithm
         self.__parent = parent

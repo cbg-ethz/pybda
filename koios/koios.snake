@@ -32,281 +32,75 @@ from koios.globals import SPARK__
 koios_config = KoiosConfig(config)
 
 
-rule all:
-    input:
-        expand("{outfolder}/{dimred}",
-               outfolder=koios_config[OUTFOLDER__],
-               dimred=[FACTOR_ANALYSIS__, KPCA__, PCA__]),
-
-        expand("{outfolder}/{outlier}",
-                outfolder=koios_config[OUTFOLDER__]),
-                outlier=MAHA__"))
-
-        expand("{outfolder}/{clustering}-fit", outfolder = config["outfolder"], clustering = ["kmeans", "gmm"]),
-        expand("{outfolder}/{clustering}-fit.log", outfolder = config["outfolder"], clustering = ["kmeans", "gmm"]),
-        expand("{outfolder}/{clustering}-fit-profile.{out}", outfolder = config["outfolder"], out = ["svg", "eps", "pdf", "png", "tsv"], clustering = ["kmeans", "gmm"]),
-        expand("{outfolder}/{clustering}-fit-cluster_sizes-histogram.{out}", outfolder = config["outfolder"], out = ["svg", "eps", "pdf", "png"], clustering = ["kmeans", "gmm"]),
-        expand("{outfolder}/{clustering}-fit-total_sse.tsv", outfolder = config["outfolder"], clustering = ["kmeans", "gmm"]),
-
-        expand("{outfolder}/{clustering}-fit-plot.log",
-               outfolder=config["outfolder"], clustering = ["kmeans", "gmm"]),
-        expand("{outfolder}/{clustering}-fit-cluster_sizes-stats.tsv",
-               outfolder=config["outfolder"], clustering = ["kmeans", "gmm"]),
-
-        expand("{outfolder}/{clustering}-transformed",
-               outfolder = config["outfolder"],
-               clustering = ["kmeans", "gmm"]),
-        expand("{outfolder}/{clustering}-transformed.log",
-               outfolder = config["outfolder"],
-               clustering = ["kmeans", "gmm"]),
-
-        expand("{outfolder}/{clustering}-transformed-statistics.log",
-               outfolder = config["outfolder"],
-               clustering = ["kmeans", "gmm"]),
-        expand("{outfolder}/{clustering}-transformed-statistics-{type}_prediction_counts",
-               outfolder = config["outfolder"],
-               type = ["gene", "pathogen"],
-               clustering = ["kmeans", "gmm"]),
-        expand("{outfolder}/{clustering}-transformed-statistics-silhouette.tsv",
-               outfolder = config["outfolder"],
-               clustering = ["kmeans", "gmm"]),
-
-        expand("{outfolder}/{clustering}-transformed-statistics-gene_prediction_counts",
-               outfolder=config["outfolder"],
-               clustering = ["kmeans", "gmm"]),
-        expand("{outfolder}/{clustering}-transformed-statistics-silhouette.tsv",
-               outfolder=config["outfolder"],
-               clustering = ["kmeans", "gmm"])
-
-
 rule factor_analysis:
     input:
-        expand("{infile}", infile=config["infile"])
+        expand("{infile}", infile=koios_config[INFILE__])
     output:
-        out = directory(
-                expand("{outfolder}/{dimred{",
-                       outfolder=koios_config[OUTFOLDER__],
-                       dimred=FACTOR_ANALYSIS__))
-     params:
-        params = " ".join([x for x in koios_config[SPARKPARAMS__]])
+        out = directory(expand("{outfolder}/{dimred}",
+                               outfolder=koios_config[OUTFOLDER__],
+                               dimred=FACTOR_ANALYSIS__))
+    params:
+        params = " ".join([x for x in koios_config[SPARKPARAMS__]]),
         fa = os.path.join(dirname(), "factor_analysis.py")
     run:
         cmd = """{} --master {} {} {} {} {} {}""".format(
-                        config[SPARK__],
-                        config[SPARKIP__],
-                        params.params,
-                        params.fa,
-                        config[N_COMPONENTS],
-                        input,
-                        output.out)
+            koios_config[SPARK__],
+            koios_config[SPARKIP__],
+            params.params,
+            params.fa,
+            koios_config[N_COMPONENTS],
+            input,
+            output.out),
+        shell("echo {cmd}")
         shell("{cmd}")
-
-
-rule pca:
-    input:
-        expand("{infile}", infile=config["infile"])
-    output:
-        expand("{outfolder}/pca.log", outfolder=config["outfolder"]),
-        out = directory(expand("{outfolder}/pca", outfolder=config["outfolder"]))
-    run:
-        params = " ".join([x for x in config[SPARKPARAMS__]])
-        cmd = """{} --master {} \
-                    {} \
-                    2-dimension_reduction/1a-factor_analysis-spark.py \
-                    -c {} \
-                    -f {} \
-                    -o {}""".format(
-            config["spark"], config["sparkip"], params, config["n_components"], input, output.out)
-        shell("{cmd}")
-
-
-rule kpca:
-    input:
-        expand("{infile}", infile=config["infile"])
-    output:
-        expand("{outfolder}/kpca.log", outfolder=config["outfolder"]),
-        out = directory(expand("{outfolder}/kpca", outfolder=config["outfolder"]))
-    run:
-        params = " ".join([x for x in config["sparkparams"]])
-        cmd = """{} --master {} \
-                    {} \
-                    2-dimension_reduction/1a-factor_analysis-spark.py \
-                    -c {} \
-                    -f {} \
-                    -o {}""".format(
-            config["spark"], config["sparkip"], params, config["n_components"], input, output.out)
-        shell("{cmd}")
-
-
-rule sample:
-    run:
-        params = " ".join([x for x in config["sparkparams"]])
-        sam = os.path.join(dirname(), "sampler.py")
-        cmd = """{} --master {} \
-                 {} \
-                 {} \
-                 {} \
-                 {} \
-                 {} \
-                 {}""".format(
-           config["spark"], config["sparkip"], params, sam,
-           config["input"], config["output"], config["n"], config["split"])
-        shell("{cmd}")
-
 
 rule outliers:
     input:
         expand("{outfolder}/{dimred}",
-               outfolder = koios_config[OUTFOLDER__],
-               dimred = koios_config[DIM_RED_INFILE__])
+               outfolder=koios_config[OUTFOLDER__],
+               dimred=koios_config[DIM_RED__])
     output:
-        out = directory(
-                expand("{outfolder}/{outlier}",
-                        outfolder=koios_config[OUTFOLDER__]),
-                        outlier=MAHA__"))
-     params:
-        params = " ".join([x for x in config[SPARKPARAMS__]])
-        outr = os.path.join(dirname(), "outliers.py")
-        pval = .05
-        if PVAL__ in koios_config:
-            pval = koios_config[PVAL__]
+        out = directory(expand("{outfolder}/{outlier}",
+                               outfolder=koios_config[OUTFOLDER__],
+                               outlier=MAHA__))
+    params:
+        params = " ".join([x for x in config[SPARKPARAMS__]]),
+        outr = os.path.join(dirname(), "outliers.py"),
+        pval = koios_config[PVAL__] if PVAL__ in koios_config else 0.05
     run:
         cmd = """{} --master {} {} {} {} {} {}""".format(
-        						config["spark"],
-        						config["sparkip"],
-        						params.params,
-        						params.outr,
-        						input,
-        						output.out,
-        						params.pval)
+            config["spark"],
+            config["sparkip"],
+            params.params,
+            params.outr,
+            input,
+            output.out,
+            params.pval)
         shell("{cmd}")
-
-
-rule kmeans_fit:
-    input:
-        expand("{outfolder}/outlier-removal", outfolder=config["outfolder"]),
-        expand("{outfolder}/outlier-removal.log", outfolder=config["outfolder"])
-    output:
-        expand("{outfolder}/kmeans-fit-profile.tsv", outfolder = config["outfolder"]),
-        expand("{outfolder}/kmeans-fit.log", outfolder = config["outfolder"])
-    run:
-        out = config["outfolder"] + "/kmeans-fit"
-        params = " ".join([x for x in config["sparkparams"]])
-        kme = os.path.join(dirname(), "kmeans.py")
-        if "max_centers" in config:
-            clust = config["max_centers"]
-            findbest = "--findbest"
-        if "n_centers" in config:
-            clust = config["n_centers"]
-            findbest = ""
-        if "max_centers" in config and "n_centers" in config:
-            raise ValueError("Cannot set 'n_centers' and 'max_clusters' at same time")
-        cmd = """{} --master {} {} {} {} {} {} {} {}""".format(config["spark"],
-         config["sparkip"], params, kme, "fit", input, out, clust, findbest)
-        shell("{cmd}")
-
-
-rule gmm_fit:
-    input:
-        expand("{outfolder}/outlier-removal", outfolder=config["outfolder"])
-    output:
-       expand("{outfolder}/gmm-fit-lrt_path.tsv",
-              outfolder = config["outfolder"]),
-       expand("{outfolder}/gmm-fit.log", outfolder = config["outfolder"])
-    run:
-        out = config["outfolder"] + "/kmeans-fit-recursive"
-        params = " ".join([x for x in config["sparkparams"]])
-        cmd = """{} --master {} \
-                    {} \
-                    3-clustering/1a-kmeans-fit-recursive-spark.py \
-                    -f {} \
-                    -o {} \
-                    -k {}""".format(
-          config["spark"], config["sparkip"], params, input, out, config["max_centers"])
-        shell("{cmd}")
-
-
-rule kmeans_transform:
-    input:
-        expand("{outfolder}/kmeans-fit.log", outfolder = config["outfolder"]),
-        expand("{outfolder}/kmeans-fit-profile.{out}", outfolder = config["outfolder"], out = ["svg", "eps", "pdf", "png", "tsv"]),
-        expand("{outfolder}/kmeans-fit-cluster_sizes-histogram.{out}", outfolder = config["outfolder"], out = ["svg", "eps", "pdf", "png"]),
-        expand("{outfolder}/kmeans-fit-total_sse.tsv", outfolder = config["outfolder"]),
-        fitf = expand("{outfolder}/kmeans-fit", outfolder = config["outfolder"]),
-        inf = expand("{outfolder}/outlier-removal", outfolder=config["outfolder"])
-    output:
-        out = expand("{outfolder}/kmeans-transformed",
-                     outfolder = config["outfolder"]),
-        inc = expand("{outfolder}/kmeans-transformed.log",
-                     outfolder = config["outfolder"])
-    run:
-        kme = os.path.join(dirname(), "kmeans.py")
-        params = " ".join([x for x in config["sparkparams"]])
-        cmd = """{} --master {} \
-                    {} \
-                    {} \
-                    {} \
-                    {} \
-                    {} \
-                    {}""".format(
-            config["spark"], config["sparkip"], params, kme, "transform", input.inf, input.fitf, output.out)
-        shell("{cmd}")
-
-
-rule clustering_statistics:
-    input:
-        expand("{outfolder}/{clustering}-transformed",
-               outfolder = config["outfolder"],
-               clustering = ["kmeans", "gmm"]),
-        expand("{outfolder}/{clustering}-transformed.log",
-               outfolder = config["outfolder"],
-               clustering = ["kmeans", "gmm"])
-    output:
-        expand("{outfolder}/{clustering}-transformed-statistics.log",
-               outfolder = config["outfolder"],
-               clustering = ["kmeans", "gmm"]),
-        expand("{outfolder}/{clustering}-transformed-statistics-{type}_prediction_counts",
-               outfolder = config["outfolder"],
-               type = ["gene", "pathogen"],
-               clustering = ["kmeans", "gmm"]),
-        expand("{outfolder}/{clustering}-transformed-statistics-silhouette.tsv",
-               outfolder = config["outfolder"],
-               clustering = ["kmeans", "gmm"])
-    run:
-        kms = os.path.join(dirname(), "clustering_statistics.py")
-        params = " ".join([x for x in config["sparkparams"]])
-        cmd = """{} --master {} \
-                    {} \
-                    {} \
-                    {}""".format(
-            config["spark"], config["sparkip"], params, kms, input)
-        shell("{cmd}")
-
 
 rule glm:
-  input:
-      expand("{infile}", infile=koios_config[REGRESSION_INFILE__])
-  output:
-      expand("{outfolder}/{regression}-{out}.tsv",
-             outfolder=koios_config[OUTFOLDER__],
-             regression=koios_config[REGRESSION__],
-             out=["table", "statistics"])
-  params:
-      out = os.path.join(koios_config[OUTFOLDER__], koios_config[REGRESSION__]),
-      reg = os.path.join(dirname(), "glm.py"),
-      params = " ".join([x for x in koios_config[SPARKPARAMS__]])
-  run:
-      cmd = """{} --master {} {} {} {} {} {} {} {} {}""".format(
-                               koios_config[SPARK__],
-                               koios_config[SPARKIP__],
-                               params.params,
-                               params.reg,
-                               input,
-                               koios_config[META__],
-                               koios_config[FEATURES__],
-                               koios_config[RESPONSE__],
-                               koios_config[FAMILY__],
-                               params.out)
-      shell("{cmd}")
-
-
+    input:
+        expand("{infile}", infile=koios_config[REGRESSION_INFILE__])
+    output:
+        expand("{outfolder}/{regression}-{out}.tsv",
+               outfolder=koios_config[OUTFOLDER__],
+               regression=koios_config[REGRESSION__],
+               out=["table", "statistics"])
+    params:
+        out = os.path.join(
+            koios_config[OUTFOLDER__], koios_config[REGRESSION__]),
+        reg = os.path.join(dirname(), "glm.py"),
+        params = " ".join([x for x in koios_config[SPARKPARAMS__]])
+    run:
+        cmd = """{} --master {} {} {} {} {} {} {} {} {}""".format(
+            koios_config[SPARK__],
+            koios_config[SPARKIP__],
+            params.params,
+            params.reg,
+            input,
+            koios_config[META__],
+            koios_config[FEATURES__],
+            koios_config[RESPONSE__],
+            koios_config[FAMILY__],
+            params.out)
+        shell("{cmd}")
