@@ -35,6 +35,22 @@ from koios.logger import logger_format
 logger.propagate = True
 koios_config = KoiosConfig(config)
 
+
+def _submit_dim_red(method, input, out):
+    params = " ".join([x for x in koios_config[SPARKPARAMS__]]),
+    cmd = """{} --master {} {} {} {} {} {}""".format(
+        koios_config[SPARK__],
+        koios_config[SPARKIP__],
+        params,
+        method,
+        koios_config[N_COMPONENTS__],
+        input,
+        out),
+    if DEBUG__ in koios_config:
+        shell("echo -e '\033[1;33m Submitting job {cmd} \033[\033[0m'")
+    shell("{cmd}")
+
+
 rule factor_analysis:
     input:
         expand("{infile}", infile=koios_config[INFILE__])
@@ -43,20 +59,34 @@ rule factor_analysis:
                                outfolder=koios_config[OUTFOLDER__],
                                dimred=FACTOR_ANALYSIS__))
     params:
-        params = " ".join([x for x in koios_config[SPARKPARAMS__]]),
         fa = os.path.join(dirname(), "factor_analysis.py")
     run:
-        cmd = """{} --master {} {} {} {} {} {}""".format(
-            koios_config[SPARK__],
-            koios_config[SPARKIP__],
-            params.params,
-            params.fa,
-            koios_config[N_COMPONENTS__],
-            input,
-            output.out),
-        if DEBUG__ in koios_config:
-          shell("echo -e '\033[1;33m Submitting job {cmd} \033[\033[0m'")
-        shell("{cmd}")
+        _submit_dim_red(params.fa, input, output.out)
+
+
+rule pca:
+    input:
+        expand("{infile}", infile=koios_config[INFILE__])
+    output:
+        out = directory(expand("{outfolder}/{dimred}",
+                               outfolder=koios_config[OUTFOLDER__],
+                               dimred=PCA__))
+    params:
+        pca = os.path.join(dirname(), "pca.py")
+    run:
+        _submit_dim_red(pca, input, output.out)
+
+rule kpca:
+    input:
+        expand("{infile}", infile=koios_config[INFILE__])
+    output:
+        out = directory(expand("{outfolder}/{dimred}",
+                               outfolder=koios_config[OUTFOLDER__],
+                               dimred=KPCA__))
+    params:
+        pca = os.path.join(dirname(), "kpca.py")
+    run:
+        _submit_dim_red(pca, input, output.out)
 
 rule outliers:
     input:
@@ -81,7 +111,7 @@ rule outliers:
             output.out,
             params.pval)
         if DEBUG__ in koios_config:
-          shell("echo -e '\033[1;33m Submitting job {cmd} \033[\033[0m'")
+            shell("echo -e '\033[1;33m Submitting job {cmd} \033[\033[0m'")
         shell("{cmd}")
 
 rule glm:
@@ -110,5 +140,5 @@ rule glm:
             koios_config[FAMILY__],
             params.out)
         if DEBUG__ in koios_config:
-          shell("echo -e '\033[1;33m Submitting job {cmd} \033[0m'")
+            shell("echo -e '\033[1;33m Submitting job {cmd} \033[0m'")
         shell("{cmd}")
