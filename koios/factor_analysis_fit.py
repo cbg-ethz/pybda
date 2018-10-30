@@ -100,7 +100,8 @@ class FactorAnalysisFit:
               outfile + "-scatter_plot." + suf,
               subsamp["f_0"].values, subsamp["f_1"].values,
               "Factor 1", "Factor 2")
-            for i in map(lambda x: "f_" + str(x), range(10)):
+            for i in map(lambda x: "f_" + str(x),
+                         range(min(10, self.__n_components))):
                 histogram(
                   outfile + "-histogram_{}.".format(i) + suf,
                   subsamp[i].values, i)

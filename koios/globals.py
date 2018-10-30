@@ -17,6 +17,8 @@
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
+
+
 import collections
 
 WITHIN_VAR_ = "within_cluster_variance"
