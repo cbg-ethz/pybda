@@ -47,12 +47,14 @@ SPARKPARAMS__ = SPARK__ + "params"
 INFILE__ = "infile"
 OUTFOLDER__ = "outfolder"
 
+PVAL__ = "pvalue"
+
 META__ = "meta"
 FEATURES__ = "features"
 RESPONSE__ = "response"
 
 DIM_RED__ = "dimension_reduction"
-DIM_RED_INFILE__ = DIM_RED__ + INFILE__
+DIM_RED_INFILE__ = DIM_RED__ + "_" +  INFILE__
 PCA__ = "pca"
 KPCA__ = "kpca"
 FACTOR_ANALYSIS__ = "factor_analysis"
@@ -60,6 +62,7 @@ N_COMPONENTS__ = "n_components"
 
 OUTLIERS__ = "outliers"
 OUTLIERS_INFILE__ = OUTLIERS__ + "_" + INFILE__
+MAHA__ = "mahalanobis"
 
 CLUSTERING__ = "clustering"
 CLUSTERING_INFILE__ = CLUSTERING__ + "_" + INFILE__

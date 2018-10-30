@@ -2,35 +2,45 @@ import typing
 
 from koios import dirname
 from koios import KoiosConfig
-from koios.globals import REQUIRED_ARGS__, REGRESSION_INFILE__, REGRESSION__, \
-    CLUSTERING_INFILE__, DIM_RED__, INFILE__, OUTFOLDER__, DIM_RED_INFILE__, \
-    OUTLIERS__, OUTLIERS_INFILE__, CLUSTERING__, METHODS__, SPARKPARAMS__, \
-    SPARKIP__, SPARK__, META__, FEATURES__, RESPONSE__, FAMILY__
+from koios.globals import CLUSTERING__
+from koios.globals import CLUSTERING_INFILE__
+from koios.globals import DIM_RED__
+from koios.globals import DIM_RED_INFILE__
+from koios.globals import FAMILY__
+from koios.globals import FACTOR_ANALYSIS__
+from koios.globals import FEATURES__
+from koios.globals import INFILE__
+from koios.globals import KPCA__
+from koios.globals import MAHA__
+from koios.globals import META__
+from koios.globals import METHODS__
+from koios.globals import N_COMPONENTS__
+from koios.globals import OUTFOLDER__
+from koios.globals import OUTLIERS__
+from koios.globals import OUTLIERS_INFILE__
+from koios.globals import PCA__
+from koios.globals import PVAL__
+from koios.globals import REGRESSION_INFILE__
+from koios.globals import REGRESSION__
+from koios.globals import RESPONSE__
+from koios.globals import REQUIRED_ARGS__
+from koios.globals import SPARKPARAMS__
+from koios.globals import SPARKIP__
+from koios.globals import SPARK__
 
 
 koios_config = KoiosConfig(config)
 
+
 rule all:
     input:
         expand("{outfolder}/{dimred}",
-               outfolder = config["outfolder"],
-               dimred = ["factor_analysis", "pca", "kpca"]),
-        expand("{outfolder}/{dimred}.log",
-               outfolder = config["outfolder"],
-               dimred = ["factor_analysis", "pca", "kpca"]),
+               outfolder=koios_config[OUTFOLDER__],
+               dimred=[FACTOR_ANALYSIS__, KPCA__, PCA__]),
 
-        expand("{outfolder}/{dimension_reduction}-sample.tsv",
-               outfolder=config["outfolder"],
-               dimension_reduction=["fa", "pca", "kpca"]),
-        expand("{outfolder}/{dimension_reduction}-sample.log",
-               outfolder=config["outfolder"],
-               dimension_reduction=["fa", "pca", "kpca"]),
-        expand("{outfolder}/{dimension_reduction}-sample-feature_distributions",
-               outfolder=config["outfolder"],
-               dimension_reduction=["fa", "pca", "kpca"]),
-
-        expand("{outfolder}/outlier-removal", outfolder=config["outfolder"]),
-        expand("{outfolder}/outlier-removal.log", outfolder=config["outfolder"]),
+        expand("{outfolder}/{outlier}",
+                outfolder=koios_config[OUTFOLDER__]),
+                outlier=MAHA__"))
 
         expand("{outfolder}/{clustering}-fit", outfolder = config["outfolder"], clustering = ["kmeans", "gmm"]),
         expand("{outfolder}/{clustering}-fit.log", outfolder = config["outfolder"], clustering = ["kmeans", "gmm"]),
@@ -73,25 +83,22 @@ rule factor_analysis:
     input:
         expand("{infile}", infile=config["infile"])
     output:
-        expand("{outfolder}/factor_analysis.log", outfolder=config["outfolder"]),
-        expand("{outfolder}/factor_analysis-loglik.tsv", outfolder=config["outfolder"]),
-        expand("{outfolder}/factor_analysis-loadings.tsv", outfolder=config["outfolder"]),
-        expand("{outfolder}/factor_analysis-plot/factor_analysis-likelihood_path.{out}", outfolder=config["outfolder"], out=["svg", "eps", "png", "pdf"]),
-        expand("{outfolder}/factor_analysis-plot/factor_analysis-loadings-biplot.{out}", outfolder=config["outfolder"], out=["svg", "eps", "png", "pdf"]),
-        expand("{outfolder}/factor_analysis-plot/factor_analysis-loadings-explained_variance.{out}", outfolder=config["outfolder"], out=["svg", "eps", "png", "pdf"]),
-        expand("{outfolder}/factor_analysis-plot/factor_analysis-scatter_plot.{out}", outfolder=config["outfolder"], out=["svg", "eps", "png", "pdf"]),
-        expand("{outfolder}/factor_analysis-plot/factor_analysis-histogram_f_0.{out}", outfolder=config["outfolder"], out=["svg", "eps", "png", "pdf"]),
-        out = directory(expand("{outfolder}/factor_analysis", outfolder=config["outfolder"]))
-    run:
-        params = " ".join([x for x in config["sparkparams"]])
+        out = directory(
+                expand("{outfolder}/{dimred{",
+                       outfolder=koios_config[OUTFOLDER__],
+                       dimred=FACTOR_ANALYSIS__))
+     params:
+        params = " ".join([x for x in koios_config[SPARKPARAMS__]])
         fa = os.path.join(dirname(), "factor_analysis.py")
-        cmd = """{} --master {} \
-                    {} \
-                    {} \
-                    {} \
-                    {} \
-                    {}""".format(
-            config["spark"], config["sparkip"], params, fa, config["n_components"], input, output.out)
+    run:
+        cmd = """{} --master {} {} {} {} {} {}""".format(
+                        config[SPARK__],
+                        config[SPARKIP__],
+                        params.params,
+                        params.fa,
+                        config[N_COMPONENTS],
+                        input,
+                        output.out)
         shell("{cmd}")
 
 
@@ -102,7 +109,7 @@ rule pca:
         expand("{outfolder}/pca.log", outfolder=config["outfolder"]),
         out = directory(expand("{outfolder}/pca", outfolder=config["outfolder"]))
     run:
-        params = " ".join([x for x in config["sparkparams"]])
+        params = " ".join([x for x in config[SPARKPARAMS__]])
         cmd = """{} --master {} \
                     {} \
                     2-dimension_reduction/1a-factor_analysis-spark.py \
@@ -149,23 +156,29 @@ rule sample:
 
 rule outliers:
     input:
-        expand("{outfolder}/{dimred}", outfolder = config["outfolder"], dimred = config["dimension_reduction"])
+        expand("{outfolder}/{dimred}",
+               outfolder = koios_config[OUTFOLDER__],
+               dimred = koios_config[DIM_RED_INFILE__])
     output:
-        expand("{outfolder}/outlier-removal.log", outfolder=config["outfolder"]),
-        out = directory(expand("{outfolder}/outlier-removal", outfolder=config["outfolder"]))
-    run:
-        params = " ".join([x for x in config["sparkparams"]])
+        out = directory(
+                expand("{outfolder}/{outlier}",
+                        outfolder=koios_config[OUTFOLDER__]),
+                        outlier=MAHA__"))
+     params:
+        params = " ".join([x for x in config[SPARKPARAMS__]])
         outr = os.path.join(dirname(), "outliers.py")
         pval = .05
-        if "pval" in config:
-            pval = config["pval"]
-        cmd = """{} --master {} \
-                    {} \
-                    {} \
-                    {} \
-                    {} \
-                    {}""".format(
-            config["spark"], config["sparkip"], params, outr, input, output.out, pval)
+        if PVAL__ in koios_config:
+            pval = koios_config[PVAL__]
+    run:
+        cmd = """{} --master {} {} {} {} {} {}""".format(
+        						config["spark"],
+        						config["sparkip"],
+        						params.params,
+        						params.outr,
+        						input,
+        						output.out,
+        						params.pval)
         shell("{cmd}")
 
 
@@ -188,15 +201,8 @@ rule kmeans_fit:
             findbest = ""
         if "max_centers" in config and "n_centers" in config:
             raise ValueError("Cannot set 'n_centers' and 'max_clusters' at same time")
-        cmd = """{} --master {} \
-                    {} \
-                    {} \
-                    {} \
-                    {} \
-                    {} \
-                    {} \
-                    {}""".format(
-          config["spark"], config["sparkip"], params, kme, "fit", input, out, clust, findbest)
+        cmd = """{} --master {} {} {} {} {} {} {} {}""".format(config["spark"],
+         config["sparkip"], params, kme, "fit", input, out, clust, findbest)
         shell("{cmd}")
 
 

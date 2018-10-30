@@ -47,6 +47,15 @@ class KoiosConfig:
         self.__check_available_method()
         self.__set_filenames()
 
+    def __getitem__(self, item):
+        if hasattr(self, item):
+            return getattr(self, item)
+        raise ValueError(
+          "Config file does not have required element '{}'".format(item))
+
+    def __contains__(self, item):
+        return hasattr(self, item)
+
     def __check_required_args(self):
         for el in REQUIRED_ARGS__:
             if not hasattr(self, el):
@@ -59,62 +68,13 @@ class KoiosConfig:
               "Provide at least one of the following methods: " +
               "'{}'".format("/".join(METHODS__)))
 
-    def __getitem__(self, item):
-        if hasattr(self, item):
-            return getattr(self, item)
-        raise ValueError(
-          "Config file does not have required element '{}'".format(item))
-
     def __set_filenames(self):
         for m in METHODS__:
             if hasattr(self, m):
                 self.__config_tree.add(m, getattr(self, m))
         for node in self.__config_tree.nodes.values():
-            setattr(self, node.method + INFILE__, node.infile)
-
-        # self.__set_dimred()
-        # self.__set_outliers()
-        # self.__set_clustering()
-        # self.__set_regression()
-
-    def __base_infile(self):
-        return getattr(self, INFILE__)
-
-    def __set_infile(self, attr, name):
-        setattr(self, attr, name)
+            setattr(self, self.__infile_key(node.method), node.infile)
 
     @staticmethod
-    def __build_path(folder):
-        return os.path.join(OUTFOLDER__, folder)
-
-    def __set_dimred(self):
-        if not hasattr(self, DIM_RED__):
-            return
-        inf = self.__base_infile()
-        self.__set_infile(DIM_RED_INFILE__, inf)
-
-    def __set_outliers(self):
-        if not hasattr(self, OUTLIERS__):
-            return
-        if hasattr(self, DIM_RED__):
-            inf = self.__build_path(getattr(self, DIM_RED__))
-        else:
-            inf = self.__base_infile()
-        self.__set_infile(OUTLIERS_INFILE__, inf)
-
-    def __set_clustering(self):
-        if not hasattr(self, CLUSTERING__):
-            return
-        if hasattr(self, OUTLIERS__):
-            inf = self.__build_path(getattr(self, OUTLIERS__))
-        elif hasattr(self, DIM_RED__):
-            inf = self.__build_path(getattr(self, DIM_RED__))
-        else:
-            inf = self.__base_infile()
-        self.__set_infile(CLUSTERING_INFILE__, inf)
-
-    def __set_regression(self):
-        if not hasattr(self, REGRESSION__):
-            return
-        inf = self.__base_infile()
-        self.__set_infile(REGRESSION_INFILE__, inf)
+    def __infile_key(method):
+        return method + "_" + INFILE__
