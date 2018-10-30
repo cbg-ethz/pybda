@@ -1,5 +1,7 @@
 import typing
 
+from snakemake import logger, logging
+
 from koios import dirname
 from koios import KoiosConfig
 from koios.globals import CLUSTERING__
@@ -30,6 +32,7 @@ from koios.globals import SPARK__
 
 
 koios_config = KoiosConfig(config)
+logger = logging.logger
 
 
 rule factor_analysis:
@@ -48,10 +51,10 @@ rule factor_analysis:
             koios_config[SPARKIP__],
             params.params,
             params.fa,
-            koios_config[N_COMPONENTS],
+            koios_config[N_COMPONENTS__],
             input,
             output.out),
-        shell("echo {cmd}")
+        shell("echo 'Submitting:' {cmd}")
         shell("{cmd}")
 
 rule outliers:
@@ -76,6 +79,7 @@ rule outliers:
             input,
             output.out,
             params.pval)
+        shell("echo 'Submitting:' {cmd}")
         shell("{cmd}")
 
 rule glm:
@@ -103,4 +107,5 @@ rule glm:
             koios_config[RESPONSE__],
             koios_config[FAMILY__],
             params.out)
+        logger.info("Submitting: {}".format(cmd))
         shell("{cmd}")

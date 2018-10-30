@@ -19,13 +19,10 @@
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
 
-import os
 import sys
 
 from koios.config.config_tree import ConfigTree
-from koios.globals import REQUIRED_ARGS__, REGRESSION_INFILE__, REGRESSION__, \
-    CLUSTERING_INFILE__, DIM_RED__, INFILE__, OUTFOLDER__, DIM_RED_INFILE__, \
-    OUTLIERS__, OUTLIERS_INFILE__, CLUSTERING__, METHODS__
+from koios.globals import REQUIRED_ARGS__, INFILE__, OUTFOLDER__, METHODS__
 
 sys.excepthook = lambda ex, msg, _: print("{}: {}".format(ex.__name__, msg))
 
