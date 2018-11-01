@@ -22,16 +22,11 @@
 import logging
 
 import click
-import numpy
-from pyspark.mllib.linalg.distributed import RowMatrix
 from pyspark.sql import DataFrame
 
-from koios.math.linalg import fourier, svd
+from koios.math.linalg import fourier
 from koios.pca import PCA
-from koios.pca_fit import PCAFit
-from koios.util.cast_as import as_rdd_of_array
 from koios.spark.features import feature_columns, to_double, fill_na
-from koios.math.stats import scale
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
