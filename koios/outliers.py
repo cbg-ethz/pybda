@@ -11,7 +11,7 @@ from pyspark.sql.types import DoubleType
 
 from koios.spark_model import SparkModel
 from koios.util.cast_as import as_rdd_of_array
-from koios.util.stats import center, precision, chisquare
+from koios.math.stats import center, precision, chisquare
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

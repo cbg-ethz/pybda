@@ -31,7 +31,7 @@ from koios.plot.dimension_reduction_plot import biplot, \
 from koios.sampler import sample
 from koios.util.cast_as import as_pandas
 from koios.util.features import feature_columns, split_vector
-from koios.util.stats import cumulative_explained_variance
+from koios.math.stats import cumulative_explained_variance
 
 
 logger = logging.getLogger(__name__)

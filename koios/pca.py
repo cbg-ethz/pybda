@@ -30,7 +30,7 @@ from koios.dimension_reduction import DimensionReduction
 from koios.pca_fit import PCAFit
 from koios.util.cast_as import as_rdd_of_array
 from koios.util.features import feature_columns, to_double, fill_na, join
-from koios.util.stats import scale, svd
+from koios.math.stats import scale, svd
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
