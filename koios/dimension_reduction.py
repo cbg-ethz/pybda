@@ -20,7 +20,10 @@
 
 
 from abc import abstractmethod
+
+from koios.spark.features import feature_columns
 from koios.spark_model import SparkModel
+from koios.util.cast_as import as_rdd_of_array
 
 
 class DimensionReduction(SparkModel):
@@ -48,3 +51,7 @@ class DimensionReduction(SparkModel):
     @abstractmethod
     def transform(self):
         pass
+
+    @staticmethod
+    def _feature_matrix(data):
+        return as_rdd_of_array(data.select(feature_columns(data)))

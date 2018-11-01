@@ -31,7 +31,7 @@ from pyspark.sql.functions import udf
 from koios.dimension_reduction import DimensionReduction
 from koios.factor_analysis_fit import FactorAnalysisFit
 from koios.util.cast_as import as_rdd_of_array
-from koios.util.features import feature_columns, to_double, fill_na
+from koios.spark.features import feature_columns, to_double, fill_na
 from koios.math.stats import column_statistics, svd, center
 
 
@@ -121,9 +121,10 @@ class FactorAnalysis(DimensionReduction):
         return data
 
     def _fit(self, data):
-        X = as_rdd_of_array(data.select(feature_columns(data)))
+        X = FactorAnalysis._feature_matrix(data)
         means, var = column_statistics(X)
         X = RowMatrix(center(X, means=means))
+
         W, ll, psi = self._estimate(X, var, self.n_factors)
         return X, W, ll, psi
 

@@ -27,7 +27,7 @@ import pathlib
 from pyspark.sql.functions import col
 
 from koios.io.io import write_parquet, mkdir, rm
-from koios.util.features import split_vector
+from koios.spark.features import split_vector
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

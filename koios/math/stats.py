@@ -22,7 +22,6 @@
 import logging
 
 import numpy
-import scipy
 from scipy import stats
 
 import pyspark
@@ -58,25 +57,6 @@ def column_statistics(data: pyspark.rdd.RDD):
     logger.info("Computing data statistics")
     summary = Statistics.colStats(data)
     return summary.mean(), summary.variance()
-
-
-def svd(data, n_components):
-    """
-    Computes a singular value decomposition on a data matrix and the variance
-    that is explained by the first n_components.
-
-    :param data: a data frame
-    :param n_components: number of components to be returned
-    :return: returns the estimated components of a SVD.
-    :rtype: a triple of (s, V, var)
-    """
-
-    logger.info("Computing SVD")
-    svd = data.computeSVD(data.numCols(), computeU=False)
-    s = svd.s.toArray()
-    V = svd.V.toArray().T
-    var = scipy.dot(s[n_components:], s[n_components:])
-    return s[:n_components], V[:n_components], var
 
 
 def explained_variance(data):
@@ -128,11 +108,6 @@ def scale(data: pyspark.rdd.RDD, means=None, variance=None):
     return data
 
 
-def precision(data: pyspark.rdd.RDD):
-    logger.info("Computing precision")
-    return numpy.linalg.inv(data.computeCovariance().toArray())
-
-
 def chisquare(data, pval):
     thresh = 1 - pval
     n, _ = data.shape
@@ -152,7 +127,3 @@ def sum_of_squared_errors(data: pyspark.sql.DataFrame):
            .map(lambda x: (x - means).T.dot(x - means))
            .reduce(lambda x, y: x + y))
     return sse
-
-
-def sample(x, n, replace=False):
-    return x if n >= len(x) else numpy.random.choice(x, n, replace=replace)

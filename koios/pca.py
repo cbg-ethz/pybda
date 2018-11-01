@@ -27,10 +27,12 @@ from pyspark.mllib.linalg import DenseMatrix
 from pyspark.mllib.linalg.distributed import RowMatrix
 
 from koios.dimension_reduction import DimensionReduction
+from koios.math.linalg import svd
+from koios.math.stats import scale
 from koios.pca_fit import PCAFit
+from koios.spark.dataframe import join
+from koios.spark.features import feature_columns
 from koios.util.cast_as import as_rdd_of_array
-from koios.util.features import feature_columns, to_double, fill_na, join
-from koios.math.stats import scale, svd
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -45,11 +47,21 @@ class PCA(DimensionReduction):
     def n_components(self):
         return self.__n_components
 
-    def _fit(self, data):
+    @staticmethod
+    def _preprocess_data(data):
         X = as_rdd_of_array(data.select(feature_columns(data)))
         X = RowMatrix(scale(X))
+        return data
+
+    @staticmethod
+    def _compute_pcs(X):
         sds, loadings, _ = svd(X, X.numCols())
-        sds = sds / numpy.sqrt(max(1, data.count() - 1))
+        sds = sds / numpy.sqrt(max(1, X.numRows() - 1))
+        return X, loadings, sds
+
+    def _fit(self, data):
+        X = PCA._preprocess_data(data)
+        X, loadings, sds = PCA._compute_pcs(X)
         return X, loadings, sds
 
     def _transform(self, data, X, loadings):
