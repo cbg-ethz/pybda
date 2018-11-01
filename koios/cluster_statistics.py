@@ -30,7 +30,7 @@ import scipy
 from koios.io.file import find_by_suffix
 from koios.io.io import write_tsv
 from koios.plot.cluster_plot import plot_silhouettes
-from koios.util.stats import sample
+from koios.math.stats import sample
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
