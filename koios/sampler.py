@@ -43,7 +43,7 @@ def run(input, output, n, split):
     import pathlib
     from koios.logger import set_logger
     from koios.spark_session import SparkSession
-    from koios.util.features import split_vector
+    from koios.spark.features import split_vector
     from koios.util.string import drop_suffix
     from koios.io.io import as_logfile
     from koios.io.io import read_tsv, read_parquet, write_parquet, write_tsv

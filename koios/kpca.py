@@ -23,21 +23,22 @@ import logging
 
 import click
 import numpy
-from pyspark.mllib.linalg import DenseMatrix
 from pyspark.mllib.linalg.distributed import RowMatrix
+from pyspark.sql import DataFrame
 
+from koios.math.linalg import fourier, svd
 from koios.pca import PCA
 from koios.pca_fit import PCAFit
 from koios.util.cast_as import as_rdd_of_array
-from koios.util.features import feature_columns, to_double, fill_na
-from koios.math.stats import scale, svd
+from koios.spark.features import feature_columns, to_double, fill_na
+from koios.math.stats import scale
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
 class KPCA(PCA):
-    def __init__(self, spark, n_components, n_fourier_features, gamma=1):
+    def __init__(self, spark, n_components, n_fourier_features=200, gamma=1):
         super().__init__(spark, n_components)
         self.__n_fourier_features = n_fourier_features
         self.__gamma = gamma
@@ -47,24 +48,10 @@ class KPCA(PCA):
     def n_fourier_features(self):
         return self.__n_fourier_features
 
-    def _fourier(self, X):
-        p = X.numCols()
-
-        random_state = numpy.random.RandomState(self.__seed)
-        w = numpy.sqrt(2 * gamma) * \
-            random_state.normal(size=(p, n_features))
-        b = random_state.uniform(0, 2 * numpy.pi, size=n_features)
-        w = DenseMatrix(p, n_features, w.flatten())
-        Y = X.multiply(w)
-        Y = Y.rows.map(
-            lambda x: numpy.sqrt(2.0 / n_features) * numpy.cos(x + b))
-        return RowMatrix(Y)
-
     def _fit(self, data):
-        X = as_rdd_of_array(data.select(feature_columns(data)))
-        X = RowMatrix(scale(X))
-        sds, loadings, _ = svd(X, X.numCols())
-        sds = sds / numpy.sqrt(max(1, data.count() - 1))
+        X = PCA._preprocess_data(data)
+        X = fourier(X, self.__n_fourier_features, self.__seed, self.__gamma)
+        X, loadings, sds = PCA._compute_pcs(X)
         return X, loadings, sds
 
     def fit(self):
@@ -73,11 +60,12 @@ class KPCA(PCA):
     def transform(self):
         raise NotImplementedError()
 
-    def fit_transform(self, data):
+    def fit_transform(self, data: DataFrame):
         logger.info("Running kernel principal component analysis ...")
         X, loadings, sds = self._fit(data)
         data = self._transform(data, X, loadings)
-        return PCAFit(data, self.__n_components, loadings, sds)
+        return KPCAFit(data, self.__n_components, loadings, sds,
+                       self.__n_fourier_features, self.__gamma)
 
 
 @click.command()

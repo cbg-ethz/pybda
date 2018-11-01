@@ -25,7 +25,7 @@ import pathlib
 import pandas
 
 from koios.globals import TSV_
-from koios.util.features import to_double, fill_na, assemble
+from koios.spark.features import to_double, fill_na, assemble
 from koios.util.string import matches
 
 logger = logging.getLogger(__name__)
