@@ -51,17 +51,17 @@ class PCA(DimensionReduction):
     def _preprocess_data(data):
         X = as_rdd_of_array(data.select(feature_columns(data)))
         X = RowMatrix(scale(X))
-        return data
+        return X
 
     @staticmethod
     def _compute_pcs(X):
         sds, loadings, _ = svd(X, X.numCols())
         sds = sds / numpy.sqrt(max(1, X.numRows() - 1))
-        return X, loadings, sds
+        return loadings, sds
 
     def _fit(self, data):
         X = PCA._preprocess_data(data)
-        X, loadings, sds = PCA._compute_pcs(X)
+        loadings, sds = PCA._compute_pcs(X)
         return X, loadings, sds
 
     def _transform(self, data, X, loadings):
