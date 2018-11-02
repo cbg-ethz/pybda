@@ -24,7 +24,8 @@ import logging
 import click
 from pyspark.sql import DataFrame
 
-from koios.math.linalg import fourier
+from koios.fit.kpca_fit import KPCAFit
+from koios.stats.linalg import fourier
 from koios.pca import PCA
 from koios.spark.features import feature_columns, to_double, fill_na
 
@@ -40,13 +41,17 @@ class KPCA(PCA):
         self.__seed = 23
 
     @property
+    def gamma(self):
+        return self.__gamma
+
+    @property
     def n_fourier_features(self):
         return self.__n_fourier_features
 
     def _fit(self, data):
         X = PCA._preprocess_data(data)
         X = fourier(X, self.__n_fourier_features, self.__seed, self.__gamma)
-        X, loadings, sds = PCA._compute_pcs(X)
+        loadings, sds = PCA._compute_pcs(X)
         return X, loadings, sds
 
     def fit(self):
@@ -59,8 +64,8 @@ class KPCA(PCA):
         logger.info("Running kernel principal component analysis ...")
         X, loadings, sds = self._fit(data)
         data = self._transform(data, X, loadings)
-        return KPCAFit(data, self.__n_components, loadings, sds,
-                       self.__n_fourier_features, self.__gamma)
+        return KPCAFit(data, self.n_components, loadings, sds,
+                       self.n_fourier_features, self.gamma)
 
 
 @click.command()

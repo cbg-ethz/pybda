@@ -20,8 +20,6 @@
 
 
 import typing
-from snakemake.logging import logger
-
 
 from koios import dirname
 from koios import KoiosConfig
@@ -53,7 +51,6 @@ from koios.globals import SPARKIP__
 from koios.globals import SPARK__
 from koios.logger import logger_format
 
-logger.propagate = True
 koios_config = KoiosConfig(config)
 
 
@@ -127,7 +124,7 @@ rule sample:
             koios_config["n"],
             koios_config["split"])
         if DEBUG__ in koios_config:
-          shell("echo -e '\033[1;33m Submitting job {cmd} \033[0m'")
+            shell("echo -e '\033[1;33m Submitting job {cmd} \033[0m'")
         shell("{cmd}")
 
 
@@ -190,15 +187,15 @@ rule glm:
 
 rule kmeans_fit:
     input:
-      out = directory(expand("{outfolder}/{outlier}",
-                      outfolder=koios_config[OUTFOLDER__],
-                      outlier=koios_config[CLUSTERING_INFILE__]))
+        out = directory(expand("{outfolder}/{outlier}",
+                               outfolder=koios_config[OUTFOLDER__],
+                               outlier=koios_config[CLUSTERING_INFILE__]))
     output:
-        expand("{outfolder}/kmeans-fit", outfolder = koios_config["outfolder"])
+        expand("{outfolder}/kmeans-fit", outfolder=koios_config["outfolder"])
     params:
-      out = config["outfolder"] + "/kmeans-fit"
-      params = " ".join([x for x in koios_config[SPARK_PARAMS__]])
-      kme = os.path.join(dirname(), "kmeans.py")
+        out = config["outfolder"] + "/kmeans-fit",
+        params = " ".join([x for x in koios_config[SPARKPARAMS__]]),
+        kme = os.path.join(dirname(), "kmeans.py")
     run:
         if "max_centers" in config:
             clust = config["max_centers"]
@@ -207,9 +204,18 @@ rule kmeans_fit:
             clust = config["n_centers"]
             findbest = ""
         if "max_centers" in config and "n_centers" in config:
-            raise ValueError("Cannot set 'n_centers' and 'max_clusters' at same time")
-        cmd = """{} --master {} {} {} {} {} {} {} {}""".format(config["spark"],
-         config["sparkip"], params, kme, "fit", input, out, clust, findbest)
+            raise ValueError(
+                "Cannot set 'n_centers' and 'max_clusters' at same time")
+        cmd = """{} --master {} {} {} {} {} {} {} {}""".format(
+            koios_config["spark"],
+            koios_config["sparkip"],
+            params,
+            kme,
+            "fit",
+            input,
+            out,
+            clust,
+            findbest)
         shell("{cmd}")
 
 
@@ -217,9 +223,9 @@ rule gmm_fit:
     input:
         expand("{outfolder}/outlier-removal", outfolder=config["outfolder"])
     output:
-       expand("{outfolder}/gmm-fit-lrt_path.tsv",
-              outfolder = config["outfolder"]),
-       expand("{outfolder}/gmm-fit.log", outfolder = config["outfolder"])
+        expand("{outfolder}/gmm-fit-lrt_path.tsv",
+               outfolder=config["outfolder"]),
+        expand("{outfolder}/gmm-fit.log", outfolder=config["outfolder"])
     run:
         out = config["outfolder"] + "/kmeans-fit-recursive"
         params = " ".join([x for x in config["sparkparams"]])
@@ -229,23 +235,27 @@ rule gmm_fit:
                     -f {} \
                     -o {} \
                     -k {}""".format(
-          config["spark"], config["sparkip"], params, input, out, config["max_centers"])
+            config["spark"], config["sparkip"], params, input, out, config["max_centers"])
         shell("{cmd}")
 
 
 rule kmeans_transform:
     input:
-        expand("{outfolder}/kmeans-fit.log", outfolder = config["outfolder"]),
-        expand("{outfolder}/kmeans-fit-profile.{out}", outfolder = config["outfolder"], out = ["svg", "eps", "pdf", "png", "tsv"]),
-        expand("{outfolder}/kmeans-fit-cluster_sizes-histogram.{out}", outfolder = config["outfolder"], out = ["svg", "eps", "pdf", "png"]),
-        expand("{outfolder}/kmeans-fit-total_sse.tsv", outfolder = config["outfolder"]),
-        fitf = expand("{outfolder}/kmeans-fit", outfolder = config["outfolder"]),
-        inf = expand("{outfolder}/outlier-removal", outfolder=config["outfolder"])
+        expand("{outfolder}/kmeans-fit.log", outfolder=config["outfolder"]),
+        expand("{outfolder}/kmeans-fit-profile.{out}",
+               outfolder=config["outfolder"], out=["svg", "eps", "pdf", "png", "tsv"]),
+        expand("{outfolder}/kmeans-fit-cluster_sizes-histogram.{out}",
+               outfolder=config["outfolder"], out=["svg", "eps", "pdf", "png"]),
+        expand("{outfolder}/kmeans-fit-total_sse.tsv",
+               outfolder=config["outfolder"]),
+        fitf = expand("{outfolder}/kmeans-fit", outfolder=config["outfolder"]),
+        inf = expand("{outfolder}/outlier-removal",
+                     outfolder=config["outfolder"])
     output:
         out = expand("{outfolder}/kmeans-transformed",
-                     outfolder = config["outfolder"]),
+                     outfolder=config["outfolder"]),
         inc = expand("{outfolder}/kmeans-transformed.log",
-                     outfolder = config["outfolder"])
+                     outfolder=config["outfolder"])
     run:
         kme = os.path.join(dirname(), "kmeans.py")
         params = " ".join([x for x in config["sparkparams"]])
@@ -263,22 +273,22 @@ rule kmeans_transform:
 rule clustering_statistics:
     input:
         expand("{outfolder}/{clustering}-transformed",
-               outfolder = config["outfolder"],
-               clustering = ["kmeans", "gmm"]),
+               outfolder=config["outfolder"],
+               clustering=["kmeans", "gmm"]),
         expand("{outfolder}/{clustering}-transformed.log",
-               outfolder = config["outfolder"],
-               clustering = ["kmeans", "gmm"])
+               outfolder=config["outfolder"],
+               clustering=["kmeans", "gmm"])
     output:
         expand("{outfolder}/{clustering}-transformed-statistics.log",
-               outfolder = config["outfolder"],
-               clustering = ["kmeans", "gmm"]),
+               outfolder=config["outfolder"],
+               clustering=["kmeans", "gmm"]),
         expand("{outfolder}/{clustering}-transformed-statistics-{type}_prediction_counts",
-               outfolder = config["outfolder"],
-               type = ["gene", "pathogen"],
-               clustering = ["kmeans", "gmm"]),
+               outfolder=config["outfolder"],
+               type=["gene", "pathogen"],
+               clustering=["kmeans", "gmm"]),
         expand("{outfolder}/{clustering}-transformed-statistics-silhouette.tsv",
-               outfolder = config["outfolder"],
-               clustering = ["kmeans", "gmm"])
+               outfolder=config["outfolder"],
+               clustering=["kmeans", "gmm"])
     run:
         kms = os.path.join(dirname(), "clustering_statistics.py")
         params = " ".join([x for x in config["sparkparams"]])

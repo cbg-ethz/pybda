@@ -36,7 +36,7 @@ from koios.fit.kmeans_fit import KMeansFit
 from koios.fit.kmeans_fit_profile import KMeansFitProfile
 from koios.fit.kmeans_transformed import KMeansTransformed
 from koios.spark.features import n_features, split_vector
-from koios.math.stats import sum_of_squared_errors
+from koios.stats.stats import sum_of_squared_errors
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

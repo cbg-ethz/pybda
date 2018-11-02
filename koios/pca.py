@@ -20,18 +20,18 @@
 
 
 import logging
+import scipy
 
 import click
-import numpy
 from pyspark.mllib.linalg import DenseMatrix
 from pyspark.mllib.linalg.distributed import RowMatrix
 
 from koios.dimension_reduction import DimensionReduction
-from koios.math.linalg import svd
-from koios.math.stats import scale
+from koios.stats.linalg import svd
+from koios.stats.stats import scale
 from koios.fit.pca_fit import PCAFit
 from koios.spark.dataframe import join
-from koios.spark.features import feature_columns
+from koios.spark.features import feature_columns, to_double, fill_na
 from koios.util.cast_as import as_rdd_of_array
 
 logger = logging.getLogger(__name__)
@@ -40,7 +40,7 @@ logger.setLevel(logging.INFO)
 
 class PCA(DimensionReduction):
     def __init__(self, spark, n_components):
-        super().__init__(spark, numpy.inf, numpy.inf)
+        super().__init__(spark, scipy.inf, scipy.inf)
         self.__n_components = n_components
 
     @property
@@ -56,7 +56,7 @@ class PCA(DimensionReduction):
     @staticmethod
     def _compute_pcs(X):
         sds, loadings, _ = svd(X, X.numCols())
-        sds = sds / numpy.sqrt(max(1, X.numRows() - 1))
+        sds = sds / scipy.sqrt(max(1, X.numRows() - 1))
         return loadings, sds
 
     def _fit(self, data):
@@ -66,10 +66,9 @@ class PCA(DimensionReduction):
 
     def _transform(self, data, X, loadings):
         logger.info("Transforming data")
-
         loadings = DenseMatrix(
-          X.numCols(), self.__n_components,
-          loadings[:self.__n_components].flatten()
+          X.numCols(), self.n_components,
+          loadings[:self.n_components].flatten()
         )
         X = X.multiply(loadings)
         data = join(data, X, self.spark)
