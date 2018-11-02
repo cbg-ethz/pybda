@@ -32,9 +32,9 @@ from koios.clustering import Clustering
 from koios.globals import TOTAL_VAR_
 from koios.io.as_filename import as_ssefile
 from koios.io.io import write_line
-from koios.kmeans_fit import KMeansFit
-from koios.kmeans_fit_profile import KMeansFitProfile
-from koios.kmeans_transformed import KMeansTransformed
+from koios.fit.kmeans_fit import KMeansFit
+from koios.fit.kmeans_fit_profile import KMeansFitProfile
+from koios.fit.kmeans_transformed import KMeansTransformed
 from koios.spark.features import n_features, split_vector
 from koios.math.stats import sum_of_squared_errors
 

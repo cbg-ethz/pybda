@@ -44,6 +44,7 @@ class PCAFit:
         self.__n_components = n_components
         self.__loadings = loadings
         self.__sds = sds
+        self.__suffix = "pca"
 
     @property
     def data(self):
@@ -63,7 +64,7 @@ class PCAFit:
         plot_fold = outfolder + "-plot"
         if not os.path.exists(plot_fold):
             os.mkdir(plot_fold)
-        self._plot(os.path.join(plot_fold, "pca"))
+        self._plot(os.path.join(plot_fold, self.__suffix))
 
     def _write_loadings(self, outfile):
         logger.info("Writing loadings to file")
