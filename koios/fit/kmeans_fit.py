@@ -144,7 +144,7 @@ class KMeansFit:
     @classmethod
     def find_best_fit(cls, fit_folder):
         import pandas
-        from koios.kmeans_fit_profile import KMeansFitProfile
+        from koios.fit.kmeans_fit_profile import KMeansFitProfile
         profile_file = KMeansFitProfile.as_profilefile(fit_folder)
         tab = pandas.read_csv(profile_file, sep="\t")
         stat_file = KMeansFit.as_statfile(fit_folder, tab[K_].values[-1])

@@ -20,10 +20,8 @@
 
 
 import logging
-import os
 
-from koios.io.io import write_parquet
-from koios.pca_fit import PCAFit
+from koios.fit.pca_fit import PCAFit
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -33,7 +31,8 @@ class KPCAFit(PCAFit):
     def __init__(self, data, n_components, loadings, sds, n_fourier_features, gamma):
         super().__init__(data, n_components, loadings, sds)
         self.__n_ff = n_fourier_features
-        self.__gamma = gamma
+        self.__gamma = gamma,
+        self.__suffix = "kpca"
 
     @property
     def gamma(self):
@@ -42,11 +41,3 @@ class KPCAFit(PCAFit):
     @property
     def n_fourier_features(self):
         return self.__n_ff
-
-    def write_files(self, outfolder):
-        write_parquet(self.__data, outfolder)
-        self._write_loadings(outfolder + "-loadings.tsv")
-        plot_fold = outfolder + "-plot"
-        if not os.path.exists(plot_fold):
-            os.mkdir(plot_fold)
-        self._plot(os.path.join(plot_fold, "kpca"))

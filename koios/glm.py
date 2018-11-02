@@ -25,7 +25,7 @@ import click
 from pyspark.ml.regression import LinearRegression
 from pyspark.ml.classification import LogisticRegression
 
-from koios.glm_fit import GLMFit
+from koios.fit.glm_fit import GLMFit
 from koios.globals import GAUSSIAN_, BINOMIAL_
 from koios.regression import Regression
 

@@ -29,7 +29,7 @@ from pyspark.mllib.linalg.distributed import RowMatrix
 from koios.dimension_reduction import DimensionReduction
 from koios.math.linalg import svd
 from koios.math.stats import scale
-from koios.pca_fit import PCAFit
+from koios.fit.pca_fit import PCAFit
 from koios.spark.dataframe import join
 from koios.spark.features import feature_columns
 from koios.util.cast_as import as_rdd_of_array
