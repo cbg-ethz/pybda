@@ -28,11 +28,14 @@ logger.setLevel(logging.INFO)
 
 
 class KPCAFit(PCAFit):
-    def __init__(self, data, n_components, loadings, sds, n_fourier_features, gamma):
+    def __init__(self, data, n_components, loadings, sds,
+                 n_fourier_features, gamma):
         super().__init__(data, n_components, loadings, sds)
         self.__n_ff = n_fourier_features
         self.__gamma = gamma,
         self.__suffix = "kpca"
+        self.__ff_features = list(
+          map('fourier_feature_{}'.format, range(1, n_fourier_features + 1)))
 
     @property
     def gamma(self):
@@ -41,3 +44,7 @@ class KPCAFit(PCAFit):
     @property
     def n_fourier_features(self):
         return self.__n_ff
+
+    @property
+    def feature_names(self):
+        return self.__ff_features

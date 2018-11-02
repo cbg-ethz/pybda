@@ -38,3 +38,7 @@ def split(els, split):
     if not isinstance(els, list):
         raise TypeError("'els' should be list.")
     return [x.replace(" ", "").split(split) for x in els]
+
+
+def paste(string, array):
+    return list(map(string + '_{}'.format, array))

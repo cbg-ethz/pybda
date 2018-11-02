@@ -31,7 +31,7 @@ from koios.plot.dimension_reduction_plot import biplot, \
 from koios.sampler import sample
 from koios.util.cast_as import as_pandas
 from koios.spark.features import feature_columns, split_vector
-from koios.math.stats import cumulative_explained_variance
+from koios.stats.stats import cumulative_explained_variance
 
 
 logger = logging.getLogger(__name__)
@@ -45,6 +45,7 @@ class PCAFit:
         self.__loadings = loadings
         self.__sds = sds
         self.__suffix = "pca"
+        self.__features = feature_columns(self.__data)
 
     @property
     def data(self):
@@ -58,6 +59,14 @@ class PCAFit:
     def sds(self):
         return self.__sds
 
+    @property
+    def n_components(self):
+        return self.__n_components
+
+    @property
+    def feature_names(self):
+        return self.__features
+
     def write_files(self, outfolder):
         write_parquet(self.__data, outfolder)
         self._write_loadings(outfolder + "-loadings.tsv")
@@ -68,30 +77,28 @@ class PCAFit:
 
     def _write_loadings(self, outfile):
         logger.info("Writing loadings to file")
-        features = feature_columns(self.__data)
-        DataFrame(self.__loadings[:self.__n_components],
-                  columns=features).to_csv(outfile, sep="\t", index=False)
+        DataFrame(
+          self.loadings[:self.n_components],
+          columns=self.feature_names).to_csv(outfile, sep="\t", index=False)
 
     def _plot(self, outfile):
         logger.info("Plotting")
-        cev = cumulative_explained_variance(self.__sds)
-        features = feature_columns(self.__data)
-        subsamp = as_pandas(
-          split_vector(sample(self.__data, 10000), "features"))
+        cev = cumulative_explained_variance(self.sds)
+        subsamp = as_pandas(split_vector(sample(self.data, 10000), "features"))
         for suf in ["png", "pdf", "svg", "eps"]:
             plot_cumulative_variance(
               outfile + "-loadings-explained_variance." + suf,
-              cev[:self.__n_components], "# components")
+              cev[:self.n_components], "# components")
             biplot(
               outfile + "-loadings-biplot." + suf,
-              DataFrame(self.__loadings[:self.__n_components],
-                        columns=features), "PC 1", "PC 2")
+              DataFrame(self.loadings[:self.n_components],
+                        columns=self.feature_names), "PC 1", "PC 2")
             scatter(
               outfile + "-scatter_plot." + suf,
               subsamp["f_0"].values, subsamp["f_1"].values,
               "PC 1", "PC 2")
             for i in map(lambda x: "f_" + str(x),
-                         range(min(10, self.__n_components))):
+                         range(min(10, self.n_components))):
                 histogram(
                   outfile + "-histogram_{}.".format(i) + suf,
                   subsamp[i].values, i)
