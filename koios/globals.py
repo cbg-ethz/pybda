@@ -75,6 +75,7 @@ KMEANS__ = "kmeans"
 GMM__ = "gmm"
 MAX_CENTERS__ = "max_centers"
 N_CENTERS__ = "n_centers"
+RESPONSIBILITIES__ = "responsibilities"
 
 REGRESSION__ = "regression"
 REGRESSION_INFILE__ = REGRESSION__ + "_" + INFILE__

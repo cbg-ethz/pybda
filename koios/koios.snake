@@ -259,7 +259,6 @@ rule kmeans_transform:
         kme = os.path.join(dirname(), "kmeans.py"),
         params = " ".join([x for x in koios_config[SPARKPARAMS__]])
     run:
-
         cmd = """{} --master {} {} {} {} {} {} {}""".format(
             koios_config[SPARK__],
             koios_config[SPARKIP__],
@@ -271,6 +270,32 @@ rule kmeans_transform:
             output.out)
         _run(cmd)
 
+
+rule gmm_transform:
+    input:
+        fitf = expand("{outfolder}/{clust}-fit",
+                      outfolder=koios_config[OUTFOLDER__],
+                      clust=koios_config[CLUSTERING__]),
+        inf = expand("{infile}", infile=koios_config[CLUSTERING_INFILE__])
+    output:
+        out = directory(expand("{outfolder}/{clust}-transformed",
+                               clust=koios_config[CLUSTERING__],
+                               outfolder=koios_config[OUTFOLDER__]))
+    params:
+        kme = os.path.join(dirname(), "gmm.py"),
+        params = " ".join([x for x in koios_config[SPARKPARAMS__]])
+    run:
+
+        cmd = """{} --master {} {} {} {} {} {} {}""".format(
+            koios_config[SPARK__],
+            koios_config[SPARKIP__],
+            params.params,
+            params.kme,
+            "transform",
+            input.inf,
+            input.fitf,
+            output.out)
+        _run(cmd)
 
 rule clustering_statistics:
     input:

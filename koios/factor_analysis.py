@@ -31,7 +31,8 @@ from pyspark.sql.functions import udf
 from koios.dimension_reduction import DimensionReduction
 from koios.fit.factor_analysis_fit import FactorAnalysisFit
 from koios.spark.features import feature_columns, to_double, fill_na
-from koios.stats.stats import column_statistics, svd, center
+from koios.stats.linalg import svd
+from koios.stats.stats import column_statistics, center
 
 
 logger = logging.getLogger(__name__)

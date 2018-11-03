@@ -21,16 +21,23 @@
 
 import glob
 import logging
+import pandas
+import pathlib
 
 import click
 import pyspark
 import pyspark.ml.clustering
 
 from koios.clustering import Clustering
+from koios.fit.gmm_fit import GMMFit
+from koios.fit.gmm_transformed import GMMTransformed
 from koios.fit.kmeans_fit import KMeansFit
 from koios.fit.kmeans_fit_profile import KMeansFitProfile
 from koios.fit.kmeans_transformed import KMeansTransformed
-from koios.globals import GMM__
+from koios.globals import GMM__, RESPONSIBILITIES__, LOGLIK_
+from koios.io.as_filename import as_loglikfile
+from koios.io.io import write_line
+from koios.stats.stats import loglik
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -40,23 +47,36 @@ class GMM(Clustering):
     def __init__(self, spark, clusters, findbest=None,
                  threshold=.01, max_iter=25):
         super().__init__(spark, clusters, findbest, threshold, max_iter)
-        self.__type = GMM__
-
-    def transform(self, data, models=None, fit_folder=None):
-        if fit_folder is None and models is None:
-            raise ValueError("Provide either 'models' or a 'models_folder'")
-        if fit_folder:
-            logger.info("nice")
-            fit = KMeansFit.find_best_fit(fit_folder)
-        return KMeansTransformed(fit.transform(data))
 
     def fit_transform(self):
         raise NotImplementedError()
 
+    def transform(self, data, models=None, fit_folder=None):
+        self._check_transform(models, fit_folder)
+        fit = GMMFit.find_best_fit(fit_folder)
+        return GMMTransformed(fit.transform(data))
+
+    def _totals(self, data, outpath=None):
+        if outpath:
+            outf = as_loglikfile(outpath)
+        else:
+            outf = None
+        if outf and pathlib.Path(outf).exists():
+            logger.info("Loading totals file")
+            tab = pandas.read_csv(outf, sep="\t")
+            tot = tab[LOGLIK_][0]
+        else:
+            logger.info("Computing totals anew")
+            tot = loglik(data)
+            if outf:
+                write_line("{}\n{}\n".format(LOGLIK_, tot), outf)
+        logger.info("\t{}: {}".format(LOGLIK_, tot))
+        return tot
+
     def _fit_recursive(self, data, n, p, tot_var, precomp_mod_path, outfolder):
         logger.info("Clustering with max K: {}".format(self.clusters))
 
-        kmeans_prof = KMeansFitProfile(
+        kmeans_prof = GMMFitProfile(
           self.clusters, self.load_precomputed_models(precomp_mod_path)) \
             .add(KMeansFit(None, None, 0, tot_var, tot_var, n, p), 0, 0, 0)
 
@@ -99,39 +119,24 @@ class GMM(Clustering):
             kmeans_prof.add(model, cluster, cluster, cluster)
         return kmeans_prof
 
-    @classmethod
-    def load_precomputed_models(cls, precomputed_models):
-        mod = {}
-        if precomputed_models:
-            fls = glob.glob(precomputed_models + "*_statistics.tsv")
-        else:
-            fls = []
-        if fls:
-            logger.info("Found precomputed ll-files...")
-            for f in fls:
-                m = KMeansFit.load_model(f)
-                mod[m.K] = m
-        else:
-            logger.info("Starting from scratch...")
-        return mod
-
-    def _find_or_fit(self, total_var, kmeans_prof, k, n, p, data, outfolder):
-        if k in kmeans_prof.keys():
-            logger.info("Loading model k={}".format(k))
-            model = kmeans_prof[k]
-        else:
-            logger.info("Newly estimating model k={}".format(k))
-            model = self._fit(total_var, k, n, p, data, outfolder)
-        return model
+    @property
+    def _get_fit_class(self):
+        return GMMFit
 
     @staticmethod
-    def _fit(total_var, k, n, p, data, outfolder=None):
+    def _fit(null_loglik, k, n, p, data, outfolder=None):
         logger.info("Clustering with K: {}".format(k))
-        km = pyspark.ml.clustering.KMeans(k=k, seed=23)
+        km = pyspark.ml.clustering.KMeans(
+          k=k, seed=23, probabilityCol=RESPONSIBILITIES__)
         fit = km.fit(data)
-        model = KMeansFit(data=None, fit=fit, k=k,
-                          within_cluster_variance=fit.computeCost(data),
-                          total_variance=total_var, n=n, p=p, path=None)
+        model = GMMFit(data=None,
+                       fit=fit,
+                       k=k,
+                       mixing_weights=fit.weights,
+                       estimates=fit.gaussiansDF(),
+                       loglik=fit.summary.logLikelihood,
+                       null_loglik=null_loglik,
+                       n=n, p=p, path=None)
         if outfolder:
             model.write_files(outfolder)
         return model
@@ -167,7 +172,7 @@ def fit(infolder, outfolder, clusters, findbest):
 
     with SparkSession() as spark:
         try:
-            km = KMeans(spark, clusters, findbest)
+            km = GMM(spark, clusters, findbest)
             fit = km.fit(read_parquet(spark, infolder),
                          precomputed_models_path=outfolder,
                          outfolder=outfolder)
