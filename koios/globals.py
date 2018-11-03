@@ -21,6 +21,7 @@
 
 import collections
 
+LOGLIK_ = "loglik"
 WITHIN_VAR_ = "within_cluster_variance"
 TOTAL_VAR_ = "total_variance"
 EXPL_VAR_ = "explained_variance"

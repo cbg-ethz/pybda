@@ -127,3 +127,6 @@ def sum_of_squared_errors(data: pyspark.sql.DataFrame):
            .map(lambda x: (x - means).T.dot(x - means))
            .reduce(lambda x, y: x + y))
     return sse
+
+def loglik(data: pyspark.sql.DataFrame):
+    return 0
