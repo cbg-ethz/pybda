@@ -28,9 +28,8 @@ import pandas
 import scipy
 
 from koios.io.file import find_by_suffix
-from koios.io.io import write_tsv
 from koios.plot.cluster_plot import plot_silhouettes
-from koios.stats.stats import sample
+from koios.sampler import sample
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -41,12 +40,6 @@ class ClusterStatistics:
         self.__spark = spark
 
     def write_statistics(self, data, path):
-        write_tsv(
-          self._count_statistics(data, ["gene", "prediction"]),
-          path + "-gene_prediction_counts.tsv")
-        write_tsv(
-          self._count_statistics(data, ["pathogen", "prediction"]),
-          path + "-pathogen_prediction_counts")
         fl_out = path + "-silhouettes"
         with open(fl_out + ".tsv", "w") as fh:
             fh.write("{}\t{}\t{}\n".format("cluster", "neighbor", "silhouette"))

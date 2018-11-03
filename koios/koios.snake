@@ -64,7 +64,11 @@ def _submit_dim_red(method, input, out, params):
         method,
         koios_config[N_COMPONENTS__],
         input,
-        out),
+        out)
+    run(cmd)
+
+
+def _run(cmd):
     if DEBUG__ in koios_config:
         shell("echo -e '\033[1;33m Submitting job {cmd} \033[\033[0m'")
     shell("{cmd}")
@@ -252,8 +256,8 @@ rule kmeans_transform:
         inf = expand("{infile}", infile=koios_config[CLUSTERING_INFILE__])
     output:
         out = directory(expand("{outfolder}/{clust}-transformed",
-                     clust=koios_config[CLUSTERING__],
-                     outfolder=koios_config[OUTFOLDER__]))
+                               clust=koios_config[CLUSTERING__],
+                               outfolder=koios_config[OUTFOLDER__]))
     params:
         kme = os.path.join(dirname(), "kmeans.py"),
         params = " ".join([x for x in koios_config[SPARKPARAMS__]])
@@ -268,6 +272,8 @@ rule kmeans_transform:
             input.inf,
             input.fitf,
             output.out)
+        if DEBUG__ in koios_config:
+            shell("echo -e '\033[1;33m Submitting job {cmd} \033[0m'")
         shell("{cmd}")
 
 
@@ -277,19 +283,17 @@ rule clustering_statistics:
                outfolder=koios_config[OUTFOLDER__],
                clust=koios_config[CLUSTERING__])
     output:
-        expand("{outfolder}/{clustering}-transformed-statistics-{type}_prediction_counts",
-               outfolder=config["outfolder"],
-               type=["gene", "pathogen"],
-               clust=koios_config[CLUSTERING__]),
-        expand("{outfolder}/{clustering}-transformed-statistics-silhouette.tsv",
-               outfolder=config["outfolder"],
-               clustering=["kmeans", "gmm"])
+        expand("{outfolder}/{clust}-transformed-silhouettes.tsv",
+               outfolder=koios_config[OUTFOLDER__],
+               clust=koios_config[CLUSTERING__])
+    params:
+        kms = os.path.join(dirname(), "cluster_statistics.py"),
+        params = " ".join([x for x in koios_config[SPARKPARAMS__]])
     run:
-        kms = os.path.join(dirname(), "clustering_statistics.py")
-        params = " ".join([x for x in config["sparkparams"]])
-        cmd = """{} --master {} \
-                    {} \
-                    {} \
-                    {}""".format(
-            config["spark"], config["sparkip"], params, kms, input)
-        shell("{cmd}")
+        cmd = """{} --master {} {} {} {}""".format(
+            koios_config[SPARK__],
+            koios_config[SPARKIP__],
+            params.params,
+            params.kms,
+            input)
+        _run(cmd)
