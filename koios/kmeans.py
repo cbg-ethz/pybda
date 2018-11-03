@@ -22,6 +22,7 @@
 import glob
 import logging
 import pathlib
+import scipy
 
 import click
 import pandas
@@ -111,7 +112,7 @@ class KMeans(Clustering):
     def _fit_single(self, data, n, p, tot_var, outfolder=None):
         logger.info("Clustering with max K: {}".format(self.clusters))
 
-        kmeans_prof = KMeansFitProfile(self.clusters) \
+        kmeans_prof = KMeansFitProfile(scipy.max(self.clusters)) \
             .add(KMeansFit(None, None, 0, tot_var, tot_var, n, p), 0, 0, 0)
         for cluster in self.clusters:
             model = self._fit(tot_var, cluster, n, p, data, outfolder)
