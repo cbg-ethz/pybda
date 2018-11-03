@@ -39,3 +39,11 @@ def as_ssefile(fl):
     else:
         ssefile = fl + "-total_sse.tsv"
     return ssefile
+
+
+def as_loglikfile(fl):
+    if fl.endswith(".tsv"):
+        ssefile = fl.replace(".tsv", "-loglik.tsv")
+    else:
+        ssefile = fl + "-loglik.tsv"
+    return ssefile

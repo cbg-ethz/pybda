@@ -18,12 +18,22 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
+import logging
+import pandas
+import pathlib
 from abc import abstractmethod
 
 from koios.fit.clustering_fit import ClusteringFit
 from koios.fit.clustering_transformed import ClusteringTransformed
-from koios.globals import GMM__
+from koios.globals import GMM__, FEATURES__, KMEANS__, TOTAL_VAR_, LOGLIK_
+from koios.io.as_filename import as_loglikfile, as_ssefile
+from koios.io.io import write_line
+from koios.spark.features import n_features, split_vector
 from koios.spark_model import SparkModel
+from koios.stats.stats import loglik, sum_of_squared_errors
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class Clustering(SparkModel):
@@ -69,14 +79,22 @@ class Clustering(SparkModel):
     def threshold(self):
         return self.__threshold
 
-    def fit(self, data, precomputed_models_path=None, outfolder=None):
-        if self.findbest:
-            return self._fit_recursive(data, precomputed_models_path, outfolder)
-        raise ValueError("Not implemented.")
-
     @abstractmethod
     def fit_transform(self):
         pass
+
+    def fit(self, data, precomputed_models_path=None, outfolder=None):
+        n, p = data.count(), n_features(data, FEATURES__)
+        logger.info("Using data with n={} and p={}".format(n, p))
+        data = data.select(FEATURES__)
+        tots = Clustering._totals(
+          split_vector(data, FEATURES__), self.__type, outfolder)
+
+        if self.findbest:
+            return self._fit_recursive(
+              data, n, p, tots,
+              precomputed_models_path, outfolder)
+        return self._fit_single(data, n, p, tots, outfolder)
 
     def transform(self, data, models=None, fit_folder=None):
         if fit_folder is None and models is None:
@@ -84,3 +102,33 @@ class Clustering(SparkModel):
         if fit_folder:
             fit = ClusteringFit.find_best_fit(fit_folder)
         return ClusteringTransformed(fit.transform(data))
+
+    @staticmethod
+    def _totals(data, type, outpath=None):
+        if type == GMM__:
+            f_file = as_loglikfile
+            f = loglik
+            column = TOTAL_VAR_
+        elif type == KMEANS__:
+            f_file = as_ssefile
+            f = sum_of_squared_errors
+            column = LOGLIK_
+        else:
+            raise ValueError("Please provide either '{}/{}'".format(
+              GMM__, KMEANS__))
+
+        if outpath:
+            outf = f_file(outpath)
+        else:
+            outf = None
+        if outf and pathlib.Path(outf).exists():
+            logger.info("Loading totals file")
+            tab = pandas.read_csv(outf, sep="\t")
+            tot = tab[column][0]
+        else:
+            logger.info("Computing totals anew")
+            tot = f(data)
+            if outf:
+                write_line("{}\n{}\n".format(column, tot), outf)
+        logger.info("\t{}: {}".format(column, tot))
+        return tot
