@@ -19,12 +19,11 @@
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
 
-import glob
 import logging
-import pandas
 import pathlib
 
 import click
+import pandas
 import pyspark
 import pyspark.ml.clustering
 
@@ -33,8 +32,7 @@ from koios.fit.gmm_fit import GMMFit
 from koios.fit.gmm_transformed import GMMTransformed
 from koios.fit.kmeans_fit import KMeansFit
 from koios.fit.kmeans_fit_profile import KMeansFitProfile
-from koios.fit.kmeans_transformed import KMeansTransformed
-from koios.globals import GMM__, RESPONSIBILITIES__, LOGLIK_
+from koios.globals import RESPONSIBILITIES__, LOGLIK_
 from koios.io.as_filename import as_loglikfile
 from koios.io.io import write_line
 from koios.stats.stats import loglik
