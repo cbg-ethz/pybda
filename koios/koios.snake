@@ -246,51 +246,41 @@ rule gmm_fit:
 
 rule kmeans_transform:
     input:
-        expand("{outfolder}/kmeans-fit.log", outfolder=config["outfolder"]),
-        expand("{outfolder}/kmeans-fit-profile.{out}",
-               outfolder=config["outfolder"], out=["svg", "eps", "pdf", "png", "tsv"]),
-        expand("{outfolder}/kmeans-fit-cluster_sizes-histogram.{out}",
-               outfolder=config["outfolder"], out=["svg", "eps", "pdf", "png"]),
-        expand("{outfolder}/kmeans-fit-total_sse.tsv",
-               outfolder=config["outfolder"]),
-        fitf = expand("{outfolder}/kmeans-fit", outfolder=config["outfolder"]),
-        inf = expand("{outfolder}/outlier-removal",
-                     outfolder=config["outfolder"])
+        fitf = expand("{outfolder}/{clust}-fit",
+                      outfolder=koios_config[OUTFOLDER__],
+                      clust=koios_config[CLUSTERING__]),
+        inf = expand("{infile}", infile=koios_config[CLUSTERING_INFILE__])
     output:
-        out = expand("{outfolder}/kmeans-transformed",
-                     outfolder=config["outfolder"]),
-        inc = expand("{outfolder}/kmeans-transformed.log",
-                     outfolder=config["outfolder"])
+        out = directory(expand("{outfolder}/{clust}-transformed",
+                     clust=koios_config[CLUSTERING__],
+                     outfolder=koios_config[OUTFOLDER__]))
+    params:
+        kme = os.path.join(dirname(), "kmeans.py"),
+        params = " ".join([x for x in koios_config[SPARKPARAMS__]])
     run:
-        kme = os.path.join(dirname(), "kmeans.py")
-        params = " ".join([x for x in config["sparkparams"]])
-        cmd = """{} --master {} \
-                    {} \
-                    {} \
-                    {} \
-                    {} \
-                    {} \
-                    {}""".format(
-            config["spark"], config["sparkip"], params, kme, "transform", input.inf, input.fitf, output.out)
+
+        cmd = """{} --master {} {} {} {} {} {} {}""".format(
+            koios_config[SPARK__],
+            koios_config[SPARKIP__],
+            params.params,
+            params.kme,
+            "transform",
+            input.inf,
+            input.fitf,
+            output.out)
         shell("{cmd}")
 
 
 rule clustering_statistics:
     input:
-        expand("{outfolder}/{clustering}-transformed",
-               outfolder=config["outfolder"],
-               clustering=["kmeans", "gmm"]),
-        expand("{outfolder}/{clustering}-transformed.log",
-               outfolder=config["outfolder"],
-               clustering=["kmeans", "gmm"])
+        expand("{outfolder}/{clust}-transformed",
+               outfolder=koios_config[OUTFOLDER__],
+               clust=koios_config[CLUSTERING__])
     output:
-        expand("{outfolder}/{clustering}-transformed-statistics.log",
-               outfolder=config["outfolder"],
-               clustering=["kmeans", "gmm"]),
         expand("{outfolder}/{clustering}-transformed-statistics-{type}_prediction_counts",
                outfolder=config["outfolder"],
                type=["gene", "pathogen"],
-               clustering=["kmeans", "gmm"]),
+               clust=koios_config[CLUSTERING__]),
         expand("{outfolder}/{clustering}-transformed-statistics-silhouette.tsv",
                outfolder=config["outfolder"],
                clustering=["kmeans", "gmm"])

@@ -100,6 +100,9 @@ class KMeans(Clustering):
               tot_var, kmeans_prof, mid, n, p, data, outfolder)
             kmeans_prof.add(model, left, mid, right)
 
+            # TODO: the clustering should return the maximal number
+            # if the threshold is not passed and not the number 1 below
+            # i.e. maybe it's better to take the ceil not the floor
             if kmeans_prof.loss < self.threshold:
                 mid, right = min(int((left + mid) / 2), self.clusters), mid + 1
             elif kmeans_prof.loss > self.threshold:
