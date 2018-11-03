@@ -29,12 +29,11 @@ import pyspark
 import pyspark.ml.clustering
 
 from koios.clustering import Clustering
-from koios.globals import TOTAL_VAR_, FEATURES__
+from koios.fit.gmm_fit import GMMFit
+from koios.fit.kmeans_fit_profile import KMeansFitProfile
+from koios.globals import TOTAL_VAR_
 from koios.io.as_filename import as_ssefile
 from koios.io.io import write_line
-from koios.fit.kmeans_fit import KMeansFit
-from koios.fit.kmeans_fit_profile import KMeansFitProfile
-from koios.fit.kmeans_transformed import KMeansTransformed
 from koios.spark.features import n_features, split_vector
 from koios.stats.stats import sum_of_squared_errors
 
@@ -42,42 +41,29 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class KMeans(Clustering):
-    def __init__(self, spark, clusters, findbest=None,
+class GMM(Clustering):
+    def __init__(self, spark, components, findbest=None,
                  threshold=.01, max_iter=25):
-        super().__init__(spark, clusters, findbest, threshold, max_iter)
-
-    def fit(self, data, precomputed_models_path=None, outfolder=None):
-
-        n, p = data.count(), n_features(data, FEATURES__)
-        logger.info("Using data with n={} and p={}".format(n, p))
-        data = data.select(FEATURES__)
-        tot_var = self._total_variance(
-          split_vector(data, FEATURES__), outfolder)
-
-        if self.findbest:
-            return self._fit_recursive(
-              data, n, p, tot_var,
-              precomputed_models_path, outfolder)
-        return self._fit_single(data, n, p, tot_var, outfolder)
-
-    def transform(self, data, models=None, fit_folder=None):
-        if fit_folder is None and models is None:
-            raise ValueError("Provide either 'models' or a 'models_folder'")
-        if fit_folder:
-            logger.info("nice")
-            fit = KMeansFit.find_best_fit(fit_folder)
-        return KMeansTransformed(fit.transform(data))
+        super().__init__(spark, components, findbest, threshold, max_iter)
 
     def fit_transform(self):
         raise NotImplementedError()
 
-    def _fit_recursive(self, data, n, p, tot_var, precomp_mod_path, outfolder):
-        logger.info("Clustering with max K: {}".format(self.clusters))
+    def _fit_recursive(self, data, precomp_mod_path, outfolder):
+        logger.info(
+          "Recursively clustering with max K: {}".format(self.clusters))
+
+        n, p = data.count(), n_features(data, "features")
+        logger.info("Using data with n={} and p={}".format(n, p))
+
+        data = data.select("features")
+
+        tot_var = self._total_variance(
+          split_vector(data, "features"), outfolder)
 
         kmeans_prof = KMeansFitProfile(
           self.clusters, self.load_precomputed_models(precomp_mod_path)) \
-            .add(KMeansFit(None, None, 0, tot_var, tot_var, n, p), 0, 0, 0)
+            .add(GMMFit(None, None, 0, tot_var, tot_var, n, p), 0, 0, 0)
 
         lefts, mids, rights = [], [], []
         left, mid, right = 2, self.clusters, self.clusters
@@ -108,16 +94,6 @@ class KMeans(Clustering):
 
         return kmeans_prof
 
-    def _fit_single(self, data, n, p, tot_var, outfolder=None):
-        logger.info("Clustering with max K: {}".format(self.clusters))
-
-        kmeans_prof = KMeansFitProfile(self.clusters) \
-            .add(KMeansFit(None, None, 0, tot_var, tot_var, n, p), 0, 0, 0)
-        for cluster in self.clusters:
-            model = self._fit(tot_var, cluster, n, p, data, outfolder)
-            kmeans_prof.add(model, cluster, cluster, cluster)
-        return kmeans_prof
-
     @staticmethod
     def _total_variance(data, outpath=None):
         if outpath:
@@ -146,7 +122,7 @@ class KMeans(Clustering):
         if fls:
             logger.info("Found precomputed ll-files...")
             for f in fls:
-                m = KMeansFit.load_model(f)
+                m = GMMFit.load_model(f)
                 mod[m.K] = m
         else:
             logger.info("Starting from scratch...")
@@ -162,11 +138,11 @@ class KMeans(Clustering):
         return model
 
     @staticmethod
-    def _fit(total_var, k, n, p, data, outfolder=None):
+    def _fit(total_var, k, n, p, data, outfolder):
         logger.info("Clustering with K: {}".format(k))
         km = pyspark.ml.clustering.KMeans(k=k, seed=23)
         fit = km.fit(data)
-        model = KMeansFit(data=None, fit=fit, k=k,
+        model = GMMFit(data=None, fit=fit, k=k,
                           within_cluster_variance=fit.computeCost(data),
                           total_variance=total_var, n=n, p=p, path=None)
         if outfolder:
@@ -190,7 +166,7 @@ def cli():
        "K for a given number of maximal clusters.")
 def fit(infolder, outfolder, clusters, findbest):
     """
-    Fit a kmeans-clustering to a data set.
+    Fit a gmm to a data set.
     """
 
     from koios.io.io import read_parquet
@@ -204,7 +180,7 @@ def fit(infolder, outfolder, clusters, findbest):
 
     with SparkSession() as spark:
         try:
-            km = KMeans(spark, clusters, findbest)
+            km = GMM(spark, clusters, findbest)
             fit = km.fit(read_parquet(spark, infolder),
                          precomputed_models_path=outfolder,
                          outfolder=outfolder)
