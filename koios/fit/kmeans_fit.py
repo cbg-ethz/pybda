@@ -24,30 +24,25 @@ import os
 
 import scipy
 
+from koios.fit.clustering_fit import ClusteringFit
 from koios.globals import WITHIN_VAR_, EXPL_VAR_, TOTAL_VAR_,\
     K_, N_, PATH_, P_, BIC_
+from koios.io.io import mkdir
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class KMeansFit:
+class KMeansFit(ClusteringFit):
     def __init__(self, data, fit, k,
                  within_cluster_variance, total_variance,
                  n, p, path=None):
-        self.__data = data
-        self.__fit = fit
-        self.__n = n
-        self.__p = p
-        self.__k = k
+        super().__init__(data, fit, n, p, k)
         self.__within_cluster_variance = within_cluster_variance
         self.__total_variance = total_variance
         self.__explained_variance = 1 - within_cluster_variance / total_variance
         self.__bic = within_cluster_variance + scipy.log(n) * (k * p + 1)
         self.__path = path
-
-    def transform(self, data):
-        return self.__fit.transform(data)
 
     @property
     def explained_variance(self):
@@ -61,43 +56,16 @@ class KMeansFit:
     def total_variance(self):
         return self.__total_variance
 
-    @property
-    def data(self):
-        return self.__data
-
-    @property
-    def K(self):
-        return self.__k
-
     def write_files(self, outfolder):
-        import os
-        if not os.path.exists(outfolder):
-            os.mkdir(outfolder)
+        mkdir(outfolder)
         path = os.path.join(outfolder, KMeansFit._k_fit_path(self.K))
         self._write_fit(path)
         self._write_cluster_sizes(path)
         self._write_cluster_centers(path)
         self._write_statistics(path)
 
-    @classmethod
-    def as_statfile(cls, fit_folder, k):
-        return os.path.join(
-          fit_folder, KMeansFit._k_fit_path(k) + "_statistics.tsv")
-
-    @classmethod
-    def _k_fit_path(cls, k):
+    def _k_fit_path(self, k):
         return "kmeans-fit-K{}".format(k)
-
-    def _write_fit(self, outfolder):
-        logger.info("Writing cluster fit to: {}".format(outfolder))
-        self.__fit.write().overwrite().save(outfolder)
-
-    def _write_cluster_sizes(self, outfile):
-        comp_files = outfile + "_cluster_sizes.tsv"
-        logger.info("Writing cluster size file to: {}".format(comp_files))
-        with open(comp_files, 'w') as fh:
-            for c in self.__fit.summary.clusterSizes:
-                fh.write("{}\n".format(c))
 
     def _write_cluster_centers(self, outfile):
         ccf = outfile + "_cluster_centers.tsv"

@@ -33,34 +33,15 @@ logger.setLevel(logging.INFO)
 
 
 class ClusteringFit:
-    def __init__(self, data, fit, k,
-                 within_cluster_variance, total_variance,
-                 n, p, path=None):
+    def __init__(self, data, fit, n, p, k):
         self.__data = data
         self.__fit = fit
         self.__n = n
         self.__p = p
         self.__k = k
-        self.__within_cluster_variance = within_cluster_variance
-        self.__total_variance = total_variance
-        self.__explained_variance = 1 - within_cluster_variance / total_variance
-        self.__bic = within_cluster_variance + scipy.log(n) * (k * p + 1)
-        self.__path = path
 
     def transform(self, data):
         return self.__fit.transform(data)
-
-    @property
-    def explained_variance(self):
-        return self.__explained_variance
-
-    @property
-    def within_cluster_variance(self):
-        return self.__within_cluster_variance
-
-    @property
-    def total_variance(self):
-        return self.__total_variance
 
     @property
     def data(self):
@@ -70,15 +51,9 @@ class ClusteringFit:
     def K(self):
         return self.__k
 
+    @abstractmethod
     def write_files(self, outfolder):
-        import os
-        if not os.path.exists(outfolder):
-            os.mkdir(outfolder)
-        path = os.path.join(outfolder, ClusteringFit._k_fit_path(self.K))
-        self._write_fit(path)
-        self._write_cluster_sizes(path)
-        self._write_cluster_centers(path)
-        self._write_statistics(path)
+        pass
 
     def as_statfile(self, fit_folder, k):
         return os.path.join(
@@ -99,40 +74,14 @@ class ClusteringFit:
             for c in self.__fit.summary.clusterSizes:
                 fh.write("{}\n".format(c))
 
-    def _write_cluster_centers(self, outfile):
-        ccf = outfile + "_cluster_centers.tsv"
-        logger.info("Writing cluster centers to: {}".format(ccf))
-        with open(ccf, "w") as fh:
-            fh.write("#Clustercenters\n")
-            for center in self.__fit.clusterCenters():
-                fh.write("\t".join(map(str, center)) + '\n')
-
-    def _write_statistics(self, outfile):
-        sse_file = outfile + "_statistics.tsv"
-        logger.info("Writing SSE and BIC to: {}".format(sse_file))
-        with open(sse_file, 'w') as fh:
-            fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-              K_, WITHIN_VAR_, EXPL_VAR_, TOTAL_VAR_, BIC_, N_, P_, "path"))
-            fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-              self.__k,
-              self.__within_cluster_variance,
-              self.__explained_variance,
-              self.__total_variance,
-              self.__bic,
-              self.__n,
-              self.__p,
-              outfile))
-
-    @classmethod
     @abstractmethod
-    def load_model(cls, statistics_file, load_fit=False):
+    def _write_statistics(self, outfile):
+        pass
+
+    @abstractmethod
+    def load_model(self, statistics_file, load_fit=False):
         pass
 
     @classmethod
     def find_best_fit(cls, fit_folder):
-        import pandas
-        from koios.fit.kmeans_fit_profile import KMeansFitProfile
-        profile_file = KMeansFitProfile.as_profilefile(fit_folder)
-        tab = pandas.read_csv(profile_file, sep="\t")
-        stat_file = ClusteringFit.as_statfile(fit_folder, tab[K_].values[-1])
-        return ClusteringFit.load_model(stat_file, True)
+        pass
