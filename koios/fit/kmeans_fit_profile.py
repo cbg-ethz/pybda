@@ -23,7 +23,7 @@ import logging
 
 from koios.fit.clustering_fit_profile import FitProfile
 from koios.globals import WITHIN_VAR_, EXPL_VAR_, TOTAL_VAR_, K_
-from koios.plot.cluster_plot import plot_cluster_sizes
+from koios.plot.cluster_plot import plot_cluster_sizes, plot_profile
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -60,8 +60,8 @@ class KMeansFitProfile(FitProfile):
     def _plot(self, outpath):
         data, labels = self._cluster_sizes(outpath)
         for suf in ["png", "pdf", "svg", "eps"]:
-            self.plot_profile(outpath + "-profile." + suf, self.as_pandas(),
-                              EXPL_VAR_, "Explained Variance")
+            plot_profile(outpath + "-profile." + suf, self.as_pandas(),
+                         EXPL_VAR_, "Explained Variance")
             plot_cluster_sizes(
               outpath + "-cluster_sizes-histogram." + suf, data, labels)
 

@@ -27,7 +27,6 @@ import numpy
 import pandas
 
 from koios.globals import K_
-from koios.plot.cluster_plot import plot_cluster_sizes
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

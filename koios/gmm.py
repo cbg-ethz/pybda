@@ -92,13 +92,12 @@ class GMM(Clustering):
             # if the threshold is not passed and not the number 1 below
             # i.e. maybe it's better to take the ceil not the floor
             # change to LAST MODEL seen
-            # TODO implement loglik
-            # todo: gives complex numbers :D
             if prof.loss <= prof.last_loss:
-                mid, right = min(int((left + mid) / 2), self.clusters), mid + 1
+                mid, left = int((right + mid) / 2), mid + 1
             elif prof.loss > prof.last_loss:
-                mid, left = int((right + mid) / 2), mid
-            if left == lefts[-1] and right == rights[-1]:
+                mid, right = min(int((left + mid) / 2),
+                                 self.clusters), mid + 1
+            if left == lefts[-1] and right == rights[-1] and mid == mids[-1]:
                 break
             if itr >= self.max_iter:
                 logger.info("Breaking")
