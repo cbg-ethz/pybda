@@ -65,7 +65,7 @@ def _submit_dim_red(method, input, out, params):
         koios_config[N_COMPONENTS__],
         input,
         out)
-    run(cmd)
+    _run(cmd)
 
 
 def _run(cmd):
