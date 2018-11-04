@@ -23,11 +23,6 @@ import logging
 import os
 from abc import abstractmethod
 
-import scipy
-
-from koios.globals import WITHIN_VAR_, EXPL_VAR_, TOTAL_VAR_,\
-    K_, N_, P_, BIC_
-
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
@@ -48,8 +43,16 @@ class ClusteringFit:
         return self.__data
 
     @property
-    def K(self):
+    def k(self):
         return self.__k
+
+    @property
+    def n(self):
+        return self.__n
+
+    @property
+    def p(self):
+        return self.__p
 
     @abstractmethod
     def write_files(self, outfolder):
