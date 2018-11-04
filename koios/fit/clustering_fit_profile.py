@@ -27,7 +27,7 @@ import numpy
 import pandas
 
 from koios.globals import K_
-from koios.plot.cluster_plot import plot_profile, plot_cluster_sizes
+from koios.plot.cluster_plot import plot_cluster_sizes
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -68,6 +68,10 @@ class FitProfile(ABC):
     def loss(self, x):
         self.__loss = x
 
+    @property
+    def last_loss(self):
+        pass
+
     @classmethod
     def as_profilefile(cls, fl):
         if fl.endswith(".tsv"):
@@ -76,9 +80,10 @@ class FitProfile(ABC):
             profilefile = fl + "-profile.tsv"
         return profilefile
 
-    @abstractmethod
     def write_files(self, outpath):
-        pass
+        self._write_path(outpath)
+        self._write_cluster_quantiles(outpath)
+        self._plot(outpath)
 
     def _write_path(self, outpath):
         lrt_file = FitProfile.as_profilefile(outpath)
@@ -105,17 +110,14 @@ class FitProfile(ABC):
         write_tsv(data, cs_file, index=False)
 
     def as_pandas(self):
-        df = [None] * len(self.__variance_path)
-        for i, e in enumerate(self.__variance_path):
+        df = [None] * len(self.__path)
+        for i, e in enumerate(self.__path):
             df[i] = e.values
         return pandas.DataFrame(df)
 
+    @abstractmethod
     def _plot(self, outpath):
-        data, labels = self._cluster_sizes(outpath)
-        for suf in ["png", "pdf", "svg", "eps"]:
-            plot_profile(outpath + "-profile." + suf, self.as_pandas())
-            plot_cluster_sizes(
-              outpath + "-cluster_sizes-histogram." + suf, data, labels)
+        pass
 
     def _cluster_sizes(self, path):
         import glob

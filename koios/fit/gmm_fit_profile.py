@@ -25,6 +25,7 @@ import scipy
 
 from koios.fit.clustering_fit_profile import FitProfile
 from koios.globals import K_, LOGLIK_, BIC_, NULL_LOGLIK_
+from koios.plot.cluster_plot import plot_cluster_sizes
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -33,11 +34,6 @@ logger.setLevel(logging.INFO)
 class GMMFitProfile(FitProfile):
     def __init__(self, max, models=None):
         super().__init__(max, models)
-
-    def write_files(self, outpath):
-        self._write(outpath)
-        self._write_cluster_quantiles(outpath)
-        self._plot(outpath)
 
     @staticmethod
     def _header():
@@ -54,6 +50,11 @@ class GMMFitProfile(FitProfile):
             return model.bic
         return scipy.inf
 
+    @property
+    def last_loss(self):
+        pass
+        return self.models[self.ks[-2]].bic
+
     def add(self, model, left, k, right):
         self.ks.append(k)
         self.models[k] = model
@@ -61,6 +62,14 @@ class GMMFitProfile(FitProfile):
         self.path.append(self.GMMElement(left, k, right, model, self.loss))
         logger.info("Loss for K={} to {}".format(k, self.loss))
         return self
+
+    def _plot(self, outpath):
+        data, labels = self._cluster_sizes(outpath)
+        for suf in ["png", "pdf", "svg", "eps"]:
+            self.plot_profile(outpath + "-profile." + suf, self.as_pandas(), BIC_, BIC_)
+            plot_cluster_sizes(
+              outpath + "-cluster_sizes-histogram." + suf, data, labels)
+
 
     class GMMElement:
         def __init__(self, left, k, right, model, loss):
