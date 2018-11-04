@@ -47,7 +47,7 @@ def plot_cluster_sizes(file_name, data, labels):
     plt.savefig(file_name, dpi=720)
 
 
-def plot_profile(file_name, profile):
+def plot_profile(file_name, profile, col, tit):
     profile["iteration"] = list(range(0, profile.shape[0]))
     ref_mod = profile.loc[[profile[K_].idxmax()]]
     sel_mod = profile.loc[[profile.shape[0] - 1]]
@@ -91,30 +91,30 @@ def plot_profile(file_name, profile):
     ax.spines["right"].set_visible(False)
     ax.spines['left'].set_color('grey')
     ax.xaxis.set_label_coords(x=.85, y=-0.1)
-    ax.yaxis.set_ticks([profile["explained_variance"].values[min_idx],
-                        sel_mod["explained_variance"].values,
-                        ref_mod["explained_variance"].values])
+    ax.yaxis.set_ticks([profile[col].values[min_idx],
+                        sel_mod[col].values,
+                        ref_mod[col].values])
     ax.yaxis.set_label_coords(x=-0.05, y=.885)
     ax.grid(linestyle="")
 
     plt.scatter(profile["iteration"].values[1:],
-                profile["explained_variance"].values[1:],
+                profile[col].values[1:],
                 color="black", alpha=.75)
     plt.plot(profile["iteration"].values[1:],
-             profile["explained_variance"].values[1:],
+             profile[col].values[1:],
              color="black", alpha=.35, lw=1)
     plt.scatter(ref_mod["iteration"].values,
-                ref_mod["explained_variance"].values,
+                ref_mod[col].values,
                 color="#990000", alpha=1)
     plt.scatter(sel_mod["iteration"].values,
-                sel_mod["explained_variance"].values,
+                sel_mod[col].values,
                 color="#990000", alpha=1)
 
     ax.text(ref_mod["iteration"].values,
-            ref_mod["explained_variance"].values, "Reference",
+            ref_mod[col].values, "Reference",
             ha="left", va="bottom", fontsize="smaller")
     ax.text(sel_mod["iteration"].values,
-            sel_mod["explained_variance"].values, "Selected K",
+            sel_mod[col].values, "Selected K",
             ha="right", va="bottom", fontsize="smaller")
 
     ax.set_xlim([0, ax.get_xlim()[1]])
@@ -122,7 +122,7 @@ def plot_profile(file_name, profile):
 
     plt.xlabel("# of recursions", fontsize=12)
     plt.ylabel("", fontsize=15)
-    plt.title("Explained Variance", x=0.13, fontsize=12)
+    plt.title(tit, x=0.13, fontsize=12)
     plt.subplots_adjust(bottom=-.75)
     plt.savefig(file_name, dpi=720)
 

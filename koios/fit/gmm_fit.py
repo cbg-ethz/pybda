@@ -46,9 +46,9 @@ class GMMFit(ClusteringFit):
         self.__n_params = k * p + k * p * (p + 1) / 2 + k - 1
         self.__null_n_params = p + p * (p + 1) / 2
         self.__bic = scipy.log(n) * self.__n_params - \
-                     2 * scipy.log(self.__loglik)
+                     2 * self.__loglik
         self.__null_bic = scipy.log(n) * self.__null_n_params - \
-                          2 * scipy.log(self.__null_loglik)
+                          2 * self.__null_loglik
         self.__path = path
 
     @property
@@ -58,6 +58,10 @@ class GMMFit(ClusteringFit):
     @property
     def loglik(self):
         return self.__loglik
+
+    @property
+    def null_loglik(self):
+        return self.__null_loglik
 
     @property
     def null_bic(self):

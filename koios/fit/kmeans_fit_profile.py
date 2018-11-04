@@ -23,6 +23,7 @@ import logging
 
 from koios.fit.clustering_fit_profile import FitProfile
 from koios.globals import WITHIN_VAR_, EXPL_VAR_, TOTAL_VAR_, K_
+from koios.plot.cluster_plot import plot_cluster_sizes
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -31,11 +32,6 @@ logger.setLevel(logging.INFO)
 class KMeansFitProfile(FitProfile):
     def __init__(self, max, models=None):
         super().__init__(max, models)
-
-    def write_files(self, outpath):
-        self._write_path(outpath)
-        self._write_cluster_quantiles(outpath)
-        self._plot(outpath)
 
     @staticmethod
     def _header():
@@ -60,6 +56,14 @@ class KMeansFitProfile(FitProfile):
         self.path.append(self.KMeansElement(left, k, right, model, self.loss))
         logger.info("Loss for K={} to {}".format(k, self.loss))
         return self
+
+    def _plot(self, outpath):
+        data, labels = self._cluster_sizes(outpath)
+        for suf in ["png", "pdf", "svg", "eps"]:
+            self.plot_profile(outpath + "-profile." + suf, self.as_pandas(),
+                              EXPL_VAR_, "Explained Variance")
+            plot_cluster_sizes(
+              outpath + "-cluster_sizes-histogram." + suf, data, labels)
 
     class KMeansElement:
         def __init__(self, left, k, right, model, loss):
