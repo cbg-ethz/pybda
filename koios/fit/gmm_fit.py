@@ -48,7 +48,7 @@ class GMMFit(ClusteringFit):
         self.__bic = scipy.log(n) * self.__n_params - \
                      2 * scipy.log(self.__loglik)
         self.__null_bic = scipy.log(n) * self.__null_n_params - \
-                          2 * scipy.log(self.null_loglik)
+                          2 * scipy.log(self.__null_loglik)
         self.__path = path
 
     @property
@@ -65,7 +65,7 @@ class GMMFit(ClusteringFit):
 
     def write_files(self, outfolder):
         mkdir(outfolder)
-        path = os.path.join(outfolder, ClusteringFit._k_fit_path(self.K))
+        path = os.path.join(outfolder, self._k_fit_path(self.k))
         self._write_fit(path)
         self._write_cluster_sizes(path)
         self._write_estimates(path)
@@ -75,10 +75,12 @@ class GMMFit(ClusteringFit):
         return "gmm-fit-K{}".format(k)
 
     def _write_estimates(self, outfile):
-        logger.info("Writing cluster means/variances")
+        logger.info("Writing cluster weights/means/variances")
+        ccw = outfile + "_mixing_weights.tsv"
+        numpy.savetxt(ccw, self.__mixing_weights, delimiter="\t")
         means = self.__estimates.select("mean").toPandas().values
         vars = self.__estimates.select("cov").toPandas().values
-        for i in self.__estimates.count():
+        for i in range(self.__estimates.count()):
             ccm = outfile + "_means_{}.tsv".format(i)
             ccv = outfile + "_variances_{}.tsv".format(i)
             numpy.savetxt(ccm, means[i][0].values, delimiter="\t")
@@ -91,13 +93,13 @@ class GMMFit(ClusteringFit):
             fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
               K_, LOGLIK_, BIC_, NULL_LOGLIK_, NULL_BIC_, N_, P_, "path"))
             fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-              self.__k,
+              self.k,
               self.__loglik,
               self.__bic,
               self.__null_loglik,
               self.__null_bic,
-              self.__n,
-              self.__p,
+              self.n,
+              self.p,
               outfile))
 
     @classmethod

@@ -21,6 +21,7 @@
 
 import logging
 import pathlib
+import scipy
 
 import click
 import pandas
@@ -29,10 +30,9 @@ import pyspark.ml.clustering
 
 from koios.clustering import Clustering
 from koios.fit.gmm_fit import GMMFit
+from koios.fit.gmm_fit_profile import GMMFitProfile
 from koios.fit.gmm_transformed import GMMTransformed
-from koios.fit.kmeans_fit import KMeansFit
-from koios.fit.kmeans_fit_profile import KMeansFitProfile
-from koios.globals import RESPONSIBILITIES__, LOGLIK_
+from koios.globals import RESPONSIBILITIES__, LOGLIK_, GMM__
 from koios.io.as_filename import as_loglikfile
 from koios.io.io import write_line
 from koios.stats.stats import loglik
@@ -43,8 +43,8 @@ logger.setLevel(logging.INFO)
 
 class GMM(Clustering):
     def __init__(self, spark, clusters, findbest=None,
-                 threshold=.01, max_iter=25):
-        super().__init__(spark, clusters, findbest, threshold, max_iter)
+                 threshold=scipy.inf, max_iter=25):
+        super().__init__(spark, clusters, findbest, threshold, max_iter, GMM__)
 
     def fit_transform(self):
         raise NotImplementedError()
@@ -71,13 +71,11 @@ class GMM(Clustering):
         logger.info("\t{}: {}".format(LOGLIK_, tot))
         return tot
 
-    def _fit_recursive(self, data, n, p, tot_var, precomp_mod_path, outfolder):
+    def _fit_recursive(self, data, n, p, tots, precomp_mod_path, outfolder):
         logger.info("Clustering with max K: {}".format(self.clusters))
-
-        kmeans_prof = GMMFitProfile(
-          self.clusters, self.load_precomputed_models(precomp_mod_path)) \
-            .add(KMeansFit(None, None, 0, tot_var, tot_var, n, p), 0, 0, 0)
-
+        prof = GMMFitProfile(
+          self.clusters, self.load_precomputed_models(precomp_mod_path))
+        prof.add(GMMFit(None, None, 0, None, None, tots, tots, n, p), 0, 0, 0)
         lefts, mids, rights = [], [], []
         left, mid, right = 2, self.clusters, self.clusters
 
@@ -87,16 +85,15 @@ class GMM(Clustering):
             lefts.append(left)
             rights.append(right)
 
-            model = self._find_or_fit(
-              tot_var, kmeans_prof, mid, n, p, data, outfolder)
-            kmeans_prof.add(model, left, mid, right)
+            model = self._find_or_fit(tots, prof, mid, n, p, data, outfolder)
+            prof.add(model, left, mid, right)
 
             # TODO: the clustering should return the maximal number
             # if the threshold is not passed and not the number 1 below
             # i.e. maybe it's better to take the ceil not the floor
-            if kmeans_prof.loss < self.threshold:
+            if prof.loss < prof.max_model.loss:
                 mid, right = min(int((left + mid) / 2), self.clusters), mid + 1
-            elif kmeans_prof.loss > self.threshold:
+            elif prof.loss > self.threshold:
                 mid, left = int((right + mid) / 2), mid
             if left == lefts[-1] and right == rights[-1]:
                 break
@@ -105,17 +102,17 @@ class GMM(Clustering):
                 break
             itr += 1
 
-        return kmeans_prof
+        return prof
 
-    def _fit_single(self, data, n, p, tot_var, outfolder=None):
+    def _fit_single(self, data, n, p, tots, outfolder=None):
         logger.info("Clustering with max K: {}".format(self.clusters))
 
-        kmeans_prof = KMeansFitProfile(self.clusters) \
-            .add(KMeansFit(None, None, 0, tot_var, tot_var, n, p), 0, 0, 0)
+        prof = GMMFitProfile(scipy.max(self.clusters))
+        prof.add(GMMFit(None, None, 0, None, None, tots, tots, n, p), 0, 0, 0)
         for cluster in self.clusters:
-            model = self._fit(tot_var, cluster, n, p, data, outfolder)
-            kmeans_prof.add(model, cluster, cluster, cluster)
-        return kmeans_prof
+            model = self._fit(tots, cluster, n, p, data, outfolder)
+            prof.add(model, cluster, cluster, cluster)
+        return prof
 
     @property
     def _get_fit_class(self):
@@ -124,14 +121,14 @@ class GMM(Clustering):
     @staticmethod
     def _fit(null_loglik, k, n, p, data, outfolder=None):
         logger.info("Clustering with K: {}".format(k))
-        km = pyspark.ml.clustering.KMeans(
+        km = pyspark.ml.clustering.GaussianMixture(
           k=k, seed=23, probabilityCol=RESPONSIBILITIES__)
         fit = km.fit(data)
         model = GMMFit(data=None,
                        fit=fit,
                        k=k,
                        mixing_weights=fit.weights,
-                       estimates=fit.gaussiansDF(),
+                       estimates=fit.gaussiansDF,
                        loglik=fit.summary.logLikelihood,
                        null_loglik=null_loglik,
                        n=n, p=p, path=None)
@@ -156,7 +153,7 @@ def cli():
        "K for a given number of maximal clusters.")
 def fit(infolder, outfolder, clusters, findbest):
     """
-    Fit a kmeans-clustering to a data set.
+    Fit a gmm to a data set.
     """
 
     from koios.io.io import read_parquet
@@ -185,7 +182,7 @@ def fit(infolder, outfolder, clusters, findbest):
 @click.argument("outfolder", type=str)
 def transform(infolder, fitfolder, outfolder):
     """
-    Transform a dataset using a kmeans-clustering fit.
+    Transform a dataset using a gmm fit.
     """
 
     from koios.io.io import read_parquet
@@ -199,7 +196,7 @@ def transform(infolder, fitfolder, outfolder):
 
     with SparkSession() as spark:
         try:
-            km = KMeans(spark, None)
+            km = GMM(spark, None)
             tr = km.transform(read_parquet(spark, infolder),
                               fit_folder=fitfolder)
             tr.data = tr.data.select(

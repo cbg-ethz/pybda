@@ -227,7 +227,7 @@ rule kmeans_fit:
         params = " ".join([x for x in koios_config[SPARKPARAMS__]]),
         kme = os.path.join(dirname(), "kmeans.py")
     run:
-        _run_clusterfit(params.params, params.kme, input, out)
+        _run_clusterfit(params.params, params.kme, input, params.out)
 
 
 rule gmm_fit:
@@ -238,11 +238,10 @@ rule gmm_fit:
                          clust=koios_config[CLUSTERING__],
                          outfolder=koios_config[OUTFOLDER__]))
     params:
-        out = koios_config[OUTFOLDER__] + "/gmm-fit",
         params = " ".join([x for x in koios_config[SPARKPARAMS__]]),
         kme = os.path.join(dirname(), "gmm.py")
     run:
-       _run_clusterfit(params.params, params.kme, input, out)
+        _run_clusterfit(params.params, params.kme, input, output)
 
 
 rule kmeans_transform:

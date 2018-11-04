@@ -24,7 +24,7 @@ import logging
 import scipy
 
 from koios.fit.clustering_fit_profile import FitProfile
-from koios.globals import K_, LOGLIK_, BIC_, NULL_BIC_, NULL_LOGLIK_
+from koios.globals import K_, LOGLIK_, BIC_, NULL_LOGLIK_
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
