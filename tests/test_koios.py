@@ -22,6 +22,7 @@ import os
 import subprocess
 import unittest
 
+
 class TestKoios(unittest.TestCase):
     """
     Tests the control parsing module.
@@ -31,7 +32,24 @@ class TestKoios(unittest.TestCase):
     def setUp(self):
         unittest.TestCase.setUp(self)
         self._file = os.path.join(
-          os.path.dirname(__file__), "..", "data", "koios-test.config")
+          os.path.dirname(__file__), "koios-test.config")
 
     def test_dim_red(self):
-        subprocess.run(["koios", "dimension_reduction", self._file, "local"])
+        pr = subprocess.run(
+          ["./scripts/koios", "dimension_reduction", self._file, "local"])
+        assert pr.returncode == 0
+
+    def test_outliers(self):
+        pr = subprocess.run(
+          ["./scripts/koios", "outliers", self._file, "local"])
+        assert pr.returncode == 0
+
+    def test_clustering(self):
+        pr = subprocess.run(
+          ["./scripts/koios", "clustering_fit", self._file, "local"])
+        assert pr.returncode == 0
+
+    def test_regression(self):
+        pr = subprocess.run(
+          ["./scripts/koios", "regression", self._file, "local"])
+        assert pr.returncode == 0
