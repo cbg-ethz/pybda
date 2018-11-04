@@ -60,14 +60,14 @@ class Clustering(SparkModel):
     def load_precomputed_models(self, precomputed_models):
         mod = {}
         if precomputed_models:
-            fls = glob.glob(precomputed_models + "*_statistics.tsv")
+            fls = glob.glob(precomputed_models + "/*_statistics.tsv")
         else:
             fls = []
         if fls:
             logger.info("Found precomputed ll-files...")
             for f in fls:
                 m = self._get_fit_class.load_model(f)
-                mod[m.K] = m
+                mod[m.k] = m
         else:
             logger.info("Starting from scratch...")
         return mod

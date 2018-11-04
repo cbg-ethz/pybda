@@ -25,7 +25,7 @@ import scipy
 
 from koios.fit.clustering_fit_profile import FitProfile
 from koios.globals import K_, LOGLIK_, BIC_, NULL_LOGLIK_
-from koios.plot.cluster_plot import plot_cluster_sizes
+from koios.plot.cluster_plot import plot_cluster_sizes, plot_profile
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -66,10 +66,10 @@ class GMMFitProfile(FitProfile):
     def _plot(self, outpath):
         data, labels = self._cluster_sizes(outpath)
         for suf in ["png", "pdf", "svg", "eps"]:
-            self.plot_profile(outpath + "-profile." + suf, self.as_pandas(), BIC_, BIC_)
+            plot_profile(outpath + "-profile." + suf,
+                         self.as_pandas(), BIC_, BIC_)
             plot_cluster_sizes(
               outpath + "-cluster_sizes-histogram." + suf, data, labels)
-
 
     class GMMElement:
         def __init__(self, left, k, right, model, loss):
