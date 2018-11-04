@@ -18,12 +18,11 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import os
+import subprocess
 import unittest
 
-
-class TestConfig(unittest.TestCase):
+class TestKoios(unittest.TestCase):
     """
     Tests the control parsing module.
 
@@ -32,20 +31,7 @@ class TestConfig(unittest.TestCase):
     def setUp(self):
         unittest.TestCase.setUp(self)
         self._file = os.path.join(
-          os.path.dirname(__file__), "..", "data", "config.yml")
-        self._c = Config(self._file)
+          os.path.dirname(__file__), "..", "data", "koios-test.config")
 
-    def test_plate_id_file(self):
-        assert self._c.plate_id_file == "experiment_meta_file.tsv"
-
-    def test_layout_file(self):
-        assert self._c.layout_file == "layout.tsv"
-
-    def test_plate_folder(self):
-        assert self._c.plate_folder == "./"
-
-    def test_output_path(self):
-        assert self._c.output_path == "./out/"
-
-    def test_plate_regex(self):
-        assert self._c.plate_regex == ".*\/\w+\-\w[P|U]\-[G|K]\d+(-\w+)*\/.*"
+    def test_dim_red(self):
+        subprocess.run(["koios", "dimension_reduction", self._file, "local"])

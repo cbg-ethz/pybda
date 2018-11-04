@@ -30,7 +30,7 @@ import yaml
 from koios.logger import logger_format
 
 
-def _run(config, spark, cmd):
+def run(config, spark, cmd):
     from koios import snake_file
     snakemake.snakemake(
       snakefile=snake_file(),
@@ -62,7 +62,7 @@ def dimension_reduction(config, spark):
     """
 
     dr = _get_from_config(config, "dimension_reduction")
-    _run(config, spark, dr)
+    run(config, spark, dr)
 
 
 @cli.command()
@@ -74,7 +74,7 @@ def outliers(config, spark):
     from a CONFIG in a SPARK session.
     """
 
-    _run(config, spark, "outliers")
+    run(config, spark, "outliers")
 
 
 @cli.command()
@@ -86,7 +86,7 @@ def clustering_fit(config, spark):
     """
 
     cl = _get_from_config(config, "clustering")
-    _run(config, spark, cl + "_fit")
+    run(config, spark, cl + "_fit")
 
 
 @cli.command()
@@ -98,7 +98,7 @@ def clustering_transform(config, spark):
     """
 
     cl = _get_from_config(config, "clustering")
-    _run(config, spark, cl + "_transform")
+    run(config, spark, cl + "_transform")
 
 
 @cli.command()
@@ -109,7 +109,7 @@ def clustering_statistics(config, spark):
     Do a KMeans clustering fit of a data set.
     """
 
-    _run(config, spark, "clustering_statistics")
+    run(config, spark, "clustering_statistics")
 
 
 @cli.command()
@@ -121,7 +121,7 @@ def regression(config, spark):
     """
 
     cl = _get_from_config(config, "regression")
-    _run(config, spark, cl)
+    run(config, spark, cl)
 
 
 @cli.command()
