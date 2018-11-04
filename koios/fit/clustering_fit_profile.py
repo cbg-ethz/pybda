@@ -80,6 +80,14 @@ class FitProfile(ABC):
     def write_files(self, outpath):
         pass
 
+    def _write_path(self, outpath):
+        lrt_file = FitProfile.as_profilefile(outpath)
+        logger.info("Writing fit profile to {}".format(lrt_file))
+        with open(lrt_file, "w") as fh:
+            fh.write(self._header())
+            for el in self.path:
+                fh.write(str(el))
+
     def _write_cluster_quantiles(self, outpath):
         from koios.io.io import write_tsv
         cs_file = outpath + "-cluster_stats.tsv"

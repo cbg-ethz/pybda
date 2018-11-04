@@ -33,17 +33,9 @@ class KMeansFitProfile(FitProfile):
         super().__init__(max, models)
 
     def write_files(self, outpath):
-        self._write_variance_path(outpath)
+        self._write_path(outpath)
         self._write_cluster_quantiles(outpath)
         self._plot(outpath)
-
-    def _write_variance_path(self, outpath):
-        lrt_file = KMeansFitProfile.as_profilefile(outpath)
-        logger.info("Writing kmeans fit profile to {}".format(lrt_file))
-        with open(lrt_file, "w") as fh:
-            fh.write(self._header())
-            for el in self.__variance_path:
-                fh.write(str(el))
 
     @staticmethod
     def _header():
