@@ -22,7 +22,7 @@ import sys
 
 from koios.config.rule_tree import RuleTree
 from koios.globals import REQUIRED_ARGS__, INFILE__, OUTFOLDER__, METHODS__, \
-    DEBUG__
+    DEBUG__, REGRESSION_INFILE__
 
 sys.excepthook = lambda ex, msg, _: print("{}: {}".format(ex.__name__, msg))
 
@@ -47,8 +47,10 @@ class KoiosConfig:
     def __getitem__(self, item):
         if hasattr(self, item):
             return getattr(self, item)
-        raise ValueError(
-          "Config file does not have required element '{}'".format(item))
+        # TODO: this needs to be solved better
+        # e.g. when dimred is called, we need to check arguments here
+        # otherwise we can just return ""
+        return ""
 
     def __contains__(self, item):
         return hasattr(self, item)

@@ -53,25 +53,47 @@ class TestKoios(unittest.TestCase):
         unittest.TestCase.setUp(self)
         self._test_path = os.path.dirname(__file__)
         self._koios_path = os.path.dirname(self._test_path)
+        self._test_out = os.path.join(self._koios_path, "data", "test")
         self._test_file = os.path.join(self._test_path, "koios-test.config")
+        self._fa_file = os.path.join(self._test_path, "factor_analysis.config")
         self._koios = os.path.join(self._koios_path, "scripts", "koios")
+        self._create_dim_red_configs()
 
-    def test_dim_red(self):
-        test_path = os.path.join(self._koios_path, "data", "test")
-        for d in TestKoios.__CONFIG__["dimension_reduction"]:
+    def _create_dim_red_configs(self):
+        if not os.path.exists(self._test_out):
+            os.mkdir(self._test_out)
+
+        for d in TestKoios.__CONFIG__[DIM_RED__]:
             out = os.path.join(self._test_path, d + ".config")
-            if not os.path.exists(test_path):
-                os.mkdir(test_path)
             with open(out, "w") as fr, open(self._test_file, "r") as fh:
                 for l in fh.readlines():
                     fr.write(l)
-                fr.write("dimension_reduction: {}\n".format(d))
-            pr = subprocess.run(
-              ["./scripts/koios", "dimension_reduction", out, "local"])
-            assert pr.returncode == 0
+                fr.write("{}: {}\n".format(DIM_RED__, d))
+                fr.write("{}: {}".format(
+                  N_COMPONENTS__, TestKoios.__CONFIG__[N_COMPONENTS__]))
+
+    def tearDown(self):
+        os.removedirs()
+        for d in TestKoios.__CONFIG__[DIM_RED__]:
+            out = os.path.join(self._test_path, d + ".config")
             os.remove(out)
 
-    # def test_outliers(self):
+    def test_fa(self):
+        pr = subprocess.run(
+          [self._koios, "dimension_reduction", self._fa_file, "local"])
+        assert pr.returncode == 0
+
+    def test_pca(self):
+        pr = subprocess.run(
+          [self._koios, "dimension_reduction", self._pca, "local"])
+        assert pr.returncode == 0
+
+    def test_kpca(self):
+        pr = subprocess.run(
+          [self._koios, "dimension_reduction", self._kpca, "local"])
+        assert pr.returncode == 0
+
+        # def test_outliers(self):
     #     pr = subprocess.run(
     #       [self._koios, "outliers", self._test_file, "local"])
     #     assert pr.returncode == 0
