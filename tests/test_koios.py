@@ -19,6 +19,8 @@
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
 import os
+import pathlib
+import shutil
 import subprocess
 import unittest
 
@@ -73,7 +75,7 @@ class TestKoios(unittest.TestCase):
                   N_COMPONENTS__, TestKoios.__CONFIG__[N_COMPONENTS__]))
 
     def tearDown(self):
-        os.removedirs()
+        shutil.rmtree(self._test_out)
         for d in TestKoios.__CONFIG__[DIM_RED__]:
             out = os.path.join(self._test_path, d + ".config")
             os.remove(out)
