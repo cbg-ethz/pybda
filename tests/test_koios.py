@@ -61,10 +61,12 @@ class TestKoios(unittest.TestCase):
         self._koios = os.path.join(self._koios_path, "scripts", "koios")
         self._create_dim_red_configs()
 
-    def _create_dim_red_configs(self):
+    def _recreate_test_folder(self):
+        shutil.rmtree(self._test_out)
         if not os.path.exists(self._test_out):
             os.mkdir(self._test_out)
 
+    def _create_dim_red_configs(self):
         for d in TestKoios.__CONFIG__[DIM_RED__]:
             out = os.path.join(self._test_path, d + ".config")
             with open(out, "w") as fr, open(self._test_file, "r") as fh:
@@ -81,21 +83,24 @@ class TestKoios(unittest.TestCase):
             os.remove(out)
 
     def test_fa(self):
+        self._recreate_test_folder()
         pr = subprocess.run(
           [self._koios, "dimension_reduction", self._fa_file, "local"])
         assert pr.returncode == 0
 
     def test_pca(self):
+        self._recreate_test_folder()
         pr = subprocess.run(
           [self._koios, "dimension_reduction", self._pca, "local"])
         assert pr.returncode == 0
 
     def test_kpca(self):
+        self._recreate_test_folder()
         pr = subprocess.run(
           [self._koios, "dimension_reduction", self._kpca, "local"])
         assert pr.returncode == 0
 
-        # def test_outliers(self):
+    # def test_outliers(self):
     #     pr = subprocess.run(
     #       [self._koios, "outliers", self._test_file, "local"])
     #     assert pr.returncode == 0
