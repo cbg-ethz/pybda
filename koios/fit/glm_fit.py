@@ -59,7 +59,7 @@ class GLMFit:
                                   sp.array(model.coefficients))}
             )
             self.__measures = pandas.DataFrame({
-                "f_measure": model.summary.fMeasureByLabel,
+                "f_measure": model.summary.fMeasureByLabel(),
                 "fpr": model.summary.falsePositiveRateByLabel,
                 "precision": model.summary.precisionByLabel,
                 "recall": model.summary.recallByLabel,
@@ -73,10 +73,12 @@ class GLMFit:
             self._write_binomial_measures(outfolder)
 
     def _write_table(self, outfolder):
+        logger.info("Writing regression table")
         self.__table.to_csv(outfolder + "-table.tsv",
                             sep="\t", index=False, header=True)
 
     def _write_stats(self, outfolder):
+        logger.info("Writing regression statistics")
         out_file = outfolder + "-statistics.tsv"
         with open(out_file, "w") as fh:
             if self.family == BINOMIAL_:
@@ -92,6 +94,7 @@ class GLMFit:
                   self.__rmse))
 
     def _write_binomial_measures(self, outfolder):
+        logger.info("Writing regression measures")
         self.__pr.to_csv(outfolder + "-precision_recall.tsv",
                          sep="\t", index=False, header=True)
         self.__roc.to_csv(outfolder + "-roc_curve.tsv",
