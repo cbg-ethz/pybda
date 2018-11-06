@@ -158,20 +158,19 @@ def split_vector(data, col_name):
 
     cols = data.columns
     if col_name not in cols:
-        logger.info("Vector columns '{}' not found. Returning".format(col_name))
+        logger.info("Vector col '{}' not found. Returning".format(col_name))
         return data
 
     logger.info("Splitting vector columns: {}".format(col_name))
-
     cols.remove(col_name)
+    initial = col_name[0]
     len_vec = len(data.select(col_name).take(1)[0][0])
     data = (
-        data.withColumn("f", as_array(col(col_name)))
-            .select(cols + [col("f")[i] for i in range(len_vec)])
-    )
+        data.withColumn(initial, as_array(col(col_name)))
+            .select(cols + [col(initial)[i] for i in range(len_vec)]))
 
     for i, x in enumerate(data.columns):
-        if x.startswith("f["):
+        if x.startswith(initial + "["):
             data = data.withColumnRenamed(
               x, x.replace("[", "_").replace("]", ""))
 

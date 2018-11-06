@@ -19,33 +19,34 @@
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
 
-import os
-import unittest
+import logging
+from abc import abstractmethod
+
+from koios.io.io import write_parquet
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
-class TestConfig(unittest.TestCase):
-    """
-    Tests the control parsing module.
+class ClusteringTransformed:
+    def __init__(self, data):
+        self.__data = data
 
-    """
+    def write_files(self, outfolder):
+        import os
+        if not os.path.exists(outfolder):
+            os.mkdir(outfolder)
+        write_parquet(self.__data, outfolder)
+        self._write(outfolder)
 
-    def setUp(self):
-        unittest.TestCase.setUp(self)
-        self._file = os.path.join(
-          os.path.dirname(__file__), "..", "data", "config.yml")
-        self._c = Config(self._file)
+    @property
+    def data(self):
+        return self.__data
 
-    def test_plate_id_file(self):
-        assert self._c.plate_id_file == "experiment_meta_file.tsv"
+    @data.setter
+    def data(self, data):
+        self.__data = data
 
-    def test_layout_file(self):
-        assert self._c.layout_file == "layout.tsv"
-
-    def test_plate_folder(self):
-        assert self._c.plate_folder == "./"
-
-    def test_output_path(self):
-        assert self._c.output_path == "./out/"
-
-    def test_plate_regex(self):
-        assert self._c.plate_regex == ".*\/\w+\-\w[P|U]\-[G|K]\d+(-\w+)*\/.*"
+    @abstractmethod
+    def _write(self, outfolder, suff="", sort_me=True):
+        pass

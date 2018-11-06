@@ -21,15 +21,17 @@
 
 import logging
 
+import scipy
+
 from koios.fit.clustering_fit_profile import FitProfile
-from koios.globals import WITHIN_VAR_, EXPL_VAR_, TOTAL_VAR_, K_
+from koios.globals import K_, LOGLIK_, BIC_, NULL_LOGLIK_
 from koios.plot.cluster_plot import plot_cluster_sizes, plot_profile
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class KMeansFitProfile(FitProfile):
+class GMMFitProfile(FitProfile):
     def __init__(self, max, models=None):
         super().__init__(max, models)
 
@@ -38,34 +40,38 @@ class KMeansFitProfile(FitProfile):
         return "left_bound\t" \
                "k\t" \
                "right_bound\t" \
-               "{}\t".format(WITHIN_VAR_) + \
-               "{}\t".format(EXPL_VAR_) + \
-               "{}\t".format(TOTAL_VAR_) + \
-               "percent_loss\n"
+               "{}\t".format(LOGLIK_) + \
+               "{}\t".format(BIC_) + \
+               "{}\t".format(NULL_LOGLIK_) + \
+               "\n"
 
     def _loss(self, model):
         if self.has_max_model():
-            return 1 - model.explained_variance / \
-                   self.max_model.explained_variance
-        return 1
+            return model.bic
+        return scipy.inf
+
+    @property
+    def last_loss(self):
+        pass
+        return self.models[self.ks[-2]].bic
 
     def add(self, model, left, k, right):
         self.ks.append(k)
         self.models[k] = model
         self.loss = self._loss(model)
-        self.path.append(self.KMeansElement(left, k, right, model, self.loss))
+        self.path.append(self.GMMElement(left, k, right, model, self.loss))
         logger.info("Loss for K={} to {}".format(k, self.loss))
         return self
 
     def _plot(self, outpath):
         data, labels = self._cluster_sizes(outpath)
         for suf in ["png", "pdf", "svg", "eps"]:
-            plot_profile(outpath + "-profile." + suf, self.as_pandas(),
-                         EXPL_VAR_, "Explained Variance")
+            plot_profile(outpath + "-profile." + suf,
+                         self.as_pandas(), BIC_, BIC_)
             plot_cluster_sizes(
               outpath + "-cluster_sizes-histogram." + suf, data, labels)
 
-    class KMeansElement:
+    class GMMElement:
         def __init__(self, left, k, right, model, loss):
             self.__left_boundary = left
             self.__current = k
@@ -84,21 +90,19 @@ class KMeansFitProfile(FitProfile):
                 'left_bound': self.__left_boundary,
                 K_: self.__current,
                 'right_bound': self.__right_boundary,
-                WITHIN_VAR_: self.__model.within_cluster_variance,
-                EXPL_VAR_: self.__model.explained_variance,
-                TOTAL_VAR_: self.__model.total_variance,
-                'percent_loss': self.__loss
+                LOGLIK_: self.__model.loglik,
+                BIC_: self.__model.bic,
+                NULL_LOGLIK_: self.__model.null_loglik
             }
 
         def __repr__(self):
             return self.__str__()
 
         def __str__(self):
-            return "{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+            return "{}\t{}\t{}\t{}\t{}\t{}\n".format(
               self.__left_boundary,
               self.__current,
               self.__right_boundary,
-              self.__model.within_cluster_variance,
-              self.__model.explained_variance,
-              self.__model.total_variance,
-              self.__loss)
+              self.__model.loglik,
+              self.__model.bic,
+              self.__model.null_loglik)

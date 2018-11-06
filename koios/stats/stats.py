@@ -20,6 +20,7 @@
 
 
 import logging
+import scipy
 
 import numpy
 from scipy import stats
@@ -57,6 +58,11 @@ def column_statistics(data: pyspark.rdd.RDD):
     logger.info("Computing data statistics")
     summary = Statistics.colStats(data)
     return summary.mean(), summary.variance()
+
+
+def correlation_matrix(data: pyspark.rdd.RDD):
+    logger.info("Computing correlation matrix")
+    return Statistics.corr(data)
 
 
 def explained_variance(data):
@@ -127,3 +133,23 @@ def sum_of_squared_errors(data: pyspark.sql.DataFrame):
            .map(lambda x: (x - means).T.dot(x - means))
            .reduce(lambda x, y: x + y))
     return sse
+
+
+def loglik(data: pyspark.sql.DataFrame):
+    """
+    Computes the log-likelihood using a multivariate normal model
+
+    :param data: data for which loglik is computed
+    :return: returns the loglik
+    """
+    mvn = scipy.stats.multivariate_normal.pdf
+    logger.info("Computing loglik")
+    rdd = as_rdd_of_array(data)
+    means = column_mean(rdd)
+    cov = correlation_matrix(rdd)
+    loglik = (rdd
+              # compute the loglik per observation
+              .map(lambda x: scipy.log(mvn(x, means, cov)))
+                # since the guys are in logspace we can summarize em
+              .reduce(lambda x, y: x + y))
+    return loglik

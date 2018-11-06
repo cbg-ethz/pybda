@@ -21,11 +21,14 @@
 
 import collections
 
+LOGLIK_ = "loglik"
+NULL_LOGLIK_ = "null_" + LOGLIK_
 WITHIN_VAR_ = "within_cluster_variance"
 TOTAL_VAR_ = "total_variance"
 EXPL_VAR_ = "explained_variance"
 N_, P_, K_ = "n", "p", "k"
 BIC_ = "BIC"
+NULL_BIC_ = "null_" + BIC_
 PATH_ = "path"
 
 PLOT_FONT_ = "Tahoma"
@@ -74,6 +77,7 @@ KMEANS__ = "kmeans"
 GMM__ = "gmm"
 MAX_CENTERS__ = "max_centers"
 N_CENTERS__ = "n_centers"
+RESPONSIBILITIES__ = "responsibilities"
 
 REGRESSION__ = "regression"
 REGRESSION_INFILE__ = REGRESSION__ + "_" + INFILE__
