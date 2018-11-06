@@ -34,7 +34,6 @@ class GLMFit:
         self.__data = data
         self.__model = model
         self.__response = response
-        self.__df = model.summary.degreesOfFreedom
         self.__mse = model.summary.meanSquaredError
         self.__r2 = model.summary.r2
         self.__rmse = model.summary.rootMeanSquaredError
