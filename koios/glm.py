@@ -43,7 +43,7 @@ class GLM(Regression):
     def fit(self, data):
         logger.info("Fitting GLM with family='{}'".format(self.family))
         model = self._fit(data)
-        return GLMFit(data, model, self.__response)
+        return GLMFit(data, model, self.__response, self.family)
 
     def _fit(self, data):
         return self._model().fit(data)
