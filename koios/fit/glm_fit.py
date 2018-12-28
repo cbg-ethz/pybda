@@ -38,29 +38,16 @@ class GLMFit:
         self.__response = response
         self.__family = family
 
-        # TODO print p values for binomial model
-
         if family == GAUSSIAN_:
             self.__df = model.summary.degreesOfFreedom
             self.__mse = model.summary.meanSquaredError
             self.__r2 = model.summary.r2
             self.__rmse = model.summary.rootMeanSquaredError
-            self.__table = pandas.DataFrame(
-              {"beta": sp.append(sp.array(model.intercept),
-                                 sp.array(model.coefficients)),
-               "p_values": model.summary.pValues,
-               "t_values": model.summary.tValues,
-               "se": model.summary.coefficientStandardErrors
-               })
         else:
             self.__accuracy = model.summary.accuracy
             self.__auc = model.summary.areaUnderROC
             self.__pr = model.summary.pr.toPandas()
             self.__roc = model.summary.roc.toPandas()
-            self.__table = pandas.DataFrame({
-                "beta": sp.append(sp.array(model.intercept),
-                                  sp.array(model.coefficients))}
-            )
             self.__measures = pandas.DataFrame({
                 "f_measure": model.summary.fMeasureByLabel(),
                 "fpr": model.summary.falsePositiveRateByLabel,
@@ -68,19 +55,25 @@ class GLMFit:
                 "recall": model.summary.recallByLabel,
                 "tpr": model.summary.truePositiveRateByLabel
             })
+        self.__table = self._compute_table_stats(model)
 
-            # summary(mylogit)
-            #
-            # pi < - mylogit$fit
-            #
-            # w < - pi * (1 - pi)
-            #
-            # v < - diag(w)
-            # var_b < - solve(t(X) % * % v % * % X)
-            #
-            # B < - coef(mylogit)
-            #
-            # 2 * pnorm(-abs(B / sqrt(diag(var_b))))
+    def _compute_table_stats(self, model):
+        beta = sp.append(sp.array(model.intercept),
+                         sp.array(model.coefficients))
+        try:
+            ps = model.summary.pValues
+            ts = model.summary.tValues
+            se = model.summary.coefficientStandardErrors
+        except Exception as _:
+            logger.warning(
+              "Could not compute p-values, t-values and SEs. "
+              "Possibly due to singular vcov.")
+            ps = sp.zeros_like(beta) * sp.NaN
+            ts = sp.zeros_like(beta) * sp.NaN
+            se = sp.zeros_like(beta) * sp.NaN
+
+        return pandas.DataFrame({
+            "beta": beta, "p_values": ps, "t_values": ts, "se": se})
 
     def write_files(self, outfolder):
         self._write_stats(outfolder)
@@ -106,7 +99,8 @@ class GLMFit:
                 fh.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(
                   "family", "response", "df", "mse", "r2", "rmse"))
                 fh.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                  self.family, self.__response, self.__df, self.__mse, self.__r2,
+                  self.family, self.__response, self.__df, self.__mse,
+                  self.__r2,
                   self.__rmse))
 
     def _write_binomial_measures(self, outfolder):

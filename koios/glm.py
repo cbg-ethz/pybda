@@ -55,7 +55,7 @@ class GLM(Regression):
         if self.family == GAUSSIAN_:
             reg = LinearRegression()
         elif self.family == BINOMIAL_:
-            reg = LogisticRegression()
+            reg = LogisticRegression(family="binomial")
         else:
             raise NotImplementedError(
               "Family '{}' not implemented".format(self.family))
