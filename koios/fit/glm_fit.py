@@ -37,6 +37,9 @@ class GLMFit:
         self.__model = model
         self.__response = response
         self.__family = family
+
+        # TODO print p values for binomial model
+
         if family == GAUSSIAN_:
             self.__df = model.summary.degreesOfFreedom
             self.__mse = model.summary.meanSquaredError
@@ -65,6 +68,19 @@ class GLMFit:
                 "recall": model.summary.recallByLabel,
                 "tpr": model.summary.truePositiveRateByLabel
             })
+
+            # summary(mylogit)
+            #
+            # pi < - mylogit$fit
+            #
+            # w < - pi * (1 - pi)
+            #
+            # v < - diag(w)
+            # var_b < - solve(t(X) % * % v % * % X)
+            #
+            # B < - coef(mylogit)
+            #
+            # 2 * pnorm(-abs(B / sqrt(diag(var_b))))
 
     def write_files(self, outfolder):
         self._write_stats(outfolder)
