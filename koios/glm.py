@@ -22,6 +22,7 @@
 import logging
 
 import click
+from pyspark import StorageLevel
 from pyspark.ml.regression import LinearRegression
 from pyspark.ml.classification import LogisticRegression
 
@@ -46,6 +47,8 @@ class GLM(Regression):
         return GLMFit(data, model, self.__response, self.family)
 
     def _fit(self, data):
+        data.persist(StorageLevel.DISK_ONLY)
+        logger.info(data.storageLevel)
         return self._model().fit(data)
 
     def _model(self):
