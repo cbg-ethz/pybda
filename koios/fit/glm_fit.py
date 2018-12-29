@@ -60,6 +60,9 @@ class GLMFit:
     def _compute_table_stats(self, model):
         beta = sp.append(sp.array(model.intercept),
                          sp.array(model.coefficients))
+        ps = sp.ones_like(beta) * sp.nan
+        ts = sp.ones_like(beta) * sp.nan
+        se = sp.ones_like(beta) * sp.nan
         try:
             ps = model.summary.pValues
             ts = model.summary.tValues
@@ -68,9 +71,6 @@ class GLMFit:
             logger.warning(
               "Could not compute p-values, t-values and SEs. "
               "Possibly due to singular vcov.")
-            ps = sp.zeros_like(beta) * sp.NaN
-            ts = sp.zeros_like(beta) * sp.NaN
-            se = sp.zeros_like(beta) * sp.NaN
 
         return pandas.DataFrame({
             "beta": beta, "p_values": ps, "t_values": ts, "se": se})
@@ -83,7 +83,7 @@ class GLMFit:
 
     def _write_table(self, outfolder):
         logger.info("Writing regression table")
-        self.__table.to_csv(outfolder + "-table.tsv",
+        self.__table.to_csv(outfolder + "-table.tsv", na_rep="NaN",
                             sep="\t", index=False, header=True)
 
     def _write_stats(self, outfolder):
