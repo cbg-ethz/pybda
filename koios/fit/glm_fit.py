@@ -59,7 +59,7 @@ class GLMFit:
                                   sp.array(model.coefficients))}
             )
             self.__measures = pandas.DataFrame({
-                "f_measure": model.summary.fMeasureByLabel,
+                "f_measure": model.summary.fMeasureByLabel(),
                 "fpr": model.summary.falsePositiveRateByLabel,
                 "precision": model.summary.precisionByLabel,
                 "recall": model.summary.recallByLabel,
