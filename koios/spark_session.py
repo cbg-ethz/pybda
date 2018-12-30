@@ -28,7 +28,7 @@ logger.setLevel(logging.INFO)
 
 class SparkSession:
     def __init__(self):
-        pyspark.StorageLevel(True, True, False, False, 1)
+        pyspark.StorageLevel(True, True, False, False, 2)
 
     def __enter__(self):
         logger.info("Initializing pyspark session")

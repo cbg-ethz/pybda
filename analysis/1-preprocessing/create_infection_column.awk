@@ -4,7 +4,7 @@ BEGIN {
   if (ARGC != 5)
   {
     printf("USAGE:\n")
-    printf("$0 c1=<column1> c2=<column2> n=<new_col_name> <filename>\n")
+    printf("$0 c1=<column1i name> c2=<column2 name> n=<new_col_name> <filename>\n")
     exit
   }
   FS="\t"
@@ -13,7 +13,7 @@ BEGIN {
 NR==1 {
   ind1 = -1
   ind2 = -1
-  newcol = NF + 1asdas
+  newcol = NF + 1
   for (i=1; i<NF; i++)
   {
         if ($i == c1) ind1 = i

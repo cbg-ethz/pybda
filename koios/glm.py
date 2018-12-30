@@ -36,7 +36,7 @@ logger.setLevel(logging.INFO)
 
 class GLM(Regression):
     def __init__(self, spark, response,
-                 family=GAUSSIAN_, max_iter=100):
+                 family=GAUSSIAN_, max_iter=20):
         super().__init__(spark, family)
         self.__max_iter = max_iter
         self.__response = response
@@ -47,7 +47,8 @@ class GLM(Regression):
         return GLMFit(data, model, self.__response, self.family)
 
     def _fit(self, data):
-        data.persist(StorageLevel.DISK_ONLY)
+        #data.persist(StorageLevel.DISK_ONLY)
+        data = data.coalesce(300)
         logger.info(data.storageLevel)
         return self._model().fit(data)
 
