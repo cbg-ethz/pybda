@@ -49,6 +49,17 @@ class GLM(Regression):
     def _fit(self, data):
         #data.persist(StorageLevel.DISK_ONLY)
         data = data.coalesce(300)
+        if self.family == BINOMIAL_:
+            min_cnt = data.groupby(self.__response).count().toPandas()
+            min_cnt = int(min_cnt["count"].values.min())
+            logger.info("Min count: {}".format(min_cnt))
+            df_0 = data.filter("{} == 0".format(self.__response)).limit(min_cnt)
+            logger.info("zero size: {}".format(df_0.count()))
+            df_1 = data.filter("{} == 1".format(self.__response)).limit(min_cnt)
+            logger.info("one size: {}".format(df_1.count()))
+            data = df_0.union(df_1)
+            logger.info("new data size: {}".format(data.count()))
+        data = data.coalesce(300)
         logger.info(data.storageLevel)
         return self._model().fit(data)
 

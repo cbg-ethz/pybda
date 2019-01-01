@@ -1,0 +1,35 @@
+Sender: LSF System <lsfadmin@lo-a2-018>
+Subject: Job 1051859: <./create_infection_column.awk c1=cells_children_bacteria_count c2=cells_children_invasomes_count n=is_infected /cluster/home/simondi/simondi/data/tix/2-analysis-linmod-bartonella/bartonella_1000.tsv > /cluster/home/simondi/simondi/data/tix/2-analysis-linmod-bartonella/bartonella_1000-merged_no_dots.tsv> in cluster <leonhard> Done
+
+Job <./create_infection_column.awk c1=cells_children_bacteria_count c2=cells_children_invasomes_count n=is_infected /cluster/home/simondi/simondi/data/tix/2-analysis-linmod-bartonella/bartonella_1000.tsv > /cluster/home/simondi/simondi/data/tix/2-analysis-linmod-bartonella/bartonella_1000-merged_no_dots.tsv> was submitted from host <lo-login-01> by user <simondi> in cluster <leonhard> at Sun Dec 30 13:37:08 2018
+Job was executed on host(s) <lo-a2-018>, in queue <normal.4h>, as user <simondi> in cluster <leonhard> at Sun Dec 30 13:37:30 2018
+</cluster/home/simondi> was used as the home directory.
+</cluster/home/simondi/PROJECTS/tix-analysis/analysis/1-preprocessing> was used as the working directory.
+Started at Sun Dec 30 13:37:30 2018
+Terminated at Sun Dec 30 14:03:49 2018
+Results reported at Sun Dec 30 14:03:49 2018
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+./create_infection_column.awk c1=cells_children_bacteria_count c2=cells_children_invasomes_count n=is_infected /cluster/home/simondi/simondi/data/tix/2-analysis-linmod-bartonella/bartonella_1000.tsv > /cluster/home/simondi/simondi/data/tix/2-analysis-linmod-bartonella/bartonella_1000-merged_no_dots.tsv
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   1563.80 sec.
+    Max Memory :                                 20000 MB
+    Average Memory :                             19120.24 MB
+    Total Requested Memory :                     20000.00 MB
+    Delta Memory :                               0.00 MB
+    Max Swap :                                   -
+    Max Processes :                              3
+    Max Threads :                                4
+    Run time :                                   1579 sec.
+    Turnaround time :                            1601 sec.
+
+The output (if any) follows:
+
