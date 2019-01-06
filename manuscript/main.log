@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.10.2)  3 JAN 2019 11:55
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.10.2)  6 JAN 2019 18:11
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -410,7 +410,7 @@ f>
 (epstopdf)             \includegraphics on input line 31.
 Package epstopdf Info: Output file is already uptodate.
 
-<OUP_First_SBk_Bot_8401-eps-converted-to.pdf, id=16, 54.2025pt x 54.2025pt>
+<OUP_First_SBk_Bot_8401-eps-converted-to.pdf, id=24, 54.2025pt x 54.2025pt>
 File: OUP_First_SBk_Bot_8401-eps-converted-to.pdf Graphic file (type pdf)
 
 <use OUP_First_SBk_Bot_8401-eps-converted-to.pdf>
@@ -495,38 +495,38 @@ Underfull \hbox (badness 10000) detected at line 31
 []
  []
 
+LaTeX Font Info:    Font shape `LY1/ptm/bx/n' in size <8> not available
+(Font)              Font shape `LY1/ptm/b/n' tried instead on input line 34.
 
-Overfull \hbox (49.21605pt too wide) in paragraph at lines 42--45
-\LY1/ptm/m/n/8 dimensionality reduction example Factor analysis clustering regr
-ession/prediction/random
+Package natbib Warning: Citation `a reference' on page 1 undefined on input lin
+e 34.
+
+
+Package natbib Warning: Citation `SCANPY' on page 1 undefined on input line 35.
+
+
+
+Package natbib Warning: Citation `biospark' on page 1 undefined on input line 3
+5.
+
+
+Package natbib Warning: Citation `snakemake' on page 1 undefined on input line 
+49.
+
+
+LaTeX Warning: Reference `fig:workflow' on page 1 undefined on input line 51.
+
+
+Underfull \hbox (badness 2119) in paragraph at lines 55--56
+[]\LY1/ptm/m/n/8 Unsupervised-learning: Gaussian mixture models and $\OML/cmm/m
+/it/8 k$\LY1/ptm/m/n/8 -means
  []
 
-LaTeX Font Info:    Font shape `LY1/ptm/bx/n' in size <8> not available
-(Font)              Font shape `LY1/ptm/b/n' tried instead on input line 55.
 
-Package natbib Warning: Citation `Boffelli03' on page 1 undefined on input line
- 55.
-
-(./main.bbl)
-Overfull \vbox (147.47282pt too high) has occurred while \output is active []
-
-Extra height:0.0pt when 157.47281pt
-
-Overfull \vbox (147.47282pt too high) has occurred while \output is active []
-
-(2)Left:157.47281pt Right:10.0pt Output:157.47281pt
-- LAST -
-Extra skip:0.0pt
-Left:157.47281pt
-Right:10.0pt
-Output:157.47281pt
-
-Overfull \vbox (147.47282pt too high) has occurred while \output is active []
+LaTeX Warning: Reference `tab:regression' on page 1 undefined on input line 59.
 
 
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
+(./main.bbl
 Overfull \hbox (1.12001pt too wide) has occurred while \output is active
  []
  []
@@ -535,49 +535,82 @@ Overfull \hbox (1.12001pt too wide) has occurred while \output is active
 
 
 
-
  <./OUP_First_SBk_Bot_8401-eps-converted-to.pdf>]
+
+Package natbib Warning: Empty `thebibliography' environment on input line 3.
+
+)
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+Extra height:0.0pt when 39.0pt
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+(2)Left:39.0pt Right:25.0pt Output:39.0pt
+- LAST -
+Extra skip:0.0pt
+Left:39.0pt
+Right:25.0pt
+Output:39.0pt
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+LaTeX Font Info:    Font shape `LY1/phv/m/it' in size <8> not available
+(Font)              Font shape `LY1/phv/m/sl' tried instead on input line 83.
+
+Overfull \hbox (252.0pt too wide) has occurred while \output is active
+[][] 
+ []
+
+[2
+
+]
 
 Package natbib Warning: There were undefined citations.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 68.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 68.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 83.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 83.
 (./main.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 68.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 68.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 83.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 83.
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 6BFA90CE4C46B0C6838604C2E2AAD95A;134.
+(rerunfilecheck)             Checksum: EEA752E7CDE735EDE008E9657238422B;268.
 
 
 LaTeX Font Warning: Size substitutions with differences
 (Font)              up to 0.75pt have occurred.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 68.
+
+LaTeX Warning: There were undefined references.
+
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 83.
  ) 
 Here is how much of TeX's memory you used:
- 7209 strings out of 493089
- 99588 string characters out of 6134842
- 191468 words of memory out of 5000000
- 10561 multiletter control sequences out of 15000+600000
- 51437 words of font info for 93 fonts, out of 8000000 for 9000
+ 7219 strings out of 493089
+ 99703 string characters out of 6134842
+ 192451 words of memory out of 5000000
+ 10569 multiletter control sequences out of 15000+600000
+ 52730 words of font info for 94 fonts, out of 8000000 for 9000
  1145 hyphenation exceptions out of 8191
- 35i,10n,28p,496b,373s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 35i,10n,28p,650b,373s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2015/texmf-dist/fonts/enc/dvips/ly1/texnansi.enc}</usr/lo
 cal/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmbsy9.pfb></us
-r/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/
-local/texlive/2015/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/local/te
-xlive/2015/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/local/texlive/2
-015/texmf-dist/fonts/type1/urw/helvetic/uhvbo8a.pfb></usr/local/texlive/2015/te
-xmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/local/texlive/2015/texmf-dis
-t/fonts/type1/urw/helvetic/uhvr8ac.pfb></usr/local/texlive/2015/texmf-dist/font
-s/type1/urw/helvetic/uhvro8a.pfb></usr/local/texlive/2015/texmf-dist/fonts/type
-1/urw/helvetic/uhvro8ac.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/urw
-/times/utmb8a.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/urw/times/utm
-r8a.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (1 page, 103394 bytes).
+r/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/
+local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/lo
+cal/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/loca
+l/texlive/2015/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/local/texliv
+e/2015/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/local/texlive/2015/
+texmf-dist/fonts/type1/urw/helvetic/uhvbo8a.pfb></usr/local/texlive/2015/texmf-
+dist/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/local/texlive/2015/texmf-dist/fo
+nts/type1/urw/helvetic/uhvr8ac.pfb></usr/local/texlive/2015/texmf-dist/fonts/ty
+pe1/urw/helvetic/uhvro8a.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/ur
+w/helvetic/uhvro8ac.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/urw/tim
+es/utmb8a.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/urw/times/utmr8a.
+pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on main.pdf (2 pages, 120406 bytes).
 PDF statistics:
- 90 PDF objects out of 1000 (max. 8388607)
- 72 compressed objects within 1 object stream
- 9 named destinations out of 1000 (max. 500000)
- 30 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 108 PDF objects out of 1000 (max. 8388607)
+ 87 compressed objects within 1 object stream
+ 11 named destinations out of 1000 (max. 500000)
+ 46 words of extra memory for PDF output out of 10000 (max. 10000000)
 
