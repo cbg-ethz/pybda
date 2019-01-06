@@ -31,31 +31,50 @@
 
 \section{Introduction}
 
-The not-so-recent advent of high-dimensional data is still posing not only statistical, but primarily methodological problems for researchers across fields such as computational biology, astronomy or the social sciences. \cite{a reference}
+The not-so-recent advent of high-dimensional data is still posing not only statistical, but primarily methodological problems for researchers across fields such as computational biology, astronomy or the social sciences. \citep{a reference}.
+Recently, approaches such as \citep{SCANPY} have been introduced to tackle analysing high dimensional data sets. However, scanpy only scales up to a (few) million observations rendering it unsuitable for analysis of, e.g., microscopy imaging data that often has images of billions of cells. Approaches that also rely on Apache Spark, such as, \citep{biospark} lack ease of use and a capability of effortless data analysos.\\
+To summarize, the contributions of this paper are:
+\begin{itemize}
+	\item A command line tool for analysis of billions of observations.
+	\item Clustering and regression using MLLib from Apache Spark.
+	\item A proper landing page.
+	\item Customizable and automatic builds for single analyses
+\end{itemize}
 
 
 
 \begin{methods}
 \section{Methods}
+\textit{koios} is a Python package
+callable as executable from the command line that implements various machine learning algorithms for automated data analysis. When using koios the user merely needs to specify input and ouput data and the algorithms to be used for analysis as config file. Running koios will automatically work through the different algorithms. On the backend koios uses Snakemake \citep{snakemake} to automatically build a pipeline of algorithms and methods to call and dynamically composes the correct input and ouput data. Snakemake itself calls Apache's Spark which distributes the data on several workers and runs the respective models.
 
-dimensionality reduction example Factor analysis
-clustering
-regression/prediction/random forests
+koios comes with a variety of already implemented algorithms (Figure \ref{fig:workflow}):
+\begin{itemize}
+\item Dimensionality reduction: PCA, kPCA, factor analysis, 
+\item Supervised-learning: regression and random forests,
+\item Unsupervised-learning: Gaussian mixture models and $k$-means clustering.
+\end{itemize}.
 
-example regression
+\subsection{Regression example}
+Table~\ref{tab:regression}
 
+
+\subsection{Clustering example}
+
+For instance, when working with single-cell features extracted from microscopy images, one usually wants to first eliminate highly-correlated features, for instance, by embedding into a lower uncorrelated space using PCA, kPCA or factor analysis. Following up clustering
+
+TODO mention not on desktop computer -> needs drivers and so.
 
 \end{methods}
 
+TODO imare of workflow? or image of runtime?
+link to website
+
 \section{Conclusion}
 
+\textit{koios} is a commandline tool for machine learning for big biological data sets scaling up to hundreds of millions of cells. koios automatically parses pipelines from a config file and distributes jobs to worker nodes. We believe koios can be a valuable tool since data are possibly getting even larger and hope to establish a community driven effort for working with biological data that cannot be analysed on desktop computers and laptops
+
 \section*{Acknowledgements}
-
-Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text
-text text text\vspace*{-12pt}
-
-
-
 
 \section*{Funding}
 
