@@ -26,17 +26,19 @@ import pandas
 import scipy as sp
 
 from koios.globals import GAUSSIAN_, BINOMIAL_
+from koios.plot.regression_plot import plot_curves
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
 class GLMFit:
-    def __init__(self, data, model, response, family):
+    def __init__(self, data, model, response, family, features):
         self.__data = data
         self.__model = model
         self.__response = response
         self.__family = family
+        self.__features = features
 
         if family == GAUSSIAN_:
             self.__df = model.summary.degreesOfFreedom
@@ -73,6 +75,7 @@ class GLMFit:
               "Possibly due to singular vcov.")
 
         return pandas.DataFrame({
+            "features": ["intecept"] + self.__features,
             "beta": beta, "p_values": ps, "t_values": ts, "se": se})
 
     def write_files(self, outfolder):
@@ -80,6 +83,7 @@ class GLMFit:
         self._write_table(outfolder)
         if self.family == BINOMIAL_:
             self._write_binomial_measures(outfolder)
+        self._plot(outfolder)
 
     def _write_table(self, outfolder):
         logger.info("Writing regression table")
@@ -111,6 +115,10 @@ class GLMFit:
                           sep="\t", index=False, header=True)
         self.__measures.to_csv(outfolder + "-measures.tsv",
                                sep="\t", index=False, header=True)
+
+    def _plot(self, outfolder):
+        for suf in ["png", "pdf", "svg", "eps"]:
+            plot_curves(outfolder + "-plot." + suf, self.__pr, self.__roc)
 
     @property
     def family(self):
