@@ -1,18 +1,8 @@
-Use Case
-========
+Logistic regression example
+===========================
 
 Here we show a small use case of ``koios``. We prepared a sample data set
 (``data/single_cell_samples.tsv``) which we use for analysis
-
-Setting the config file
------------------------
-
-I use the following config files for the analysis.
-Before I ran everything I do a test run using:
-
-.. literalinclude:: ../../biospark-local.config
-  :caption: Contents of ``biospark-local.config`` file
-  :name: biospark-local-test.config
 
 Starting the cluster
 --------------------
@@ -32,7 +22,7 @@ Before we start analysing the data we do a dimension reduction into a 15-dimensi
 
 .. code-block:: bash
 
-  ./koios --configfile biospark-local.config
+  ./koios --configfile koios-usecase-log-ref.config
           --ip IP
           dimension-reduction
 

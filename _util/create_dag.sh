@@ -13,8 +13,8 @@ DIR=$(dirname ${FL})
 cd $DIR
 cd ..
 
-snakemake --dag -s koios/koios.snake --configfile koios-usecase.config > "fig/snakeflow.dot"
-python "${DIR}/parse_dag.py"  "fig/snakeflow.dot" > "fig/snakeflow.tsv"
+snakemake --dag -s koios/koios.snake --configfile koios-usecase.config >! "_fig/snakeflow.dot"
+python "${DIR}/parse_dag.py"  "_fig/snakeflow.dot" >! "_fig/snakeflow.tsv"
 
 dot -Tpdf "_fig/snakeflow.tsv" -o "_fig/snakeflow.pdf"
 dot -Tsvg "_fig/snakeflow.tsv" -o "_fig/snakeflow.svg"
