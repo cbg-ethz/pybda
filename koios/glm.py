@@ -22,7 +22,6 @@
 import logging
 
 import click
-from pyspark import StorageLevel
 from pyspark.ml.regression import LinearRegression
 from pyspark.ml.classification import LogisticRegression
 
@@ -35,30 +34,36 @@ logger.setLevel(logging.INFO)
 
 
 class GLM(Regression):
-    def __init__(self, spark, response,
+    def __init__(self, spark, response, meta, features,
                  family=GAUSSIAN_, max_iter=20):
         super().__init__(spark, family)
         self.__max_iter = max_iter
         self.__response = response
+        self.__meta = meta
+        self.__features = features
 
     def fit(self, data):
         logger.info("Fitting GLM with family='{}'".format(self.family))
         model = self._fit(data)
-        return GLMFit(data, model, self.__response, self.family)
+        return GLMFit(data, model, self.__response,
+                      self.family, self.__features)
 
     def _fit(self, data):
-        #data.persist(StorageLevel.DISK_ONLY)
         data = data.coalesce(300)
         if self.family == BINOMIAL_:
-            min_cnt = data.groupby(self.__response).count().toPandas()
-            min_cnt = int(min_cnt["count"].values.min())
-            logger.info("Min count: {}".format(min_cnt))
-            df_0 = data.filter("{} == 0".format(self.__response)).limit(min_cnt)
-            logger.info("zero size: {}".format(df_0.count()))
-            df_1 = data.filter("{} == 1".format(self.__response)).limit(min_cnt)
-            logger.info("one size: {}".format(df_1.count()))
-            data = df_0.union(df_1)
-            logger.info("new data size: {}".format(data.count()))
+            mcnt = data.groupby(self.__response).count().toPandas()
+            cnts = mcnt["count"].values
+            cnt_0, cnt_1 = int(cnts[0]), int(cnts[1])
+            if cnt_0 != cnt_1:
+                logger.info("Found inbalanced data-set...going to balance.")
+                mcnt = int(cnts.min())
+                logger.info("Minimum count of one label: {}".format(mcnt))
+                df_0 = data.filter("{} == 0".format(self.__response)).limit(mcnt)
+                logger.info("#group 0: {}".format(df_0.count()))
+                df_1 = data.filter("{} == 1".format(self.__response)).limit(mcnt)
+                logger.info("#group 1: {}".format(df_1.count()))
+                data = df_0.union(df_1)
+                logger.info("Size of data set after subsampling: {}".format(data.count()))
         data = data.coalesce(300)
         logger.info(data.storageLevel)
         return self._model().fit(data)
@@ -103,7 +108,7 @@ def run(file, meta, features, response, family, outpath):
         try:
             meta, features = read_column_info(meta, features)
             data = read_and_transmute(spark, file, features, response)
-            fl = GLM(spark, response, family)
+            fl = GLM(spark, response, meta, features, family)
             fit = fl.fit(data)
             fit.write_files(outpath)
         except Exception as e:
