@@ -1,4 +1,4 @@
-Κοῖος /ˈci.os/ 
+Κοῖος /ˈci.os/
 ==============
 
 .. image:: http://www.repostatus.org/badges/latest/active.svg
@@ -92,10 +92,9 @@ Config
 
 Your configuration file will need to have the following format:
 
-.. literalinclude:: ../../biospark-local.config
-  :caption: Contents of ``biospark-local.config`` file
-  :name: biospark-local.config
-
+.. literalinclude:: ../../koios-usecase.config
+  :caption: Contents of ``koios-usecase.config`` file
+  :name: koios-usecase.config
 
 The first line points to the ``spark-submit`` command which is provided by Apache Spark.
 The second line contains the ``tsv`` with your data, while the third line is the *folder* where all outputs are saved to.
@@ -111,13 +110,14 @@ for submitting applications provides details which arguments are valid here.
 Spark
 ~~~~~~
 
-In order for `biospark` to work you need to have a working
+In order for `koios` to work you need to have a working
 *standalone spark environment* set up, running and listening to some ``IP``.
 You can find a good introduction
 `here <https://spark.apache.org/docs/latest/spark-standalone.html>`_ on how
 to start the standalone Spark cluster.
 
-.. note::  We assume that you know how to use Apache Spark and start a cluster. However, for the sake of demonstration the next two sections show how Spark can be easily started.
+.. note::  We assume that you know how to use Apache Spark and start a cluster.
+However, for the sake of demonstration the next two sections show how Spark can be easily started.
 
 Local Spark context
 ....................
@@ -175,7 +175,7 @@ For ``dimension-reduction``:
 
 .. code-block:: bash
 
-  ./koios --configfile biospark-local.config
+  ./koios --configfile koios-usecase.config
           --ip IP
           dimension-reduction
 
@@ -183,7 +183,7 @@ For ``outlier-removal``:
 
 .. code-block:: bash
 
-  ./koios --configfile biospark-local.config
+  ./koios --configfile koios-usecase.config
           --ip IP
           outlier-removal
 
@@ -191,7 +191,7 @@ For ``clustering``:
 
 .. code-block:: bash
 
-  ./koios --configfile biospark-local.config
+  ./koios --configfile koios-usecase.config
           --ip IP
            clustering
 
