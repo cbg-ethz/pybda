@@ -19,3 +19,4 @@ python "${DIR}/parse_dag.py"  "fig/snakeflow.dot" > "fig/snakeflow.tsv"
 dot -Tpdf "_fig/snakeflow.tsv" -o "_fig/snakeflow.pdf"
 dot -Tsvg "_fig/snakeflow.tsv" -o "_fig/snakeflow.svg"
 cp "_fig/snakeflow.svg" "docs/source/_static/"
+
