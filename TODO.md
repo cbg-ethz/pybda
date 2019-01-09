@@ -7,3 +7,7 @@
 * add clustering with specific `K` as before w/0 recursivencess
 * better modularize the python code and add a spark-fa submodule for use
 * get rid of naming system? how to replace this better
+* add GBoosting
+* add some use cases (GLM, clustering)
+* update all to "koios"
+* add prediction flag for regression/classification
