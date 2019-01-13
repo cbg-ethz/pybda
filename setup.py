@@ -13,7 +13,7 @@ def readme():
 setup(
   name='koios',
   version='0.0.1',
-  description='A workflow for Big Data aAalysis powered by Apache Spark',
+  description='Big Data analytics powered by Apache Spark',
   long_description=readme(),
   url='https://github.com/cbg-ethz/koios',
   author='Simon Dirmeier',
@@ -38,7 +38,6 @@ setup(
   classifiers=[
       'Development Status :: 3 - Alpha',
       'Intended Audience :: Developers',
-      'Topic :: Scientific/Engineering :: Bio-Informatics',
       'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
       'Programming Language :: Python :: 3',
       'Programming Language :: Python :: 3.4',
