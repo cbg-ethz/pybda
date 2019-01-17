@@ -13,9 +13,7 @@
    :target: http://koios.readthedocs.io/en/latest/
    :alt: doc
 
-
-A workflow manager for analysis of big biological data sets using Snakemake, powered by Apache Spark.
-
+A command line tool for big data analytics and machine learning using Apache Spark and Snakemake.
 
 .. toctree::
    :hidden:
@@ -27,60 +25,68 @@ A workflow manager for analysis of big biological data sets using Snakemake, pow
    usecase_clustering
    usecase_regression
 
-.. raw:: html
-
-    <div align="center" style="text-align: middle">
-    <object data="_static/snakeflow.svg" type="image/svg+xml" width="700"></object>
-    The <i>koios</i> workflow.
-    </div>
-
 Introduction
 ------------
 
 Welcome to ``koios``.
 
-``koios`` is a Python/Scala library for analysis of big biological data sets.
-We use Apache Spark as analytics engine for big data processing and machine learning,
-and Snakemake for scheduling.
+``koios`` is a Python command line tool for analysis of big biological data sets.
+In order to make machine learning methods scale to big data sets we use Apache Spark's DataFrame API and MLLib
+which, if developed against, automatically distributes data to the nodes of a high-performance cluster and does the computations
+in parallel. In addition we use Snakemake to automatically schedule pipelines of jobs.
 
-With ``koios``
+Sofar ``koios`` supports
 
-* Preprocessing: dimension reduction and outlier removal
-* Clustering
-* Visualizations
+* dimensionality reduction using PCA, factor analysis and kPCA,
+* clustering using k-means and Gaussian mixture models,
+* supervised learning using generalized linear regression models, random forests and gradient boosting.
 
-The library is still under development, so if you'd like to contribute,
+The library is actively developed and will add new features in a timely fashion. If you want to you can also contribute:
 `fork us on GitHub <https://github.com/cbg-ethz/biospark>`_.
 
 Dependencies
 ------------
 
 * Apache Spark >= 2.3.0
-* JDK >= 1.7
-* openmpi
-* Scala >= 2.12.0
-* R >= 3.5.0
 * Python >= 3.6
-* sparkhpc
 
 Installation
 ------------
 
 1) Make sure to have ``python3`` installed. ``koios`` does not support
-previous versions. The best way to do that is to download `anaconda <https://www.continuum.io/downloads>`_ and create a
-virtual `environment <https://conda.io/docs/using/envs.html>`_.
+   previous versions. The best way to do that is to download `anaconda <https://www.continuum.io/downloads>`_ and create a
+   virtual `environment <https://conda.io/docs/using/envs.html>`_.
 
-2) Download the latest `release <https://github.com/cbg-ethz/biospark/releases>`_ first and unpack it.
+2) Either install ``koios`` from conda
+   using
 
-3) Install the required dependencies using:
+  .. code-block:: bash
 
-.. code-block:: bash
+     conda install koios -c conda-forge
 
-  ./install_dependencies.sh
+  or from PYPI
 
-4) Install `Apache Spark <https://spark.apache.org/downloads.html>`_ . Use the *prebuilt for Apache Hadoop* package type.
+  .. code-block:: bash
 
-5) That is it.
+     pip install koios
+
+  or by downloading the latest `release <https://github.com/cbg-ethz/biospark/releases>`_
+
+  .. code-block:: bash
+
+      tar -zxvf koios*.tar.gz
+      pip install koios
+
+  I obviously recommend installation using the first option.
+
+3) Download Spark from `Apache Spark <https://spark.apache.org/downloads.html>`_ (use the *prebuilt for Apache Hadoop* package type)
+   and install the unpacked folder into a custom path like ```opt/local/spark```. Put an alias into your ```.bashrc``` (or whatever shell you are using)
+
+   .. code-block:: bash
+
+      echo "alias spark-submit='opt/local/spark/bin/spark-submit'" >> .bashrc
+
+4) That is it.
 
 Usage
 -----
@@ -118,8 +124,7 @@ You can find a good introduction
 `here <https://spark.apache.org/docs/latest/spark-standalone.html>`_ on how
 to start the standalone Spark cluster.
 
-.. note::  We assume that you know how to use Apache Spark and start a cluster.
-However, for the sake of demonstration the next two sections show how Spark can be easily started.
+.. note::  We assume that you know how to use Apache Spark and start a cluster. However, for the sake of demonstration the next two sections show how Spark can be easily started.
 
 Local Spark context
 ....................

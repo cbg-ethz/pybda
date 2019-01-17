@@ -1,5 +1,5 @@
-Logistic regression example
-===========================
+Usage
+=====
 
 
 pu
