@@ -160,8 +160,7 @@ In a cluster environment, this is the command to be executed:
 Analysis
 --------
 
-Before we start analysing the data we do a dimension reduction into a 15-dimensional space using
-``koios``.
+Before we start analysing the data we do a dimension reduction into a 15-dimensional space using ``koios``.
 The input file is a data set created using ``rnai-query compose`` (see above).
 The output is a parquet folder.
 
