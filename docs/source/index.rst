@@ -22,8 +22,10 @@ A workflow manager for analysis of big biological data sets using Snakemake, pow
    :maxdepth: 4
 
    Home <self>
-   usecase
-   pipeline
+   usage
+   usecase_dimred
+   usecase_clustering
+   usecase_regression
 
 .. raw:: html
 
