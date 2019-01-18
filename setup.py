@@ -17,9 +17,9 @@ setup(
   long_description=readme(),
   url='https://github.com/cbg-ethz/koios',
   author='Simon Dirmeier',
-  author_email='simon.dirmeier@web.de',
+  author_email='simon.dirmeier@bsse.ethz.de',
   license='GPLv3',
-  keywords='bigdata analysis pipeline workflow spark pyspark',
+  keywords='bigdata analysis pipeline workflow spark pyspark machinelearning',
   packages=find_packages(),
   scripts=['scripts/koios'],
   include_package_data=True,
@@ -33,7 +33,8 @@ setup(
       'pytest>=3.6.2',
       'matplotlib>=2.2.3',
       'snakemake>=5.2.2',
-      'joypy>=0.1.9'
+      'joypy>=0.1.9',
+      'uuid>=1.3.0'
   ],
   classifiers=[
       'Development Status :: 3 - Alpha',

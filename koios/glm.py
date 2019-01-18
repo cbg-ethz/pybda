@@ -95,6 +95,10 @@ class GLM(Regression):
 @click.argument("family", type=str)
 @click.argument("outpath", type=str)
 def run(file, meta, features, response, family, outpath):
+    """
+    Fit a generalized linear regression model.
+    """
+
     from koios.util.string import drop_suffix
     from koios.logger import set_logger
     from koios.spark_session import SparkSession

@@ -154,7 +154,11 @@ def rm(files):
         pathlib.Path(file).unlink()
 
 
+def read_info(features):
+    return list((pandas.read_csv(features, header=None))[0].values)
+
+
 def read_column_info(meta, features):
-    meta = list((pandas.read_csv(meta, header=None))[0].values)
-    features = list((pandas.read_csv(features, header=None))[0].values)
+    meta = read_info(meta)
+    features = read_info(features)
     return meta, features
