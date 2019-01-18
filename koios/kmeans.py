@@ -30,7 +30,7 @@ import pyspark.ml.clustering
 from koios.clustering import Clustering
 from koios.fit.kmeans_fit import KMeansFit
 from koios.fit.kmeans_transformed import KMeansTransformed
-from koios.globals import TOTAL_VAR_, FEATURES__
+from koios.globals import TOTAL_VAR_, FEATURES__, KMEANS__
 from koios.io.as_filename import as_ssefile
 from koios.io.io import write_line
 from koios.spark.features import n_features, split_vector
@@ -42,7 +42,7 @@ logger.setLevel(logging.INFO)
 
 class KMeans(Clustering):
     def __init__(self, spark, clusters, threshold=.01, max_iter=25):
-        super().__init__(spark, clusters, threshold, max_iter)
+        super().__init__(spark, clusters, threshold, max_iter, KMEANS__)
 
     def fit(self, data, outpath=None):
         n, p = data.count(), n_features(data, FEATURES__)
@@ -66,13 +66,13 @@ class KMeans(Clustering):
         return model
 
     def transform(self, data, models, outpath):
-        for fit in models:
+        for _, fit in models.items():
             m = KMeansTransformed(fit.transform(data))
             m.write_files(outpath)
 
     def fit_transform(self, data, outpath):
         models = self.fit(data, outpath)
-        self.transform(data, models, outpath)
+    #self.transform(data, models, outpath)
 
     @staticmethod
     def _tot_var(data, outpath=None):

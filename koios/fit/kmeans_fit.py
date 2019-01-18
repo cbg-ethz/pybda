@@ -58,10 +58,14 @@ class KMeansFit(ClusteringFit):
 
     def write_files(self, outfolder):
         mkdir(outfolder)
-        path = os.path.join(outfolder, KMeansFit._k_fit_path(self.K))
+        path = os.path.join(outfolder, self._k_fit_path(self.k))
+        logger.info("\n\n\n\n\nasdasdasd1\n\n\n\n")
         self._write_fit(path)
+        logger.info("\n\n\n\n\nasdasdasd2\n\n\n\n")
         self._write_cluster_sizes(path)
+        logger.info("\n\n\n\n\nasdasdasd3\n\n\n\n")
         self._write_cluster_centers(path)
+        logger.info("\n\n\n\n\nasdasdasd4\n\n\n\n")
         self._write_statistics(path)
 
     def _k_fit_path(self, k):
@@ -72,7 +76,7 @@ class KMeansFit(ClusteringFit):
         logger.info("Writing cluster centers to: {}".format(ccf))
         with open(ccf, "w") as fh:
             fh.write("#Clustercenters\n")
-            for center in self.__fit.clusterCenters():
+            for center in self.fit.clusterCenters():
                 fh.write("\t".join(map(str, center)) + '\n')
 
     def _write_statistics(self, outfile):
@@ -82,11 +86,11 @@ class KMeansFit(ClusteringFit):
             fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
               K_, WITHIN_VAR_, EXPL_VAR_, TOTAL_VAR_, BIC_, N_, P_, "path"))
             fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-              self.__k,
+              self.k,
               self.__within_cluster_variance,
               self.__explained_variance,
               self.__total_variance,
               self.__bic,
-              self.__n,
-              self.__p,
+              self.n,
+              self.p,
               outfile))
