@@ -103,8 +103,8 @@ class KMeansFit(ClusteringFit):
         total_var = tab[TOTAL_VAR_][0]
         path = tab[PATH_][0]
         logger.info("Loading model:K={}, P={},"
-                    " within_cluster_variance={}, "
-                    "explained_variance={} from file={}"
+                    " within_cluster_variance={},"
+                    " explained_variance={} from file={}"
                     .format(k, p, within_var, expl, statistics_file))
         fit = KMeansModel.load(path) if load_fit else None
         return KMeansFit(None, fit, k, within_var, total_var, n, p, path)
