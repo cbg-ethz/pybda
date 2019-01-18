@@ -66,9 +66,9 @@ class KMeansFit(ClusteringFit):
                "\n"
 
     def __str__(self):
-        return "k\t" \
+        return "{}\t".format(self.k) + \
                "{}\t".format(self.__within_cluster_variance) + \
-               "{}\t".format(self.__explained_varianc) + \
+               "{}\t".format(self.__explained_variance) + \
                "{}\t".format(self.__total_variance) + \
                "{}\t".format(self.__bic) + \
                "\n"
