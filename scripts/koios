@@ -80,36 +80,13 @@ def outliers(config, spark):
 @cli.command()
 @click.argument("config", type=str)
 @click.argument("spark", type=str)
-def clustering_fit(config, spark):
+def clustering(config, spark):
     """
     Do a KMeans clustering fit of a data set.
     """
 
     cl = _get_from_config(config, "clustering")
-    run(config, spark, cl + "_fit")
-
-
-@cli.command()
-@click.argument("config", type=str)
-@click.argument("spark", type=str)
-def clustering_transform(config, spark):
-    """
-    Do a KMeans clustering fit of a data set.
-    """
-
-    cl = _get_from_config(config, "clustering")
-    run(config, spark, cl + "_transform")
-
-
-@cli.command()
-@click.argument("config", type=str)
-@click.argument("spark", type=str)
-def clustering_statistics(config, spark):
-    """
-    Do a KMeans clustering fit of a data set.
-    """
-
-    run(config, spark, "clustering_statistics")
+    run(config, spark, cl)
 
 
 @cli.command()

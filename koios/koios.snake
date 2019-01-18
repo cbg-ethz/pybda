@@ -192,45 +192,36 @@ rule glm:
         shell("{cmd}")
 
 
-def _run_clusterfit(params, kme, input, out):
-    if MAX_CENTERS__ in config:
-        clust = koios_config[MAX_CENTERS__]
-        findbest = "--findbest"
-    elif N_CENTERS__ in config:
-        clust = koios_config[N_CENTERS__]
-        findbest = ""
-    elif all(x in koios_config for x in [MAX_CENTERS__, N_CENTERS__]):
-        raise ValueError("Cannot set '{}' and '{}' at same time".format(
-            N_CENTERS__, MAX_CENTERS__))
-    cmd = """{} --master {} {} {} {} {} {} {} {}""".format(
+def _run_clustering(params, kme, input, out):
+    clust = str(koios_config[N_CENTERS__]).replace(" ", "")
+    cmd = """{} --master {} {} {} {} {} {} {}""".format(
           koios_config[SPARK__],
           koios_config[SPARKIP__],
           params,
           kme,
-          "fit",
-          input,
-          out,
           clust,
-          findbest)
+          input,
+          koios_config[FEATURES__],
+          out)
     _run(cmd)
 
 
-rule kmeans_fit:
+rule kmeans:
     input:
         expand("{infile}", infile=koios_config[CLUSTERING_INFILE__])
     output:
-        directory(expand("{outfolder}/{clust}-fit",
+        directory(expand("{outfolder}/{clust}",
                          clust=koios_config[CLUSTERING__],
                          outfolder=koios_config[OUTFOLDER__]))
     params:
-        out = koios_config[OUTFOLDER__] + "/kmeans-fit",
+        out = koios_config[OUTFOLDER__] + "/kmeans",
         params = " ".join([x for x in koios_config[SPARKPARAMS__]]),
         kme = os.path.join(dirname(), "kmeans.py")
     run:
-        _run_clusterfit(params.params, params.kme, input, params.out)
+        _run_clustering(params.params, params.kme, input, params.out)
 
 
-rule gmm_fit:
+rule gmm:
     input:
         expand("{infile}", infile=koios_config[CLUSTERING_INFILE__])
     output:
@@ -242,77 +233,3 @@ rule gmm_fit:
         kme = os.path.join(dirname(), "gmm.py")
     run:
         _run_clusterfit(params.params, params.kme, input, output)
-
-
-rule kmeans_transform:
-    input:
-        fitf = expand("{outfolder}/{clust}-fit",
-                      outfolder=koios_config[OUTFOLDER__],
-                      clust=koios_config[CLUSTERING__]),
-        inf = expand("{infile}", infile=koios_config[CLUSTERING_INFILE__])
-    output:
-        out = directory(expand("{outfolder}/{clust}-transformed",
-                               clust=koios_config[CLUSTERING__],
-                               outfolder=koios_config[OUTFOLDER__]))
-    params:
-        kme = os.path.join(dirname(), "kmeans.py"),
-        params = " ".join([x for x in koios_config[SPARKPARAMS__]])
-    run:
-        cmd = """{} --master {} {} {} {} {} {} {}""".format(
-            koios_config[SPARK__],
-            koios_config[SPARKIP__],
-            params.params,
-            params.kme,
-            "transform",
-            input.inf,
-            input.fitf,
-            output.out)
-        _run(cmd)
-
-
-rule gmm_transform:
-    input:
-        fitf = expand("{outfolder}/{clust}-fit",
-                      outfolder=koios_config[OUTFOLDER__],
-                      clust=koios_config[CLUSTERING__]),
-        inf = expand("{infile}", infile=koios_config[CLUSTERING_INFILE__])
-    output:
-        out = directory(expand("{outfolder}/{clust}-transformed",
-                               clust=koios_config[CLUSTERING__],
-                               outfolder=koios_config[OUTFOLDER__]))
-    params:
-        kme = os.path.join(dirname(), "gmm.py"),
-        params = " ".join([x for x in koios_config[SPARKPARAMS__]])
-    run:
-
-        cmd = """{} --master {} {} {} {} {} {} {}""".format(
-            koios_config[SPARK__],
-            koios_config[SPARKIP__],
-            params.params,
-            params.kme,
-            "transform",
-            input.inf,
-            input.fitf,
-            output.out)
-        _run(cmd)
-
-rule clustering_statistics:
-    input:
-        expand("{outfolder}/{clust}-transformed",
-               outfolder=koios_config[OUTFOLDER__],
-               clust=koios_config[CLUSTERING__])
-    output:
-        expand("{outfolder}/{clust}-transformed-silhouettes.tsv",
-               outfolder=koios_config[OUTFOLDER__],
-               clust=koios_config[CLUSTERING__])
-    params:
-        kms = os.path.join(dirname(), "cluster_statistics.py"),
-        params = " ".join([x for x in koios_config[SPARKPARAMS__]])
-    run:
-        cmd = """{} --master {} {} {} {}""".format(
-            koios_config[SPARK__],
-            koios_config[SPARKIP__],
-            params.params,
-            params.kms,
-            input)
-        _run(cmd)

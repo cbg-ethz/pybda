@@ -39,6 +39,10 @@ class ClusteringFit:
         return self.__fit.transform(data)
 
     @property
+    def fit(self):
+        return self.__fit
+
+    @property
     def data(self):
         return self.__data
 
