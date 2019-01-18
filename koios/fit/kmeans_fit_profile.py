@@ -67,9 +67,10 @@ class KMeansFitProfile(FitProfile):
 
     def _plot(self, outpath):
         data, labels = self._cluster_sizes(outpath)
+        pand = self.as_pandas()
         for suf in ["png", "pdf", "svg", "eps"]:
-            plot_profile(outpath + "-profile." + suf,
-                         self.as_pandas())
+            logger.info(pand)
+            plot_profile(outpath + "-profile." + suf, pand, EXPL_VARL)
             plot_cluster_sizes(
               outpath + "-cluster_sizes-histogram." + suf, data, labels)
 
