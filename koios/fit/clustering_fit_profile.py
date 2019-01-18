@@ -40,6 +40,9 @@ class FitProfile(ABC):
         self.__models = {} if models is None else models
         self.__loss = numpy.inf
 
+    def __setitem__(self, key, value):
+         self.__models[key] = value
+
     def __getitem__(self, key):
         return self.__models[key]
 
