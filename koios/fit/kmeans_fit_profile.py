@@ -40,7 +40,7 @@ class KMeansFitProfile(FitProfile):
         return self.__models[key]
 
     def __setitem__(self, key, value):
-         self.__models[key] = value
+           self.__models[key] = value
 
     def write_files(self, outpath):
         for model in self.__models.values():
@@ -61,14 +61,15 @@ class KMeansFitProfile(FitProfile):
 
     def as_pandas(self):
         df = [None] * len(self.__models)
-        for i, e in self.__models.items():
+        for i, e in enumerate(self.__models.values()):
             df[i] = e.values
         return pandas.DataFrame(df)
 
     def _plot(self, outpath):
         data, labels = self._cluster_sizes(outpath)
         for suf in ["png", "pdf", "svg", "eps"]:
-            plot_profile(outpath + "-profile." + suf, self.as_pandas())
+            plot_profile(outpath + "-profile." + suf,
+                         self.as_pandas())
             plot_cluster_sizes(
               outpath + "-cluster_sizes-histogram." + suf, data, labels)
 
@@ -77,6 +78,8 @@ class KMeansFitProfile(FitProfile):
         reg = re.compile(".*K(\d+)_cluster_sizes.tsv")
         ll = self.as_pandas()
 
+        logger.info("asdas")
+        logger.info(len(fls))
         frames = [None] * len(fls)
         for i, fl in enumerate(fls):
             t = pandas.read_csv(fl, sep="\t", header=-1, names="c")
@@ -89,7 +92,7 @@ class KMeansFitProfile(FitProfile):
 
         labels = list(map(lambda x: "K = {}".format(x[0]), frames))
         data = pandas.concat(map(lambda x: x[1], frames))
-
+        logger.info("asdas")
         return data, labels
 
     def keys(self):
