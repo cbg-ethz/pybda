@@ -26,7 +26,7 @@ import scipy
 
 from koios.fit.clustering_fit import ClusteringFit
 from koios.globals import WITHIN_VAR_, EXPL_VAR_, TOTAL_VAR_,\
-    K_, N_, PATH_, P_, BIC_
+    K_, N_, P_, BIC_
 from koios.io.io import mkdir
 
 logger = logging.getLogger(__name__)
@@ -90,30 +90,3 @@ class KMeansFit(ClusteringFit):
               self.__n,
               self.__p,
               outfile))
-
-    @classmethod
-    def load_model(cls, statistics_file, load_fit=False):
-        import pandas
-        from pyspark.ml.clustering import KMeansModel
-        logger.info(statistics_file)
-        tab = pandas.read_csv(statistics_file, sep="\t")
-        n, k, p = tab[N_][0], tab[K_][0], tab[P_][0]
-        within_var = tab[WITHIN_VAR_][0]
-        expl = tab[EXPL_VAR_][0]
-        total_var = tab[TOTAL_VAR_][0]
-        path = tab[PATH_][0]
-        logger.info("Loading model:K={}, P={},"
-                    " within_cluster_variance={},"
-                    " explained_variance={} from file={}"
-                    .format(k, p, within_var, expl, statistics_file))
-        fit = KMeansModel.load(path) if load_fit else None
-        return KMeansFit(None, fit, k, within_var, total_var, n, p, path)
-
-    @classmethod
-    def find_best_fit(cls, fit_folder):
-        import pandas
-        from koios.fit.kmeans_fit_profile import KMeansFitProfile
-        profile_file = KMeansFitProfile.as_profilefile(fit_folder)
-        tab = pandas.read_csv(profile_file, sep="\t")
-        stat_file = KMeansFit.as_statfile(fit_folder, tab[K_].values[-1])
-        return KMeansFit.load_model(stat_file, True)
