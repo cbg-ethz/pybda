@@ -33,47 +33,6 @@ logger.setLevel(logging.INFO)
 
 
 class FitProfile(ABC):
-    def __init__(self, max, models=None):
-        self.__maximum = max
-        self.__ks = []
-        self.__path = []
-        self.__models = {} if models is None else models
-        self.__loss = numpy.inf
-
-    def __setitem__(self, key, value):
-         self.__models[key] = value
-
-    def __getitem__(self, key):
-        return self.__models[key]
-
-    @property
-    def maximum(self):
-        return self.__maximum
-
-    @property
-    def ks(self):
-        return self.__ks
-
-    @property
-    def path(self):
-        return self.__path
-
-    @property
-    def models(self):
-        return self.__models
-
-    @property
-    def loss(self):
-        return self.__loss
-
-    @loss.setter
-    def loss(self, x):
-        self.__loss = x
-
-    @property
-    def last_loss(self):
-        pass
-
     @classmethod
     def as_profilefile(cls, fl):
         if fl.endswith(".tsv"):
@@ -81,11 +40,6 @@ class FitProfile(ABC):
         else:
             profilefile = fl + "-profile.tsv"
         return profilefile
-
-    def write_files(self, outpath):
-        self._write_path(outpath)
-        self._write_cluster_quantiles(outpath)
-        self._plot(outpath)
 
     def _write_path(self, outpath):
         lrt_file = FitProfile.as_profilefile(outpath)
@@ -111,16 +65,6 @@ class FitProfile(ABC):
 
         write_tsv(data, cs_file, index=False)
 
-    def as_pandas(self):
-        df = [None] * len(self.__path)
-        for i, e in enumerate(self.__path):
-            df[i] = e.values
-        return pandas.DataFrame(df)
-
-    @abstractmethod
-    def _plot(self, outpath):
-        pass
-
     def _cluster_sizes(self, path):
         import glob
         import re
@@ -143,31 +87,3 @@ class FitProfile(ABC):
         data = pandas.concat(map(lambda x: x[1], frames))
 
         return data, labels
-
-    @abstractmethod
-    def _header(self):
-        pass
-
-    @property
-    def current_model(self):
-        return self.__models[self.__ks[-1]]
-
-    @property
-    def max_model(self):
-        if not self.has_max_model():
-            return None
-        return self.__models[self.__maximum]
-
-    def has_max_model(self):
-        return self.__maximum in self.__models.keys()
-
-    def keys(self):
-        return self.__models.keys()
-
-    @abstractmethod
-    def _loss(self, model):
-        pass
-
-    @abstractmethod
-    def add(self, model, left, k, right):
-        pass

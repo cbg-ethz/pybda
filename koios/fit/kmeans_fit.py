@@ -56,16 +56,39 @@ class KMeansFit(ClusteringFit):
     def total_variance(self):
         return self.__total_variance
 
+    @staticmethod
+    def header():
+        return "k\t" \
+               "{}\t".format(WITHIN_VAR_) + \
+               "{}\t".format(EXPL_VAR_) + \
+               "{}\t".format(TOTAL_VAR_) + \
+               "{}\t".format(BIC_) + \
+               "\n"
+
+    def __str__(self):
+        return "k\t" \
+               "{}\t".format(self.__within_cluster_variance) + \
+               "{}\t".format(self.__explained_varianc) + \
+               "{}\t".format(self.__total_variance) + \
+               "{}\t".format(self.__bic) + \
+               "\n"
+
+    @property
+    def values(self):
+        return {
+            K_: self.k,
+            WITHIN_VAR_: self.__within_cluster_variance,
+            EXPL_VAR_: self.__explained_variance,
+            TOTAL_VAR_: self.__total_variance,
+            BIC_: self.__bic
+        }
+
     def write_files(self, outfolder):
         mkdir(outfolder)
         path = os.path.join(outfolder, self._k_fit_path(self.k))
-        logger.info("\n\n\n\n\nasdasdasd1\n\n\n\n")
         self._write_fit(path)
-        logger.info("\n\n\n\n\nasdasdasd2\n\n\n\n")
         self._write_cluster_sizes(path)
-        logger.info("\n\n\n\n\nasdasdasd3\n\n\n\n")
         self._write_cluster_centers(path)
-        logger.info("\n\n\n\n\nasdasdasd4\n\n\n\n")
         self._write_statistics(path)
 
     def _k_fit_path(self, k):
