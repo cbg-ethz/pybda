@@ -33,6 +33,7 @@ from koios.fit.kmeans_transformed import KMeansTransformed
 from koios.globals import TOTAL_VAR_, FEATURES__, KMEANS__
 from koios.io.as_filename import as_ssefile
 from koios.io.io import write_line
+from koios.kmeans_fit_profile import KMeansFitProfile
 from koios.spark.features import n_features, split_vector
 from koios.stats.stats import sum_of_squared_errors
 
@@ -49,20 +50,18 @@ class KMeans(Clustering):
         logger.info("Using data with n={} and p={}".format(n, p))
         data = data.select(FEATURES__)
         tot_var = self._tot_var(split_vector(data, FEATURES__), outpath)
-        models = {}
+        models = KMeansFitProfile()
         for k in self.clusters:
             models[k] = self._fit(k, data, n, p, tot_var, outpath)
         return models
 
-    def _fit(self, k, data, n, p, tot_var, outpath=None):
+    def _fit(self, k, data, n, p, tot_var):
         logger.info("Clustering with K: {}".format(k))
         km = pyspark.ml.clustering.KMeans(k=k, seed=23)
         fit = km.fit(data)
         model = KMeansFit(data=None, fit=fit, k=k,
                           within_cluster_variance=fit.computeCost(data),
                           total_variance=tot_var, n=n, p=p, path=None)
-        if outpath:
-            model.write_files(outpath)
         return model
 
     def transform(self, data, models, outpath):
