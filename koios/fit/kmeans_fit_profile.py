@@ -17,52 +17,51 @@
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
-
-
+import glob
 import logging
+import re
+from collections import OrderedDict
 
-import numpy
 import pandas
 
-from koios.globals import WITHIN_VAR_, EXPL_VAR_, TOTAL_VAR_, K_
+from koios.fit.clustering_fit_profile import FitProfile
+from koios.globals import K_
 from koios.plot.cluster_plot import plot_profile, plot_cluster_sizes
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class KMeansFitProfile:
+class KMeansFitProfile(FitProfile):
     def __init__(self):
-        self.__models = {}
+        self.__models = OrderedDict()
 
     def __getitem__(self, key):
         return self.__models[key]
 
-    @classmethod
-    def as_profilefile(cls, fl):
-        if fl.endswith(".tsv"):
-            profilefile = fl.replace(".tsv", "-profile.tsv")
-        else:
-            profilefile = fl + "-profile.tsv"
-        return profilefile
+    def __setitem__(self, key, value):
+         self.__models[key] = value
 
     def write_files(self, outpath):
         for model in self.__models.values():
             model.write_files(outpath)
-        self._write_variance_path(outpath)
+        self._write_profile(outpath)
         self._plot(outpath)
 
-    def _write_variance_path(self, outpath):
-        lrt_file = KMeansFitProfile.as_profilefile(outpath)
+    def _write_profile(self, outpath):
+        lrt_file = FitProfile.as_profilefile(outpath)
         logger.info("Writing kmeans fit profile to {}".format(lrt_file))
         with open(lrt_file, "w") as fh:
-            fh.write(self._header())
-            for el in self.__variance_path:
+            is_first = True
+            for _, el in self.__models.items():
+                if is_first:
+                    fh.write(el.header())
+                    is_first = False
                 fh.write(str(el))
 
     def as_pandas(self):
-        df = [None] * len(self.__variance_path)
-        for i, e in enumerate(self.__variance_path):
+        df = [None] * len(self.__models)
+        for i, e in self.__models.items():
             df[i] = e.values
         return pandas.DataFrame(df)
 
@@ -74,9 +73,6 @@ class KMeansFitProfile:
               outpath + "-cluster_sizes-histogram." + suf, data, labels)
 
     def _cluster_sizes(self, path):
-        import glob
-        import re
-
         fls = glob.glob(path + "*/*cluster_sizes.tsv")
         reg = re.compile(".*K(\d+)_cluster_sizes.tsv")
         ll = self.as_pandas()
@@ -96,14 +92,6 @@ class KMeansFitProfile:
 
         return data, labels
 
-    @staticmethod
-    def _header():
-        return "k\t" \
-               "{}\t".format(WITHIN_VAR_) + \
-               "{}\t".format(EXPL_VAR_) + \
-               "{}\t".format(TOTAL_VAR_) + \
-               "percent_loss\n"
-
     def keys(self):
         return self.__models.keys()
 
@@ -112,30 +100,3 @@ class KMeansFitProfile:
         self.__variance_path.append(self.Element(k, model))
         return self
 
-    class Element:
-        def __init__(self, k, model, loss):
-            self.__K = k
-            self.__model = model
-
-        @property
-        def model(self):
-            return self.__model
-
-        @property
-        def values(self):
-            return {
-                K_: self.__current,
-                WITHIN_VAR_: self.__model.within_cluster_variance,
-                EXPL_VAR_: self.__model.explained_variance,
-                TOTAL_VAR_: self.__model.total_variance
-            }
-
-        def __repr__(self):
-            return self.__str__()
-
-        def __str__(self):
-            return "\t{}\t{}\t{}\t{}\n".format(
-              self.__K,
-              self.__model.within_cluster_variance,
-              self.__model.explained_variance,
-              self.__model.total_variance)
