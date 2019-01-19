@@ -44,17 +44,13 @@ class KMeansFit(ClusteringFit):
         self.__bic = within_cluster_variance + scipy.log(n) * (k * p + 1)
         self.__path = path
 
-    @property
-    def explained_variance(self):
-        return self.__explained_variance
-
-    @property
-    def within_cluster_variance(self):
-        return self.__within_cluster_variance
-
-    @property
-    def total_variance(self):
-        return self.__total_variance
+    def __str__(self):
+        return "{}\t".format(self.k) + \
+               "{}\t".format(self.__within_cluster_variance) + \
+               "{}\t".format(self.__explained_variance) + \
+               "{}\t".format(self.__total_variance) + \
+               "{}\t".format(self.__bic) + \
+               "\n"
 
     @staticmethod
     def header():
@@ -63,14 +59,6 @@ class KMeansFit(ClusteringFit):
                "{}\t".format(EXPL_VAR_) + \
                "{}\t".format(TOTAL_VAR_) + \
                "{}\t".format(BIC_) + \
-               "\n"
-
-    def __str__(self):
-        return "{}\t".format(self.k) + \
-               "{}\t".format(self.__within_cluster_variance) + \
-               "{}\t".format(self.__explained_variance) + \
-               "{}\t".format(self.__total_variance) + \
-               "{}\t".format(self.__bic) + \
                "\n"
 
     @property
@@ -82,6 +70,18 @@ class KMeansFit(ClusteringFit):
             TOTAL_VAR_: self.__total_variance,
             BIC_: self.__bic
         }
+
+    @property
+    def explained_variance(self):
+        return self.__explained_variance
+
+    @property
+    def within_cluster_variance(self):
+        return self.__within_cluster_variance
+
+    @property
+    def total_variance(self):
+        return self.__total_variance
 
     def write_files(self, outfolder):
         mkdir(outfolder)

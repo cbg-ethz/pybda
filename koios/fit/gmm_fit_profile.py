@@ -25,7 +25,7 @@ import matplotlib.pyplot as plt
 import re
 
 from koios.fit.clustering_fit_profile import FitProfile
-from koios.globals import K_, LOGLIK_
+from koios.globals import K_, LOGLIK_, BIC_
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -60,7 +60,7 @@ class GMMFitProfile(FitProfile):
         data = pandas.concat(map(lambda x: x[1], frames))
         return data, labels
 
-    def _plot_profile(file_name, profile):
+    def _plot_profile(self, file_name, profile):
         ks = list(map(str, profile[K_].values))
         plt.figure(figsize=(7, 7), dpi=720)
         ax = plt.subplot(211)

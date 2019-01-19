@@ -30,7 +30,7 @@ from koios.fit.kmeans_fit import KMeansFit
 from koios.fit.kmeans_fit_profile import KMeansFitProfile
 from koios.fit.kmeans_transformed import KMeansTransformed
 from koios.globals import FEATURES__, KMEANS__
-from koios.spark.features import n_features, split_vector
+from koios.spark.features import split_vector
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

@@ -35,6 +35,10 @@ class ClusteringFit:
         self.__p = p
         self.__k = k
 
+    @abstractmethod
+    def __str__(self):
+        pass
+
     def transform(self, data):
         return self.__fit.transform(data)
 
@@ -62,13 +66,25 @@ class ClusteringFit:
     def write_files(self, outfolder):
         pass
 
-    def as_statfile(self, fit_folder, k):
-        return os.path.join(
-          fit_folder, self._k_fit_path(k) + "_statistics.tsv")
-
     @abstractmethod
     def _k_fit_path(self, k):
         pass
+
+    @abstractmethod
+    def _write_statistics(self, outfile):
+        pass
+
+    @abstractmethod
+    def header(self):
+        pass
+
+    @abstractmethod
+    def values(self):
+        pass
+
+    def as_statfile(self, fit_folder, k):
+        return os.path.join(
+          fit_folder, self._k_fit_path(k) + "_statistics.tsv")
 
     def _write_fit(self, outfolder):
         logger.info("Writing cluster fit to: {}".format(outfolder))
@@ -80,15 +96,3 @@ class ClusteringFit:
         with open(comp_files, 'w') as fh:
             for c in self.__fit.summary.clusterSizes:
                 fh.write("{}\n".format(c))
-
-    @abstractmethod
-    def _write_statistics(self, outfile):
-        pass
-
-    @abstractmethod
-    def load_model(self, statistics_file, load_fit=False):
-        pass
-
-    @classmethod
-    def find_best_fit(cls, fit_folder):
-        pass

@@ -51,6 +51,30 @@ class GMMFit(ClusteringFit):
                           2 * self.__null_loglik
         self.__path = path
 
+    def __str__(self):
+        return "{}\t".format(self.k) + \
+               "{}\t".format(self.__loglik) + \
+               "{}\t".format(self.__null_loglik) + \
+               "{}\t".format(self.__bic) + \
+               "\n"
+
+    @staticmethod
+    def header():
+        return "k\t" \
+               "{}\t".format(LOGLIK_) + \
+               "{}\t".format(NULL_LOGLIK_) + \
+               "{}\t".format(BIC_) + \
+               "\n"
+
+    @property
+    def values(self):
+        return {
+            K_: self.k,
+            LOGLIK_: self.__loglik,
+            NULL_LOGLIK_: self.__null_loglik,
+            BIC_: self.__bic
+        }
+
     @property
     def bic(self):
         return self.__bic
@@ -105,30 +129,3 @@ class GMMFit(ClusteringFit):
               self.n,
               self.p,
               outfile))
-
-    @classmethod
-    def load_model(cls, statistics_file, load_fit=False):
-        import pandas
-        from pyspark.ml.clustering import GaussianMixtureModel
-        logger.info(statistics_file)
-        tab = pandas.read_csv(statistics_file, sep="\t")
-        n, k, p = tab[N_][0], tab[K_][0], tab[P_][0]
-        bic = tab[BIC_][0]
-        loglik = tab[LOGLIK_][0]
-        null_loglik = tab[NULL_LOGLIK_][0]
-        path = tab[PATH_][0]
-        logger.info("Loading model:K={}, P={},"
-                    " loglik={}, "
-                    "bic={} from file={}"
-                    .format(k, p, loglik, bic, statistics_file))
-        fit = GaussianMixtureModel.load(path) if load_fit else None
-        return GMMFit(None, fit, k, None, None, loglik, null_loglik, n, p, path)
-
-    @classmethod
-    def find_best_fit(cls, fit_folder):
-        import pandas
-        from koios.fit.gmm_fit_profile import GMMFitProfile
-        profile_file = GMMFitProfile.as_profilefile(fit_folder)
-        tab = pandas.read_csv(profile_file, sep="\t")
-        stat_file = GMMFit.as_statfile(fit_folder, tab[K_].values[-1])
-        return GMMFit.load_model(stat_file, True)
