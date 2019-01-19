@@ -25,7 +25,7 @@ from collections import OrderedDict
 import pandas
 
 from koios.fit.clustering_fit_profile import FitProfile
-from koios.globals import K_
+from koios.globals import K_, EXPL_VAR_
 from koios.plot.cluster_plot import plot_profile, plot_cluster_sizes
 
 logger = logging.getLogger(__name__)
@@ -42,9 +42,11 @@ class KMeansFitProfile(FitProfile):
     def __setitem__(self, key, value):
            self.__models[key] = value
 
+    def __iter__(self):
+        for i, model in self.__models.items():
+            yield i, model
+
     def write_files(self, outpath):
-        for model in self.__models.values():
-            model.write_files(outpath)
         self._write_profile(outpath)
         self._plot(outpath)
 
@@ -69,8 +71,7 @@ class KMeansFitProfile(FitProfile):
         data, labels = self._cluster_sizes(outpath)
         pand = self.as_pandas()
         for suf in ["png", "pdf", "svg", "eps"]:
-            logger.info(pand)
-            plot_profile(outpath + "-profile." + suf, pand, EXPL_VARL)
+            plot_profile(outpath + "-profile." + suf, pand)
             plot_cluster_sizes(
               outpath + "-cluster_sizes-histogram." + suf, data, labels)
 
@@ -78,8 +79,6 @@ class KMeansFitProfile(FitProfile):
         fls = glob.glob(path + "*/*cluster_sizes.tsv")
         reg = re.compile(".*K(\d+)_cluster_sizes.tsv")
         ll = self.as_pandas()
-
-        logger.info("asdas")
         logger.info(len(fls))
         frames = [None] * len(fls)
         for i, fl in enumerate(fls):
@@ -93,7 +92,6 @@ class KMeansFitProfile(FitProfile):
 
         labels = list(map(lambda x: "K = {}".format(x[0]), frames))
         data = pandas.concat(map(lambda x: x[1], frames))
-        logger.info("asdas")
         return data, labels
 
     def keys(self):
