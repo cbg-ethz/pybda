@@ -225,11 +225,12 @@ rule gmm:
     input:
         expand("{infile}", infile=koios_config[CLUSTERING_INFILE__])
     output:
-        directory(expand("{outfolder}/{clust}-fit",
+        directory(expand("{outfolder}/{clust}",
                          clust=koios_config[CLUSTERING__],
                          outfolder=koios_config[OUTFOLDER__]))
     params:
+        out = koios_config[OUTFOLDER__] + "/gmm",
         params = " ".join([x for x in koios_config[SPARKPARAMS__]]),
         kme = os.path.join(dirname(), "gmm.py")
     run:
-        _run_clusterfit(params.params, params.kme, input, output)
+        _run_clustering(params.params, params.kme, input, params.out)

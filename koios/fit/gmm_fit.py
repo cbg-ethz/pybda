@@ -47,14 +47,14 @@ class GMMFit(ClusteringFit):
         self.__null_n_params = p + p * (p + 1) / 2
         self.__bic = scipy.log(n) * self.__n_params - \
                      2 * self.__loglik
-        self.__null_bic = scipy.log(n) * self.__null_n_params - \
-                          2 * self.__null_loglik
+        self.__null_bic = scipy.nan #scipy.log(n) * self.__null_n_params - \
+                          #2 * self.__null_loglik
         self.__path = path
 
     def __str__(self):
         return "{}\t".format(self.k) + \
                "{}\t".format(self.__loglik) + \
-               "{}\t".format(self.__null_loglik) + \
+               #"{}\t".format(self.__null_loglik) + \
                "{}\t".format(self.__bic) + \
                "\n"
 
@@ -62,7 +62,7 @@ class GMMFit(ClusteringFit):
     def header():
         return "k\t" \
                "{}\t".format(LOGLIK_) + \
-               "{}\t".format(NULL_LOGLIK_) + \
+               #"{}\t".format(NULL_LOGLIK_) + \
                "{}\t".format(BIC_) + \
                "\n"
 

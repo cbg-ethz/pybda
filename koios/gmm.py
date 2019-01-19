@@ -49,9 +49,9 @@ class GMM(Clustering):
     def fit(self, data, outpath):
         n, p = self.dimension(data)
         data = data.select(FEATURES__)
-        null_loglik = self.loglik(split_vector(data, FEATURES__), outpath)
+        # null_loglik = self.loglik(split_vector(data, FEATURES__), outpath)
         models = GMMFitProfile()
-        return self._fit(models, outpath, data, n, p, null_loglik)
+        return self._fit(models, outpath, data, n, p, scipy.nan)
 
     def _fit_one(self, k, data, n, p, null_loglik):
         logger.info("Clustering with K: {}".format(k))
