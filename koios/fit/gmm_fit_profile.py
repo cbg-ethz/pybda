@@ -39,7 +39,7 @@ class GMMFitProfile(FitProfile):
         data, labels = self._cluster_sizes(outpath)
         pand = self.as_pandas()
         for suf in ["png", "pdf", "svg", "eps"]:
-            self._plot_profile(outpath + "-profile." + suf, pand, LOGLIK_)
+            self._plot_profile(outpath + "-profile." + suf, pand)
             self._plot_cluster_sizes(
               outpath + "-cluster_sizes-histogram." + suf, data, labels)
 
@@ -61,6 +61,7 @@ class GMMFitProfile(FitProfile):
         return data, labels
 
     def _plot_profile(self, file_name, profile):
+        logger.info("Plotting profile to: {}".format(file_name))
         ks = list(map(str, profile[K_].values))
         plt.figure(figsize=(7, 7), dpi=720)
         ax = plt.subplot(211)
@@ -70,19 +71,19 @@ class GMMFitProfile(FitProfile):
         ax.spines["right"].set_visible(False)
         ax.set_ylabel('Negative log-likelihood', fontsize=12)
         ax.set_yticklabels([])
-        bar = plt.bar(ks, profile[LOGLIK_].values, color="black", alpha=.75,
+        bar = plt.bar(ks, -profile[LOGLIK_].values, color="black", alpha=.75,
                       width=0.5)
         for rect in bar:
             height = rect.get_height()
             plt.text(rect.get_x() + rect.get_width() / 2.0, height,
-                     '{}%'.format(int(float(height) * 100)), ha='center',
+                     '{}'.format(int(height)), ha='center',
                      va='bottom', fontsize="medium")
 
         ax = plt.subplot(212)
         ax.grid(linestyle="")
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
-        ax.set_xlabel('#clusters', fontsize=15)
+        ax.set_xlabel('#components', fontsize=15)
         ax.set_ylabel('BIC', fontsize=12)
         ax.set_yticklabels([])
         bar = plt.bar(ks, profile[BIC_].values, color="black", alpha=.75,
@@ -92,5 +93,4 @@ class GMMFitProfile(FitProfile):
             plt.text(rect.get_x() + rect.get_width() / 2.0, height,
                      '{}'.format(int(height)), ha='center', fontsize="small",
                      va='bottom')
-
         plt.savefig(file_name, dpi=720)

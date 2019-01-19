@@ -46,6 +46,10 @@ class FitProfile(ABC):
     def __setitem__(self, key, value):
         self.__models[key] = value
 
+    def __iter__(self):
+        for k, m in self.models.items():
+            yield k, m
+
     @property
     def models(self):
         return self.__models
@@ -88,6 +92,7 @@ class FitProfile(ABC):
         pass
 
     def _plot_cluster_sizes(self, file_name, data, labels):
+        logger.info("Plotting cluster sizes to: {}".format(file_name))
         _, ax = plt.subplots(figsize=(7, 3))
         fig, axes = joypy.joyplot(data, by=K_, hist="True", ax=ax,
                                   bins=50, overlap=0, grid="y", color="grey",
