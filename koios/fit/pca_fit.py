@@ -23,6 +23,8 @@ import logging
 import os
 
 from pandas import DataFrame
+
+from koios.globals import FEATURES_
 from koios.io.io import write_parquet
 from koios.plot.descriptive import scatter, histogram
 
@@ -44,8 +46,12 @@ class PCAFit:
         self.__n_components = n_components
         self.__loadings = loadings
         self.__sds = sds
-        self.__suffix = "pca"
+        self.__kind = "pca"
         self.__features = feature_columns(self.__data)
+
+    @property
+    def kind(self):
+        return self.__kind
 
     @property
     def data(self):
@@ -73,7 +79,7 @@ class PCAFit:
         plot_fold = outfolder + "-plot"
         if not os.path.exists(plot_fold):
             os.mkdir(plot_fold)
-        self._plot(os.path.join(plot_fold, self.__suffix))
+        self._plot(os.path.join(plot_fold, self.kind))
 
     def _write_loadings(self, outfile):
         logger.info("Writing loadings to file")
@@ -84,7 +90,7 @@ class PCAFit:
     def _plot(self, outfile):
         logger.info("Plotting")
         cev = cumulative_explained_variance(self.sds)
-        subsamp = as_pandas(split_vector(sample(self.data, 10000), "features"))
+        subsamp = as_pandas(split_vector(sample(self.data, 10000), FEATURES_))
         for suf in ["png", "pdf", "svg", "eps"]:
             plot_cumulative_variance(
               outfile + "-loadings-explained_variance." + suf,
