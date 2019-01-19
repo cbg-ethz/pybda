@@ -19,19 +19,21 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'import glob
 
-import glob
 import logging
-import re
-from abc import ABC
+from abc import ABC, abstractmethod
 from collections import OrderedDict
 
 import pandas
+import joypy
+import matplotlib.pyplot as plt
 
-from koios.globals import K_
-from koios.plot.cluster_plot import plot_profile, plot_cluster_sizes
+from koios.globals import PLOT_FONT_, PLOT_FONT_FAMILY_, K_
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+plt.rcParams['font.family'] = PLOT_FONT_FAMILY_
+plt.rcParams['font.sans-serif'] = [PLOT_FONT_]
 
 
 class FitProfile(ABC):
@@ -71,30 +73,9 @@ class FitProfile(ABC):
             profilefile = fl + "-profile.tsv"
         return profilefile
 
-    def _plot(self, outpath):
-        data, labels = self._cluster_sizes(outpath)
-        pand = self.as_pandas()
-        for suf in ["png", "pdf", "svg", "eps"]:
-            plot_profile(outpath + "-profile." + suf, pand)
-            plot_cluster_sizes(
-              outpath + "-cluster_sizes-histogram." + suf, data, labels)
-
-    def _cluster_sizes(self, path):
-        fls = glob.glob(path + "*/*cluster_sizes.tsv")
-        reg = re.compile(".*K(\d+)_cluster_sizes.tsv")
-        ll = self.as_pandas()
-        logger.info(len(fls))
-        frames = [None] * len(fls)
-        for i, fl in enumerate(fls):
-            t = pandas.read_csv(fl, sep="\t", header=-1, names="c")
-            idx = int(reg.match(fl).group(1))
-            t[K_] = str(idx).zfill(9)
-            frames[i] = [idx, t]
-        frames = sorted(frames, key=lambda x: x[0])
-        frames = list(filter(lambda x: x[0] in ll["k"].values, frames))
-        labels = list(map(lambda x: "K = {}".format(x[0]), frames))
-        data = pandas.concat(map(lambda x: x[1], frames))
-        return data, labels
+    @abstractmethod
+    def _cluster_sizes(self):
+        pass
 
     def as_pandas(self):
         df = [None] * len(self.models)
@@ -102,11 +83,16 @@ class FitProfile(ABC):
             df[i] = e.values
         return pandas.DataFrame(df)
 
-    def _write_path(self, outpath):
-        lrt_file = FitProfile.as_profilefile(outpath)
-        logger.info("Writing profile to {}".format(lrt_file))
-        with open(lrt_file, "w") as fh:
-            fh.write(self._header())
-            for el in self.path:
-                fh.write(str(el))
+    @abstractmethod
+    def _plot_profile(self, outpath, data):
+        pass
 
+    def _plot_cluster_sizes(self, file_name, data, labels):
+        _, ax = plt.subplots(figsize=(7, 3))
+        fig, axes = joypy.joyplot(data, by=K_, hist="True", ax=ax,
+                                  bins=50, overlap=0, grid="y", color="grey",
+                                  labels=labels)
+        for x in axes:
+            x.spines['bottom'].set_color('grey')
+            x.grid(color="grey", axis="y")
+        plt.savefig(file_name, dpi=720)

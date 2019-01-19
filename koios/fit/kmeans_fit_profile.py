@@ -17,15 +17,15 @@
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
+
 import glob
 import logging
-import re
-from collections import OrderedDict
-
+import matplotlib.pyplot as plt
 import pandas
+import re
 
 from koios.fit.clustering_fit_profile import FitProfile
-from koios.plot.cluster_plot import plot_profile, plot_cluster_sizes
+from koios.globals import K_, EXPL_VAR_, BIC_
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -35,16 +35,13 @@ class KMeansFitProfile(FitProfile):
     def __init__(self):
         super().__init__()
 
-    def _write_profile(self, outpath):
-        lrt_file = FitProfile.as_profilefile(outpath)
-        logger.info("Writing kmeans fit profile to {}".format(lrt_file))
-        with open(lrt_file, "w") as fh:
-            is_first = True
-            for _, el in self.__models.items():
-                if is_first:
-                    fh.write(el.header())
-                    is_first = False
-                fh.write(str(el))
+    def _plot(self, outpath):
+        data, labels = self._cluster_sizes(outpath)
+        pand = self.as_pandas()
+        for suf in ["png", "pdf", "svg", "eps"]:
+            self._plot_profile(outpath + "-profile." + suf, pand)
+            self._plot_cluster_sizes(
+              outpath + "-cluster_sizes-histogram." + suf, data, labels)
 
     def _cluster_sizes(self, path):
         fls = glob.glob(path + "*/*cluster_sizes.tsv")
@@ -65,4 +62,37 @@ class KMeansFitProfile(FitProfile):
         data = pandas.concat(map(lambda x: x[1], frames))
         return data, labels
 
+    def _plot_profile(self, file_name, profile):
+        ks = list(map(str, profile[K_].values))
+        plt.figure(figsize=(7, 7), dpi=720)
+        ax = plt.subplot(211)
 
+        ax.grid(linestyle="")
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.set_ylabel('Explained variance in %', fontsize=12)
+        ax.set_yticklabels([])
+        bar = plt.bar(ks, profile[EXPL_VAR_].values, color="black", alpha=.75,
+                      width=0.5)
+        for rect in bar:
+            height = rect.get_height()
+            plt.text(rect.get_x() + rect.get_width() / 2.0, height,
+                     '{}%'.format(int(float(height) * 100)), ha='center',
+                     va='bottom', fontsize="medium")
+
+        ax = plt.subplot(212)
+        ax.grid(linestyle="")
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.set_xlabel('#clusters', fontsize=15)
+        ax.set_ylabel('BIC', fontsize=12)
+        ax.set_yticklabels([])
+        bar = plt.bar(ks, profile[BIC_].values, color="black", alpha=.75,
+                      width=0.5)
+        for rect in bar:
+            height = rect.get_height()
+            plt.text(rect.get_x() + rect.get_width() / 2.0, height,
+                     '{}'.format(int(height)), ha='center', fontsize="small",
+                     va='bottom')
+
+        plt.savefig(file_name, dpi=720)
