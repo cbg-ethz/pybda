@@ -18,14 +18,14 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
+import glob
 import logging
-
-import scipy
+import pandas
+import matplotlib.pyplot as plt
+import re
 
 from koios.fit.clustering_fit_profile import FitProfile
-from koios.globals import K_, LOGLIK_, BIC_, NULL_LOGLIK_
-from koios.plot.cluster_plot import plot_cluster_sizes, plot_profile
+from koios.globals import K_, LOGLIK_
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -35,18 +35,62 @@ class GMMFitProfile(FitProfile):
     def __init__(self):
         super().__init__()
 
-    def add(self, model, left, k, right):
-        self.ks.append(k)
-        self.models[k] = model
-        self.loss = self._loss(model)
-        self.path.append(self.GMMElement(left, k, right, model, self.loss))
-        logger.info("Loss for K={} to {}".format(k, self.loss))
-        return self
-
     def _plot(self, outpath):
         data, labels = self._cluster_sizes(outpath)
+        pand = self.as_pandas()
         for suf in ["png", "pdf", "svg", "eps"]:
-            plot_profile(outpath + "-profile." + suf,
-                         self.as_pandas(), BIC_, BIC_)
-            plot_cluster_sizes(
+            self._plot_profile(outpath + "-profile." + suf, pand, LOGLIK_)
+            self._plot_cluster_sizes(
               outpath + "-cluster_sizes-histogram." + suf, data, labels)
+
+    def _cluster_sizes(self, path):
+        fls = glob.glob(path + "*/*cluster_sizes.tsv")
+        reg = re.compile(".*K(\d+)_cluster_sizes.tsv")
+        ll = self.as_pandas()
+        logger.info(len(fls))
+        frames = [None] * len(fls)
+        for i, fl in enumerate(fls):
+            t = pandas.read_csv(fl, sep="\t", header=-1, names="c")
+            idx = int(reg.match(fl).group(1))
+            t[K_] = str(idx).zfill(9)
+            frames[i] = [idx, t]
+        frames = sorted(frames, key=lambda x: x[0])
+        frames = list(filter(lambda x: x[0] in ll["k"].values, frames))
+        labels = list(map(lambda x: "K = {}".format(x[0]), frames))
+        data = pandas.concat(map(lambda x: x[1], frames))
+        return data, labels
+
+    def _plot_profile(file_name, profile):
+        ks = list(map(str, profile[K_].values))
+        plt.figure(figsize=(7, 7), dpi=720)
+        ax = plt.subplot(211)
+
+        ax.grid(linestyle="")
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.set_ylabel('Negative log-likelihood', fontsize=12)
+        ax.set_yticklabels([])
+        bar = plt.bar(ks, profile[LOGLIK_].values, color="black", alpha=.75,
+                      width=0.5)
+        for rect in bar:
+            height = rect.get_height()
+            plt.text(rect.get_x() + rect.get_width() / 2.0, height,
+                     '{}%'.format(int(float(height) * 100)), ha='center',
+                     va='bottom', fontsize="medium")
+
+        ax = plt.subplot(212)
+        ax.grid(linestyle="")
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.set_xlabel('#clusters', fontsize=15)
+        ax.set_ylabel('BIC', fontsize=12)
+        ax.set_yticklabels([])
+        bar = plt.bar(ks, profile[BIC_].values, color="black", alpha=.75,
+                      width=0.5)
+        for rect in bar:
+            height = rect.get_height()
+            plt.text(rect.get_x() + rect.get_width() / 2.0, height,
+                     '{}'.format(int(height)), ha='center', fontsize="small",
+                     va='bottom')
+
+        plt.savefig(file_name, dpi=720)
