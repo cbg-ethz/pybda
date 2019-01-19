@@ -82,7 +82,7 @@ def outliers(config, spark):
 @click.argument("spark", type=str)
 def clustering(config, spark):
     """
-    Do a KMeans clustering fit of a data set.
+    Do a clustering fit of a data set.
     """
 
     cl = _get_from_config(config, "clustering")
