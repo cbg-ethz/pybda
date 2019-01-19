@@ -19,11 +19,16 @@
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 import glob
 import logging
+import pandas
+import pathlib
 from abc import abstractmethod
 
-from koios.globals import GMM__, FEATURES__
-from koios.spark.features import n_features, split_vector
+from koios.globals import GMM__, FEATURES__, TOTAL_VAR_
+from koios.io.as_filename import as_ssefile
+from koios.io.io import write_line
+from koios.spark.features import n_features
 from koios.spark_model import SparkModel
+from koios.stats.stats import sum_of_squared_errors
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -57,9 +62,9 @@ class Clustering(SparkModel):
     def threshold(self):
         return self.__threshold
 
-    @abstractmethod
-    def fit_transform(self):
-        pass
+    def fit_transform(self, data, outpath):
+        models = self.fit(data, outpath)
+        self.transform(data, models, outpath)
 
     @abstractmethod
     def fit(self):
@@ -69,3 +74,32 @@ class Clustering(SparkModel):
     def _check_transform(models, fit_folder):
         if fit_folder is None and models is None:
             raise ValueError("Provide either 'models' or a 'models_folder'")
+
+    def tot_var(data, outpath=None):
+        if outpath:
+            sse_file = as_ssefile(outpath)
+        else:
+            sse_file = None
+        if sse_file and pathlib.Path(sse_file).exists():
+            logger.info("Loading variance file")
+            tab = pandas.read_csv(sse_file, sep="\t")
+            sse = tab[TOTAL_VAR_][0]
+        else:
+            logger.info("Computing variance")
+            sse = sum_of_squared_errors(data)
+            if sse_file:
+                write_line("{}\n{}\n".format(TOTAL_VAR_, sse), sse_file)
+        logger.info("\t{}: {}".format(TOTAL_VAR_, sse))
+        return sse
+
+    def dimension(self, data):
+        n, p = data.count(), n_features(data, FEATURES__)
+        logger.info("Using data with n={} and p={}".format(n, p))
+        return n, p
+
+    def _fit(self, models, outpath, data, n, p, stat):
+        for k in self.clusters:
+            models[k] = self._fit(k, data, n, p, stat)
+            models[k].write_files(outpath)
+        models.write_files(outpath)
+        return models

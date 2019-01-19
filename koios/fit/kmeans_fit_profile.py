@@ -25,7 +25,6 @@ from collections import OrderedDict
 import pandas
 
 from koios.fit.clustering_fit_profile import FitProfile
-from koios.globals import K_, EXPL_VAR_
 from koios.plot.cluster_plot import plot_profile, plot_cluster_sizes
 
 logger = logging.getLogger(__name__)
@@ -34,21 +33,7 @@ logger.setLevel(logging.INFO)
 
 class KMeansFitProfile(FitProfile):
     def __init__(self):
-        self.__models = OrderedDict()
-
-    def __getitem__(self, key):
-        return self.__models[key]
-
-    def __setitem__(self, key, value):
-           self.__models[key] = value
-
-    def __iter__(self):
-        for i, model in self.__models.items():
-            yield i, model
-
-    def write_files(self, outpath):
-        self._write_profile(outpath)
-        self._plot(outpath)
+        super().__init__()
 
     def _write_profile(self, outpath):
         lrt_file = FitProfile.as_profilefile(outpath)
@@ -60,20 +45,6 @@ class KMeansFitProfile(FitProfile):
                     fh.write(el.header())
                     is_first = False
                 fh.write(str(el))
-
-    def as_pandas(self):
-        df = [None] * len(self.__models)
-        for i, e in enumerate(self.__models.values()):
-            df[i] = e.values
-        return pandas.DataFrame(df)
-
-    def _plot(self, outpath):
-        data, labels = self._cluster_sizes(outpath)
-        pand = self.as_pandas()
-        for suf in ["png", "pdf", "svg", "eps"]:
-            plot_profile(outpath + "-profile." + suf, pand)
-            plot_cluster_sizes(
-              outpath + "-cluster_sizes-histogram." + suf, data, labels)
 
     def _cluster_sizes(self, path):
         fls = glob.glob(path + "*/*cluster_sizes.tsv")
@@ -94,11 +65,4 @@ class KMeansFitProfile(FitProfile):
         data = pandas.concat(map(lambda x: x[1], frames))
         return data, labels
 
-    def keys(self):
-        return self.__models.keys()
-
-    def add(self, k, model):
-        self.__models[k] = model
-        self.__variance_path.append(self.Element(k, model))
-        return self
 
