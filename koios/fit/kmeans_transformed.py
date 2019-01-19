@@ -21,11 +21,14 @@
 
 import glob
 import logging
+import os
+
 import pandas
 import pathlib
 
 from pyspark.sql.functions import col
 
+from koios.globals import FEATURES__
 from koios.io.io import write_parquet, mkdir, rm
 from koios.spark.features import split_vector
 
@@ -37,12 +40,12 @@ class KMeansTransformed:
     def __init__(self, data):
         self.__data = data
 
-    def write_files(self, outfolder):
-        import os
-        if not os.path.exists(outfolder):
-            os.mkdir(outfolder)
-        write_parquet(self.__data, outfolder)
-        self._write_clusters(outfolder)
+    def write_files(self, outpath, k):
+        outpath = outpath + "-transformed-K{}".format(k)
+        if not os.path.exists(outpath):
+            os.mkdir(outpath)
+        write_parquet(self.__data, outpath)
+        self._write_clusters(outpath)
 
     @property
     def data(self):
@@ -52,12 +55,12 @@ class KMeansTransformed:
     def data(self, data):
         self.__data = data
 
-    def _write_clusters(self, outfolder, suff="", sort_me=True):
-        outpath = outfolder + "-clusters" + str(suff)
+    def _write_clusters(self, outpath, suff="", sort_me=True):
+        outpath = outpath + "-clusters" + str(suff)
         logger.info("Writing clusters to: {}".format(outpath))
-
-        mkdir(outpath)
-        data = split_vector(self.__data, "features")
+        if not os.path.exists(outpath):
+            os.mkdir(outpath)
+        data = split_vector(self.__data, FEATURES__)
 
         if sort_me:
             data.sort(col('prediction')).write.csv(

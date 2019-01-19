@@ -53,6 +53,7 @@ class KMeans(Clustering):
         models = KMeansFitProfile()
         for k in self.clusters:
             models[k] = self._fit(k, data, n, p, tot_var)
+            models[k].write_files(outpath)
         models.write_files(outpath)
         return models
 
@@ -66,14 +67,13 @@ class KMeans(Clustering):
         return model
 
     def transform(self, data, models, outpath):
-        for _, fit in models.items():
+        for k, fit in models:
             m = KMeansTransformed(fit.transform(data))
-            m.write_files(outpath)
+            m.write_files(outpath, k)
 
     def fit_transform(self, data, outpath):
         models = self.fit(data, outpath)
-
-    #self.transform(data, models, outpath)
+        self.transform(data, models, outpath)
 
     @staticmethod
     def _tot_var(data, outpath=None):
