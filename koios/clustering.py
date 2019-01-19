@@ -75,7 +75,7 @@ class Clustering(SparkModel):
         if fit_folder is None and models is None:
             raise ValueError("Provide either 'models' or a 'models_folder'")
 
-    def tot_var(data, outpath=None):
+    def tot_var(self, data, outpath=None):
         if outpath:
             sse_file = as_ssefile(outpath)
         else:
@@ -99,7 +99,7 @@ class Clustering(SparkModel):
 
     def _fit(self, models, outpath, data, n, p, stat):
         for k in self.clusters:
-            models[k] = self._fit(k, data, n, p, stat)
+            models[k] = self._fit_one(k, data, n, p, stat)
             models[k].write_files(outpath)
         models.write_files(outpath)
         return models
