@@ -32,28 +32,8 @@ logger.setLevel(logging.INFO)
 
 
 class GMMFitProfile(FitProfile):
-    def __init__(self, max, models=None):
-        super().__init__(max, models)
-
-    @staticmethod
-    def _header():
-        return "left_bound\t" \
-               "k\t" \
-               "right_bound\t" \
-               "{}\t".format(LOGLIK_) + \
-               "{}\t".format(BIC_) + \
-               "{}\t".format(NULL_LOGLIK_) + \
-               "\n"
-
-    def _loss(self, model):
-        if self.has_max_model():
-            return model.bic
-        return scipy.inf
-
-    @property
-    def last_loss(self):
-        pass
-        return self.models[self.ks[-2]].bic
+    def __init__(self):
+        super().__init__()
 
     def add(self, model, left, k, right):
         self.ks.append(k)
@@ -70,39 +50,3 @@ class GMMFitProfile(FitProfile):
                          self.as_pandas(), BIC_, BIC_)
             plot_cluster_sizes(
               outpath + "-cluster_sizes-histogram." + suf, data, labels)
-
-    class GMMElement:
-        def __init__(self, left, k, right, model, loss):
-            self.__left_boundary = left
-            self.__current = k
-            self.__right_boundary = right
-            self.__K = k
-            self.__model = model
-            self.__loss = loss
-
-        @property
-        def model(self):
-            return self.__model
-
-        @property
-        def values(self):
-            return {
-                'left_bound': self.__left_boundary,
-                K_: self.__current,
-                'right_bound': self.__right_boundary,
-                LOGLIK_: self.__model.loglik,
-                BIC_: self.__model.bic,
-                NULL_LOGLIK_: self.__model.null_loglik
-            }
-
-        def __repr__(self):
-            return self.__str__()
-
-        def __str__(self):
-            return "{}\t{}\t{}\t{}\t{}\t{}\n".format(
-              self.__left_boundary,
-              self.__current,
-              self.__right_boundary,
-              self.__model.loglik,
-              self.__model.bic,
-              self.__model.null_loglik)

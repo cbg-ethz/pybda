@@ -20,22 +20,17 @@
 
 
 import logging
-import pathlib
 
 import click
-import pandas
 import pyspark
 import pyspark.ml.clustering
 
 from koios.clustering import Clustering
 from koios.fit.kmeans_fit import KMeansFit
-from koios.fit.kmeans_transformed import KMeansTransformed
-from koios.globals import TOTAL_VAR_, FEATURES__, KMEANS__
-from koios.io.as_filename import as_ssefile
-from koios.io.io import write_line
 from koios.fit.kmeans_fit_profile import KMeansFitProfile
+from koios.fit.kmeans_transformed import KMeansTransformed
+from koios.globals import FEATURES__, KMEANS__
 from koios.spark.features import n_features, split_vector
-from koios.stats.stats import sum_of_squared_errors
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -46,18 +41,13 @@ class KMeans(Clustering):
         super().__init__(spark, clusters, threshold, max_iter, KMEANS__)
 
     def fit(self, data, outpath):
-        n, p = data.count(), n_features(data, FEATURES__)
-        logger.info("Using data with n={} and p={}".format(n, p))
+        n, p = self.dimension(data)
         data = data.select(FEATURES__)
-        tot_var = self._tot_var(split_vector(data, FEATURES__), outpath)
+        tot_var = self.tot_var(split_vector(data, FEATURES__), outpath)
         models = KMeansFitProfile()
-        for k in self.clusters:
-            models[k] = self._fit(k, data, n, p, tot_var)
-            models[k].write_files(outpath)
-        models.write_files(outpath)
-        return models
+        return self._fit(models, outpath, data, n, p, tot_var)
 
-    def _fit(self, k, data, n, p, tot_var):
+    def _fit_one(self, k, data, n, p, tot_var):
         logger.info("Clustering with K: {}".format(k))
         km = pyspark.ml.clustering.KMeans(k=k, seed=23)
         fit = km.fit(data)
@@ -70,28 +60,6 @@ class KMeans(Clustering):
         for k, fit in models:
             m = KMeansTransformed(fit.transform(data))
             m.write_files(outpath, k)
-
-    def fit_transform(self, data, outpath):
-        models = self.fit(data, outpath)
-        self.transform(data, models, outpath)
-
-    @staticmethod
-    def _tot_var(data, outpath=None):
-        if outpath:
-            sse_file = as_ssefile(outpath)
-        else:
-            sse_file = None
-        if sse_file and pathlib.Path(sse_file).exists():
-            logger.info("Loading variance file")
-            tab = pandas.read_csv(sse_file, sep="\t")
-            sse = tab[TOTAL_VAR_][0]
-        else:
-            logger.info("Computing variance anew")
-            sse = sum_of_squared_errors(data)
-            if sse_file:
-                write_line("{}\n{}\n".format(TOTAL_VAR_, sse), sse_file)
-        logger.info("\t{}: {}".format(TOTAL_VAR_, sse))
-        return sse
 
 
 @click.command()
