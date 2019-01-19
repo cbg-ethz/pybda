@@ -49,42 +49,23 @@ class GMM(Clustering):
     def fit(self, data, outpath):
         n, p = self.dimension(data)
         data = data.select(FEATURES__)
-        # null_loglik = self.loglik(split_vector(data, FEATURES__), outpath)
         models = GMMFitProfile()
         return self._fit(models, outpath, data, n, p, scipy.nan)
 
-    def _fit_one(self, k, data, n, p, null_loglik):
+    def _fit_one(self, k, data, n, p, stat):
         logger.info("Clustering with K: {}".format(k))
         gmm = pyspark.ml.clustering.GaussianMixture(
           k=k, seed=23, probabilityCol=RESPONSIBILITIES__)
         fit = gmm.fit(data)
         model = GMMFit(data=None, fit=fit, k=k,
                        mixing_weights=fit.weights, estimates=fit.gaussiansDF,
-                       loglik=fit.summary.logLikelihood,
-                       null_loglik=null_loglik, n=n, p=p, path=None)
+                       loglik=fit.summary.logLikelihood, n=n, p=p, path=None)
         return model
 
     def transform(self, data, models, outpath):
         for k, fit in models:
             m = GMMTransformed(fit.transform(data))
             m.write_files(outpath, k)
-
-    def loglik(self, data, outpath):
-        if outpath:
-            outf = as_loglikfile(outpath)
-        else:
-            outf = None
-        if outf and pathlib.Path(outf).exists():
-            logger.info("Loading loglik file")
-            tab = pandas.read_csv(outf, sep="\t")
-            tot = tab[LOGLIK_][0]
-        else:
-            logger.info("Computing loglik")
-            tot = loglik(data)
-            if outf:
-                write_line("{}\n{}\n".format(LOGLIK_, tot), outf)
-        logger.info("\t{}: {}".format(LOGLIK_, tot))
-        return tot
 
 
 @click.command()

@@ -54,15 +54,14 @@ class KMeansFitProfile(FitProfile):
             idx = int(reg.match(fl).group(1))
             t[K_] = str(idx).zfill(9)
             frames[i] = [idx, t]
-
         frames = sorted(frames, key=lambda x: x[0])
         frames = list(filter(lambda x: x[0] in ll["k"].values, frames))
-
         labels = list(map(lambda x: "K = {}".format(x[0]), frames))
         data = pandas.concat(map(lambda x: x[1], frames))
         return data, labels
 
     def _plot_profile(self, file_name, profile):
+        logger.info("Plotting profile to: {}".format(file_name))
         ks = list(map(str, profile[K_].values))
         plt.figure(figsize=(7, 7), dpi=720)
         ax = plt.subplot(211)

@@ -19,65 +19,25 @@
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
 
-import glob
 import logging
 import os
 
-import pandas
-import pathlib
-
-from pyspark.sql.functions import col
-
+from koios.fit.clustering_transformed import ClusteringTransformed
 from koios.globals import FEATURES__
-from koios.io.io import write_parquet, mkdir, rm
 from koios.spark.features import split_vector
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class KMeansTransformed:
+class KMeansTransformed(ClusteringTransformed):
     def __init__(self, data):
-        self.__data = data
+        super().__init__(data)
 
-    def write_files(self, outpath, k):
-        outpath = outpath + "-transformed-K{}".format(k)
-        if not os.path.exists(outpath):
-            os.mkdir(outpath)
-        write_parquet(self.__data, outpath)
-        self._write_clusters(outpath)
-
-    @property
-    def data(self):
-        return self.__data
-
-    @data.setter
-    def data(self, data):
-        self.__data = data
-
-    def _write_clusters(self, outpath, suff="", sort_me=True):
+    def write_clusters(self, outpath, suff="", sort_me=True):
         outpath = outpath + "-clusters" + str(suff)
         logger.info("Writing clusters to: {}".format(outpath))
         if not os.path.exists(outpath):
             os.mkdir(outpath)
-        data = split_vector(self.__data, FEATURES__)
-
-        if sort_me:
-            data.sort(col('prediction')).write.csv(
-              path=outpath, sep='\t', mode='overwrite', header=True)
-        else:
-            data.write.csv(path=outpath, sep='\t', mode='overwrite', header=True)
-
-        files = [x for x in glob.glob(outpath + "/*") if x.endswith(".csv")]
-        for fl in files:
-            df = pandas.read_csv(fl, sep="\t")
-            for i in df["prediction"].unique():
-                sub = df[df.prediction == i]
-                out = outpath + "/cluster_" + str(i) + ".tsv"
-                if not pathlib.Path(out).exists():
-                    sub.to_csv(out, sep="\t", header=True, index=False)
-                else:
-                    sub.to_csv(out, sep="\t", mode="a", header=False,
-                               index=False)
-        rm(files)
-
+        data = split_vector(self.data, FEATURES__)
+        self._write_clusters(data, outpath, sort_me)

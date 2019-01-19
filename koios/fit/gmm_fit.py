@@ -36,25 +36,19 @@ logger.setLevel(logging.INFO)
 
 class GMMFit(ClusteringFit):
     def __init__(self, data, fit, k, mixing_weights,
-                 estimates, loglik, null_loglik,
-                 n, p, path=None):
+                 estimates, loglik, n, p, path=None):
         super().__init__(data, fit, n, p, k)
         self.__mixing_weights = mixing_weights
         self.__estimates = estimates
         self.__loglik = loglik
-        self.__null_loglik = null_loglik
         self.__n_params = k * p + k * p * (p + 1) / 2 + k - 1
-        self.__null_n_params = p + p * (p + 1) / 2
         self.__bic = scipy.log(n) * self.__n_params - \
                      2 * self.__loglik
-        self.__null_bic = scipy.nan #scipy.log(n) * self.__null_n_params - \
-                          #2 * self.__null_loglik
         self.__path = path
 
     def __str__(self):
         return "{}\t".format(self.k) + \
                "{}\t".format(self.__loglik) + \
-               #"{}\t".format(self.__null_loglik) + \
                "{}\t".format(self.__bic) + \
                "\n"
 
@@ -62,7 +56,6 @@ class GMMFit(ClusteringFit):
     def header():
         return "k\t" \
                "{}\t".format(LOGLIK_) + \
-               #"{}\t".format(NULL_LOGLIK_) + \
                "{}\t".format(BIC_) + \
                "\n"
 
@@ -71,7 +64,6 @@ class GMMFit(ClusteringFit):
         return {
             K_: self.k,
             LOGLIK_: self.__loglik,
-            NULL_LOGLIK_: self.__null_loglik,
             BIC_: self.__bic
         }
 
@@ -82,14 +74,6 @@ class GMMFit(ClusteringFit):
     @property
     def loglik(self):
         return self.__loglik
-
-    @property
-    def null_loglik(self):
-        return self.__null_loglik
-
-    @property
-    def null_bic(self):
-        return self.__null_bic
 
     def write_files(self, outfolder):
         mkdir(outfolder)
@@ -118,14 +102,12 @@ class GMMFit(ClusteringFit):
         ll_file = outfile + "_statistics.tsv"
         logger.info("Writing LogLik and BIC to: {}".format(ll_file))
         with open(ll_file, 'w') as fh:
-            fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-              K_, LOGLIK_, BIC_, NULL_LOGLIK_, NULL_BIC_, N_, P_, "path"))
-            fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+            fh.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(
+              K_, LOGLIK_, BIC_, N_, P_, "path"))
+            fh.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(
               self.k,
               self.__loglik,
               self.__bic,
-              self.__null_loglik,
-              self.__null_bic,
               self.n,
               self.p,
               outfile))

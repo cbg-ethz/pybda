@@ -17,12 +17,16 @@
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
-
-
+import glob
 import logging
+import os
+import pathlib
+
+import pandas
 from abc import abstractmethod
 
-from koios.io.io import write_parquet
+from pyspark.sql.functions import col
+from koios.io.io import write_parquet, rm
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -32,12 +36,12 @@ class ClusteringTransformed:
     def __init__(self, data):
         self.__data = data
 
-    def write_files(self, outfolder):
-        import os
-        if not os.path.exists(outfolder):
-            os.mkdir(outfolder)
-        write_parquet(self.__data, outfolder)
-        self._write(outfolder)
+    def write_files(self, outpath, k):
+        outpath = outpath + "-transformed-K{}".format(k)
+        if not os.path.exists(outpath):
+            os.mkdir(outpath)
+        write_parquet(self.data, outpath)
+        self.write_clusters(outpath)
 
     @property
     def data(self):
@@ -48,5 +52,20 @@ class ClusteringTransformed:
         self.__data = data
 
     @abstractmethod
-    def _write(self, outfolder, suff="", sort_me=True):
+    def write_clusters(self, outfolder, suff="", sort_me=True):
         pass
+
+    def _write_clusters(self, data, outpath, sort_me):
+        if sort_me:
+            data.sort(col('prediction'))
+        data.write.csv(path=outpath, sep='\t', mode='overwrite', header=True)
+        files = [x for x in glob.glob(outpath + "/*") if x.endswith(".csv")]
+        for fl in files:
+            df = pandas.read_csv(fl, sep="\t")
+            for i in df["prediction"].unique():
+                sub = df[df.prediction == i]
+                out = outpath + "/cluster_" + str(i) + ".tsv"
+                header = False if pathlib.Path(out).exists() else True
+                sub.to_csv(out, sep="\t", mode="a", header=header, index=False)
+        rm(files)
+
