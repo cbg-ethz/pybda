@@ -85,6 +85,7 @@ def run(components, file, outpath):
     with SparkSession() as spark:
         try:
             data = read_tsv(spark, file)
+            # TODO: continue here
             data = to_double(data, feature_columns(data))
             data = fill_na(data)
 

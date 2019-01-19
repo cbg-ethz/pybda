@@ -20,23 +20,17 @@
 
 
 import logging
-import pathlib
-import scipy
 
 import click
-import pandas
 import pyspark
 import pyspark.ml.clustering
+import scipy
 
 from koios.clustering import Clustering
 from koios.fit.gmm_fit import GMMFit
 from koios.fit.gmm_fit_profile import GMMFitProfile
 from koios.fit.gmm_transformed import GMMTransformed
-from koios.globals import RESPONSIBILITIES__, LOGLIK_, GMM__, FEATURES__
-from koios.io.as_filename import as_loglikfile
-from koios.io.io import write_line
-from koios.spark.features import n_features, split_vector
-from koios.stats.stats import loglik
+from koios.globals import RESPONSIBILITIES__, GMM__, FEATURES__
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

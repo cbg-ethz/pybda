@@ -34,19 +34,6 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-def feature_columns(data):
-    """
-    Takes a DataFrame and returns a list of feature columns
-
-    :param data: sql.DataFrame
-    :return: list of feature columns
-    """
-
-    return list(filter(
-      lambda x: any(x.startswith(f) for f in ["cells", "perin", "nucle"]),
-      data.columns))
-
-
 def fill_na(data, what=0):
     """
     Fill NA elements of a data frame with a value.
