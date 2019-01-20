@@ -24,6 +24,7 @@ import os
 
 from pandas import DataFrame
 
+from koios.fit.dimension_reduction_fit import DimensionReductionFit
 from koios.globals import FEATURES__
 from koios.io.io import write_parquet
 from koios.plot.descriptive import scatter, histogram
@@ -40,8 +41,9 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class FactorAnalysisFit:
+class FactorAnalysisFit(DimensionReductionFit):
     def __init__(self, data, n_factors, W, psi, ll, features):
+        super().__init__(data, n_factors, features)
         self.__data = data
         self.__n_factors = n_factors
         self.__W = W
@@ -52,10 +54,6 @@ class FactorAnalysisFit:
     @property
     def n_factors(self):
         return self.__n_factors
-
-    @property
-    def data(self):
-        return self.__data
 
     @property
     def loadings(self):
@@ -77,11 +75,6 @@ class FactorAnalysisFit:
         if not os.path.exists(plot_fold):
             os.mkdir(plot_fold)
         self._plot(os.path.join(plot_fold, "factor_analysis"))
-
-    def _write_loadings(self, outfile):
-        logger.info("Writing loadings to data")
-        DataFrame(self.__W, columns=self.__features).to_csv(
-          outfile, sep="\t", index=False)
 
     def _write_likelihood(self, outfile):
         logger.info("Writing likelihood profile")
