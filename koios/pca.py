@@ -31,20 +31,25 @@ from koios.fit.pca_fit import PCAFit
 from koios.spark.dataframe import join
 from koios.stats.linalg import svd
 from koios.stats.stats import scale
-from koios.util.cast_as import as_rdd_of_array
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
 class PCA(DimensionReduction):
-    def __init__(self, spark, features, n_components):
+    def __init__(self, spark, n_components, features):
         super().__init__(spark, features, scipy.inf, scipy.inf)
         self.__n_components = n_components
 
     @property
     def n_components(self):
         return self.__n_components
+
+    def fit(self, data):
+        logger.info("Fitting PCA")
+        X = self._preprocess_data(data)
+        loadings, sds = PCA._compute_pcs(X)
+        return X, loadings, sds
 
     def _preprocess_data(self, data):
         X = self._feature_matrix(data)
@@ -56,11 +61,6 @@ class PCA(DimensionReduction):
         sds = sds / scipy.sqrt(max(1, X.numRows() - 1))
         return loadings, sds
 
-    def fit(self, data):
-        X = PCA._preprocess_data(data)
-        loadings, sds = PCA._compute_pcs(X)
-        return X, loadings, sds
-
     def transform(self, data, X, loadings):
         logger.info("Transforming data")
         loadings = DenseMatrix(
@@ -70,14 +70,13 @@ class PCA(DimensionReduction):
         X = X.multiply(loadings)
         data = join(data, X, self.spark)
         del X
-
         return data
 
     def fit_transform(self, data):
         logger.info("Running principal component analysis ...")
         X, loadings, sds = self.fit(data)
         data = self.transform(data, X, loadings)
-        return PCAFit(data, self.__n_components, loadings, sds)
+        return PCAFit(data, self.n_components, loadings, sds, self.features)
 
 
 @click.command()
@@ -86,6 +85,10 @@ class PCA(DimensionReduction):
 @click.argument("features", type=str)
 @click.argument("outpath", type=str)
 def run(components, file, features, outpath):
+    """
+    Fit a PCA to a data set.
+    """
+
     from koios.util.string import drop_suffix
     from koios.logger import set_logger
     from koios.spark_session import SparkSession

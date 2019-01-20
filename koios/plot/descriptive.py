@@ -23,12 +23,11 @@ import logging
 import scipy
 import matplotlib.pyplot as plt
 
-from koios.globals import PLOT_FONT_, PLOT_FONT_FAMILY_, PLOT_STYLE_
+from koios.globals import PLOT_FONT_, PLOT_FONT_FAMILY_
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-plt.style.use([PLOT_STYLE_])
 plt.rcParams['font.family'] = PLOT_FONT_FAMILY_
 plt.rcParams['font.sans-serif'] = [PLOT_FONT_]
 
@@ -39,8 +38,6 @@ def scatter(file_name, x, y,
     _, ax = plt.subplots(figsize=(8, 5), dpi=720)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
-    ax.spines["bottom"].set_visible(True)
-    ax.spines["left"].set_visible(True)
     ax.xaxis.set_label_coords(x=xlabpos, y=-0.1)
     ax.yaxis.set_label_coords(x=-0.05, y=ylabpos)
     ax.grid(linestyle="")

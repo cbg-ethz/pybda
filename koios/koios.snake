@@ -57,13 +57,14 @@ koios_config = KoiosConfig(config)
 
 
 def _submit_dim_red(method, input, out, params):
-    cmd = """{} --master {} {} {} {} {} {}""".format(
+    cmd = """{} --master {} {} {} {} {} {} {}""".format(
         koios_config[SPARK__],
         koios_config[SPARKIP__],
         params,
         method,
         koios_config[N_COMPONENTS__],
         input,
+        koios_config[FEATURES__],
         out)
     _run(cmd)
 

@@ -105,7 +105,7 @@ def read_and_transmute(spark, file_name,
         raise ValueError("{} is neither tsv nor folder.".format(file_name))
     data = to_double(data, feature_cols, respone)
     data = fill_na(data)
-    if assemble:
+    if assemble_features:
         data = assemble(data, feature_cols, drop)
 
     return data
