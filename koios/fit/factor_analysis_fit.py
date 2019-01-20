@@ -45,15 +45,13 @@ class FactorAnalysisFit(DimensionReductionFit):
     def __init__(self, data, n_factors, W, psi, ll, features):
         super().__init__(data, n_factors, features)
         self.__data = data
-        self.__n_factors = n_factors
         self.__W = W
         self.__psi = psi
         self.__ll = ll
-        self.__features = features
 
     @property
     def n_factors(self):
-        return self.__n_factors
+        return self.n_components
 
     @property
     def loadings(self):
@@ -91,7 +89,7 @@ class FactorAnalysisFit(DimensionReductionFit):
               cev, "# factors")
             biplot(
               outfile + "-loadings-biplot." + suf,
-              DataFrame(self.__W, columns=self.__features), "Factor 1", "Factor 2")
+              DataFrame(self.__W, columns=self.feature_names), "Factor 1", "Factor 2")
             plot_likelihood_path(
               outfile + "-likelihood_path." + suf,
               DataFrame({"L": self.__ll}))
