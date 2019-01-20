@@ -106,7 +106,7 @@ def assemble(data, feature_cols, drop=True):
           outputCol=FEATURES_)
         data = assembler.transform(data)
     if drop:
-        logger.info("Droppbing redundanct columns")
+        logger.info("Dropping redundant columns")
         data = data.drop(*feature_cols)
 
     return data

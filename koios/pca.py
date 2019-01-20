@@ -20,18 +20,17 @@
 
 
 import logging
-import scipy
 
 import click
+import scipy
 from pyspark.mllib.linalg import DenseMatrix
 from pyspark.mllib.linalg.distributed import RowMatrix
 
 from koios.dimension_reduction import DimensionReduction
-from koios.stats.linalg import svd
-from koios.stats.stats import scale
 from koios.fit.pca_fit import PCAFit
 from koios.spark.dataframe import join
-from koios.spark.features import feature_columns, to_double, fill_na
+from koios.stats.linalg import svd
+from koios.stats.stats import scale
 from koios.util.cast_as import as_rdd_of_array
 
 logger = logging.getLogger(__name__)
@@ -39,19 +38,17 @@ logger.setLevel(logging.INFO)
 
 
 class PCA(DimensionReduction):
-    def __init__(self, spark, n_components):
-        super().__init__(spark, scipy.inf, scipy.inf)
+    def __init__(self, spark, features, n_components):
+        super().__init__(spark, features, scipy.inf, scipy.inf)
         self.__n_components = n_components
 
     @property
     def n_components(self):
         return self.__n_components
 
-    @staticmethod
-    def _preprocess_data(data):
-        X = as_rdd_of_array(data.select(feature_columns(data)))
-        X = RowMatrix(scale(X))
-        return X
+    def _preprocess_data(self, data):
+        X = self._feature_matrix(data)
+        return RowMatrix(scale(X))
 
     @staticmethod
     def _compute_pcs(X):
@@ -59,12 +56,12 @@ class PCA(DimensionReduction):
         sds = sds / scipy.sqrt(max(1, X.numRows() - 1))
         return loadings, sds
 
-    def _fit(self, data):
+    def fit(self, data):
         X = PCA._preprocess_data(data)
         loadings, sds = PCA._compute_pcs(X)
         return X, loadings, sds
 
-    def _transform(self, data, X, loadings):
+    def transform(self, data, X, loadings):
         logger.info("Transforming data")
         loadings = DenseMatrix(
           X.numCols(), self.n_components,
@@ -76,40 +73,34 @@ class PCA(DimensionReduction):
 
         return data
 
-    def fit(self):
-        raise NotImplementedError()
-
-    def transform(self):
-        raise NotImplementedError()
-
     def fit_transform(self, data):
         logger.info("Running principal component analysis ...")
-        X, loadings, sds = self._fit(data)
-        data = self._transform(data, X, loadings)
+        X, loadings, sds = self.fit(data)
+        data = self.transform(data, X, loadings)
         return PCAFit(data, self.__n_components, loadings, sds)
 
 
 @click.command()
 @click.argument("components", type=int)
 @click.argument("file", type=str)
+@click.argument("features", type=str)
 @click.argument("outpath", type=str)
-def run(components, file, outpath):
+def run(components, file, features, outpath):
     from koios.util.string import drop_suffix
     from koios.logger import set_logger
     from koios.spark_session import SparkSession
-    from koios.io.io import read_tsv
     from koios.io.as_filename import as_logfile
+    from koios.io.io import read_and_transmute, read_info
 
     outpath = drop_suffix(outpath, "/")
     set_logger(as_logfile(outpath))
 
     with SparkSession() as spark:
         try:
-            data = read_tsv(spark, file)
-            data = to_double(data, feature_columns(data))
-            data = fill_na(data)
-
-            fl = PCA(spark, components)
+            features = read_info(features)
+            data = read_and_transmute(spark, file, features,
+                                      assemble_features=False)
+            fl = PCA(spark, components, features)
             fit = fl.fit_transform(data)
             fit.write_files(outpath)
         except Exception as e:

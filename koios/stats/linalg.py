@@ -54,7 +54,6 @@ def precision(data: pyspark.rdd.RDD):
     logger.info("Computing precision")
     return scipy.linalg.inv(data.computeCovariance().toArray())
 
-
 def fourier(X: RowMatrix, n_features, seed=23, gamma=1):
     p = X.numCols()
 
