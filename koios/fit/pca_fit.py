@@ -24,6 +24,7 @@ import os
 
 from pandas import DataFrame
 
+from koios.fit.dimension_reduction_fit import DimensionReductionFit
 from koios.globals import FEATURES_
 from koios.io.io import write_parquet
 from koios.plot.descriptive import scatter, histogram
@@ -40,23 +41,17 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class PCAFit:
+class PCAFit(DimensionReductionFit):
     __KIND__ = "pca"
 
     def __init__(self, data, n_components, loadings, sds, features):
-        self.__data = data
-        self.__n_components = n_components
+        super().__init__(data, n_components, features)
         self.__loadings = loadings
         self.__sds = sds
-        self.__features = features
 
     @property
     def kind(self):
         return PCAFit.__KIND__
-
-    @property
-    def data(self):
-        return self.__data
 
     @property
     def loadings(self):
@@ -70,10 +65,6 @@ class PCAFit:
     def n_components(self):
         return self.__n_components
 
-    @property
-    def feature_names(self):
-        return self.__features
-
     def write_files(self, outfolder):
         write_parquet(self.__data, outfolder)
         self._write_loadings(outfolder + "-loadings.tsv")
@@ -81,12 +72,6 @@ class PCAFit:
         if not os.path.exists(plot_fold):
             os.mkdir(plot_fold)
         self._plot(os.path.join(plot_fold, self.kind))
-
-    def _write_loadings(self, outfile):
-        logger.info("Writing loadings to file")
-        DataFrame(
-          self.loadings[:self.n_components],
-          columns=self.feature_names).to_csv(outfile, sep="\t", index=False)
 
     def _plot(self, outfile):
         logger.info("Plotting")

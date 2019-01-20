@@ -21,13 +21,13 @@
 
 import logging
 import os
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class ClusteringFit:
+class ClusteringFit(ABC):
     def __init__(self, data, fit, n, p, k):
         self.__data = data
         self.__fit = fit
