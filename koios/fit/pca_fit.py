@@ -61,10 +61,6 @@ class PCAFit(DimensionReductionFit):
     def sds(self):
         return self.__sds
 
-    @property
-    def n_components(self):
-        return self.__n_components
-
     def write_files(self, outfolder):
         write_parquet(self.__data, outfolder)
         self._write_loadings(outfolder + "-loadings.tsv")

@@ -42,6 +42,10 @@ class DimensionReductionFit(ABC):
     def feature_names(self):
         return self.__features
 
+    @property
+    def n_components(self):
+        return self.__n_components
+
     @abstractmethod
     def write_files(self, outfolder):
         pass
