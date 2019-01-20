@@ -32,7 +32,7 @@ from koios.plot.dimension_reduction_plot import biplot, \
     plot_cumulative_variance
 from koios.sampler import sample
 from koios.util.cast_as import as_pandas
-from koios.spark.features import feature_columns, split_vector
+from koios.spark.features import split_vector
 from koios.stats.stats import cumulative_explained_variance
 
 
@@ -41,17 +41,18 @@ logger.setLevel(logging.INFO)
 
 
 class PCAFit:
-    def __init__(self, data, n_components, loadings, sds):
+    __KIND__ = "pca"
+
+    def __init__(self, data, n_components, loadings, sds, features):
         self.__data = data
         self.__n_components = n_components
         self.__loadings = loadings
         self.__sds = sds
-        self.__kind = "pca"
-        self.__features = feature_columns(self.__data)
+        self.__features = features
 
     @property
     def kind(self):
-        return self.__kind
+        return PCAFit.__KIND__
 
     @property
     def data(self):

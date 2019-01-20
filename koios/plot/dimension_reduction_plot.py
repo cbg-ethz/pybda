@@ -29,7 +29,6 @@ from koios.globals import PLOT_FONT_, PLOT_FONT_FAMILY_, PLOT_STYLE_
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-plt.style.use([PLOT_STYLE_])
 plt.rcParams['font.family'] = PLOT_FONT_FAMILY_
 plt.rcParams['font.sans-serif'] = [PLOT_FONT_]
 

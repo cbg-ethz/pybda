@@ -25,17 +25,16 @@ import click
 from pyspark.sql import DataFrame
 
 from koios.fit.kpca_fit import KPCAFit
-from koios.stats.linalg import fourier
 from koios.pca import PCA
-from koios.spark.features import feature_columns, to_double, fill_na
+from koios.stats.linalg import fourier
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
 class KPCA(PCA):
-    def __init__(self, spark, n_components, n_fourier_features=200, gamma=1):
-        super().__init__(spark, n_components)
+    def __init__(self, spark, n_components, features, n_fourier_features=200, gamma=1):
+        super().__init__(spark, n_components, features)
         self.__n_fourier_features = n_fourier_features
         self.__gamma = gamma
         self.__seed = 23
@@ -49,8 +48,8 @@ class KPCA(PCA):
         return self.__n_fourier_features
 
     def fit(self, data):
-        X = PCA._preprocess_data(data)
-        X = fourier(X, self.__n_fourier_features, self.__seed, self.__gamma)
+        X = self._preprocess_data(data)
+        X = fourier(X, self.n_fourier_features, self.__seed, self.gamma)
         loadings, sds = PCA._compute_pcs(X)
         return X, loadings, sds
 
@@ -58,7 +57,7 @@ class KPCA(PCA):
         logger.info("Running kernel principal component analysis ...")
         X, loadings, sds = self.fit(data)
         data = self.transform(data, X, loadings)
-        return KPCAFit(data, self.n_components, loadings, sds,
+        return KPCAFit(data, self.n_components, loadings, sds, self.features,
                        self.n_fourier_features, self.gamma)
 
 
@@ -86,7 +85,7 @@ def run(components, file, features, outpath):
             features = read_info(features)
             data = read_and_transmute(spark, file, features,
                                       assemble_features=False)
-            fl = KPCA(spark, components)
+            fl = KPCA(spark, components, features)
             fit = fl.fit_transform(data)
             fit.write_files(outpath)
         except Exception as e:

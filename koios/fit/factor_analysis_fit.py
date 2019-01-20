@@ -23,6 +23,8 @@ import logging
 import os
 
 from pandas import DataFrame
+
+from koios.globals import FEATURES__
 from koios.io.io import write_parquet
 from koios.plot.descriptive import scatter, histogram
 
@@ -30,7 +32,7 @@ from koios.plot.dimension_reduction_plot import biplot, \
     plot_cumulative_variance, plot_likelihood_path
 from koios.sampler import sample
 from koios.util.cast_as import as_pandas
-from koios.spark.features import  split_vector
+from koios.spark.features import split_vector
 from koios.stats.stats import cumulative_explained_variance
 
 
@@ -39,11 +41,17 @@ logger.setLevel(logging.INFO)
 
 
 class FactorAnalysisFit:
-    def __init__(self, data, W, psi, ll):
+    def __init__(self, data, n_factors, W, psi, ll, features):
         self.__data = data
+        self.__n_factors = n_factors
         self.__W = W
         self.__psi = psi
         self.__ll = ll
+        self.__features = features
+
+    @property
+    def n_factors(self):
+        return self.__n_factors
 
     @property
     def data(self):
@@ -72,8 +80,7 @@ class FactorAnalysisFit:
 
     def _write_loadings(self, outfile):
         logger.info("Writing loadings to data")
-        features = feature_columns(self.__data)
-        DataFrame(self.__W, columns=features).to_csv(
+        DataFrame(self.__W, columns=self.__features).to_csv(
           outfile, sep="\t", index=False)
 
     def _write_likelihood(self, outfile):
@@ -83,16 +90,15 @@ class FactorAnalysisFit:
     def _plot(self, outfile):
         logger.info("Plotting")
         cev = cumulative_explained_variance(self.__W.transpose())
-        features = feature_columns(self.__data)
         subsamp = as_pandas(
-          split_vector(sample(self.__data, 10000), "features"))
+          split_vector(sample(self.__data, 10000), FEATURES__))
         for suf in ["png", "pdf", "svg", "eps"]:
             plot_cumulative_variance(
               outfile + "-loadings-explained_variance." + suf,
               cev, "# factors")
             biplot(
               outfile + "-loadings-biplot." + suf,
-              DataFrame(self.__W, columns=features), "Factor 1", "Factor 2")
+              DataFrame(self.__W, columns=self.__features), "Factor 1", "Factor 2")
             plot_likelihood_path(
               outfile + "-likelihood_path." + suf,
               DataFrame({"L": self.__ll}))
@@ -101,7 +107,7 @@ class FactorAnalysisFit:
               subsamp["f_0"].values, subsamp["f_1"].values,
               "Factor 1", "Factor 2")
             for i in map(lambda x: "f_" + str(x),
-                         range(min(10, self.__n_components))):
+                         range(min(10, self.n_factors))):
                 histogram(
                   outfile + "-histogram_{}.".format(i) + suf,
                   subsamp[i].values, i)
