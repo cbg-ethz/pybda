@@ -22,14 +22,13 @@
 import logging
 import matplotlib.pyplot as plt
 
-from koios.globals import PLOT_FONT_, PLOT_FONT_FAMILY_, PLOT_STYLE_
+from koios.globals import PLOT_FONT_FAMILY_, PLOT_STYLE_
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 plt.style.use([PLOT_STYLE_])
 plt.rcParams['font.family'] = PLOT_FONT_FAMILY_
-plt.rcParams['font.sans-serif'] = [PLOT_FONT_]
 
 
 def plot_curves(file_name, pr, roc):
