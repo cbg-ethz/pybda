@@ -30,7 +30,7 @@ from koios.plot.dimension_reduction_plot import biplot, \
     plot_cumulative_variance, plot_likelihood_path
 from koios.sampler import sample
 from koios.util.cast_as import as_pandas
-from koios.spark.features import feature_columns, split_vector
+from koios.spark.features import  split_vector
 from koios.stats.stats import cumulative_explained_variance
 
 

@@ -21,16 +21,20 @@
 
 from abc import abstractmethod
 
-from koios.spark.features import feature_columns
 from koios.spark_model import SparkModel
 from koios.util.cast_as import as_rdd_of_array
 
 
 class DimensionReduction(SparkModel):
-    def __init__(self, spark, threshold, max_iter):
+    def __init__(self, spark, features, threshold, max_iter):
         super().__init__(spark)
+        self.__features = features
         self.__threshold = threshold
         self.__max_iter = max_iter
+
+    @property
+    def features(self):
+        return self.__features
 
     @property
     def threshold(self):
@@ -52,6 +56,5 @@ class DimensionReduction(SparkModel):
     def transform(self):
         pass
 
-    @staticmethod
-    def _feature_matrix(data):
-        return as_rdd_of_array(data.select(feature_columns(data)))
+    def _feature_matrix(self, data):
+        return as_rdd_of_array(data.select(self.features))

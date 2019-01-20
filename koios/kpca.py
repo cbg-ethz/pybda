@@ -48,22 +48,16 @@ class KPCA(PCA):
     def n_fourier_features(self):
         return self.__n_fourier_features
 
-    def _fit(self, data):
+    def fit(self, data):
         X = PCA._preprocess_data(data)
         X = fourier(X, self.__n_fourier_features, self.__seed, self.__gamma)
         loadings, sds = PCA._compute_pcs(X)
         return X, loadings, sds
 
-    def fit(self):
-        raise NotImplementedError()
-
-    def transform(self):
-        raise NotImplementedError()
-
     def fit_transform(self, data: DataFrame):
         logger.info("Running kernel principal component analysis ...")
-        X, loadings, sds = self._fit(data)
-        data = self._transform(data, X, loadings)
+        X, loadings, sds = self.fit(data)
+        data = self.transform(data, X, loadings)
         return KPCAFit(data, self.n_components, loadings, sds,
                        self.n_fourier_features, self.gamma)
 
@@ -71,12 +65,17 @@ class KPCA(PCA):
 @click.command()
 @click.argument("components", type=int)
 @click.argument("file", type=str)
+@click.argument("features", type=str)
 @click.argument("outpath", type=str)
-def run(components, file, outpath):
+def run(components, file, features, outpath):
+    """
+    Fit a kernel PCA to a data set.
+    """
+
     from koios.util.string import drop_suffix
     from koios.logger import set_logger
     from koios.spark_session import SparkSession
-    from koios.io.io import read_tsv
+    from koios.io.io import read_info, read_and_transmute
     from koios.io.as_filename import as_logfile
 
     outpath = drop_suffix(outpath, "/")
@@ -84,11 +83,9 @@ def run(components, file, outpath):
 
     with SparkSession() as spark:
         try:
-            data = read_tsv(spark, file)
-            # TODO: continue here
-            data = to_double(data, feature_columns(data))
-            data = fill_na(data)
-
+            features = read_info(features)
+            data = read_and_transmute(spark, file, features,
+                                      assemble_features=False)
             fl = KPCA(spark, components)
             fit = fl.fit_transform(data)
             fit.write_files(outpath)

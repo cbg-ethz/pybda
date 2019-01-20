@@ -78,7 +78,8 @@ def read_and_transmute(spark, file_name,
                        feature_cols,
                        respone=None,
                        header=True,
-                       drop=True):
+                       drop=True,
+                       assemble_features=True):
     """
     Reads either a 'tsv' or 'parquet' file as data frame.
 
@@ -89,6 +90,7 @@ def read_and_transmute(spark, file_name,
     :param respone: the column name of the response if any
     :param header: boolean if the tsv has a header
     :param drop: boolean if feature columns should get dropped after assembly
+    :param assemble_features: assemble feature columns to a DenseVector
     :return: returns a tuple (DataFrame, list(str)) where the second element is
         a list of features
     """
@@ -103,7 +105,8 @@ def read_and_transmute(spark, file_name,
         raise ValueError("{} is neither tsv nor folder.".format(file_name))
     data = to_double(data, feature_cols, respone)
     data = fill_na(data)
-    data = assemble(data, feature_cols, drop)
+    if assemble:
+        data = assemble(data, feature_cols, drop)
 
     return data
 
