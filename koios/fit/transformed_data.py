@@ -17,32 +17,35 @@
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
-from abc import abstractmethod
 
-from koios.spark_model import SparkModel
+import logging
+
+from koios.globals import FEATURES__
+from koios.io.io import write_tsv
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
-class Regression(SparkModel):
-    def __init__(self, spark, family,):
-        super().__init__(spark)
-        self.__family = family
+class TransformedData:
+    def __init__(self, data):
+        self.__data = data
+
+    def write_files(self, outpath):
+        """
+        Write a transformed data set to tsv.
+
+        :param outpath: the path to where the files are written.
+        """
+
+        outpath = outpath + "-transformed"
+        write_tsv(drop(self.data, FEATURES__), outpath)
 
     @property
-    def family(self):
-        return self.__family
+    def data(self):
+        return self.__data
 
-    @property
-    def do_cross_validation(self):
-        return self.__do_crossvalidation
+    @data.setter
+    def data(self, data):
+        self.__data = data
 
-    @abstractmethod
-    def fit(self):
-        pass
-
-    @abstractmethod
-    def fit_transform(self, data):
-        pass
-
-    @abstractmethod
-    def transform(self):
-        pass

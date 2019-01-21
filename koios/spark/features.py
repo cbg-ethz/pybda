@@ -112,6 +112,12 @@ def assemble(data, feature_cols, drop=True):
     return data
 
 
+def drop(data, column):
+    if column in data.columns:
+        data = data.drop(column)
+    retyrb data
+
+
 def replace_column_names(data, fro=".", to="_"):
     """
     Rename single characters columns of a data frame. After renaming the columns

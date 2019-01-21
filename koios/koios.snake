@@ -43,6 +43,7 @@ from koios.globals import OUTFOLDER__
 from koios.globals import OUTLIERS__
 from koios.globals import OUTLIERS_INFILE__
 from koios.globals import PCA__
+from koios.globals import PREDICT__
 from koios.globals import PVAL__
 from koios.globals import REGRESSION_INFILE__
 from koios.globals import REGRESSION__
@@ -175,13 +176,17 @@ rule glm:
         out = os.path.join(
             koios_config[OUTFOLDER__], koios_config[REGRESSION__]),
         reg = os.path.join(dirname(), "glm.py"),
-        params = " ".join([x for x in koios_config[SPARKPARAMS__]])
+        params = " ".join([x for x in koios_config[SPARKPARAMS__]]),
+        predict  = "None"
     run:
-        cmd = """{} --master {} {} {} {} {} {} {} {} {}""".format(
+        if PREDICT__ in koios_config:
+            params.predict = koios_config[PREDICT__]
+        cmd = """{} --master {} {} {} {} {} {} {} {} {} {} {}""".format(
             koios_config[SPARK__],
             koios_config[SPARKIP__],
             params.params,
             params.reg,
+            "--predict", params.predict,
             input,
             koios_config[META__],
             koios_config[FEATURES__],
