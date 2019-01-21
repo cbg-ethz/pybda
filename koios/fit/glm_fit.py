@@ -25,6 +25,7 @@ import pandas
 
 import scipy as sp
 
+from koios.fit.transformed_data import TransformedData
 from koios.globals import GAUSSIAN_, BINOMIAL_
 from koios.plot.regression_plot import plot_curves
 
@@ -129,7 +130,7 @@ class GLMFit:
         return self.__response
 
     def transform(self, data):
-        return self.__model.transform(data)
+        return TransformedData(self.__model.transform(data))
 
     @property
     def data(self):

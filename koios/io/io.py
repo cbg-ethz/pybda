@@ -57,13 +57,14 @@ def write_parquet(data, outfolder):
     data.write.parquet(outfolder, mode="overwrite")
 
 
-def write_tsv(data, outfile, header=True, index=True):
+def write_tsv(data, outfile, header=True, index=False):
     """
     Write a data frama to an outpath as tsv file.
     Overwrites existing files!
 
     :param data: data frame
     :param outfile: the path where the dataframe is written to
+    :param index: also write index of each row (in case of pandas.DataFrame)
     """
 
     import pandas
@@ -71,7 +72,7 @@ def write_tsv(data, outfile, header=True, index=True):
     if isinstance(data, pandas.DataFrame):
         data.to_csv(outfile, sep="\t", header=header, index=index)
     else:
-        data.write.csv(outfile, mode="overwrite", sep="\t", header=True)
+        data.write.csv(outfile, mode="overwrite", sep="\t", header=header)
 
 
 def read_and_transmute(spark, file_name,
@@ -103,6 +104,7 @@ def read_and_transmute(spark, file_name,
         data = read_parquet(spark, file_name, header)
     else:
         raise ValueError("{} is neither tsv nor folder.".format(file_name))
+
     data = to_double(data, feature_cols, respone)
     data = fill_na(data)
     if assemble_features:

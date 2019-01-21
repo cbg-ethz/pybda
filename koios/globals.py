@@ -71,6 +71,7 @@ OUTLIERS__ = "outliers"
 OUTLIERS_INFILE__ = OUTLIERS__ + "_" + INFILE__
 MAHA__ = "mahalanobis"
 
+PREDICT__ = "predict"
 CLUSTERING__ = "clustering"
 CLUSTERING_INFILE__ = CLUSTERING__ + "_" + INFILE__
 KMEANS__ = "kmeans"

@@ -17,6 +17,7 @@
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
+
 import glob
 import logging
 import os
@@ -26,15 +27,17 @@ import pandas
 from abc import abstractmethod
 
 from pyspark.sql.functions import col
+
+from koios.fit.transformed_data import TransformedData
 from koios.io.io import write_parquet, rm
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class ClusteringTransformed:
+class ClusteringTransformed(TransformedData):
     def __init__(self, data):
-        self.__data = data
+        super.__init__(data)
 
     def write_files(self, outpath, k):
         outpath = outpath + "-transformed-K{}".format(k)
@@ -42,14 +45,6 @@ class ClusteringTransformed:
             os.mkdir(outpath)
         write_parquet(self.data, outpath)
         self.write_clusters(outpath)
-
-    @property
-    def data(self):
-        return self.__data
-
-    @data.setter
-    def data(self, data):
-        self.__data = data
 
     @abstractmethod
     def write_clusters(self, outfolder, suff="", sort_me=True):

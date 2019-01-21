@@ -83,7 +83,7 @@ class GLM(Regression):
     def fit_transform(self):
         raise NotImplementedError()
 
-    def transform(self):
+    def transform(self, predict):
         raise NotImplementedError()
 
 
@@ -94,11 +94,13 @@ class GLM(Regression):
 @click.argument("response", type=str)
 @click.argument("family", type=str)
 @click.argument("outpath", type=str)
-def run(file, meta, features, response, family, outpath):
+@click.option("-p", "--predict", default="None")
+def run(file, meta, features, response, family, outpath, predict):
     """
     Fit a generalized linear regression model.
     """
 
+    import pathlib
     from koios.util.string import drop_suffix
     from koios.logger import set_logger
     from koios.spark_session import SparkSession
@@ -115,6 +117,11 @@ def run(file, meta, features, response, family, outpath):
             fl = GLM(spark, response, meta, features, family)
             fit = fl.fit(data)
             fit.write_files(outpath)
+            if pathlib.Path(predict).exists():
+                pre_data = read_and_transmute(spark, predict, features, drop=False)
+                pre_data = fit.transform(pre_data)
+                pre_data.write_files(outpath)
+
         except Exception as e:
             logger.error("Some error: {}".format(str(e)))
 
