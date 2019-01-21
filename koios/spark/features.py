@@ -112,10 +112,15 @@ def assemble(data, feature_cols, drop=True):
     return data
 
 
-def drop(data, column):
-    if column in data.columns:
-        data = data.drop(column)
-    retyrb data
+def drop(data, *columns):
+    """
+    Drop a list of columns
+    """
+    for column in columns:
+        if column in data.columns:
+            logger.info("Dropping column '{}'".format(column))
+            data = data.drop(column)
+    return data
 
 
 def replace_column_names(data, fro=".", to="_"):

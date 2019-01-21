@@ -42,7 +42,6 @@ FLOAT_ = "float"
 FLOAT64_ = "float32"
 FLOAT32_ = "float64"
 
-
 FEATURES_ = "features"
 GAUSSIAN_ = "gaussian"
 BINOMIAL_ = "binomial"
@@ -55,7 +54,6 @@ INFILE__ = "infile"
 OUTFOLDER__ = "outfolder"
 
 PVAL__ = "pvalue"
-
 META__ = "meta"
 FEATURES__ = "features"
 RESPONSE__ = "response"
@@ -79,6 +77,8 @@ GMM__ = "gmm"
 MAX_CENTERS__ = "max_centers"
 N_CENTERS__ = "n_centers"
 RESPONSIBILITIES__ = "responsibilities"
+RAW_PREDICTION__ = "rawPrediction"
+PROBABILITY__ = "probability"
 
 REGRESSION__ = "regression"
 REGRESSION_INFILE__ = REGRESSION__ + "_" + INFILE__

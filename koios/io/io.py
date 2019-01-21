@@ -67,7 +67,6 @@ def write_tsv(data, outfile, header=True, index=False):
     :param index: also write index of each row (in case of pandas.DataFrame)
     """
 
-    import pandas
     logger.info("Writing tsv: {}".format(outfile))
     if isinstance(data, pandas.DataFrame):
         data.to_csv(outfile, sep="\t", header=header, index=index)
