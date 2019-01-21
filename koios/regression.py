@@ -17,23 +17,35 @@
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
+
+import logging
 from abc import abstractmethod
 
+from koios.globals import BINOMIAL_
 from koios.spark_model import SparkModel
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class Regression(SparkModel):
-    def __init__(self, spark, family,):
+    def __init__(self, spark, family, response, features):
         super().__init__(spark)
         self.__family = family
+        self.__response = response
+        self.__features = features
+
+    @property
+    def features(self):
+        return self.__features
+
+    @property
+    def response(self):
+        return self.__response
 
     @property
     def family(self):
         return self.__family
-
-    @property
-    def do_cross_validation(self):
-        return self.__do_crossvalidation
 
     @abstractmethod
     def fit(self):
@@ -46,3 +58,23 @@ class Regression(SparkModel):
     @abstractmethod
     def transform(self):
         pass
+
+    def _fit(self, data):
+        data = data.coalesce(300)
+        if self.family == BINOMIAL_:
+            mcnt = data.groupby(self.response).count().toPandas()
+            cnts = mcnt["count"].values
+            cnt_0, cnt_1 = int(cnts[0]), int(cnts[1])
+            if cnt_0 != cnt_1:
+                logger.info("Found inbalanced data-set...going to balance.")
+                mcnt = int(cnts.min())
+                logger.info("Minimum count of one label: {}".format(mcnt))
+                df_0 = data.filter("{} == 0".format(self.response)).limit(mcnt)
+                logger.info("#group 0: {}".format(df_0.count()))
+                df_1 = data.filter("{} == 1".format(self.response)).limit(mcnt)
+                logger.info("#group 1: {}".format(df_1.count()))
+                data = df_0.union(df_1)
+                logger.info("Size of data set after subsampling: {}".
+                            format(data.count()))
+        data = data.coalesce(300)
+        return self._model().fit(data)

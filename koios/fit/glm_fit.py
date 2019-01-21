@@ -84,7 +84,7 @@ class GLMFit:
         self._write_table(outfolder)
         if self.family == BINOMIAL_:
             self._write_binomial_measures(outfolder)
-        self._plot(outfolder)
+            self._plot(outfolder)
 
     def _write_table(self, outfolder):
         logger.info("Writing regression table")
