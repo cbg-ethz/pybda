@@ -20,8 +20,10 @@
 
 import logging
 
-from koios.globals import FEATURES__
-from koios.io.io import write_tsv
+from koios.globals import FEATURES__, RAW_PREDICTION__, PROBABILITY__
+from koios.io.io import write_tsv, write_parquet
+
+from koios.spark.features import drop, split_vector
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -39,7 +41,10 @@ class TransformedData:
         """
 
         outpath = outpath + "-transformed"
-        write_tsv(drop(self.data, FEATURES__), outpath)
+        write_parquet(self.data, outpath)
+        data = drop(self.data, FEATURES__, RAW_PREDICTION__)
+        data = split_vector(data, PROBABILITY__)
+        write_tsv(data, outpath)
 
     @property
     def data(self):
