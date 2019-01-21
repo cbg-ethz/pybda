@@ -1,0 +1,2 @@
+family	response	accuracy	f1	precision	recall
+binomial	is_infected	1.0	1.0	1.0	1.0
