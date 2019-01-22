@@ -57,15 +57,21 @@ Example
 ``koios`` only requires a config-file and, if possible, the IP of a spark-cluster. Otherwise you can just call koios locally using ``local``).
 The config file might for a simple clustering case look like this
 
-.. literalinclude:: ../../koios-usecase-gmm.config
-  :caption: Contents of ``koios-usecase-gmm.config`` file
+.. literalinclude:: ../../koios-usecase-kmeans.config
+  :caption: Contents of ``koios-usecase-kmeans.config`` file
   :name: koios-usecase-gmm.config
 
-This would fight several Gaussian mixture models with different numbers of components. Calling the tool is then as simple as:
+This would fight several k-means clusterings with different numbers of clusters.
+Calling the tool is then as simple as:
 
-.. .. code-block:: bash
-   koios koios-usecase-gmm.config local
+.. code-block:: bash
 
-The result
+   koios clustering koios-usecase-kmeans.config local
+
+
+Calling any method creates several plots and data sets, such as:
+
+.. image:: ../../data/kmeans-profile.png
+.. image:: ../../data/kmeans-profile.png
 
 
