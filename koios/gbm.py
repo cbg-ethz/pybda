@@ -22,8 +22,8 @@
 import logging
 
 import click
-from pyspark.ml.classification import RandomForestClassifier
-from pyspark.ml.regression import RandomForestRegressor
+from pyspark.ml.classification import GBTClassifier
+from pyspark.ml.regression import GBTRegressor
 
 from koios.ensemble import Ensemble
 from koios.globals import GAUSSIAN_, BINOMIAL_
@@ -32,24 +32,27 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class Forest(Ensemble):
+class GBM(Ensemble):
     def __init__(self, spark, response, meta, features, family=GAUSSIAN_,
-                 n_trees=50, max_depth=10, subsampling_rate=0.5):
+                 max_iter=25, step_size=0.1,
+                 max_depth=10, subsampling_rate=0.5):
         super().__init__(spark, family, response, features,
                          max_depth, subsampling_rate)
-        self.__n_trees = n_trees
         self.__meta = meta
+        self.__max_iter = max_iter
+        self.__step_size = step_size
 
     def _model(self):
         if self.family == GAUSSIAN_:
-            reg = RandomForestRegressor
+            reg = GBTRegressor
         elif self.family == BINOMIAL_:
-            reg = RandomForestClassifier
+            reg = GBTClassifier
         else:
             raise NotImplementedError(
               "Family '{}' not implemented".format(self.family))
         model = reg(subsamplingRate=self.subsampling_rate, seed=23,
-                    numTrees=self.__n_trees, maxDepth=self.max_depth)
+                    stepSize=self.__step_size, maxDepth=self.max_depth,
+                    maxIter=self.__max_iter)
         model.setLabelCol(self.response)
         return model
 
@@ -87,7 +90,7 @@ def run(file, meta, features, response, family, outpath, predict):
         try:
             meta, features = read_column_info(meta, features)
             data = read_and_transmute(spark, file, features, response)
-            fl = Forest(spark, response, meta, features, family)
+            fl = GBM(spark, response, meta, features, family)
             fit = fl.fit(data)
             fit.write_files(outpath)
             if pathlib.Path(predict).exists():
