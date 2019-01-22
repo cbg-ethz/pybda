@@ -55,7 +55,7 @@ Example
 -------
 
 ``koios`` only requires a config-file and, if possible, the IP of a spark-cluster. Otherwise you can just call koios locally using ``local``).
-The config file might for a simple clustering case look like this
+The config file might for a simple clustering case look like this:
 
 .. literalinclude:: ../../koios-usecase-kmeans.config
   :caption: Contents of ``koios-usecase-kmeans.config`` file
@@ -68,10 +68,18 @@ Calling the tool is then as simple as:
 
    koios clustering koios-usecase-kmeans.config local
 
+The result of any call creates several different data files and appropriate distributions.
+For instance, for the example above, two of the plots generated are shown below:
 
-Calling any method creates several plots and data sets, such as:
+.. figure:: _static/kmeans-profile.png
+   :align: center
 
-.. image:: ../../data/kmeans-profile.png
-.. image:: ../../data/kmeans-profile.png
+   Number of clusters vs explained variance and BIC. 
+
+.. figure:: _static/kmeans-cluster_sizes-histogram.png
+   :align: center
+
+   Each row shows the distribution of the number of cells per cluster (component).
+
 
 
