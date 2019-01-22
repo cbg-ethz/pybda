@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class ForestFit:
+class EnsembleFit:
     def __init__(self, data, model, response, family, features):
         self.__data = data
         self.__model = model

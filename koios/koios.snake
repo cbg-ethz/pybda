@@ -217,6 +217,23 @@ rule forest:
         _run_regression(params.params, params.reg, input, params.out)
 
 
+rule gbm:
+    input:
+        expand("{infile}", infile=koios_config[REGRESSION_INFILE__])
+    output:
+        expand("{outfolder}/{regression}-{out}.tsv",
+               outfolder=koios_config[OUTFOLDER__],
+               regression=koios_config[REGRESSION__],
+               out=["statistics"])
+    params:
+        out = os.path.join(
+            koios_config[OUTFOLDER__], koios_config[REGRESSION__]),
+        reg = os.path.join(dirname(), "gbm.py"),
+        params = " ".join([x for x in koios_config[SPARKPARAMS__]]),
+    run:
+        _run_regression(params.params, params.reg, input, params.out)
+
+
 def _run_clustering(params, kme, input, out):
     clust = str(koios_config[N_CENTERS__]).replace(" ", "")
     cmd = """{} --master {} {} {} {} {} {} {}""".format(
