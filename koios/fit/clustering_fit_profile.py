@@ -27,13 +27,13 @@ import pandas
 import joypy
 import matplotlib.pyplot as plt
 
-from koios.globals import PLOT_FONT_, PLOT_FONT_FAMILY_, K_
+from koios.globals import PLOT_FONT_FAMILY_, K_, PLOT_STYLE_
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+plt.style.use([PLOT_STYLE_])
 plt.rcParams['font.family'] = PLOT_FONT_FAMILY_
-plt.rcParams['font.sans-serif'] = [PLOT_FONT_]
 
 
 class FitProfile(ABC):
@@ -93,10 +93,11 @@ class FitProfile(ABC):
 
     def _plot_cluster_sizes(self, file_name, data, labels):
         logger.info("Plotting cluster sizes to: {}".format(file_name))
-        _, ax = plt.subplots(figsize=(7, 3))
+        _, ax = plt.subplots(figsize=(5, 3))
         fig, axes = joypy.joyplot(data, by=K_, hist="True", ax=ax,
                                   bins=50, overlap=0, grid="y", color="grey",
-                                  labels=labels)
+                                  labels=labels,
+                                  title="Cluster size distribution")
         for x in axes:
             x.spines['bottom'].set_color('grey')
             x.grid(color="grey", axis="y")

@@ -24,11 +24,16 @@ import matplotlib.pyplot as plt
 import pandas
 import re
 
+import numpy
+
 from koios.fit.clustering_fit_profile import FitProfile
-from koios.globals import K_, EXPL_VAR_, BIC_
+from koios.globals import K_, EXPL_VAR_, BIC_, PLOT_FONT_FAMILY_, PLOT_STYLE_
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+plt.style.use([PLOT_STYLE_])
+plt.rcParams['font.family'] = PLOT_FONT_FAMILY_
 
 
 class KMeansFitProfile(FitProfile):
@@ -62,6 +67,7 @@ class KMeansFitProfile(FitProfile):
 
     def _plot_profile(self, file_name, profile):
         logger.info("Plotting profile to: {}".format(file_name))
+        n = len(profile[K_].values)
         ks = list(map(str, profile[K_].values))
         plt.figure(figsize=(7, 5), dpi=720)
         ax = plt.subplot(211)
@@ -70,8 +76,11 @@ class KMeansFitProfile(FitProfile):
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
         ax.set_ylabel('Explained variance in %', fontsize=12)
+        ax.set_ylim(0, 1.05)
         ax.set_yticklabels([0, 0.25, 0.5, 0.75, 1])
-        plt.bar(ks, profile[EXPL_VAR_].values, color="black", alpha=.75,
+        cols = ["black"] * n
+        cols[numpy.argmax(profile[EXPL_VAR_].values)] = "#5668AD"
+        plt.bar(ks, profile[EXPL_VAR_].values, color=cols, alpha=.75,
                 width=0.5)
 
         ax = plt.subplot(212)
@@ -80,6 +89,8 @@ class KMeansFitProfile(FitProfile):
         ax.spines["right"].set_visible(False)
         ax.set_xlabel('#clusters', fontsize=15)
         ax.set_ylabel('BIC', fontsize=12)
-        plt.bar(ks, profile[BIC_].values, color="black", alpha=.75,
+        cols = ["black"] * n
+        cols[numpy.argmin(profile[BIC_].values)] = "#5668AD"
+        plt.bar(ks, profile[BIC_].values, color=cols, alpha=.75,
                 width=0.5)
         plt.savefig(file_name, dpi=720)

@@ -20,15 +20,20 @@
 
 import glob
 import logging
+import numpy
+
 import pandas
 import matplotlib.pyplot as plt
 import re
 
 from koios.fit.clustering_fit_profile import FitProfile
-from koios.globals import K_, LOGLIK_, BIC_
+from koios.globals import K_, LOGLIK_, BIC_, PLOT_STYLE_, PLOT_FONT_FAMILY_
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+plt.style.use([PLOT_STYLE_])
+plt.rcParams['font.family'] = PLOT_FONT_FAMILY_
 
 
 class GMMFitProfile(FitProfile):
@@ -62,22 +67,18 @@ class GMMFitProfile(FitProfile):
 
     def _plot_profile(self, file_name, profile):
         logger.info("Plotting profile to: {}".format(file_name))
+        n = len(profile[K_].values)
         ks = list(map(str, profile[K_].values))
-        plt.figure(figsize=(7, 7), dpi=720)
+        plt.figure(figsize=(7, 5), dpi=720)
         ax = plt.subplot(211)
 
         ax.grid(linestyle="")
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
         ax.set_ylabel('Negative log-likelihood', fontsize=12)
-        ax.set_yticklabels([])
-        bar = plt.bar(ks, -profile[LOGLIK_].values, color="black", alpha=.75,
-                      width=0.5)
-        for rect in bar:
-            height = rect.get_height()
-            plt.text(rect.get_x() + rect.get_width() / 2.0, height,
-                     '{}'.format(int(height)), ha='center',
-                     va='bottom', fontsize="medium")
+        cols = ["black"] * n
+        cols[numpy.argmax(profile[LOGLIK_].values)] = "#5668AD"
+        plt.bar(ks, -profile[LOGLIK_].values, color=cols, alpha=.75, width=0.5)
 
         ax = plt.subplot(212)
         ax.grid(linestyle="")
@@ -85,12 +86,7 @@ class GMMFitProfile(FitProfile):
         ax.spines["right"].set_visible(False)
         ax.set_xlabel('#components', fontsize=15)
         ax.set_ylabel('BIC', fontsize=12)
-        ax.set_yticklabels([])
-        bar = plt.bar(ks, profile[BIC_].values, color="black", alpha=.75,
-                      width=0.5)
-        for rect in bar:
-            height = rect.get_height()
-            plt.text(rect.get_x() + rect.get_width() / 2.0, height,
-                     '{}'.format(int(height)), ha='center', fontsize="small",
-                     va='bottom')
+        cols = ["black"] * n
+        cols[numpy.argmin(profile[BIC_].values)] = "#5668AD"
+        plt.bar(ks, profile[BIC_].values, color=cols, alpha=.75, width=0.5)
         plt.savefig(file_name, dpi=720)
