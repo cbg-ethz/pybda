@@ -54,18 +54,18 @@ Dependencies
 Example
 -------
 
-``koios`` only requires a config-file and, if possible, the IP of a spark-cluster
+``koios`` only requires a config-file and, if possible, the IP of a spark-cluster. Otherwise you can just call koios locally using ``local``).
+The config file might for a simple clustering case look like this
 
 .. literalinclude:: ../../koios-usecase-gmm.config
   :caption: Contents of ``koios-usecase-gmm.config`` file
   :name: koios-usecase-gmm.config
 
+This would fight several Gaussian mixture models with different numbers of components. Calling the tool is then as simple as:
+
 .. .. code-block:: bash
    koios koios-usecase-gmm.config local
 
+The result
 
-Citation
---------
-
-todo
 
