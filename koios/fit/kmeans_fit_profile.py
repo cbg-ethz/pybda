@@ -63,21 +63,16 @@ class KMeansFitProfile(FitProfile):
     def _plot_profile(self, file_name, profile):
         logger.info("Plotting profile to: {}".format(file_name))
         ks = list(map(str, profile[K_].values))
-        plt.figure(figsize=(7, 7), dpi=720)
+        plt.figure(figsize=(7, 5), dpi=720)
         ax = plt.subplot(211)
 
         ax.grid(linestyle="")
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
         ax.set_ylabel('Explained variance in %', fontsize=12)
-        ax.set_yticklabels([])
-        bar = plt.bar(ks, profile[EXPL_VAR_].values, color="black", alpha=.75,
-                      width=0.5)
-        for rect in bar:
-            height = rect.get_height()
-            plt.text(rect.get_x() + rect.get_width() / 2.0, height,
-                     '{}%'.format(int(float(height) * 100)), ha='center',
-                     va='bottom', fontsize="medium")
+        ax.set_yticklabels([0, 0.25, 0.5, 0.75, 1])
+        plt.bar(ks, profile[EXPL_VAR_].values, color="black", alpha=.75,
+                width=0.5)
 
         ax = plt.subplot(212)
         ax.grid(linestyle="")
@@ -85,13 +80,6 @@ class KMeansFitProfile(FitProfile):
         ax.spines["right"].set_visible(False)
         ax.set_xlabel('#clusters', fontsize=15)
         ax.set_ylabel('BIC', fontsize=12)
-        ax.set_yticklabels([])
-        bar = plt.bar(ks, profile[BIC_].values, color="black", alpha=.75,
-                      width=0.5)
-        for rect in bar:
-            height = rect.get_height()
-            plt.text(rect.get_x() + rect.get_width() / 2.0, height,
-                     '{}'.format(int(height)), ha='center', fontsize="small",
-                     va='bottom')
-
+        plt.bar(ks, profile[BIC_].values, color="black", alpha=.75,
+                width=0.5)
         plt.savefig(file_name, dpi=720)
