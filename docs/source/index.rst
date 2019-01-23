@@ -18,6 +18,7 @@ A command line tool for big data analytics and machine learning using Apache Spa
 .. toctree::
    :hidden:
    :maxdepth: 2
+   :titlesonly:
 
    Home <self>
    usage
@@ -25,8 +26,8 @@ A command line tool for big data analytics and machine learning using Apache Spa
    usecase_clustering
    usecase_regression
 
-Introduction
-------------
+About
+-----
 
 Welcome to ``koios``.
 
@@ -74,7 +75,7 @@ For instance, for the example above, two of the plots generated are shown below:
 .. figure:: _static/kmeans-profile.png
    :align: center
 
-   Number of clusters vs explained variance and BIC. 
+   Number of clusters vs explained variance and BIC.
 
 .. figure:: _static/kmeans-cluster_sizes-histogram.png
    :align: center
