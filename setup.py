@@ -34,7 +34,8 @@ setup(
       'matplotlib>=2.2.3',
       'snakemake>=5.2.2',
       'joypy>=0.1.9',
-      'uuid>=1.3.0'
+      'uuid>=1.3.0',
+      'sparkhpc>=0.3.post4'
   ],
   classifiers=[
       'Development Status :: 3 - Alpha',
