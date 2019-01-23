@@ -18,6 +18,7 @@ A command line tool for big data analytics and machine learning using Apache Spa
 .. toctree::
    :hidden:
    :maxdepth: 2
+   :titlesonly:
 
    Home <self>
    usage
@@ -25,8 +26,8 @@ A command line tool for big data analytics and machine learning using Apache Spa
    usecase_clustering
    usecase_regression
 
-Introduction
-------------
+About
+-----
 
 Welcome to ``koios``.
 
