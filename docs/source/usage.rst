@@ -144,15 +144,16 @@ In order for `koios` to work you need to have a working
 *standalone spark environment* set up, running and listening to some ``IP``.
 You can find a good introduction
 `here <https://spark.apache.org/docs/latest/spark-standalone.html>`_ on how
-to start the standalone Spark cluster.
+to start the standalone Spark cluster. Alternatively, as mentioned above, a desktop PC suffices as well, but will limit what koios can do for you.
 
-.. note::  We assume that you know how to use Apache Spark and start a cluster. However, for the sake of demonstration the next two sections show how Spark can be easily started.
-
+We assume that you know how to use Apache Spark and start a cluster. However, for the sake of demonstration the next two sections show how Spark can be easily started.
 
 Local Spark context
 ....................
 
-On a local resource, such as a laptop or PC, you would start the spark environment using:
+On a local resource, such as a laptop or PC, there is no need to start a Spark cluster. In such a scenario the ``IP`` koios requires for submitting jobs is just called ``local``.
+
+Alternatively, you can always *simulate* a cluster environment. You would then start the spark environment using:
 
 .. code-block:: bash
 
@@ -160,20 +161,34 @@ On a local resource, such as a laptop or PC, you would start the spark environme
   $SPARK_HOME/sbin/start-slave.sh <IP>
 
 where ``$SPARK_HOME`` is the installation path of Spark and ``IP`` the IP to which we will submit jobs.
+When calling ``start-master.sh`` Spark will log the ``IP`` it uses. Thus you need to have a look there to find it. Usually the line looks something like:
+
+.. code-block:: bash
+
+    2019-01-23 21:57:29 INFO  Master:54 - Starting Spark master at spark://<COMPUTERNAME>:7077
+
+In the above case the ``IP`` is ``spark://<COMPUTERNAME>:7077``.
 
 Cluster environment
 ....................
 
 If you are working on a cluster, you can use the provided scripts to start a cluster.
-**Make sure to have a working `openmpi` and `Java` installed**. We use ``sparkhpc``
+**Make sure to have a working ``openmpi`` and ``Java`` installed**. We use ``sparkhpc``
 in order to start a standalone cluster on an LSF/SGE high-performance computing cluster.
+Sparkhpc install with koios, but in case it didn't just reinstall it:
 
 .. code-block:: bash
 
-  ./0a-start-cluster.sh &
-  ./0b-launch-cluster.sh &
+  pip install sparkhpc
 
-.. note:: For your own cluster, you should modify the number of workers, nodes, cores and memory.
+Sparkhpc helps you setting up spark clusters for LSF and Slurm cluster environments. If you have one of those start a Sparkcluster using:
+
+.. code-block:: bash
+
+  ./analysis/0a-start-cluster.sh &
+  ./analysis/0b-launch-cluster.sh &
+
+.. warning:: For your own cluster, you should modify the number of workers, nodes, cores and memory.
 
 After the job has started, you need to call
 
@@ -183,8 +198,8 @@ After the job has started, you need to call
 
 in order to receive the spark ``IP``.
 
-Snakemake
-~~~~~~~~~
+Calling
+~~~~~~~
 
 If you made it thus far, you successfully
 
@@ -193,36 +208,22 @@ If you made it thus far, you successfully
 
 Now we can finally start our application.
 
-.. code-block:: bash
-
-  ./koios --configfile biospark-local.config
-          --ip IP
-
-That will run the dimension reduction, the outlier removal, the clustering and the analysis of the clusters.
-
-You can also only run a subset of the targets.
 For ``dimension-reduction``:
 
 .. code-block:: bash
 
-  ./koios --configfile koios-usecase.config
-          --ip IP
-          dimension-reduction
-
-For ``outlier-removal``:
-
-.. code-block:: bash
-
-  ./koios --configfile koios-usecase.config
-          --ip IP
-          outlier-removal
+  koios dimension-reduction koios-usecase.config IP
 
 For ``clustering``:
 
 .. code-block:: bash
 
-  ./koios --configfile koios-usecase.config
-          --ip IP
-           clustering
+   koios clustering koios-usecase.config IP
 
-In all cases, the respective plots and analyses are alywas run.
+For ``regression``:
+
+.. code-block:: bash
+
+   koios regression koios-usecase.config IP
+
+In all cases, the methods create ``tsv`` files, plots and statistics.
