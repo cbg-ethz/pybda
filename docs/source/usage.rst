@@ -61,57 +61,81 @@ Config
 Running koios requires a ``yaml`` configuration file that specifies several key-value pairs.
 The config file consists of
 
-* general parameters,
-* and method specific parameters.
+* general arguments, such as file names,
+* method specific arguments,
+* arguments for Apache Spark.
 
-The config file consists of a set general parameters which specify files, paths to executables and parameters for Spark. The respective parameters
-are listed below:
+General arguments
+.................
 
-================ ================== ================================================================
-Parameter        Value              Explanation
-================ ================== ================================================================
-``spark``                           path to Apache spark ``spark-submit`` exectuable
-``infile``                          tab-separated input file to use for any of the methods
-``outfolder``                       folder where all results are written to.
-``meta``                            names of the columns that represent meta information ("\n"-separated)
-``features``                        names of the columns that represent numerical features, i.e. columns that are used for analysis ("\n"-separated).
-``sparkparams``                     specifies parameters that are handed over to Apache Spark (which we cover in the section below)
-================ ================== ================================================================
+The following table shows the arguments that are **mandatory** and need to be set in every application.
 
+================ ================================================================
+*Parameter*      *Explanation*
+================ ================================================================
+``spark``        path to Apache spark ``spark-submit`` exectuable
+``infile``       tab-separated input file to use for any of the methods
+``outfolder``    folder where all results are written to.
+``meta``         names of the columns that represent meta information ("\n"-separated)
+``features``     names of the columns that represent numerical features, i.e. columns that are used for analysis ("\n"-separated).
+``sparkparams``  specifies parameters that are handed over to Apache Spark (which we cover in the section below)
+================ ================================================================
 
+Method specific arguments
+.........................
 
-All of the required and optional arguments for every class of methods (dimensionality reduction, clustering, regression) are shown in the table below.
+The following tables show the arguments required for the single methods, i.e. dimension reduction,
+clustering and regression.
 
++------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
+| *Method*               | *Options*                            |  *Method*                                                                                                                   |
++========================+======================================+=============================================================================================================================+
+| **Dimension reduction**                                                                                                                                                                     |
++------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
+| ``dimension_reduction``| ``factor_analysis``/``pca``/``kpca`` | specifies which method to use for dimension reduction                                                                       |
++------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
+| ``n_components``       | e.g ``1,2,3`` or ``1``               | comma-separated list of integers specifying the number of variables in the lower dimensional space to use per reduction     |
++------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
+| **Clustering**                                                                                                                                                                              |
++------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
+| ``clustering``         | ``kmeans``/``gmm``                   | specifies which method to use for clustering                                                                                |
++------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
+| ``n_centers``          | e.g ``1,2,3`` or ``1``               | comma-separated list of integers specifying the number of clusters to use per cluystering                                   |
++------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
+| **Regression**                                                                                                                                                                              |
++------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
+| ``regression``         |  ``glm``/``forest``/``gbm``          | specifies which method to use for regression                                                                                |
++------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
+| ``response``           |                                      | name of column in ``infile`` that is the response                                                                           |
++------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
+| ``family``             | ``gaussian``/``binomial``            | distribution family of the response variable                                                                                |
++------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
 
-
-The format of the config looks like this:
+For instance, consider the config file below:
 
 .. literalinclude:: ../../koios-usecase.config
   :caption: Contents of ``koios-usecase.config`` file
   :name: koios-usecase.config
 
-In the file above we key-value pairs stand for:
+It would execute the following jobs:
 
-* ``spark: spark-submit`` points to the executable of Spark. Change the path according to where you have it installed.
-* ``infile: data/single_cell_imaging_data.tsv`` contains the data set you want to use for analysis.
-* ``outfolder: data`` points to the folder where all results are written to.
-* ``meta: data/meta_columns.tsv``
-* ``features: data/feature_columns.tsv`` contains the names of the columns that represent numerical features, i.e. columns that are used for analysis ("\n"-separated).
-* ``dimension_reduction: factor_analysis`` will execute a dimensionality reduction with a factor analysis.
-* ``n_components: 5`` will use five factors for the dimensionality reduction
-* ``regression: glm`` fits a gerneralized linear regression model
-* ``clustering: kmeans`` will use k-means on the dimensionality reduced) data set.
-* ``n_centers: 5`` will use 5 cluster centers for the ckysterubg
-* ``family: binomial`` tells the GLM that the data are binomially distributed
-* ``response: is_infected`` will use the column *is_infected* as a response (and the column in ``features`` as features).
-* ``sparkparams``: specifies parameters that are handed over to Apache Spar(which we cover later)
-* ``debug: true``:
+1) dimension reduction on the input file with 5 components -> clustering on the result of the dimensionality reduction with 3 cluster centers
+2) binomial-family generalized regression model (i.e. logistic) on the input file with respone *is_infected*
 
-The following table specifies the parameters that you can choose for either of the categories.
+.. note:: ``koios`` first parses through the config file and builds a DAG of the methods that should be executed. If it finds dimensionality reduction *and* clustering, it will first embed the data in a lower dimensional space und use the result of this for clustering (i.e. in order to remove correlated features). The same does *not* happen with regression.
 
+Spark parameters
+................
 
 The Spark `documentation <https://spark.apache.org/docs/latest/submitting-applications.html>`_
-for submitting applications provides details which arguments are valid here.
+for submitting applications provides details which arguments are valid here. You provide them as list in the yaml file as key ``sparkparams``:
+Below, the most important two are listed:
+
+``"--driver-memory=xG"``
+    Amount of memory to use for the driver process in gigabyte, i.e. where SparkContext is initialized.
+
+``"--executor-memory=xG"``
+    Amount of memory to use per executor process in giga byte.
 
 Spark
 ~~~~~~
@@ -123,6 +147,7 @@ You can find a good introduction
 to start the standalone Spark cluster.
 
 .. note::  We assume that you know how to use Apache Spark and start a cluster. However, for the sake of demonstration the next two sections show how Spark can be easily started.
+
 
 Local Spark context
 ....................
