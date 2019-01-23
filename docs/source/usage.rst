@@ -59,6 +59,31 @@ Config
 ~~~~~~~
 
 Running koios requires a ``yaml`` configuration file that specifies several key-value pairs.
+The config file consists of
+
+* general parameters,
+* and method specific parameters.
+
+The config file consists of a set general parameters which specify files, paths to executables and parameters for Spark. The respective parameters
+are listed below:
+
+================ ================== ================================================================
+Parameter        Value              Explanation
+================ ================== ================================================================
+``spark``                           path to Apache spark ``spark-submit`` exectuable
+``infile``                          tab-separated input file to use for any of the methods
+``outfolder``                       folder where all results are written to.
+``meta``                            names of the columns that represent meta information ("\n"-separated)
+``features``                        names of the columns that represent numerical features, i.e. columns that are used for analysis ("\n"-separated).
+``sparkparams``                     specifies parameters that are handed over to Apache Spark (which we cover in the section below)
+================ ================== ================================================================
+
+
+
+All of the required and optional arguments for every class of methods (dimensionality reduction, clustering, regression) are shown in the table below.
+
+
+
 The format of the config looks like this:
 
 .. literalinclude:: ../../koios-usecase.config
@@ -70,24 +95,21 @@ In the file above we key-value pairs stand for:
 * ``spark: spark-submit`` points to the executable of Spark. Change the path according to where you have it installed.
 * ``infile: data/single_cell_imaging_data.tsv`` contains the data set you want to use for analysis.
 * ``outfolder: data`` points to the folder where all results are written to.
-* ``meta: data/meta_columns.tsv`` contains the names of the columns that represent meta information ("\n"-separated)
+* ``meta: data/meta_columns.tsv``
 * ``features: data/feature_columns.tsv`` contains the names of the columns that represent numerical features, i.e. columns that are used for analysis ("\n"-separated).
 * ``dimension_reduction: factor_analysis`` will execute a dimensionality reduction with a factor analysis.
-* ``clustering: kmeans``
-* ``regression: glm``
-* ``family: binomial``
-* ``response: is_infected``
-* ``n_components: 5``
-* ``n_centers: 5``
-* ``sparkparams``
-* ``debug: true``
+* ``n_components: 5`` will use five factors for the dimensionality reduction
+* ``regression: glm`` fits a gerneralized linear regression model
+* ``clustering: kmeans`` will use k-means on the dimensionality reduced) data set.
+* ``n_centers: 5`` will use 5 cluster centers for the ckysterubg
+* ``family: binomial`` tells the GLM that the data are binomially distributed
+* ``response: is_infected`` will use the column *is_infected* as a response (and the column in ``features`` as features).
+* ``sparkparams``: specifies parameters that are handed over to Apache Spar(which we cover later)
+* ``debug: true``:
 
-We use factor analysis for dimension reduction for which number of latent features is determined by ``factors``.
-The output of the dimension reduction will be used for clustering.
-We apply a recursive clustering method that finds the optimal number of cluster
-centers *K*. For this, you need to provide the maximal number of cluster centers,
-since we use this as a reference point.
-Finally ``sparkparams`` contains the parameters you want to provide spark with.
+The following table specifies the parameters that you can choose for either of the categories.
+
+
 The Spark `documentation <https://spark.apache.org/docs/latest/submitting-applications.html>`_
 for submitting applications provides details which arguments are valid here.
 
