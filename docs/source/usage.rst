@@ -45,33 +45,71 @@ Installing ``koios`` is easy.
 4) That is it.
 
 
-Your first program
-------------------
+Usage
+-----
 
-Using ``koios`` requires providing a config-file and starting a spark-cluster to which the jobs,
-i.e. the methods you want to use, are sent to and executed. If no cluster is available, you can
-also use your local desktop computer. This, of course, somehow limits what ``koios`` can do for you,
-since it's real strength lies in distributed computation.
+Using ``koios`` requires providing two things:
 
-Let's start with an introductory example
+* a config file that specifies the methods you want to use, paths to files, and parameters,
+* and the IP to a running spark-cluster which runs the algorithms and methods to be executed. If no cluster
+  environment is available you can also run koios locally. This, of course, somehow limits what koios can do for you,
+  since it's real strength lies in distributed computation.
 
 Config
 ~~~~~~~
 
-Your configuration file will need to have the following format:
+Running koios requires a ``yaml`` configuration file that specifies several key-value pairs.
+The config file consists of
+
+* general parameters,
+* and method specific parameters.
+
+The config file consists of a set general parameters which specify files, paths to executables and parameters for Spark. The respective parameters
+are listed below:
+
+================ ================== ================================================================
+Parameter        Value              Explanation
+================ ================== ================================================================
+``spark``                           path to Apache spark ``spark-submit`` exectuable
+``infile``                          tab-separated input file to use for any of the methods
+``outfolder``                       folder where all results are written to.
+``meta``                            names of the columns that represent meta information ("\n"-separated)
+``features``                        names of the columns that represent numerical features, i.e. columns that are used for analysis ("\n"-separated).
+``sparkparams``                     specifies parameters that are handed over to Apache Spark (which we cover in the section below)
+================ ================== ================================================================
+
+
+
+All of the required and optional arguments for every class of methods (dimensionality reduction, clustering, regression) are shown in the table below.
+
+
+
+The format of the config looks like this:
 
 .. literalinclude:: ../../koios-usecase.config
   :caption: Contents of ``koios-usecase.config`` file
   :name: koios-usecase.config
 
-The first line points to the ``spark-submit`` command which is provided by Apache Spark.
-The second line contains the ``tsv`` with your data, while the third line is the *folder* where all outputs are saved to.
-We use factor analysis for dimension reduction for which number of latent features is determined by ``factors``.
-The output of the dimension reduction will be used for clustering.
-We apply a recursive clustering method that finds the optimal number of cluster
-centers *K*. For this, you need to provide the maximal number of cluster centers,
-since we use this as a reference point.
-Finally ``sparkparams`` contains the parameters you want to provide spark with.
+In the file above we key-value pairs stand for:
+
+* ``spark: spark-submit`` points to the executable of Spark. Change the path according to where you have it installed.
+* ``infile: data/single_cell_imaging_data.tsv`` contains the data set you want to use for analysis.
+* ``outfolder: data`` points to the folder where all results are written to.
+* ``meta: data/meta_columns.tsv``
+* ``features: data/feature_columns.tsv`` contains the names of the columns that represent numerical features, i.e. columns that are used for analysis ("\n"-separated).
+* ``dimension_reduction: factor_analysis`` will execute a dimensionality reduction with a factor analysis.
+* ``n_components: 5`` will use five factors for the dimensionality reduction
+* ``regression: glm`` fits a gerneralized linear regression model
+* ``clustering: kmeans`` will use k-means on the dimensionality reduced) data set.
+* ``n_centers: 5`` will use 5 cluster centers for the ckysterubg
+* ``family: binomial`` tells the GLM that the data are binomially distributed
+* ``response: is_infected`` will use the column *is_infected* as a response (and the column in ``features`` as features).
+* ``sparkparams``: specifies parameters that are handed over to Apache Spar(which we cover later)
+* ``debug: true``:
+
+The following table specifies the parameters that you can choose for either of the categories.
+
+
 The Spark `documentation <https://spark.apache.org/docs/latest/submitting-applications.html>`_
 for submitting applications provides details which arguments are valid here.
 
