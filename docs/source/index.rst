@@ -74,7 +74,7 @@ For instance, for the example above, two of the plots generated are shown below:
 .. figure:: _static/kmeans-profile.png
    :align: center
 
-   Number of clusters vs explained variance and BIC. 
+   Number of clusters vs explained variance and BIC.
 
 .. figure:: _static/kmeans-cluster_sizes-histogram.png
    :align: center
