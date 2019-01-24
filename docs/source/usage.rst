@@ -88,25 +88,25 @@ The following tables show the arguments required for the single methods, i.e. di
 clustering and regression.
 
 +------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| *Method*               | *Options*                            |  *Method*                                                                                                                   |
+| *Parameter*            | *Argument*                           |  *Explanation*                                                                                                              |
 +========================+======================================+=============================================================================================================================+
 | **Dimension reduction**                                                                                                                                                                     |
 +------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
 | ``dimension_reduction``| ``factor_analysis``/``pca``/``kpca`` | specifies which method to use for dimension reduction                                                                       |
 +------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| ``n_components``       | e.g ``1,2,3`` or ``1``               | comma-separated list of integers specifying the number of variables in the lower dimensional space to use per reduction     |
+| ``n_components``       | e.g ``2,3,4`` or ``2``               | comma-separated list of integers specifying the number of variables in the lower dimensional space to use per reduction     |
 +------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
 | **Clustering**                                                                                                                                                                              |
 +------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
 | ``clustering``         | ``kmeans``/``gmm``                   | specifies which method to use for clustering                                                                                |
 +------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| ``n_centers``          | e.g ``1,2,3`` or ``1``               | comma-separated list of integers specifying the number of clusters to use per cluystering                                   |
+| ``n_centers``          | e.g ``2,3,4`` or ``2``               | comma-separated list of integers specifying the number of clusters to use per cluystering                                   |
 +------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
 | **Regression**                                                                                                                                                                              |
 +------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
 | ``regression``         |  ``glm``/``forest``/``gbm``          | specifies which method to use for regression                                                                                |
 +------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| ``response``           |                                      | name of column in ``infile`` that is the response                                                                           |
+| ``response``                                                  | name of column in ``infile`` that is the response                                                                           |
 +------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
 | ``family``             | ``gaussian``/``binomial``            | distribution family of the response variable                                                                                |
 +------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
@@ -120,8 +120,11 @@ The abbreveations of the methods are explained in the following list.
 * ``gmm`` for `Gaussian mixture models <https://en.wikipedia.org/wiki/Mixture_model#Gaussian_mixture_model>`_.
 * ``pca`` for `principal component analysis <https://en.wikipedia.org/wiki/Principal_component_analysis>`_,
 * ``factor_analysis`` `for factor analysis <https://en.wikipedia.org/wiki/Factor_analysis>`_,
-* ``kpca`` for `kernel principal component analysis <https://en.wikipedia.org/wiki/Kernel_principal_component_analysis>`_.
+* ``kpca`` for `kernel principal component analysis <https://en.wikipedia.org/wiki/Kernel_principal_component_analysis>`_ using Fourier features [FF]_ to approximate the kernel.
 
+
+Example
+.......
 
 For instance, consider the config file below:
 
@@ -239,3 +242,8 @@ For ``regression``:
    koios regression koios-usecase.config IP
 
 In all cases, the methods create ``tsv`` files, plots and statistics.
+
+References
+----------
+
+.. [FF] `Rahimi, Ali, and Benjamin Recht. "Random features for large-scale kernel machines." Advances in neural information processing systems. 2008. <http://papers.nips.cc/paper/3182-random-features-for-large-scale-kernel-machines.pdf>`_
