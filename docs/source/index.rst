@@ -31,19 +31,22 @@ About
 
 Welcome to ``koios``.
 
-``koios`` is a Python command line tool for analysis of big biological data sets.
-It supports machine learning for big data sets that scale up to tera byte sizes.
-``koios`` uses Apache Spark's DataFrame API and MLLib which, if developed against, automatically distributes
-data to the nodes of a high-performance cluster and does the computations
-in parallel. In addition we use Snakemake to automatically schedule pipelines of jobs.
+``koios`` is a Python library and command line tool for big data analytics and machine learning scaling to tera byte sized data sets.
 
-Sofar ``koios`` supports
+In order to make koios scale to big data sets, we use Apache [Spark]_'s DataFrame API which, if developed against, automatically distributes
+data to the nodes of a high-performance cluster and does the computation of expensive machine learning tasks in parallel.
+For scheduling, koios uses [Snakemake]_ to automatically execute pipelines of jobs. In particular, koios will first build a DAG of methods/jobs
+you want to execute in succession (e.g. dimensionality reduction into clustering) and then compute every method by traversing the DAG.
+In the case of a successful computation of a job, koios will write results and plots, and create statistics. If one of the jobs fails koios will report where and which method failed
+(owing to Snakemake's scheduling) such that the same pipeline can effortlessly be continued from where it failed the last time.
+
+Sofar ``koios`` supports several methods from [MLLib]_ and some that have been developed from scratch to scale to big data settings:
 
 * dimensionality reduction using PCA, factor analysis and kPCA,
 * clustering using k-means and Gaussian mixture models,
 * supervised learning using generalized linear regression models, random forests and gradient boosting.
 
-The library is actively developed and will add new features in a timely fashion. If you want to you can also contribute:
+The package is actively developed and will add new features in a timely fashion. If you want to you can also contribute:
 `fork us on GitHub <https://github.com/cbg-ethz/biospark>`_.
 
 Dependencies
@@ -83,4 +86,9 @@ For instance, for the example above, two of the plots generated are shown below:
    Each row shows the distribution of the number of cells per cluster (component).
 
 
+References
+----------
 
+.. [Snakemake] `Köster, Johannes, and Sven Rahmann. "Snakemake—a scalable bioinformatics workflow engine." Bioinformatics 28.19 (2012): 2520-2522. <https://doi.org/10.1093/bioinformatics/bts480>`_
+.. [Spark]     `Zaharia, Matei, et al. "Apache spark: a unified engine for big data processing." Communications of the ACM 59.11 (2016): 56-65. <https://doi.org/10.1145/2934664>`_
+.. [MLLib]     `Meng, Xiangrui, et al. "Mllib: Machine learning in apache spark." The Journal of Machine Learning Research 17.1 (2016): 1235-1241. <http://jmlr.org/papers/volume17/15-237/15-237.pdf>`_

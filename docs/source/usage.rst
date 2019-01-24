@@ -111,6 +111,18 @@ clustering and regression.
 | ``family``             | ``gaussian``/``binomial``            | distribution family of the response variable                                                                                |
 +------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
 
+The abbreveations of the methods are explained in the following list.
+
+* ``glm`` for `generalized linear regression models <https://en.wikipedia.org/wiki/Generalized_linear_model>`_,
+* ``gbm`` for stochastic `gradient boosting <https://en.wikipedia.org/wiki/Gradient_boosting>`_,
+* ``forest`` for `random forests <https://en.wikipedia.org/wiki/Random_forest>`_.
+* ``kmeans`` for `K-means <https://en.wikipedia.org/wiki/K-means_clustering>`_,
+* ``gmm`` for `Gaussian mixture models <https://en.wikipedia.org/wiki/Mixture_model#Gaussian_mixture_model>`_.
+* ``pca`` for `principal component analysis <https://en.wikipedia.org/wiki/Principal_component_analysis>`_,
+* ``factor_analysis`` `for factor analysis <https://en.wikipedia.org/wiki/Factor_analysis>`_,
+* ``kpca`` for `kernel principal component analysis <https://en.wikipedia.org/wiki/Kernel_principal_component_analysis>`_.
+
+
 For instance, consider the config file below:
 
 .. literalinclude:: ../../koios-usecase.config
