@@ -1,47 +1,35 @@
-Dimensionality reduction example
-================================
+Dimension reduction
+===================
 
-Here we show a small use case of ``koios``. We prepared a sample data set
-(``data/single_cell_samples.tsv``) which we use for analysis
-
-Starting the cluster
---------------------
-
-First we start the cluster. Locally that would be done like this:
-
-.. code-block:: bash
-
-  $SPARK_HOME/sbin/start-master.sh
-  $SPARK_HOME/sbin/start-slave.sh <IP>
+Here we show a small use case of how to do a dimension reduction on a small sample data set
+(``data/single_cell_samples.tsv``). We assume you
+already set up the cluster for Spark (other check `here <./usage.html#spark>`_) with
+an ``IP`` address.
 
 Analysis
 --------
 
-Before we start analysing the data we do a dimension reduction into a 15-dimensional space using
-``koios``.
+For analysis we decide use a kernel PCA to map data into a lower dimensional space.
+Koios offers in total three ways to do dimension reduction:
+
+* ``pca`` for `principal component analysis <https://en.wikipedia.org/wiki/Principal_component_analysis>`_,
+* ``factor_analysis`` `for factor analysis <https://en.wikipedia.org/wiki/Factor_analysis>`_,
+* ``kpca`` for `kernel principal component analysis <https://en.wikipedia.org/wiki/Kernel_principal_component_analysis>`_.
+
+The config file we need to specify is in this case rather concise:
+
+.. literalinclude:: ../../koios-usecase-kpca.config
+  :caption: Contents of ``koios-usecase-kpca.config`` file
+  :name: koios-usecase-kpca.config
+
+In the config above we will do the following:
+
+* Use a kpca to map the data set into a two-dimensional space,
+* give the Spark driver $3G$ of memory and the executor $6G$ of memory.
+
+Having the parameters set, we call koios
 
 .. code-block:: bash
 
-  ./koios --configfile koios-usecase-log-ref.config
-          --ip IP
-          dimension-reduction
+  koios dimension-reduction koios-usecase-kpca.config IP
 
-Youn will receive a couple of plots which you should check for Gaussianity.
-
-Afterwards we use the outlier removal:
-
-.. code-block:: bash
-
-     ./koios --configfile biospark-local.config
-          --ip IP
-          outlier-removal
-
-Finally we do the clustering:
-
-.. code-block:: bash
-
-     ./koios --configfile biospark-local.config
-          --ip IP
-          clustering
-
-That's it. You get some plots to that which you should have a look at.

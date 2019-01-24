@@ -1,47 +1,36 @@
-Logistic regression example
-===========================
+Regression
+==========
 
-Here we show a small use case of ``koios``. We prepared a sample data set
-(``data/single_cell_samples.tsv``) which we use for analysis
-
-Starting the cluster
---------------------
-
-First we start the cluster. Locally that would be done like this:
-
-.. code-block:: bash
-
-  $SPARK_HOME/sbin/start-master.sh
-  $SPARK_HOME/sbin/start-slave.sh <IP>
+Here we show a small use case of how to regress a variable onto another set of variables exemplified
+on a small sample data set (``data/single_cell_samples.tsv``). We assume you
+already set up the cluster for Spark (other check `here <./usage.html#spark>`_) with
+an ``IP`` address.
 
 Analysis
 --------
 
-Before we start analysing the data we do a dimension reduction into a 15-dimensional space using
-``koios``.
+We will use a generalized linear regression model to establish a dependency between
+a response and a set of predictors. Apart to the GLM, you can overall choose from
+several regression methods
+
+* ``glm`` for `generalized linear regression models <https://en.wikipedia.org/wiki/Generalized_linear_model>`_,
+* ``gbm`` for stochastic `gradient boosting <https://en.wikipedia.org/wiki/Gradient_boosting>`_,
+* ``forest`` for `random forests <https://en.wikipedia.org/wiki/Random_forest>`_.
+
+The config file we need to specify is in this case rather concise:
+
+.. literalinclude:: ../../koios-usecase-logreg.config
+  :caption: Contents of ``koios-usecase-logreg.config`` file
+  :name: koios-usecase-logreg.config
+
+In the config above we will do the following:
+
+* Use a kpca to map the data set into a two-dimensional space,
+* give the Spark driver $3G$ of memory and the executor $6G$ of memory.
+
+Having the parameters set, we call koios
 
 .. code-block:: bash
 
-  ./koios --configfile koios-usecase-log-ref.config
-          --ip IP
-          dimension-reduction
+  koios dimension-reduction koios-usecase-kpca.config IP
 
-Youn will receive a couple of plots which you should check for Gaussianity.
-
-Afterwards we use the outlier removal:
-
-.. code-block:: bash
-
-     ./koios --configfile biospark-local.config
-          --ip IP
-          outlier-removal
-
-Finally we do the clustering:
-
-.. code-block:: bash
-
-     ./koios --configfile biospark-local.config
-          --ip IP
-          clustering
-
-That's it. You get some plots to that which you should have a look at.

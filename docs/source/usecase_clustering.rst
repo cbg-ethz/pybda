@@ -1,47 +1,39 @@
-Clustering example
-==================
+Clustering
+==========
 
-Here we show a small use case of ``koios``. We prepared a sample data set
-(``data/single_cell_samples.tsv``) which we use for analysis
-
-Starting the cluster
---------------------
-
-First we start the cluster. Locally that would be done like this:
-
-.. code-block:: bash
-
-  $SPARK_HOME/sbin/start-master.sh
-  $SPARK_HOME/sbin/start-slave.sh <IP>
+Here we show a small use case of how to cluster data on a small sample data set
+(``data/single_cell_samples.tsv``). We assume you
+already set up the cluster for Spark (other check `here <./usage.html#spark>`_) with
+an ``IP`` address.
 
 Analysis
 --------
 
-Before we start analysing the data we do a dimension reduction into a 15-dimensional space using
-``koios``.
+For analysis we decide to use a simple k-means with various cluster centers. All
+methods for clustering are:
+
+* ``kmeans`` for `K-means <https://en.wikipedia.org/wiki/K-means_clustering>`_,
+* ``gmm`` for `Gaussian mixture models <https://en.wikipedia.org/wiki/Mixture_model#Gaussian_mixture_model>`_.
+
+In order to account for correlated features, we first map the features into a lower
+dimensional space using factor analysis (we could also use a GMM, where we estimate
+the correlations too, or remove the line in the config):
+
+.. literalinclude:: ../../koios-usecase-kmeans.config
+  :caption: Contents of ``koios-usecase-kmeans.config`` file
+  :name: koios-usecase-kmeans.config
+
+In the config above we will do the following.
+
+* Use a factor analysis into a space with three dimensions on the features in ``data/feature_columns.tsv``,
+* do a clustering with $50, \dots, 200$ cluster centers on the three features we got from the factor analysis,
+* give the Spark driver $3G$ of memory and the executor $6G$ of memory.
+
+Having the parameters set, we call koios
 
 .. code-block:: bash
 
-  ./koios --configfile koios-usecase-log-ref.config
-          --ip IP
-          dimension-reduction
+  koios clustering koios-usecase-kmeans.config IP
 
-Youn will receive a couple of plots which you should check for Gaussianity.
-
-Afterwards we use the outlier removal:
-
-.. code-block:: bash
-
-     ./koios --configfile biospark-local.config
-          --ip IP
-          outlier-removal
-
-Finally we do the clustering:
-
-.. code-block:: bash
-
-     ./koios --configfile biospark-local.config
-          --ip IP
-          clustering
-
-That's it. You get some plots to that which you should have a look at.
+The above command first executes the dimension reduction and then the clustering.
+After both ran, you should check the plots and statistics.
