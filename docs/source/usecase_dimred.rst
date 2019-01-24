@@ -14,7 +14,7 @@ Koios offers in total three ways to do dimension reduction:
 
 * ``pca`` for `principal component analysis <https://en.wikipedia.org/wiki/Principal_component_analysis>`_,
 * ``factor_analysis`` `for factor analysis <https://en.wikipedia.org/wiki/Factor_analysis>`_,
-* ``kpca`` for `kernel principal component analysis <https://en.wikipedia.org/wiki/Kernel_principal_component_analysis>`_.
+* ``kpca`` for `kernel principal component analysis <https://en.wikipedia.org/wiki/Kernel_principal_component_analysis>`_ using Fourier features [FF]_ to approximate the kernel.
 
 The config file we need to specify is in this case rather concise:
 
@@ -32,4 +32,3 @@ Having the parameters set, we call koios
 .. code-block:: bash
 
   koios dimension-reduction koios-usecase-kpca.config IP
-

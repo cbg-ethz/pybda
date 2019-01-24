@@ -114,10 +114,10 @@ clustering and regression.
 The abbreveations of the methods are explained in the following list.
 
 * ``glm`` for `generalized linear regression models <https://en.wikipedia.org/wiki/Generalized_linear_model>`_,
-* ``gbm`` for stochastic `gradient boosting <https://en.wikipedia.org/wiki/Gradient_boosting>`_,
-* ``forest`` for `random forests <https://en.wikipedia.org/wiki/Random_forest>`_.
+* ``gbm`` for stochastic `gradient boosting <https://en.wikipedia.org/wiki/Gradient_boosting>`_ [SGB]_,
+* ``forest`` for `random forests <https://en.wikipedia.org/wiki/Random_forest>`_ [RF]_,
 * ``kmeans`` for `K-means <https://en.wikipedia.org/wiki/K-means_clustering>`_,
-* ``gmm`` for `Gaussian mixture models <https://en.wikipedia.org/wiki/Mixture_model#Gaussian_mixture_model>`_.
+* ``gmm`` for `Gaussian mixture models <https://en.wikipedia.org/wiki/Mixture_model#Gaussian_mixture_model>`_,
 * ``pca`` for `principal component analysis <https://en.wikipedia.org/wiki/Principal_component_analysis>`_,
 * ``factor_analysis`` `for factor analysis <https://en.wikipedia.org/wiki/Factor_analysis>`_,
 * ``kpca`` for `kernel principal component analysis <https://en.wikipedia.org/wiki/Kernel_principal_component_analysis>`_ using Fourier features [FF]_ to approximate the kernel.
@@ -247,3 +247,5 @@ References
 ----------
 
 .. [FF] `Rahimi, Ali, and Benjamin Recht. "Random features for large-scale kernel machines." Advances in neural information processing systems. 2008. <http://papers.nips.cc/paper/3182-random-features-for-large-scale-kernel-machines.pdf>`_
+.. [SGB] `Friedman, Jerome H. "Stochastic gradient boosting." Computational Statistics & Data Analysis 38.4 (2002): 367-378 <https://doi.org/10.1016/S0167-9473(01)00065-2>`_.
+.. [RF] `Breiman, Leo. "Random forests." Machine learning 45.1 (2001): 5-32. <https://doi.org/10.1023/A:1010933404324>`_
