@@ -14,8 +14,8 @@ a response and a set of predictors. Apart to the GLM, you can overall choose fro
 several regression methods
 
 * ``glm`` for `generalized linear regression models <https://en.wikipedia.org/wiki/Generalized_linear_model>`_,
-* ``gbm`` for stochastic `gradient boosting <https://en.wikipedia.org/wiki/Gradient_boosting>`_,
-* ``forest`` for `random forests <https://en.wikipedia.org/wiki/Random_forest>`_.
+* ``gbm`` for stochastic `gradient boosting <https://en.wikipedia.org/wiki/Gradient_boosting>`_ [SGB]_,
+* ``forest`` for `random forests <https://en.wikipedia.org/wiki/Random_forest>`_ [RF]_.
 
 The config file we need to specify is in this case rather concise:
 
@@ -33,4 +33,3 @@ Having the parameters set, we call koios
 .. code-block:: bash
 
   koios dimension-reduction koios-usecase-kpca.config IP
-
