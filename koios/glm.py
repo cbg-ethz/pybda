@@ -43,8 +43,8 @@ class GLM(Regression):
     def fit(self, data):
         logger.info("Fitting GLM with family='{}'".format(self.family))
         model = self._fit(data)
-        return GLMFit(data, model, self.__response,
-                      self.family, self.__features)
+        return GLMFit(data, model, self.response,
+                      self.family, self.features)
 
     def _model(self):
         if self.family == GAUSSIAN_:
@@ -96,7 +96,8 @@ def run(file, meta, features, response, family, outpath, predict):
             fit = fl.fit(data)
             fit.write_files(outpath)
             if pathlib.Path(predict).exists():
-                pre_data = read_and_transmute(spark, predict, features, drop=False)
+                pre_data = read_and_transmute(
+                  spark, predict, features, drop=False)
                 pre_data = fit.transform(pre_data)
                 pre_data.write_files(outpath)
 

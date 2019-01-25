@@ -60,3 +60,4 @@ def plot_curves(file_name, pr, roc):
 
     plt.subplots_adjust(wspace=0.3)
     plt.savefig(file_name, dpi=720)
+    plt.close('all')

@@ -61,6 +61,7 @@ def plot_cumulative_variance(file_name, cum_exp_var, xlab):
     plt.xlabel(xlab, fontsize=15)
     plt.ylabel("Cumulative Variance", fontsize=15)
     plt.savefig(file_name, dpi=720)
+    plt.close('all')
 
 
 def biplot(file_name, data, xlab, ylab):
@@ -89,6 +90,7 @@ def biplot(file_name, data, xlab, ylab):
     plt.xlabel(xlab, fontsize=15)
     plt.ylabel(ylab, fontsize=15)
     plt.savefig(file_name, dpi=720)
+    plt.close('all')
 
 
 def plot_likelihood_path(file_name, data):
@@ -107,3 +109,4 @@ def plot_likelihood_path(file_name, data):
     plt.xlabel('# iterations', fontsize=15)
     plt.ylabel("-\u2113(" + r"$\theta$)", fontsize=15)
     plt.savefig(file_name, dpi=720)
+    plt.close('all')

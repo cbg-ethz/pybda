@@ -112,8 +112,7 @@ def sample(config, spark, input, output, n, split):
               "input": input,
               "output": output,
               "n": str(n),
-              "split": str(split)}
-    )
+              "split": str(split)})
 
 
 if __name__ == "__main__":

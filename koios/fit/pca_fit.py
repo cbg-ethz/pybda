@@ -62,7 +62,7 @@ class PCAFit(DimensionReductionFit):
         return self.__sds
 
     def write_files(self, outfolder):
-        write_parquet(self.data, outfolder)
+        self.write_tsv(outfolder)
         self._write_loadings(outfolder + "-loadings.tsv")
         plot_fold = outfolder + "-plot"
         if not os.path.exists(plot_fold):
