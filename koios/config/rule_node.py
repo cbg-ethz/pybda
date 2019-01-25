@@ -31,7 +31,7 @@ class RuleNode:
         self.__infile = infile if parent is None else parent.outfile
         self.__level = 0 if parent is None else parent.level + 1
         try:
-            self.__outfile = os.path.join(outfolder, algorithm)
+            self.__outfile = os.path.join(outfolder, algorithm) + ".tsv"
         except TypeError:
             self.__outfile = outfolder
 
