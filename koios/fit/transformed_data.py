@@ -41,7 +41,6 @@ class TransformedData:
         """
 
         outpath = outpath + "-transformed"
-        write_parquet(self.data, outpath)
         data = drop(self.data, FEATURES__, RAW_PREDICTION__)
         data = split_vector(data, PROBABILITY__)
         write_tsv(data, outpath)

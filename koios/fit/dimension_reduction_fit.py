@@ -24,6 +24,10 @@ from abc import ABC, abstractmethod
 
 from pandas import DataFrame
 
+from koios.globals import FEATURES__
+from koios.io.io import write_tsv
+from koios.spark.features import drop, split_vector
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
@@ -59,3 +63,7 @@ class DimensionReductionFit(ABC):
     @abstractmethod
     def _plot(self, outfile):
        pass
+
+    def write_tsv(self, outfolder):
+        data = split_vector(self.data, FEATURES__)
+        write_tsv(data, outfolder)

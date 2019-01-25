@@ -52,6 +52,7 @@ def scatter(file_name, x, y,
     plt.ylabel(ylab, fontsize=15)
 
     plt.savefig(file_name, dpi=720)
+    plt.close('all')
 
 
 def histogram(file_name, x, xlab, ylab="Frequency",
@@ -70,3 +71,4 @@ def histogram(file_name, x, xlab, ylab="Frequency",
     plt.xlabel(xlab, fontsize=15)
     plt.ylabel(ylab, fontsize=15)
     plt.savefig(file_name, dpi=720)
+    plt.close('all')

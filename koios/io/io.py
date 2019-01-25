@@ -17,10 +17,11 @@
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
-
-
+import glob
 import logging
+import os
 import pathlib
+import shutil
 
 import pandas
 
@@ -71,7 +72,12 @@ def write_tsv(data, outfile, header=True, index=False):
     if isinstance(data, pandas.DataFrame):
         data.to_csv(outfile, sep="\t", header=header, index=index)
     else:
-        data.write.csv(outfile, mode="overwrite", sep="\t", header=header)
+        data.coalesce(1).write.csv(
+          outfile, mode="overwrite", sep="\t", header=header)
+        fl = glob.glob(outfile + "/part*")
+        os.rename(fl[0], outfile + ".tsv")
+        shutil.rmtree.remove(outfile)
+
 
 
 def read_and_transmute(spark, file_name,

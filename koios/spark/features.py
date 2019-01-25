@@ -102,9 +102,10 @@ def assemble(data, feature_cols, drop=True):
     if FEATURES_ not in data.columns:
         logger.info("Assembling column to feature vector")
         assembler = VectorAssembler(
-          inputCols=feature_cols,
-          outputCol=FEATURES_)
+          inputCols=feature_cols, outputCol=FEATURES_)
         data = assembler.transform(data)
+    else:
+        logger.info("Features already assembled")
     if drop:
         logger.info("Dropping redundant columns")
         data = data.drop(*feature_cols)

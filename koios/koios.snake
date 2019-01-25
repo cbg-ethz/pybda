@@ -165,7 +165,7 @@ rule outliers:
 
 
 def _run_regression(params, reg, input, out):
-    predict = ""
+    predict = "None"
     if PREDICT__ in koios_config:
         predict = koios_config[PREDICT__]
     cmd = """{} --master {} {} {} {} {} {} {} {} {} {} {}""".format(
