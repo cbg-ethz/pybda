@@ -66,7 +66,7 @@ class FactorAnalysisFit(DimensionReductionFit):
         return self.__ll
 
     def write_files(self, outfolder):
-        write_parquet(self.__data, outfolder)
+        write_parquet(self.data, outfolder)
         self._write_loadings(outfolder + "-loadings.tsv")
         self._write_likelihood(outfolder + "-loglik.tsv")
         plot_fold = outfolder + "-plot"

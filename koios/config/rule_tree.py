@@ -17,7 +17,7 @@
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
-import queue
+
 
 from koios.config.rule_node import RuleNode
 from koios.globals import PREPROCESSING_METHODS__, PARENT_METHODS__

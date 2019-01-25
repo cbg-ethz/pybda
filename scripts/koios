@@ -68,18 +68,6 @@ def dimension_reduction(config, spark):
 @cli.command()
 @click.argument("config", type=str)
 @click.argument("spark", type=str)
-def outliers(config, spark):
-    """
-    Removes outliers using a Chi-Squared distribution
-    from a CONFIG in a SPARK session.
-    """
-
-    run(config, spark, "outliers")
-
-
-@cli.command()
-@click.argument("config", type=str)
-@click.argument("spark", type=str)
 def clustering(config, spark):
     """
     Do a clustering fit of a data set.
