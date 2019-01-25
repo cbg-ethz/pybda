@@ -102,3 +102,4 @@ class FitProfile(ABC):
             x.spines['bottom'].set_color('grey')
             x.grid(color="grey", axis="y")
         plt.savefig(file_name, dpi=720)
+        plt.close("all")

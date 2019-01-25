@@ -37,7 +37,7 @@ logger.setLevel(logging.INFO)
 
 class ClusteringTransformed(TransformedData):
     def __init__(self, data):
-        super.__init__(data)
+        super().__init__(data)
 
     def write_files(self, outpath, k):
         outpath = outpath + "-transformed-K{}".format(k)
