@@ -21,7 +21,7 @@
 import logging
 
 from koios.globals import FEATURES__, RAW_PREDICTION__, PROBABILITY__
-from koios.io.io import write_tsv, write_parquet
+from koios.io.io import write_tsv
 
 from koios.spark.features import drop, split_vector
 

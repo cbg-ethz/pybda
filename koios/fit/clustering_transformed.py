@@ -29,7 +29,7 @@ from abc import abstractmethod
 from pyspark.sql.functions import col
 
 from koios.fit.transformed_data import TransformedData
-from koios.io.io import write_parquet, rm
+from koios.io.io import rm
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -43,7 +43,6 @@ class ClusteringTransformed(TransformedData):
         outpath = outpath + "-transformed-K{}".format(k)
         if not os.path.exists(outpath):
             os.mkdir(outpath)
-        write_parquet(self.data, outpath)
         self.write_clusters(outpath)
 
     @abstractmethod
