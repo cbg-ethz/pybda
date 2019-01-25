@@ -70,6 +70,14 @@ def to_double(data, feature_cols, response=None):
             raise TypeError("'features' column ist not if type float")
         has_feature_col = True
 
+    f_cols = list(filter(lambda x: x.startswith("f_"), cols))
+    if len(f_cols):
+        logger.info(
+            "Found columns with prefix f_ from previous computation: {}.\n"
+            "Preferring these columns as features/"
+            "".format("\t".join(f_cols)))
+        feature_cols = f_cols
+
     logger.info("Casting columns to double.")
     for x in feature_cols:
         if x in cols and has_feature_col:
@@ -99,8 +107,15 @@ def assemble(data, feature_cols, drop=True):
     :return: returns the DataFrame with assembled features
     """
 
-    if FEATURES_ not in data.columns:
+    cols = data.columns
+    if FEATURES_ not in cols:
         logger.info("Assembling column to feature vector")
+        f_cols = list(filter(lambda x: x.startswith("f_"), cols))
+        if len(f_cols):
+            logger.info("Found columns with prefix f_ from previous computation: {}.\n"
+                        "Preferring these columns as features"
+                        "".format("\t".join(f_cols)))
+            feature_cols = f_cols
         assembler = VectorAssembler(
           inputCols=feature_cols, outputCol=FEATURES_)
         data = assembler.transform(data)

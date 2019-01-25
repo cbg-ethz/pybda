@@ -74,10 +74,10 @@ def write_tsv(data, outfile, header=True, index=False):
     else:
         data.coalesce(1).write.csv(
           outfile, mode="overwrite", sep="\t", header=header)
+        # puh, that is risky
         fl = glob.glob(outfile + "/part*")
         os.rename(fl[0], outfile + ".tsv")
         shutil.rmtree.remove(outfile)
-
 
 
 def read_and_transmute(spark, file_name,
@@ -109,7 +109,6 @@ def read_and_transmute(spark, file_name,
         data = read_parquet(spark, file_name, header)
     else:
         raise ValueError("{} is neither tsv nor folder.".format(file_name))
-
     data = to_double(data, feature_cols, respone)
     data = fill_na(data)
     if assemble_features:

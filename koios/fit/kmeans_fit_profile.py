@@ -52,7 +52,6 @@ class KMeansFitProfile(FitProfile):
         fls = glob.glob(path + "*/*cluster_sizes.tsv")
         reg = re.compile(".*K(\d+)_cluster_sizes.tsv")
         ll = self.as_pandas()
-        logger.info(len(fls))
         frames = [None] * len(fls)
         for i, fl in enumerate(fls):
             t = pandas.read_csv(fl, sep="\t", header=-1, names="c")
@@ -94,3 +93,4 @@ class KMeansFitProfile(FitProfile):
         plt.bar(ks, profile[BIC_].values, color=cols, alpha=.75,
                 width=0.5)
         plt.savefig(file_name, dpi=720)
+        plt.close("all")
