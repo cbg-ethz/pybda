@@ -20,7 +20,6 @@
 
 import glob
 import logging
-import os
 import pathlib
 
 import pandas
@@ -41,8 +40,6 @@ class ClusteringTransformed(TransformedData):
 
     def write_files(self, outpath, k):
         outpath = outpath + "-transformed-K{}".format(k)
-        if not os.path.exists(outpath):
-            os.mkdir(outpath)
         self.write_clusters(outpath)
 
     @abstractmethod
