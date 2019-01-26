@@ -36,11 +36,11 @@ PLOT_FONT_FAMILY_ = 'sans-serif'
 PLOT_STYLE_ = "seaborn-whitegrid"
 RED_ = "#990000"
 
-TSV_ = "tsv"
 DOUBLE_ = "double"
 FLOAT_ = "float"
-FLOAT64_ = "float32"
 FLOAT32_ = "float64"
+FLOAT64_ = "float32"
+TSV_ = "tsv"
 
 FEATURES_ = "features"
 GAUSSIAN_ = "gaussian"
@@ -83,6 +83,8 @@ PROBABILITY__ = "probability"
 REGRESSION__ = "regression"
 REGRESSION_INFILE__ = REGRESSION__ + "_" + INFILE__
 GLM__ = "glm"
+GBM__ = "gbm"
+FOREST__ = "forest"
 FAMILY__ = "family"
 
 RULE_INFILE__ = "rule" + "_" + INFILE__
