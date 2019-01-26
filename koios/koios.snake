@@ -205,10 +205,10 @@ rule glm:
     input:
         expand("{infile}", infile=koios_config[REGRESSION_INFILE__])
     output:
-        expand("{outfolder}/{regression}-{out}.tsv",
+        expand("{outfolder}/{regression}{out}",
                outfolder=koios_config[OUTFOLDER__],
                regression=koios_config[REGRESSION__],
-               out=["table", "statistics"])
+               out=["-table.tsv", "-statistics.tsv", ".log"])
     params:
         out = os.path.join(
             koios_config[OUTFOLDER__], koios_config[REGRESSION__]),
@@ -225,7 +225,7 @@ rule forest:
         expand("{outfolder}/{regression}-{out}.tsv",
                outfolder=koios_config[OUTFOLDER__],
                regression=koios_config[REGRESSION__],
-               out=["statistics"])
+               out=["statistics", "log"])
     params:
         out = os.path.join(
             koios_config[OUTFOLDER__], koios_config[REGRESSION__]),
@@ -242,7 +242,7 @@ rule gbm:
         expand("{outfolder}/{regression}-{out}.tsv",
                outfolder=koios_config[OUTFOLDER__],
                regression=koios_config[REGRESSION__],
-               out=["statistics"])
+               out=["statistics", "log"])
     params:
         out = os.path.join(
             koios_config[OUTFOLDER__], koios_config[REGRESSION__]),
