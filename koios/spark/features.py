@@ -112,7 +112,7 @@ def assemble(data, feature_cols, drop=True):
         logger.info("Assembling column to feature vector")
         f_cols = list(filter(lambda x: x.startswith("f_"), cols))
         if len(f_cols):
-            logger.info("Found columns with prefix f_ from previous computation: {}.\n"
+            logger.info("Found columns with prefix f_ from previous computation: {}. "
                         "Preferring these columns as features"
                         "".format("\t".join(f_cols)))
             feature_cols = f_cols

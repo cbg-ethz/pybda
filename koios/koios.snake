@@ -102,10 +102,10 @@ rule pca:
     output:
         expand("{outfolder}/{dimred}{fls}",
                outfolder=koios_config[OUTFOLDER__],
-               dimred=FACTOR_ANALYSIS__, fls=[".tsv", ".log", "-loadings.tsv"]),
+               dimred=PCA__, fls=[".tsv", ".log", "-loadings.tsv"]),
         directory(expand("{outfolder}/{dimred}-plot",
                          outfolder=koios_config[OUTFOLDER__],
-                         dimred=FACTOR_ANALYSIS__))
+                         dimred=PCA__))
     params:
         out = expand("{outfolder}/{dimred}",
                      outfolder=koios_config[OUTFOLDER__],
@@ -222,10 +222,10 @@ rule forest:
     input:
         expand("{infile}", infile=koios_config[REGRESSION_INFILE__])
     output:
-        expand("{outfolder}/{regression}-{out}.tsv",
+        expand("{outfolder}/{regression}{out}",
                outfolder=koios_config[OUTFOLDER__],
                regression=koios_config[REGRESSION__],
-               out=["statistics", "log"])
+               out=["-statistics.tsv", ".log"])
     params:
         out = os.path.join(
             koios_config[OUTFOLDER__], koios_config[REGRESSION__]),
@@ -239,10 +239,10 @@ rule gbm:
     input:
         expand("{infile}", infile=koios_config[REGRESSION_INFILE__])
     output:
-        expand("{outfolder}/{regression}-{out}.tsv",
+        expand("{outfolder}/{regression}{out}",
                outfolder=koios_config[OUTFOLDER__],
                regression=koios_config[REGRESSION__],
-               out=["statistics", "log"])
+               out=["-statistics.tsv", ".log"])
     params:
         out = os.path.join(
             koios_config[OUTFOLDER__], koios_config[REGRESSION__]),
@@ -272,7 +272,17 @@ rule kmeans:
     output:
         directory(expand("{outfolder}/{clust}",
                          clust=koios_config[CLUSTERING__],
-                         outfolder=koios_config[OUTFOLDER__]))
+                         outfolder=koios_config[OUTFOLDER__])),
+        expand("{outfolder}/{clust}-profile.{out}",
+               clust=koios_config[CLUSTERING__],
+               outfolder=koios_config[OUTFOLDER__], out=["png", "pdf", "eps", "svg", "tsv"]),
+        expand("{outfolder}/{clust}.{out}",
+               clust=koios_config[CLUSTERING__],
+               outfolder=koios_config[OUTFOLDER__], out=["log"]),
+        directory(expand("{outfolder}/{clust}-transformed-K{k}-clusters",
+                         clust=koios_config[CLUSTERING__],
+                         outfolder=koios_config[OUTFOLDER__],
+                         k=koios_config[N_CENTERS__].replace(" ", "").split(",")))
     params:
         out = koios_config[OUTFOLDER__] + "/kmeans",
         params = " ".join([x for x in koios_config[SPARKPARAMS__]]),
@@ -287,7 +297,17 @@ rule gmm:
     output:
         directory(expand("{outfolder}/{clust}",
                          clust=koios_config[CLUSTERING__],
-                         outfolder=koios_config[OUTFOLDER__]))
+                         outfolder=koios_config[OUTFOLDER__])),
+        expand("{outfolder}/{clust}-profile.{out}",
+               clust=koios_config[CLUSTERING__],
+               outfolder=koios_config[OUTFOLDER__], out=["png", "pdf", "eps", "svg", "tsv"]),
+        expand("{outfolder}/{clust}.{out}",
+               clust=koios_config[CLUSTERING__],
+               outfolder=koios_config[OUTFOLDER__], out=["log"]),
+        directory(expand("{outfolder}/{clust}-transformed-K{k}-components",
+                         clust=koios_config[CLUSTERING__],
+                         outfolder=koios_config[OUTFOLDER__],
+                         k=koios_config[N_CENTERS__].replace(" ", "").split(",")))
     params:
         out = koios_config[OUTFOLDER__] + "/gmm",
         params = " ".join([x for x in koios_config[SPARKPARAMS__]]),
