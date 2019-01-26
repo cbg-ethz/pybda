@@ -77,7 +77,7 @@ def write_tsv(data, outfile, header=True, index=False):
         # puh, that is risky
         fl = glob.glob(outfile + "/part*")
         os.rename(fl[0], outfile + ".tsv")
-        shutil.rmtree.remove(outfile)
+        shutil.rmtree(outfile)
 
 
 def read_and_transmute(spark, file_name,

@@ -80,42 +80,60 @@ rule factor_analysis:
     input:
         expand("{infile}", infile=koios_config[INFILE__])
     output:
-        out = directory(expand("{outfolder}/{dimred}",
-                               outfolder=koios_config[OUTFOLDER__],
-                               dimred=FACTOR_ANALYSIS__))
+        expand("{outfolder}/{dimred}{fls}",
+               outfolder=koios_config[OUTFOLDER__],
+               dimred=FACTOR_ANALYSIS__, fls=[".tsv", ".log", "-loadings.tsv", "-loglik.tsv"]),
+        directory(expand("{outfolder}/{dimred}-plot",
+                         outfolder=koios_config[OUTFOLDER__],
+                         dimred=FACTOR_ANALYSIS__))
     params:
+        out = expand("{outfolder}/{dimred}",
+                     outfolder=koios_config[OUTFOLDER__],
+                     dimred=FACTOR_ANALYSIS__),
         fa = os.path.join(dirname(), "factor_analysis.py"),
         params = " ".join([x for x in koios_config[SPARKPARAMS__]])
     run:
-        _submit_dim_red(params.fa, input, output.out, params.params)
+        _submit_dim_red(params.fa, input, params.out[0], params.params)
 
 
 rule pca:
     input:
         expand("{infile}", infile=koios_config[INFILE__])
     output:
-        out = directory(expand("{outfolder}/{dimred}",
-                               outfolder=koios_config[OUTFOLDER__],
-                               dimred=PCA__))
+        expand("{outfolder}/{dimred}{fls}",
+               outfolder=koios_config[OUTFOLDER__],
+               dimred=FACTOR_ANALYSIS__, fls=[".tsv", ".log", "-loadings.tsv"]),
+        directory(expand("{outfolder}/{dimred}-plot",
+                         outfolder=koios_config[OUTFOLDER__],
+                         dimred=FACTOR_ANALYSIS__))
     params:
+        out = expand("{outfolder}/{dimred}",
+                     outfolder=koios_config[OUTFOLDER__],
+                     dimred=PCA__),
         pca = os.path.join(dirname(), "pca.py"),
         params = " ".join([x for x in koios_config[SPARKPARAMS__]])
     run:
-        _submit_dim_red(params.pca, input, output.out, params.params)
+        _submit_dim_red(params.pca, input, params.out[0], params.params)
 
 
 rule kpca:
     input:
         expand("{infile}", infile=koios_config[INFILE__])
     output:
-        out = directory(expand("{outfolder}/{dimred}",
-                               outfolder=koios_config[OUTFOLDER__],
-                               dimred=KPCA__))
+        expand("{outfolder}/{dimred}{fls}",
+               outfolder=koios_config[OUTFOLDER__],
+               dimred=KPCA__, fls=[".tsv", ".log", "-loadings.tsv"]),
+        directory(expand("{outfolder}/{dimred}-plot",
+                         outfolder=koios_config[OUTFOLDER__],
+                         dimred=KPCA__))
     params:
+        out = expand("{outfolder}/{dimred}",
+                     outfolder=koios_config[OUTFOLDER__],
+                     dimred=KPCA__),
         pca = os.path.join(dirname(), "kpca.py"),
         params = " ".join([x for x in koios_config[SPARKPARAMS__]])
     run:
-        _submit_dim_red(params.pca, input, output.out, params.params)
+        _submit_dim_red(params.pca, input, params.out[0], params.params)
 
 
 rule sample:

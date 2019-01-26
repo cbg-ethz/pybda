@@ -19,8 +19,6 @@
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
 import os
-import pathlib
-import shutil
 import subprocess
 import unittest
 
@@ -35,18 +33,12 @@ class TestKoios(unittest.TestCase):
 
     __CONFIG__ = {
         "dimension_reduction": [PCA__, KPCA__, FACTOR_ANALYSIS__],
-        "n_components": 5,
-        "outliers": MAHA__,
+        "n_components": 2,
         "clustering": [GMM__, KMEANS__],
         "regression": [GLM__],
         "family": GAUSSIAN_,
         "response": "infection",
-        "centers": {
-            "max_centers": 10,
-            "n_centers": 10,
-        },
-        "infile": "data/single_cell_samples.tsv",
-        "outfolder": "data/test",
+        "n_centers": 2,
         "meta": "data/meta_columns.tsv",
         "features": "data/feature_columns.tsv"
     }
@@ -58,12 +50,16 @@ class TestKoios(unittest.TestCase):
         self._test_out = os.path.join(self._koios_path, "data", "test")
         self._test_file = os.path.join(self._test_path, "koios-test.config")
         self._fa_file = os.path.join(self._test_path, "factor_analysis.config")
+        self._pca_file = os.path.join(self._test_path, "pca.config")
+        self._kpca_file = os.path.join(self._test_path, "kpca.config")
         self._koios = os.path.join(self._koios_path, "scripts", "koios")
         self._create_dim_red_configs()
 
     def _recreate_test_folder(self):
-        shutil.rmtree(self._test_out)
+        #if os.path.exists(self._test_out):
+        #    shutil.rmtree(self._test_out)
         if not os.path.exists(self._test_out):
+            print("asds")
             os.mkdir(self._test_out)
 
     def _create_dim_red_configs(self):
@@ -77,27 +73,27 @@ class TestKoios(unittest.TestCase):
                   N_COMPONENTS__, TestKoios.__CONFIG__[N_COMPONENTS__]))
 
     def tearDown(self):
-        shutil.rmtree(self._test_out)
+        #shutil.rmtree(self._test_out)
         for d in TestKoios.__CONFIG__[DIM_RED__]:
             out = os.path.join(self._test_path, d + ".config")
-            os.remove(out)
+            #os.remove(out)
 
-    def test_fa(self):
-        self._recreate_test_folder()
-        pr = subprocess.run(
-          [self._koios, "dimension_reduction", self._fa_file, "local"])
-        assert pr.returncode == 0
-
-    def test_pca(self):
-        self._recreate_test_folder()
-        pr = subprocess.run(
-          [self._koios, "dimension_reduction", self._pca, "local"])
-        assert pr.returncode == 0
+    # def test_fa(self):
+    #     self._recreate_test_folder()
+    #     pr = subprocess.run([self._koios, "dimension-reduction",
+    #                          self._fa_file, "local"])
+    #     assert pr.returncode == 0
+    # #
+    # def test_pca(self):
+    #     self._recreate_test_folder()
+    #     pr = subprocess.run(
+    #       [self._koios, "dimension-reduction", self._pca_file, "local"])
+    #     assert pr.returncode == 0
 
     def test_kpca(self):
         self._recreate_test_folder()
         pr = subprocess.run(
-          [self._koios, "dimension_reduction", self._kpca, "local"])
+          [self._koios, "dimension-reduction", self._kpca_file, "local"])
         assert pr.returncode == 0
 
     # def test_outliers(self):
