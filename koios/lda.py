@@ -24,16 +24,17 @@ import pathlib
 
 import click
 import scipy
+from pyspark.ml.linalg import VectorUDT
 from pyspark.mllib.linalg import DenseMatrix
 from pyspark.mllib.linalg.distributed import RowMatrix
+from pyspark.sql.functions import udf
 
 from koios.dimension_reduction import DimensionReduction
+from koios.fit.lda_fit import LDAFit
 from koios.fit.pca_fit import PCAFit
 from koios.spark.dataframe import join
 from koios.spark.features import distinct
-from koios.stats.linalg import svd
-from koios.stats.stats import scale, column_mean, group_mean, \
-    within_group_scatter, covariance_matrix
+from koios.stats.stats import within_group_scatter, covariance_matrix
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -55,20 +56,15 @@ class LDA(DimensionReduction):
 
     def fit(self, data):
         logger.info("Fitting LDA")
-        self._fit(data)
-        return X, loadings, sds
 
-    def _fit(self, data):
         targets = distinct(data, self.__response)
-        means = column_mean(self._feature_matrix(data))
-        group_means = group_mean(data, targets, self.response, self.features)
         SW = within_group_scatter(data, self.features, self.response, targets)
         SB = covariance_matrix(self._row_matrix(data)) * (data.count() - 1) - SW
+
         eval, evec = self._compute_eigens(SW, SB)
         W = evec[:, :self.n_components]
 
         return W, eval, evec
-
 
     def _row_matrix(self, data):
         return RowMatrix(self._feature_matrix(data))
@@ -80,22 +76,22 @@ class LDA(DimensionReduction):
         eval, evec = eval[sorted_idxs], evec[:,sorted_idxs]
         return eval, evec
 
-    def transform(self, data, X, loadings):
+    def transform(self, data, W):
         logger.info("Transforming data")
-        loadings = DenseMatrix(
-          X.numCols(), self.n_components,
-          loadings[:self.n_components].flatten()
-        )
-        X = X.multiply(loadings)
+        W = DenseMatrix(numRows=W.shape[0],
+                                numCols=W.shape[1],
+                                values=W.flatten())
+        X = self._row_matrix(data).multiply(W)
         data = join(data, X, self.spark)
         del X
         return data
 
     def fit_transform(self, data):
-        logger.info("Running latent dirichlet allocation ...")
-        X, loadings, sds = self.fit(data)
-        data = self.transform(data, X, loadings)
-        return PCAFit(data, self.n_components, loadings, sds, self.features)
+        logger.info("Running LDA ...")
+        W, eval, evec = self.fit(data)
+        data = self.transform(data, W)
+        return LDAFit(data, self.n_components, W, eval,
+                      self.features, self.response)
 
 
 @click.command()
