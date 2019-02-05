@@ -21,9 +21,6 @@
 
 import logging
 
-import numpy
-import pyspark
-from pyspark.mllib.linalg import DenseMatrix
 from pyspark.mllib.linalg.distributed import RowMatrix
 import scipy
 
@@ -48,22 +45,3 @@ def svd(data: RowMatrix, n_components):
     V = svd.V.toArray().T
     var = scipy.dot(s[n_components:], s[n_components:])
     return s[:n_components], V[:n_components], var
-
-
-def precision(data: pyspark.rdd.RDD):
-    logger.info("Computing precision")
-    return scipy.linalg.inv(data.computeCovariance().toArray())
-
-
-def fourier(X: RowMatrix, n_features, seed=23, gamma=1):
-    p = X.numCols()
-
-    random_state = numpy.random.RandomState(seed)
-    w = numpy.sqrt(2 * gamma) * random_state.normal(size=(p, n_features))
-    w = DenseMatrix(p, n_features, w.flatten())
-    b = random_state.uniform(0, 2 * numpy.pi, size=n_features)
-
-    Y = X.multiply(w)
-    Y = Y.rows.map(lambda x: numpy.sqrt(2.0 / n_features) * numpy.cos(x + b))
-
-    return RowMatrix(Y)

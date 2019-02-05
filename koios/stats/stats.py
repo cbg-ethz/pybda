@@ -20,18 +20,30 @@
 
 
 import logging
-import scipy
 
 import numpy
+import scipy
 from scipy import stats
 
 import pyspark
+from pyspark.mllib.linalg import DenseMatrix
+from pyspark.mllib.linalg.distributed import RowMatrix
 from pyspark.mllib.stat import Statistics
 
 from koios.util.cast_as import as_rdd_of_array
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+
+def group_mean(data: pyspark.sql.DataFrame, groups, response, features):
+    logger.info("Computing group means")
+    means = scipy.zeros((len(groups), len(features)))
+    for i, target in enumerate(groups):
+        df_t = data.filter("{} == {}".format(response, target))
+        X_t = df_t.select(features).rdd.map(numpy.array)
+        means[i, :] = column_mean(X_t)
+    return means
 
 
 def column_mean(data: pyspark.rdd.RDD):
@@ -58,6 +70,16 @@ def column_statistics(data: pyspark.rdd.RDD):
     logger.info("Computing data statistics")
     summary = Statistics.colStats(data)
     return summary.mean(), summary.variance()
+
+
+def covariance_matrix(data: pyspark.mllib.linalg.distributed.RowMatrix):
+    logger.info("Computing covariance")
+    return data.computeCovariance().toArray()
+
+
+def precision(data: pyspark.mllib.linalg.distributed.RowMatrix):
+    logger.info("Computing precision")
+    return scipy.linalg.inv(covariance_matrix(data))
 
 
 def correlation_matrix(data: pyspark.rdd.RDD):
@@ -150,6 +172,31 @@ def loglik(data: pyspark.sql.DataFrame):
     loglik = (rdd
               # compute the loglik per observation
               .map(lambda x: scipy.log(mvn(x, means, cov)))
-                # since the guys are in logspace we can summarize em
+              # since the guys are in logspace we can summarize em
               .reduce(lambda x, y: x + y))
     return loglik
+
+
+def within_group_scatter(data: pyspark.sql.DataFrame,
+                         features, response, targets):
+    p = len(features)
+    sw = numpy.zeros((p, p))
+    for target in targets:
+        df_t = data.filter("{} == {}".format(response, target))
+        X_t = RowMatrix(df_t.select(features).rdd.map(numpy.array))
+        sw += X_t.computeCovariance().toArray() * (df_t.count() - 1)
+    return sw
+
+
+def fourier(X: RowMatrix, n_features, seed=23, gamma=1):
+    p = X.numCols()
+
+    random_state = numpy.random.RandomState(seed)
+    w = numpy.sqrt(2 * gamma) * random_state.normal(size=(p, n_features))
+    w = DenseMatrix(p, n_features, w.flatten())
+    b = random_state.uniform(0, 2 * numpy.pi, size=n_features)
+
+    Y = X.multiply(w)
+    Y = Y.rows.map(lambda x: numpy.sqrt(2.0 / n_features) * numpy.cos(x + b))
+
+    return RowMatrix(Y)
