@@ -200,3 +200,7 @@ def fourier(X: RowMatrix, n_features, seed=23, gamma=1):
     Y = Y.rows.map(lambda x: numpy.sqrt(2.0 / n_features) * numpy.cos(x + b))
 
     return RowMatrix(Y)
+
+
+def normalized_cumsum(vec):
+    return numpy.cumsum(vec / numpy.sum(vec))

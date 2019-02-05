@@ -14,3 +14,4 @@ joypy
 sphinx
 sphinxcontrib-fulltoc
 sphinx_fontawesome
+seaborn>=0.9.0

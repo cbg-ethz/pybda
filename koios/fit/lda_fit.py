@@ -20,72 +20,79 @@
 
 
 import logging
+import numpy
 import os
 
 from pandas import DataFrame
 
 from koios.fit.dimension_reduction_fit import DimensionReductionFit
-from koios.globals import FEATURES_
+from koios.globals import FEATURES__
 from koios.plot.descriptive import scatter, histogram
-
 from koios.plot.dimension_reduction_plot import biplot, \
-    plot_cumulative_variance
+    plot_cumulative_variance, plot_likelihood_path
 from koios.sampler import sample
-from koios.util.cast_as import as_pandas
 from koios.spark.features import split_vector
-from koios.stats.stats import cumulative_explained_variance
-
+from koios.stats.stats import cumulative_explained_variance, normalized_cumsum
+from koios.util.cast_as import as_pandas
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class PCAFit(DimensionReductionFit):
-    __KIND__ = "pca"
-
-    def __init__(self, data, n_components, loadings, sds, features):
+class LDAFit(DimensionReductionFit):
+    def __init__(self, data, n_components, W, vars, features, response):
         super().__init__(data, n_components, features)
-        self.__loadings = loadings
-        self.__sds = sds
+        self.__data = data
+        self.__W = W
+        self.__vars = vars
+        self.__response = response
 
     @property
-    def kind(self):
-        return PCAFit.__KIND__
+    def response(self):
+        return self.__response
 
     @property
-    def loadings(self):
-        return self.__loadings
+    def n_discriminants(self):
+        return self.n_components
 
     @property
-    def sds(self):
-        return self.__sds
+    def projection(self):
+        return self.__W
+
+    @property
+    def loglikelihood(self):
+        return self.__ll
+
+    @property
+    def variances(self):
+        return self.__vars
 
     def write_files(self, outfolder):
         self.write_tsv(outfolder)
-        self._write_loadings(outfolder + "-loadings.tsv")
+        self._write_projection(outfolder + "-projection.tsv")
         plot_fold = outfolder + "-plot"
         if not os.path.exists(plot_fold):
             os.mkdir(plot_fold)
-        self._plot(os.path.join(plot_fold, self.kind))
+        self._plot(os.path.join(plot_fold, "linear_discriminant_analysis"))
 
     def _plot(self, outfile):
         logger.info("Plotting")
-        cev = cumulative_explained_variance(self.sds)
-        subsamp = as_pandas(split_vector(sample(self.data, 10000), FEATURES_))
+        cev = normalized_cumsum(self.sds)
+        subsamp = as_pandas(
+          split_vector(sample(self.__data, 10000), FEATURES__))
         for suf in ["png", "pdf", "svg", "eps"]:
             plot_cumulative_variance(
-              outfile + "-loadings-explained_variance." + suf,
-              cev[:self.n_components], "# components")
+              outfile + "-discriminants-explained_variance." + suf,
+              cev, "# discriminants")
             biplot(
               outfile + "-loadings-biplot." + suf,
-              DataFrame(self.loadings[:self.n_components],
-                        columns=self.feature_names), "PC 1", "PC 2")
+              DataFrame(self.__W, columns=self.feature_names),
+              "Discriminant 1", "Discriminant 2")
             scatter(
               outfile + "-scatter_plot." + suf,
-              subsamp["f_0"].values, subsamp["f_1"].values,
-              "PC 1", "PC 2")
+              subsamp, "f_0", "f_1", "Discriminant 1", "Discriminant 2",
+              color=self.response)
             for i in map(lambda x: "f_" + str(x),
-                         range(min(10, self.n_components))):
-                histogram(
-                  outfile + "-histogram_{}.".format(i) + suf,
-                  subsamp[i].values, i)
+                         range(min(10, self.n_discriminants))):
+                histogram(outfile + "-histogram_{}.".format(i) + suf,
+                          subsamp[i].values, i)

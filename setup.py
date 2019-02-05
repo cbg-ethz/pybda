@@ -35,7 +35,8 @@ setup(
       'snakemake>=5.2.2',
       'joypy>=0.1.9',
       'uuid>=1.3.0',
-      'sparkhpc>=0.3.post4'
+      'sparkhpc>=0.3.post4',
+      'seaborn>=0.9.0'
   ],
   classifiers=[
       'Development Status :: 3 - Alpha',

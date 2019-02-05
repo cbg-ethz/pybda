@@ -116,8 +116,9 @@ class FactorAnalysis(DimensionReduction):
         Wpsi = W / psi
         cov_z = numpy.linalg.inv(Ih + numpy.dot(Wpsi, W.T))
         tmp = numpy.dot(Wpsi.T, cov_z)
-        tmp_dense = DenseMatrix(
-          numRows=tmp.shape[0], numCols=tmp.shape[1], values=tmp.flatten())
+        tmp_dense = DenseMatrix(numRows=tmp.shape[0],
+                                numCols=tmp.shape[1],
+                                values=tmp.flatten())
 
         as_ml = udf(lambda v: v.asML() if v is not None else None, VectorUDT())
 
