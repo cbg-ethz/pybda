@@ -26,7 +26,7 @@ from pyspark.sql import DataFrame
 
 from koios.fit.kpca_fit import KPCAFit
 from koios.pca import PCA
-from koios.stats.linalg import fourier
+from koios.stats.stats import fourier
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

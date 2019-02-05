@@ -73,9 +73,9 @@ def to_double(data, feature_cols, response=None):
     f_cols = list(filter(lambda x: x.startswith("f_"), cols))
     if len(f_cols):
         logger.info(
-            "Found columns with prefix f_ from previous computation: {}.\n"
-            "Preferring these columns as features/"
-            "".format("\t".join(f_cols)))
+          "Found columns with prefix f_ from previous computation: {}.\n"
+          "Preferring these columns as features/"
+          "".format("\t".join(f_cols)))
         feature_cols = f_cols
 
     logger.info("Casting columns to double.")
@@ -112,9 +112,10 @@ def assemble(data, feature_cols, drop=True):
         logger.info("Assembling column to feature vector")
         f_cols = list(filter(lambda x: x.startswith("f_"), cols))
         if len(f_cols):
-            logger.info("Found columns with prefix f_ from previous computation: {}. "
-                        "Preferring these columns as features"
-                        "".format("\t".join(f_cols)))
+            logger.info(
+                "Found columns with prefix f_ from previous computation: {}. "
+                "Preferring these columns as features"
+                "".format("\t".join(f_cols)))
             feature_cols = f_cols
         assembler = VectorAssembler(
           inputCols=feature_cols, outputCol=FEATURES_)
@@ -194,3 +195,8 @@ def split_vector(data, col_name):
 def n_features(data: pyspark.sql.DataFrame, col_name):
     return len(scipy.asarray(data.select(col_name).take(1)).flatten())
 
+
+def distinct(data: pyspark.sql.DataFrame, col_name):
+    return (data.select(col_name)
+            .distinct().toPandas()
+            .values.flatten())
