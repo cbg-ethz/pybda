@@ -30,7 +30,7 @@ logger.setLevel(logging.INFO)
 
 plt.style.use([PLOT_STYLE_])
 plt.rcParams['font.family'] = PLOT_FONT_FAMILY_
-sns.set(style="ticks")
+sns.set_style("white", {'axes.grid' : False})
 
 
 def scatter(file_name, data, x, y,
@@ -53,6 +53,7 @@ def scatter(file_name, data, x, y,
     # plt.ylabel(ylab, fontsize=15)
 
     sns.scatterplot(x=x, y=y, hue=color, data=data, palette="muted")
+    sns.despine()
     plt.savefig(file_name, dpi=720)
     plt.close('all')
 
