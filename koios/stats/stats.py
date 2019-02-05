@@ -182,7 +182,7 @@ def within_group_scatter(data: pyspark.sql.DataFrame,
     p = len(features)
     sw = numpy.zeros((p, p))
     for target in targets:
-        df_t = data.filter("{} == {}".format(response, target))
+        df_t = data.filter("{} == '{}'".format(response, target))
         X_t = RowMatrix(df_t.select(features).rdd.map(numpy.array))
         sw += X_t.computeCovariance().toArray() * (df_t.count() - 1)
     return sw

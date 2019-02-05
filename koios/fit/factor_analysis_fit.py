@@ -43,19 +43,13 @@ logger.setLevel(logging.INFO)
 
 class FactorAnalysisFit(DimensionReductionFit):
     def __init__(self, data, n_factors, W, psi, ll, features):
-        super().__init__(data, n_factors, features)
-        self.__data = data
-        self.__W = W
+        super().__init__(data, n_factors, features, W)
         self.__psi = psi
         self.__ll = ll
 
     @property
     def n_factors(self):
         return self.n_components
-
-    @property
-    def loadings(self):
-        return self.__W
 
     @property
     def covariance(self):

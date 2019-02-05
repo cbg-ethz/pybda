@@ -29,10 +29,10 @@ from koios.fit.dimension_reduction_fit import DimensionReductionFit
 from koios.globals import FEATURES__
 from koios.plot.descriptive import scatter, histogram
 from koios.plot.dimension_reduction_plot import biplot, \
-    plot_cumulative_variance, plot_likelihood_path
+    plot_cumulative_variance
 from koios.sampler import sample
 from koios.spark.features import split_vector
-from koios.stats.stats import cumulative_explained_variance, normalized_cumsum
+from koios.stats.stats import normalized_cumsum
 from koios.util.cast_as import as_pandas
 
 logger = logging.getLogger(__name__)
@@ -41,9 +41,8 @@ logger.setLevel(logging.INFO)
 
 class LDAFit(DimensionReductionFit):
     def __init__(self, data, n_components, W, vars, features, response):
-        super().__init__(data, n_components, features)
+        super().__init__(data, n_components, features, W)
         self.__data = data
-        self.__W = W
         self.__vars = vars
         self.__response = response
 
@@ -57,7 +56,7 @@ class LDAFit(DimensionReductionFit):
 
     @property
     def projection(self):
-        return self.__W
+        return self.loadings
 
     @property
     def loglikelihood(self):
@@ -69,7 +68,7 @@ class LDAFit(DimensionReductionFit):
 
     def write_files(self, outfolder):
         self.write_tsv(outfolder)
-        self._write_projection(outfolder + "-projection.tsv")
+        self._write_loadings(outfolder + "-projection.tsv")
         plot_fold = outfolder + "-plot"
         if not os.path.exists(plot_fold):
             os.mkdir(plot_fold)
@@ -77,7 +76,7 @@ class LDAFit(DimensionReductionFit):
 
     def _plot(self, outfile):
         logger.info("Plotting")
-        cev = normalized_cumsum(self.sds)
+        cev = normalized_cumsum(self.variances)
         subsamp = as_pandas(
           split_vector(sample(self.__data, 10000), FEATURES__))
         for suf in ["png", "pdf", "svg", "eps"]:
@@ -86,7 +85,7 @@ class LDAFit(DimensionReductionFit):
               cev, "# discriminants")
             biplot(
               outfile + "-loadings-biplot." + suf,
-              DataFrame(self.__W, columns=self.feature_names),
+              DataFrame(self.loadings, columns=self.feature_names),
               "Discriminant 1", "Discriminant 2")
             scatter(
               outfile + "-scatter_plot." + suf,

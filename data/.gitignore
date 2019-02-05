@@ -3,6 +3,7 @@
 factor*
 pca*
 kpca*
+linear-*
 
 outlier*
 mahalanobis*

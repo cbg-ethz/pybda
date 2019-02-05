@@ -62,6 +62,7 @@ DIM_RED__ = "dimension_reduction"
 DIM_RED_INFILE__ = DIM_RED__ + "_" + INFILE__
 PCA__ = "pca"
 KPCA__ = "kpca"
+LDA__ = "linear_discriminant_analysis"
 FACTOR_ANALYSIS__ = "factor_analysis"
 N_COMPONENTS__ = "n_components"
 
