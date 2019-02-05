@@ -20,7 +20,6 @@
 
 
 import logging
-import scipy
 import seaborn as sns
 import matplotlib.pyplot as plt
 
@@ -53,11 +52,9 @@ def scatter(file_name, data, x, y,
     # plt.xlabel(xlab, fontsize=15)
     # plt.ylabel(ylab, fontsize=15)
 
-    plot = sns.lmplot(x=x, y=y, col=color, hue=color, data=data,
-                      ax=ax,
-                      col_wrap=2, ci=None, palette="muted", height=4, )
-
-    plot.savefig(file_name, dpi=720)
+    sns.scatterplot(x=x, y=y, hue=color, data=data, palette="muted")
+    plt.savefig(file_name, dpi=720)
+    plt.close('all')
 
 
 def histogram(file_name, x, xlab, ylab="Frequency",

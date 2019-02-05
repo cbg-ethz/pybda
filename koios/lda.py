@@ -20,18 +20,14 @@
 
 
 import logging
-import pathlib
 
 import click
 import scipy
-from pyspark.ml.linalg import VectorUDT
 from pyspark.mllib.linalg import DenseMatrix
 from pyspark.mllib.linalg.distributed import RowMatrix
-from pyspark.sql.functions import udf
 
 from koios.dimension_reduction import DimensionReduction
 from koios.fit.lda_fit import LDAFit
-from koios.fit.pca_fit import PCAFit
 from koios.spark.dataframe import join
 from koios.spark.features import distinct
 from koios.stats.stats import within_group_scatter, covariance_matrix
@@ -62,9 +58,8 @@ class LDA(DimensionReduction):
         SB = covariance_matrix(self._row_matrix(data)) * (data.count() - 1) - SW
 
         eval, evec = self._compute_eigens(SW, SB)
-        W = evec[:, :self.n_components]
 
-        return W, eval, evec
+        return evec, eval
 
     def _row_matrix(self, data):
         return RowMatrix(self._feature_matrix(data))
@@ -72,12 +67,14 @@ class LDA(DimensionReduction):
     def _compute_eigens(self, SW, SB):
         logger.info("Computing eigen values")
         eval, evec = scipy.linalg.eig(scipy.linalg.inv(SW).dot(SB))
+        eval = scipy.real(eval)
         sorted_idxs = scipy.argsort(-abs(eval))
-        eval, evec = eval[sorted_idxs], evec[:,sorted_idxs]
+        eval, evec = eval[sorted_idxs], evec[:, sorted_idxs]
         return eval, evec
 
     def transform(self, data, W):
         logger.info("Transforming data")
+        W =  W[:, :self.n_components]
         W = DenseMatrix(numRows=W.shape[0],
                                 numCols=W.shape[1],
                                 values=W.flatten())
@@ -88,20 +85,19 @@ class LDA(DimensionReduction):
 
     def fit_transform(self, data):
         logger.info("Running LDA ...")
-        W, eval, evec = self.fit(data)
+        W, eval = self.fit(data)
         data = self.transform(data, W)
         return LDAFit(data, self.n_components, W, eval,
                       self.features, self.response)
 
 
 @click.command()
-@click.argument("components", type=int)
+@click.argument("discriminants", type=int)
 @click.argument("file", type=str)
 @click.argument("features", type=str)
 @click.argument("response", type=str)
 @click.argument("outpath", type=str)
-@click.option("-p", "--predict", default="None")
-def run(components, file, features, response, outpath, predict):
+def run(discriminants, file, features, response, outpath):
     """
     Fit a linear discriminant analysis to a data set.
     """
@@ -120,14 +116,9 @@ def run(components, file, features, response, outpath, predict):
             features = read_info(features)
             data = read_and_transmute(
               spark, file, features, assemble_features=False)
-            fl = LDA(spark, components, features, response)
+            fl = LDA(spark, discriminants, features, response)
             fit = fl.fit_transform(data)
             fit.write_files(outpath)
-            if pathlib.Path(predict).exists():
-                pre_data = read_and_transmute(
-                  spark, predict, features, drop=False)
-                pre_data = fit.predict(pre_data)
-                pre_data.write_files(outpath)
         except Exception as e:
             logger.error("Some error: {}".format(str(e)))
 

@@ -44,17 +44,12 @@ class PCAFit(DimensionReductionFit):
     __KIND__ = "pca"
 
     def __init__(self, data, n_components, loadings, sds, features):
-        super().__init__(data, n_components, features)
-        self.__loadings = loadings
+        super().__init__(data, n_components, features, loadings)
         self.__sds = sds
 
     @property
     def kind(self):
         return PCAFit.__KIND__
-
-    @property
-    def loadings(self):
-        return self.__loadings
 
     @property
     def sds(self):

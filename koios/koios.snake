@@ -33,6 +33,7 @@ from koios.globals import FACTOR_ANALYSIS__
 from koios.globals import FEATURES__
 from koios.globals import INFILE__
 from koios.globals import KPCA__
+from koios.globals import LDA__
 from koios.globals import MAHA__
 from koios.globals import MAX_CENTERS__
 from koios.globals import META__
@@ -133,7 +134,37 @@ rule kpca:
         pca = os.path.join(dirname(), "kpca.py"),
         params = " ".join([x for x in koios_config[SPARKPARAMS__]])
     run:
-        _submit_dim_red(params.pca, input, params.out[0], params.params)
+      _submit_dim_red(params.pca, input, params.out[0], params.params)
+
+
+rule lda:
+    input:
+        expand("{infile}", infile=koios_config[INFILE__])
+    output:
+        expand("{outfolder}/{dimred}{fls}",
+               outfolder=koios_config[OUTFOLDER__],
+               dimred=LDA__, fls=[".tsv",  "-projection.tsv"]),
+        directory(expand("{outfolder}/{dimred}-plot",
+                         outfolder=koios_config[OUTFOLDER__],
+                         dimred=LDA__))
+    params:
+        out = expand("{outfolder}/{dimred}",
+                     outfolder=koios_config[OUTFOLDER__],
+                     dimred=LDA__),
+        pca = os.path.join(dirname(), "lda.py"),
+        params = " ".join([x for x in koios_config[SPARKPARAMS__]])
+    run:
+        cmd = """{} --master {} {} {} {} {} {} {} {}""".format(
+            koios_config[SPARK__],
+            koios_config[SPARKIP__],
+            params.params,
+            params.pca,
+            koios_config[N_COMPONENTS__],
+            input,
+            koios_config[FEATURES__],
+            koios_config[RESPONSE__],
+            params.out[0])
+        _run(cmd)
 
 
 rule sample:
