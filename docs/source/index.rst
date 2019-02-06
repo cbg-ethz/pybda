@@ -42,7 +42,7 @@ In the case of a successful computation of a job, koios will write results and p
 
 Sofar ``koios`` supports several methods from [MLLib]_ and some that have been developed from scratch to scale to big data settings:
 
-* dimensionality reduction using PCA, factor analysis and kPCA,
+* dimensionality reduction using PCA, factor analysis, kPCA, and linear discriminant analysis,
 * clustering using k-means and Gaussian mixture models,
 * supervised learning using generalized linear regression models, random forests and gradient boosting.
 
