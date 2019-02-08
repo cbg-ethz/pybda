@@ -37,7 +37,7 @@ def scatter(file_name, data, x, y,
             xlab, ylab, color="black", xlim=2, ylim=2,
             xlabpos=.95, ylabpos=.885):
     _, ax = plt.subplots(figsize=(8, 5), dpi=720)
-    
+
     ax.xaxis.set_label_coords(x=xlabpos, y=-0.1)
     ax.yaxis.set_label_coords(x=-0.05, y=ylabpos)
 
