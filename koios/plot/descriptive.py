@@ -37,20 +37,9 @@ def scatter(file_name, data, x, y,
             xlab, ylab, color="black", xlim=2, ylim=2,
             xlabpos=.95, ylabpos=.885):
     _, ax = plt.subplots(figsize=(8, 5), dpi=720)
-    # ax.spines["top"].set_visible(False)
-    # ax.spines["right"].set_visible(False)
+    
     ax.xaxis.set_label_coords(x=xlabpos, y=-0.1)
     ax.yaxis.set_label_coords(x=-0.05, y=ylabpos)
-    # ax.grid(linestyle="")
-    #
-    # plt.xlim(-xlim, xlim)
-    # plt.ylim(-ylim, ylim)
-    # plt.xticks(scipy.arange(-xlim, xlim + 1, step=1))
-    # plt.yticks(scipy.arange(-ylim, ylim + 1, step=1))
-    #
-    # plt.scatter(x, y, color=color, alpha=.5, s=.5)
-    # plt.xlabel(xlab, fontsize=15)
-    # plt.ylabel(ylab, fontsize=15)
 
     sns.scatterplot(x=x, y=y, hue=color, data=data, palette="muted")
     sns.despine()
