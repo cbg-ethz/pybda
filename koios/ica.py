@@ -57,10 +57,20 @@ class ICA(DimensionReduction):
         logger.info("Fitting ICA")
         X = self._center(data)
         X = self._whiten(X)
+
+        W = DenseMatrix(self.n_components,
+                        self.n_components,
+                        scipy.zeros(self.n_components ** 2))
+        n_iter = []
         w_init = decorrelate(mtrand(self.n_components, self.n_components))
-        for i in range(self.max_iter):
-            g, g_deriv = self.exp(X)
-            K =  g.T.dot(X1) / p_ - g_wtx[:, numpy.newaxis] * W
+
+        for c in range(self.n_components):
+            w = w_init[c, :].copy()
+            w /= scipy.sqrt((w ** 2).sum())
+            for i in range(self.max_iter):
+                g, g_deriv = self.exp(X.multiply(DenseMatrix(len(w), 1, w)))
+                w1 = (X.multiply) * gwtx).mean(axis=1) - g_wtx.mean() * w
+                K =  g.T.dot(X1) / p_ - g_wtx[:, numpy.newaxis] * W
 
     def exp(self, X):
         g = X.rows.map(lambda x: x * numpy.exp(-(x ** 2) / 2))
@@ -71,7 +81,7 @@ class ICA(DimensionReduction):
 
     def _whiten(self, X):
         s, v, _ = svd(X, len, X.numCols())
-        K = (v.T / s)[:, :self.n_components] * X.numRows()
+        K = (v.T / s)[:, :self.n_components] * scipy.sqrt(X.numRows())
         K = DenseMatrix(K.numRows(), K.numCols(), K.flatten(), True)
         return X.multiply(K)
 

@@ -206,6 +206,11 @@ def normalized_cumsum(vec):
     return numpy.cumsum(vec / numpy.sum(vec))
 
 
-def decorrelate(w):
+def sym_decorrelate(w):
     s, u = linalg.eigh(numpy.dot(w, w.T))
     return numpy.dot(numpy.dot(u * (1. / numpy.sqrt(s)), u.T), w)
+
+
+def gs_decorrelate(w, W, j):
+    w -= scipy.dot(scipy.dot(w, W[:j].T), W[:j])
+    return w
