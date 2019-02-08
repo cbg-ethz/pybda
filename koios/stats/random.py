@@ -20,7 +20,12 @@
 
 
 import numpy
+from scipy.stats import norm
 
 
 def sample(x, n, replace=False):
     return x if n >= len(x) else numpy.random.choice(x, n, replace=replace)
+
+
+def mtrand(ncol,  nrow):
+    return numpy.asarray(norm.rvs(size=(nrow, ncol)))

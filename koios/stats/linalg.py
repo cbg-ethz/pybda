@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-def svd(data: RowMatrix, n_components):
+def svd(data: RowMatrix, n_components=None):
     """
     Computes a singular value decomposition on a data matrix and the variance
     that is explained by the first n_components.
@@ -43,5 +43,8 @@ def svd(data: RowMatrix, n_components):
     svd = data.computeSVD(data.numCols(), computeU=False)
     s = svd.s.toArray()
     V = svd.V.toArray().T
-    var = scipy.dot(s[n_components:], s[n_components:])
-    return s[:n_components], V[:n_components], var
+    var = scipy.dot(s, s)
+    if n_components is not None:
+        var = scipy.dot(s[n_components:], s[n_components:])
+        s, V = s[:n_components], V[:n_components]
+    return s, V, var

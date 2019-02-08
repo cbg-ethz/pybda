@@ -22,6 +22,7 @@
 import logging
 
 import click
+import numpy
 import scipy
 from pyspark.mllib.linalg import DenseMatrix
 from pyspark.mllib.linalg.distributed import RowMatrix
@@ -29,18 +30,20 @@ from pyspark.mllib.linalg.distributed import RowMatrix
 from koios.dimension_reduction import DimensionReduction
 from koios.fit.lda_fit import LDAFit
 from koios.spark.dataframe import join
-from koios.spark.features import distinct
-from koios.stats.stats import within_group_scatter, covariance_matrix
+from koios.stats.linalg import svd
+from koios.stats.random import mtrand
+from koios.stats.stats import center, decorrelate
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class LDA(DimensionReduction):
+class ICA(DimensionReduction):
     def __init__(self, spark, n_components, features, response):
         super().__init__(spark, features, scipy.inf, scipy.inf)
         self.__n_components = n_components
         self.__response = response
+        numpy.random.seed(seed=233423)
 
     @property
     def response(self):
@@ -51,18 +54,30 @@ class LDA(DimensionReduction):
         return self.__n_components
 
     def fit(self, data):
-        logger.info("Fitting LDA")
+        logger.info("Fitting ICA")
+        X = self._center(data)
+        X = self._whiten(X)
+        w_init = decorrelate(mtrand(self.n_components, self.n_components))
+        for i in range(self.max_iter):
+            g, g_deriv = self.exp(X)
+            K =  g.T.dot(X1) / p_ - g_wtx[:, numpy.newaxis] * W
 
-        targets = distinct(data, self.__response)
-        SW = within_group_scatter(data, self.features, self.response, targets)
-        SB = covariance_matrix(self._row_matrix(data)) * (data.count() - 1) - SW
+    def exp(self, X):
+        g = X.rows.map(lambda x: x * numpy.exp(-(x ** 2) / 2))
+        g_ = X.rows.map(lambda x: (1 - x ** 2) * numpy.exp(-(x ** 2) / 2))
+        gm = g_.computeColumnSummaryStatistics().mean()
+        return g, gm
 
-        eval, evec = self._compute_eigens(SW, SB)
 
-        return evec, eval
+    def _whiten(self, X):
+        s, v, _ = svd(X, len, X.numCols())
+        K = (v.T / s)[:, :self.n_components] * X.numRows()
+        K = DenseMatrix(K.numRows(), K.numCols(), K.flatten(), True)
+        return X.multiply(K)
 
-    def _row_matrix(self, data):
-        return RowMatrix(self._feature_matrix(data))
+    def _center(self, data):
+        X = self._feature_matrix(data)
+        return RowMatrix(center(X))
 
     def _compute_eigens(self, SW, SB):
         logger.info("Computing eigen values")
