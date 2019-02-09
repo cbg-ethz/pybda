@@ -1,0 +1,12 @@
+[2019-02-09 23:39:00,517 - INFO - koios.spark_session]: Initializing pyspark session
+[2019-02-09 23:39:01,729 - INFO - koios.spark_session]: Config: spark.driver.memory, value: 3G
+[2019-02-09 23:39:01,729 - INFO - koios.spark_session]: Config: spark.master, value: local
+[2019-02-09 23:39:01,730 - INFO - koios.spark_session]: Config: spark.rdd.compress, value: True
+[2019-02-09 23:39:01,730 - INFO - koios.spark_session]: Config: spark.serializer.objectStreamReset, value: 100
+[2019-02-09 23:39:01,730 - INFO - koios.spark_session]: Config: spark.driver.host, value: 192.168.1.33
+[2019-02-09 23:39:01,730 - INFO - koios.spark_session]: Config: spark.executor.id, value: driver
+[2019-02-09 23:39:01,730 - INFO - koios.spark_session]: Config: spark.app.id, value: local-1549751941199
+[2019-02-09 23:39:01,730 - INFO - koios.spark_session]: Config: spark.submit.deployMode, value: client
+[2019-02-09 23:39:01,730 - INFO - koios.spark_session]: Config: spark.driver.port, value: 45723
+[2019-02-09 23:39:01,730 - INFO - koios.spark_session]: Config: spark.app.name, value: ica.py
+[2019-02-09 23:39:01,737 - INFO - koios.io.io]: Reading tsv: data/iris.tsv

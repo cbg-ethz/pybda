@@ -58,23 +58,22 @@ META__ = "meta"
 FEATURES__ = "features"
 RESPONSE__ = "response"
 
-DIM_RED__ = "dimension_reduction"
-DIM_RED_INFILE__ = DIM_RED__ + "_" + INFILE__
-PCA__ = "pca"
-KPCA__ = "kpca"
-LDA__ = "linear_discriminant_analysis"
-FACTOR_ANALYSIS__ = "factor_analysis"
-N_COMPONENTS__ = "n_components"
-
-OUTLIERS__ = "outliers"
-OUTLIERS_INFILE__ = OUTLIERS__ + "_" + INFILE__
-MAHA__ = "mahalanobis"
-
-PREDICT__ = "predict"
 CLUSTERING__ = "clustering"
 CLUSTERING_INFILE__ = CLUSTERING__ + "_" + INFILE__
-KMEANS__ = "kmeans"
+DIM_RED__ = "dimension_reduction"
+DIM_RED_INFILE__ = DIM_RED__ + "_" + INFILE__
+FACTOR_ANALYSIS__ = "factor_analysis"
+ICA__ = "ica"
 GMM__ = "gmm"
+LDA__ = "linear_discriminant_analysis"
+KPCA__ = "kpca"
+PCA__ = "pca"
+MAHA__ = "mahalanobis"
+N_COMPONENTS__ = "n_components"
+OUTLIERS__ = "outliers"
+OUTLIERS_INFILE__ = OUTLIERS__ + "_" + INFILE__
+PREDICT__ = "predict"
+KMEANS__ = "kmeans"
 MAX_CENTERS__ = "max_centers"
 N_CENTERS__ = "n_centers"
 RESPONSIBILITIES__ = "responsibilities"

@@ -74,10 +74,9 @@ class LDA(DimensionReduction):
 
     def transform(self, data, W):
         logger.info("Transforming data")
-        W =  W[:, :self.n_components]
-        W = DenseMatrix(numRows=W.shape[0],
-                        numCols=W.shape[1], isTransposed=True,
-                        values=W.flatten())
+        W = W[:, :self.n_components]
+        W = DenseMatrix(numRows=W.shape[0], numCols=W.shape[1],
+                        isTransposed=True, values=W.flatten())
         logger.info(W.toArray())
         X = self._row_matrix(data).multiply(W)
         data = join(data, X, self.spark)
