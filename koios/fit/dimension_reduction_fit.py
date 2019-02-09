@@ -26,7 +26,7 @@ from pandas import DataFrame
 
 from koios.globals import FEATURES__
 from koios.io.io import write_tsv
-from koios.spark.features import drop, split_vector
+from koios.spark.features import split_vector
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

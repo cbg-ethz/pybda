@@ -28,11 +28,12 @@ from pyspark.mllib.linalg import DenseMatrix
 from pyspark.mllib.linalg.distributed import RowMatrix
 
 from koios.dimension_reduction import DimensionReduction
+from koios.fit.ica_fit import ICAFit
 from koios.fit.lda_fit import LDAFit
 from koios.spark.dataframe import join
 from koios.stats.linalg import svd, elementwise_product
 from koios.stats.random import mtrand
-from koios.stats.stats import center, gs_decorrelate
+from koios.stats.stats import center, gs_decorrelate, column_mean
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -56,14 +57,12 @@ class ICA(DimensionReduction):
         logger.info("Fitting ICA")
         X = self._center(data)
         W, K = self._fit(X)
-        return X.multiply(K.multiply(W)), W, K
+        return X, K.dot(W)
 
     def _fit(self, X):
         Xw, K = self._whiten(X)
 
-        W = DenseMatrix(self.n_components,
-                        self.n_components,
-                        scipy.zeros(self.n_components ** 2))
+        W = scipy.zeros(shape=(self.n_components, self.n_components))
         w_init = mtrand(self.n_components, self.n_components)
 
         for c in range(self.n_components):
@@ -71,47 +70,53 @@ class ICA(DimensionReduction):
             w /= scipy.sqrt((w ** 2).sum())
             for i in range(self.max_iter):
                 g, gd = self.exp(Xw.multiply(DenseMatrix(len(w), 1, w)))
-                w1 = elementwise_product(Xw, g).rows.map(lambda x: x - gd * w)
-                w1 = gs_decorrelate(w1, W.toArray(), c)
+                w1 = column_mean(elementwise_product(Xw, g, self.spark))
                 del g
+                w1 = w1 - gd * w
+                w1 = gs_decorrelate(w1, W, c)
                 w1 /= scipy.sqrt((w1 ** 2).sum())
-                lim = scipy.abs(scipy.abs((w1 * w).sum()) - 1)
+                lim = scipy.absolute(scipy.absolute((w1 * w).sum()) - 1)
                 w = w1
                 if lim < self.threshold:
                     break
-            W.toArray()[c, :] = w
+            W[c, :] = w
         del Xw
 
         return W, K
 
     def exp(self, X):
-        g = X.rows.map(lambda x: x * numpy.exp(-(x ** 2) / 2))
-        g_ = X.rows.map(lambda x: (1 - x ** 2) * numpy.exp(-(x ** 2) / 2))
-        gm = g_.computeColumnSummaryStatistics().mean().mean()
+        g = X.rows.map(lambda x: x * scipy.exp(-(scipy.power(x, 2.0)) / 2.0))
+        g_ = X.rows.map(
+          lambda x: (1 - scipy.power(x, 2.0)) *
+                    scipy.exp( -(scipy.power(x, 2.0)) / 2.0)
+        )
+        gm = column_mean(g_).mean()
         return RowMatrix(g), gm
 
     def _whiten(self, X):
-        s, v, _ = svd(X, len, X.numCols())
+        s, v, _ = svd(X, X.numCols())
         K = (v.T / s)[:, :self.n_components] * scipy.sqrt(X.numRows())
-        K = DenseMatrix(K.numRows(), K.numCols(), K.flatten(), True)
-        return X.multiply(K), K
+        K = DenseMatrix(K.shape[0], K.shape[1], K.flatten(), True)
+        return X.multiply(K), K.toArray()
 
     def _center(self, data):
         X = self._feature_matrix(data)
         return RowMatrix(center(X))
 
-    def transform(self, data, X):
+    def transform(self, data, X, unmixing):
         logger.info("Transforming data")
-        data = join(data, X, self.spark)
+        L = DenseMatrix(numRows=unmixing.shape[0],
+                        numCols=unmixing.shape[1],
+                        values=unmixing.flatten())
+        data = join(data, X.multiply(L), self.spark)
         del X
         return data
 
     def fit_transform(self, data):
         logger.info("Running LDA ...")
-        X, W, K = self.fit(data)
-        data = self.transform(data, X)
-        return LDAFit(data, self.n_components, W, eval,
-                      self.features, self.response)
+        X, unmixing = self.fit(data)
+        data = self.transform(data, X, unmixing)
+        return ICAFit(data, self.n_components, unmixing, self.features)
 
 
 @click.command()

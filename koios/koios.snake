@@ -32,6 +32,7 @@ from koios.globals import FAMILY__
 from koios.globals import FACTOR_ANALYSIS__
 from koios.globals import FEATURES__
 from koios.globals import INFILE__
+from koios.globals import ICA__
 from koios.globals import KPCA__
 from koios.globals import LDA__
 from koios.globals import MAHA__
@@ -132,6 +133,26 @@ rule kpca:
                      outfolder=koios_config[OUTFOLDER__],
                      dimred=KPCA__),
         pca = os.path.join(dirname(), "kpca.py"),
+        params = " ".join([x for x in koios_config[SPARKPARAMS__]])
+    run:
+      _submit_dim_red(params.pca, input, params.out[0], params.params)
+
+
+rule ica:
+    input:
+        expand("{infile}", infile=koios_config[INFILE__])
+    output:
+        expand("{outfolder}/{dimred}{fls}",
+               outfolder=koios_config[OUTFOLDER__],
+               dimred=ICA__, fls=[".tsv"]),
+        directory(expand("{outfolder}/{dimred}-plot",
+                         outfolder=koios_config[OUTFOLDER__],
+                         dimred=ICA__))
+    params:
+        out = expand("{outfolder}/{dimred}",
+                     outfolder=koios_config[OUTFOLDER__],
+                     dimred=ICA__),
+        pca = os.path.join(dirname(), "ica.py"),
         params = " ".join([x for x in koios_config[SPARKPARAMS__]])
     run:
       _submit_dim_red(params.pca, input, params.out[0], params.params)
