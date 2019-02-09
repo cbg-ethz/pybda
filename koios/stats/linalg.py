@@ -20,9 +20,8 @@
 
 
 import logging
-import scipy
 
-import pyspark.sql.functions as func
+import scipy
 from pyspark.mllib.linalg.distributed import RowMatrix
 
 from koios.spark.dataframe import as_df_with_idx
