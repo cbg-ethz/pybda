@@ -20,29 +20,29 @@
 
 
 import logging
-import seaborn as sns
-import matplotlib.pyplot as plt
 
-from koios.globals import PLOT_FONT_FAMILY_, PLOT_STYLE_
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-plt.style.use([PLOT_STYLE_])
-plt.rcParams['font.family'] = PLOT_FONT_FAMILY_
-sns.set_style("white", {'axes.grid' : False})
+sns.set_style("white", {'axes.grid': False})
 
 
-def scatter(file_name, data, x, y,
-            xlab, ylab, color="black", xlim=2, ylim=2,
+def scatter(file_name, data, x, y, xlab, ylab, color=None,
             xlabpos=.95, ylabpos=.885):
     _, ax = plt.subplots(figsize=(8, 5), dpi=720)
-
+    if color is not None:
+        ax = sns.scatterplot(x=x, y=y, hue=color, data=data, palette="muted")
+    else:
+        ax = sns.scatterplot(x=x, y=y, data=data, palette="muted")
     ax.xaxis.set_label_coords(x=xlabpos, y=-0.1)
     ax.yaxis.set_label_coords(x=-0.05, y=ylabpos)
-
-    sns.scatterplot(x=x, y=y, hue=color, data=data, palette="muted")
+    ax.grid(False)
     sns.despine()
+    plt.xlabel(xlab)
+    plt.ylabel(ylab)
     plt.savefig(file_name, dpi=720)
     plt.close('all')
 

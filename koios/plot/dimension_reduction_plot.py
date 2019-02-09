@@ -20,17 +20,12 @@
 
 
 import logging
+
 import matplotlib.pyplot as plt
 import numpy
 
-from koios.globals import PLOT_FONT_FAMILY_, PLOT_STYLE_
-
-
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-
-plt.style.use([PLOT_STYLE_])
-plt.rcParams['font.family'] = PLOT_FONT_FAMILY_
 
 
 def plot_cumulative_variance(file_name, cum_exp_var, xlab):

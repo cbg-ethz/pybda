@@ -144,7 +144,7 @@ rule ica:
     output:
         expand("{outfolder}/{dimred}{fls}",
                outfolder=koios_config[OUTFOLDER__],
-               dimred=ICA__, fls=[".tsv"]),
+               dimred=ICA__, fls=[".tsv", ".log", "-unmixing.tsv"]),
         directory(expand("{outfolder}/{dimred}-plot",
                          outfolder=koios_config[OUTFOLDER__],
                          dimred=ICA__))

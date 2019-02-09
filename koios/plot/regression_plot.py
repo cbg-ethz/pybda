@@ -20,15 +20,14 @@
 
 
 import logging
-import matplotlib.pyplot as plt
 
-from koios.globals import PLOT_FONT_FAMILY_, PLOT_STYLE_
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-plt.style.use([PLOT_STYLE_])
-plt.rcParams['font.family'] = PLOT_FONT_FAMILY_
+sns.set_style("white", {'axes.grid': False})
 
 
 def plot_curves(file_name, pr, roc):
