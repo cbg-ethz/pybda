@@ -20,9 +20,12 @@
 
 
 import logging
-
-from pyspark.mllib.linalg.distributed import RowMatrix
 import scipy
+
+import pyspark.sql.functions as func
+from pyspark.mllib.linalg.distributed import RowMatrix
+
+from koios.spark.dataframe import as_df_with_idx
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -48,3 +51,12 @@ def svd(data: RowMatrix, n_components=None):
         var = scipy.dot(s[n_components:], s[n_components:])
         s, V = s[:n_components], V[:n_components]
     return s, V, var
+
+
+def elementwise_product(X: RowMatrix, Y: RowMatrix, spark):
+    X = as_df_with_idx(X, "idx", spark)
+    Y = as_df_with_idx(Y, "idx", spark)
+    Y = Y.withColumnRenamed("_1", "_2")
+    X = X.join(Y, on="idx").drop("idx")
+    X = X.rdd.map(lambda x: scipy.array(x[0]) * scipy.array(x[1]))
+    return X

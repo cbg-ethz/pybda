@@ -30,7 +30,7 @@ from pyspark.mllib.linalg.distributed import RowMatrix
 from koios.dimension_reduction import DimensionReduction
 from koios.fit.lda_fit import LDAFit
 from koios.spark.dataframe import join
-from koios.stats.linalg import svd
+from koios.stats.linalg import svd, elementwise_product
 from koios.stats.random import mtrand
 from koios.stats.stats import center, decorrelate
 
@@ -69,14 +69,15 @@ class ICA(DimensionReduction):
             w /= scipy.sqrt((w ** 2).sum())
             for i in range(self.max_iter):
                 g, g_deriv = self.exp(X.multiply(DenseMatrix(len(w), 1, w)))
-                w1 = (X.multiply) * gwtx).mean(axis=1) - g_wtx.mean() * w
-                K =  g.T.dot(X1) / p_ - g_wtx[:, numpy.newaxis] * W
+                w1 = elementwise_product(X, g)
+                del g
+                gwtx).mean(axis=1) - g_wtx.mean() * w
 
     def exp(self, X):
         g = X.rows.map(lambda x: x * numpy.exp(-(x ** 2) / 2))
         g_ = X.rows.map(lambda x: (1 - x ** 2) * numpy.exp(-(x ** 2) / 2))
         gm = g_.computeColumnSummaryStatistics().mean()
-        return g, gm
+        return RowMatrix(g), gm
 
 
     def _whiten(self, X):
