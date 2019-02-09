@@ -65,6 +65,6 @@ class ICAFit(DimensionReductionFit):
               outfile + "-scatter_plot." + suf,
               subsamp, "f_0", "f_1", "Component 1", "Component 2")
             for i in map(lambda x: "f_" + str(x),
-                         range(min(10, self.n_discriminants))):
+                         range(min(10, self.n_components))):
                 histogram(outfile + "-histogram_{}.".format(i) + suf,
                           subsamp[i].values, i)
