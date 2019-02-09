@@ -47,6 +47,10 @@ def join(data: sql.DataFrame, X: RowMatrix, spark, on=FEATURES__):
     return data
 
 
+def as_df(X:RowMatrix, spark):
+    return spark.createDataFrame(X.rows.map(lambda x: (x,)))
+
+
 def as_df_with_idx(X: RowMatrix, idx, spark):
     X = spark.createDataFrame(X.rows.map(lambda x: (x,)))
     X = X.withColumn(idx, func.monotonically_increasing_id())

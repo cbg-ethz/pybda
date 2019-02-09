@@ -32,17 +32,16 @@ from koios.fit.lda_fit import LDAFit
 from koios.spark.dataframe import join
 from koios.stats.linalg import svd, elementwise_product
 from koios.stats.random import mtrand
-from koios.stats.stats import center, decorrelate
+from koios.stats.stats import center, gs_decorrelate
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
 class ICA(DimensionReduction):
-    def __init__(self, spark, n_components, features, response):
-        super().__init__(spark, features, scipy.inf, scipy.inf)
+    def __init__(self, spark, n_components, features):
+        super().__init__(spark, features, 1e-03, 25)
         self.__n_components = n_components
-        self.__response = response
         numpy.random.seed(seed=233423)
 
     @property
@@ -56,76 +55,71 @@ class ICA(DimensionReduction):
     def fit(self, data):
         logger.info("Fitting ICA")
         X = self._center(data)
-        X = self._whiten(X)
+        W, K = self._fit(X)
+        return X.multiply(K.multiply(W)), W, K
+
+    def _fit(self, X):
+        Xw, K = self._whiten(X)
 
         W = DenseMatrix(self.n_components,
                         self.n_components,
                         scipy.zeros(self.n_components ** 2))
-        n_iter = []
-        w_init = decorrelate(mtrand(self.n_components, self.n_components))
+        w_init = mtrand(self.n_components, self.n_components)
 
         for c in range(self.n_components):
             w = w_init[c, :].copy()
             w /= scipy.sqrt((w ** 2).sum())
             for i in range(self.max_iter):
-                g, g_deriv = self.exp(X.multiply(DenseMatrix(len(w), 1, w)))
-                w1 = elementwise_product(X, g)
+                g, gd = self.exp(Xw.multiply(DenseMatrix(len(w), 1, w)))
+                w1 = elementwise_product(Xw, g).rows.map(lambda x: x - gd * w)
+                w1 = gs_decorrelate(w1, W.toArray(), c)
                 del g
-                gwtx).mean(axis=1) - g_wtx.mean() * w
+                w1 /= scipy.sqrt((w1 ** 2).sum())
+                lim = scipy.abs(scipy.abs((w1 * w).sum()) - 1)
+                w = w1
+                if lim < self.threshold:
+                    break
+            W.toArray()[c, :] = w
+        del Xw
+
+        return W, K
 
     def exp(self, X):
         g = X.rows.map(lambda x: x * numpy.exp(-(x ** 2) / 2))
         g_ = X.rows.map(lambda x: (1 - x ** 2) * numpy.exp(-(x ** 2) / 2))
-        gm = g_.computeColumnSummaryStatistics().mean()
+        gm = g_.computeColumnSummaryStatistics().mean().mean()
         return RowMatrix(g), gm
-
 
     def _whiten(self, X):
         s, v, _ = svd(X, len, X.numCols())
         K = (v.T / s)[:, :self.n_components] * scipy.sqrt(X.numRows())
         K = DenseMatrix(K.numRows(), K.numCols(), K.flatten(), True)
-        return X.multiply(K)
+        return X.multiply(K), K
 
     def _center(self, data):
         X = self._feature_matrix(data)
         return RowMatrix(center(X))
 
-    def _compute_eigens(self, SW, SB):
-        logger.info("Computing eigen values")
-        eval, evec = scipy.linalg.eig(scipy.linalg.inv(SW).dot(SB))
-        eval = scipy.real(eval)
-        sorted_idxs = scipy.argsort(-abs(eval))
-        eval, evec = eval[sorted_idxs], evec[:, sorted_idxs]
-        return eval, evec
-
-    def transform(self, data, W):
+    def transform(self, data, X):
         logger.info("Transforming data")
-        W =  W[:, :self.n_components]
-        logger.info(W)
-        W = DenseMatrix(numRows=W.shape[0],
-                        numCols=W.shape[1], isTransposed=True,
-                        values=W.flatten())
-        logger.info(W.toArray())
-        X = self._row_matrix(data).multiply(W)
         data = join(data, X, self.spark)
         del X
         return data
 
     def fit_transform(self, data):
         logger.info("Running LDA ...")
-        W, eval = self.fit(data)
-        data = self.transform(data, W)
+        X, W, K = self.fit(data)
+        data = self.transform(data, X)
         return LDAFit(data, self.n_components, W, eval,
                       self.features, self.response)
 
 
 @click.command()
-@click.argument("discriminants", type=int)
+@click.argument("components", type=int)
 @click.argument("file", type=str)
 @click.argument("features", type=str)
-@click.argument("response", type=str)
 @click.argument("outpath", type=str)
-def run(discriminants, file, features, response, outpath):
+def run(components, file, features, outpath):
     """
     Fit a linear discriminant analysis to a data set.
     """
@@ -144,7 +138,7 @@ def run(discriminants, file, features, response, outpath):
             features = read_info(features)
             data = read_and_transmute(
               spark, file, features, assemble_features=False)
-            fl = LDA(spark, discriminants, features, response)
+            fl = ICA(spark, components, features)
             fit = fl.fit_transform(data)
             fit.write_files(outpath)
         except Exception as e:
