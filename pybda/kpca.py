@@ -1,19 +1,19 @@
 # Copyright (C) 2018 Simon Dirmeier
 #
-# This file is part of koios.
+# This file is part of pybda.
 #
-# koios is free software: you can redistribute it and/or modify
+# pybda is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# koios is distributed in the hope that it will be useful,
+# pybda is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with koios. If not, see <http://www.gnu.org/licenses/>.
+# along with pybda. If not, see <http://www.gnu.org/licenses/>.
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
@@ -24,9 +24,9 @@ import logging
 import click
 from pyspark.sql import DataFrame
 
-from koios.fit.kpca_fit import KPCAFit
-from koios.pca import PCA
-from koios.stats.stats import fourier
+from pybda.fit.kpca_fit import KPCAFit
+from pybda.pca import PCA
+from pybda.stats.stats import fourier
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -71,11 +71,11 @@ def run(components, file, features, outpath):
     Fit a kernel PCA to a data set.
     """
 
-    from koios.util.string import drop_suffix
-    from koios.logger import set_logger
-    from koios.spark_session import SparkSession
-    from koios.io.io import read_info, read_and_transmute
-    from koios.io.as_filename import as_logfile
+    from pybda.util.string import drop_suffix
+    from pybda.logger import set_logger
+    from pybda.spark_session import SparkSession
+    from pybda.io.io import read_info, read_and_transmute
+    from pybda.io.as_filename import as_logfile
 
     outpath = drop_suffix(outpath, "/")
     set_logger(as_logfile(outpath))
