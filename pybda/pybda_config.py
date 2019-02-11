@@ -27,7 +27,7 @@ from pybda.globals import REQUIRED_ARGS__, INFILE__, OUTFOLDER__, METHODS__, \
 sys.excepthook = lambda ex, msg, _: print("{}: {}".format(ex.__name__, msg))
 
 
-class KoiosConfig:
+class PyBDAConfig:
     """
     Config class to
     - setup all required infiles,

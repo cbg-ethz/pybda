@@ -27,7 +27,7 @@ install:
   - pip install tox-travis
 
 script:
-  - py.test --cov=./
+  - py.test --capture=sys --cov=./
   - spark-submit -h
 
 after_success:

@@ -92,23 +92,25 @@ clustering and regression.
 +========================+======================================================+=============================================================================================================================+
 | **Dimension reduction**                                                                                                                                                                                     |
 +------------------------+------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| ``dimension_reduction``| ``factor_analysis``/``pca``/``kpca``/``lda``/``ica`` | specifies which method to use for dimension reduction                                                                       |
+| ``dimension_reduction``| ``factor_analysis``/``pca``/``kpca``/``lda``/``ica`` | Specifies which method to use for dimension reduction                                                                       |
 +------------------------+------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| ``n_components``       | e.g ``2,3,4`` or ``2``                               | comma-separated list of integers specifying the number of variables in the lower dimensional space to use per reduction     |
+| ``n_components``       | e.g ``2,3,4`` or ``2``                               | Comma-separated list of integers specifying the number of variables in the lower dimensional space to use per reduction     |
++------------------------+------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
+| ``response``           | (only for ``lda``)                                   | Name of column in ``infile`` that is the response. Only required for linear discriminant analysis.                          |
 +------------------------+------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
 | **Clustering**                                                                                                                                                                                              |
 +------------------------+------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| ``clustering``         | ``kmeans``/``gmm``                                   | specifies which method to use for clustering                                                                                |
+| ``clustering``         | ``kmeans``/``gmm``                                   | Specifies which method to use for clustering                                                                                |
 +------------------------+------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| ``n_centers``          | e.g ``2,3,4`` or ``2``                               | comma-separated list of integers specifying the number of clusters to use per cluystering                                   |
+| ``n_centers``          | e.g ``2,3,4`` or ``2``                               | Comma-separated list of integers specifying the number of clusters to use per cluystering                                   |
 +------------------------+------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
 | **Regression**                                                                                                                                                                                              |
 +------------------------+------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| ``regression``         |  ``glm``/``forest``/``gbm``                          | specifies which method to use for regression                                                                                |
+| ``regression``         |  ``glm``/``forest``/``gbm``                          | Specifies which method to use for regression                                                                                |
 +------------------------+------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| ``response``                                                                  | name of column in ``infile`` that is the response                                                                           |
+| ``response``                                                                  | Name of column in ``infile`` that is the response                                                                           |
 +------------------------+------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| ``family``             | ``gaussian``/``binomial``/``categorical``            | distribution family of the response variable                                                                                |
+| ``family``             | ``gaussian``/``binomial``/``categorical``            | Distribution family of the response variable                                                                                |
 +------------------------+------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
 
 The abbreveations of the methods are explained in the following list.
