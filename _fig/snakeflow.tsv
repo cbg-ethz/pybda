@@ -1,6 +1,0 @@
-digraph snakemake_dag {
-	graph[bgcolor=white, margin=0,fontname="Roboto"];
-	node[shape=rectangle, fontname="Roboto", fontsize=10, penwidth=2];
-	edge[penwidth=1, color=grey80, arrowsize=.8];
-	nodesep=1.5;
-}
