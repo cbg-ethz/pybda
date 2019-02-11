@@ -6,13 +6,13 @@ if version_info[0] == 2:
 
 
 def readme():
-    with open('README.md') as fl:
+    with open('README.rst') as fl:
         return fl.read()
 
 
 setup(
   name='pybda',
-  version='0.0.1',
+  version='0.0.2',
   description='Big Data analytics powered by Apache Spark',
   long_description=readme(),
   url='https://github.com/cbg-ethz/koios',

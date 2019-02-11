@@ -9,16 +9,10 @@ PyBDA
 .. image:: https://codecov.io/gh/cbg-ethz/pybda/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/cbg-ethz/pybda
 .. image:: https://api.codacy.com/project/badge/Grade/1822ba83768d4d7389ba667a9c839638
-   :target:
-.. image:: https://www.codacy.com/app/simon-dirmeier/rnaiutilities_2?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=cbg-ethz/koios&amp;utm_campaign=Badge_Grade
-   :target:
 .. image:: https://readthedocs.org/projects/pybda/badge/?version=latest
    :target: http://pybda.readthedocs.io/en/latest
 
 A commandline tool for analysis of big biological data sets using Snakemake, powered by Apache Spark.
-
-.. image:: https://rawgit.com/dirmeier/dataframe/master/_fig/demo.svg
-   :height: 600px
 
 Introduction
 ============
