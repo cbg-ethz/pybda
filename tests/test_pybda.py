@@ -20,6 +20,7 @@
 
 
 import os
+import shutil
 import subprocess
 import unittest
 
@@ -70,15 +71,14 @@ class TestKoios(unittest.TestCase):
                                             "glm_gaussian.config")
         self._forst_gauss_file = os.path.join(self._test_path,
                                               "forest_gaussian.config")
-
         self._pybda = os.path.join(self._pybda_path, "scripts", "pybda")
         self._create_dim_red_configs()
         self._create_regression_configs()
         self._create_clustering_configs()
 
     def _recreate_test_folder(self):
-        # if os.path.exists(self._test_out):
-        #    shutil.rmtree(self._test_out)
+        if os.path.exists(self._test_out):
+           shutil.rmtree(self._test_out)
         if not os.path.exists(self._test_out):
             os.mkdir(self._test_out)
             for f in [BINOMIAL_, GAUSSIAN_]:
@@ -93,6 +93,8 @@ class TestKoios(unittest.TestCase):
                 fr.write("{}: {}\n".format(DIM_RED__, d))
                 fr.write("{}: {}\n".format(
                   N_COMPONENTS__, TestKoios.__CONFIG__[N_COMPONENTS__]))
+                if d == LDA__:
+                    fr.write("{}: {}\n".format(RESPONSE__, "Species"))
 
     def _create_clustering_configs(self):
         for d in TestKoios.__CONFIG__[CLUSTERING__]:
@@ -126,10 +128,21 @@ class TestKoios(unittest.TestCase):
                         fr.write("{}: {}\n".format(RESPONSE__, "response"))
 
     def tearDown(self):
-        # shutil.rmtree(self._test_out)
-        for d in TestKoios.__CONFIG__[DIM_RED__]:
+        if os.path.exists(self._test_out):
+            shutil.rmtree(self._test_out)
+        fls = []
+        for d in TestKoios.__CONFIG__[DIM_RED__] + TestKoios.__CONFIG__[CLUSTERING__]:
             out = os.path.join(self._test_path, d + ".config")
-            # os.remove(out)
+            fls.append(out)
+        for d in TestKoios.__CONFIG__[REGRESSION__]:
+            for f in [BINOMIAL_, GAUSSIAN_]:
+                out = os.path.join(self._test_path, d + "_" + f + ".config")
+                fls.append(out)
+        for fl in fls:
+            os.remove(fl)
+
+    def test_test(self):
+        assert 0 == 0
 
     def test_fa(self):
         self._recreate_test_folder()

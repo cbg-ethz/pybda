@@ -22,7 +22,7 @@
 import typing
 
 from pybda import dirname
-from pybda import KoiosConfig
+from pybda import PyBDAConfig
 from pybda.globals import CLUSTERING__
 from pybda.globals import CLUSTERING_INFILE__
 from pybda.globals import DEBUG__
@@ -56,7 +56,7 @@ from pybda.globals import SPARKIP__
 from pybda.globals import SPARK__
 from pybda.logger import logger_format
 
-pybda_config = KoiosConfig(config)
+pybda_config = PyBDAConfig(config)
 
 
 def _submit_dim_red(method, input, out, params):
