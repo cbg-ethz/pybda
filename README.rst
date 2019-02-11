@@ -10,7 +10,8 @@ PyBDA
    :target: https://codecov.io/gh/cbg-ethz/pybda
 .. image:: https://api.codacy.com/project/badge/Grade/1822ba83768d4d7389ba667a9c839638
 .. image:: https://readthedocs.org/projects/pybda/badge/?version=latest
-   :target: http://pybda.readthedocs.io/en/latest
+   :target: https://pybda.readthedocs.io/en/latest/?badge=latest
+   :alt: Documentation
 
 A commandline tool for analysis of big biological data sets using Snakemake, powered by Apache Spark.
 
@@ -29,7 +30,7 @@ In the case of a successful computation of a job, PyBDA will write results and p
 Documentation
 =============
 
-Check out the documentation `here <https://cbg-ethz.github.io/pybda/index.html>`_.
+Check out the documentation `here <https://pybda.readthedocs.io/en/latest/>`_.
 The documentation will walk you though
 
 * the installation process,
