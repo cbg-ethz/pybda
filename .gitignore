@@ -1,7 +1,7 @@
 .tox
 build/*
 dist/*
-koios.egg-info/*
+pybda.egg-info/*
 data/fa*
 data/kmeans*
 data/outlier*
