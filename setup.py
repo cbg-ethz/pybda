@@ -12,7 +12,7 @@ def readme():
 
 setup(
   name='pybda',
-  version='0.0.2',
+  version='0.0.3',
   description='Big Data analytics powered by Apache Spark',
   long_description=readme(),
   url='https://github.com/cbg-ethz/koios',
