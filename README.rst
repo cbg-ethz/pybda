@@ -2,17 +2,6 @@
 PyBDA
 *****
 
-.. image:: http://www.repostatus.org/badges/latest/wip.svg
-   :target: http://www.repostatus.org/#wip
-.. image:: https://travis-ci.org/cbg-ethz/pybda.svg?branch=master
-   :target: https://travis-ci.org/cbg-ethz/pybda/
-.. image:: https://codecov.io/gh/cbg-ethz/pybda/branch/master/graph/badge.svg
-   :target: https://codecov.io/gh/cbg-ethz/pybda
-.. image:: https://api.codacy.com/project/badge/Grade/1822ba83768d4d7389ba667a9c839638
-.. image:: https://readthedocs.org/projects/pybda/badge/?version=latest
-   :target: https://pybda.readthedocs.io/en/latest/?badge=latest
-   :alt: Documentation
-
 A commandline tool for analysis of big biological data sets using Snakemake, powered by Apache Spark.
 
 Introduction
