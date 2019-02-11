@@ -19,9 +19,9 @@ In order to account for correlated features, we first map the features into a lo
 dimensional space using factor analysis (we could also use a GMM, where we estimate
 the correlations too, or remove the line in the config):
 
-.. literalinclude:: ../../koios-usecase-kmeans.config
-  :caption: Contents of ``koios-usecase-kmeans.config`` file
-  :name: koios-usecase-kmeans.config
+.. literalinclude:: ../../pybda-usecase-kmeans.config
+  :caption: Contents of ``pybda-usecase-kmeans.config`` file
+  :name: pybda-usecase-kmeans.config
 
 In the config above we will do the following.
 
@@ -29,11 +29,11 @@ In the config above we will do the following.
 * do a clustering with $50, \dots, 200$ cluster centers on the three features we got from the factor analysis,
 * give the Spark driver $3G$ of memory and the executor $6G$ of memory.
 
-Having the parameters set, we call koios
+Having the parameters set, we call PyBDA
 
 .. code-block:: bash
 
-  koios clustering koios-usecase-kmeans.config IP
+  pybda clustering pybda-usecase-kmeans.config IP
 
 The above command first executes the dimension reduction and then the clustering.
 After both ran, you should check the plots and statistics.

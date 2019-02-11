@@ -1,7 +1,7 @@
 
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
-SPHINXPROJ    = koios
+SPHINXPROJ    = pybda
 SOURCEDIR     = source
 BUILDDIR      = build
 

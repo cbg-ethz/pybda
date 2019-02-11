@@ -7,31 +7,31 @@ See the *examples* to get a better overview that koios has to offer.
 Installation
 ------------
 
-Installing ``koios`` is easy.
+Installing PyBDA is easy.
 
-1) Make sure to have ``python3`` installed. ``koios`` does not support
+1) Make sure to have ``python3`` installed. PyBDA does not support
    previous versions. The best way to do that is to download `anaconda <https://www.continuum.io/downloads>`_ and create a
    virtual `environment <https://conda.io/docs/using/envs.html>`_.
 
-2) Either install ``koios`` from conda
+2) Either install PyBDA from conda
    using
 
   .. code-block:: bash
 
-     conda install koios -c conda-forge
+     conda install pybda -c conda-forge
 
   or from PYPI
 
   .. code-block:: bash
 
-     pip install koios
+     pip install pybda
 
   or by downloading the latest `release <https://github.com/cbg-ethz/biospark/releases>`_
 
   .. code-block:: bash
 
-      tar -zxvf koios*.tar.gz
-      pip install koios
+      tar -zxvf pybda*.tar.gz
+      pip install pybda
 
   I obviously recommend installation using the first option.
 
@@ -48,17 +48,17 @@ Installing ``koios`` is easy.
 Usage
 -----
 
-Using ``koios`` requires providing two things:
+Using PyBDA requires providing two things:
 
 * a config file that specifies the methods you want to use, paths to files, and parameters,
 * and the IP to a running spark-cluster which runs the algorithms and methods to be executed. If no cluster
-  environment is available you can also run koios locally. This, of course, somehow limits what koios can do for you,
+  environment is available you can also run PyBDA locally. This, of course, somehow limits what PyBDA can do for you,
   since it's real strength lies in distributed computation.
 
 Config
 ~~~~~~~
 
-Running koios requires a ``yaml`` configuration file that specifies several key-value pairs.
+Running PyBDA requires a ``yaml`` configuration file that specifies several key-value pairs.
 The config file consists of
 
 * general arguments, such as file names,
@@ -130,16 +130,16 @@ Example
 
 For instance, consider the config file below:
 
-.. literalinclude:: ../../koios-usecase.config
-  :caption: Contents of ``koios-usecase.config`` file
-  :name: koios-usecase.config
+.. literalinclude:: ../../pybda-usecase.config
+  :caption: Contents of ``pybda-usecase.config`` file
+  :name: pybda-usecase.config
 
 It would execute the following jobs:
 
 1) dimension reduction on the input file with 5 components -> clustering on the result of the dimensionality reduction with 3 cluster centers
 2) binomial-family generalized regression model (i.e. logistic) on the input file with respone *is_infected*
 
-.. note:: ``koios`` first parses through the config file and builds a DAG of the methods that should be executed. If it finds dimensionality reduction *and* clustering, it will first embed the data in a lower dimensional space und use the result of this for clustering (i.e. in order to remove correlated features). The same does *not* happen with regression.
+.. note:: PyBDA first parses through the config file and builds a DAG of the methods that should be executed. If it finds dimensionality reduction *and* clustering, it will first embed the data in a lower dimensional space und use the result of this for clustering (i.e. in order to remove correlated features). The same does *not* happen with regression.
 
 Spark parameters
 ................
@@ -157,18 +157,18 @@ Below, the most important two are listed:
 Spark
 ~~~~~~
 
-In order for `koios` to work you need to have a working
+In order for PyBDA to work you need to have a working
 *standalone spark environment* set up, running and listening to some ``IP``.
 You can find a good introduction
 `here <https://spark.apache.org/docs/latest/spark-standalone.html>`_ on how
-to start the standalone Spark cluster. Alternatively, as mentioned above, a desktop PC suffices as well, but will limit what koios can do for you.
+to start the standalone Spark cluster. Alternatively, as mentioned above, a desktop PC suffices as well, but will limit what PyBDA can do for you.
 
 We assume that you know how to use Apache Spark and start a cluster. However, for the sake of demonstration the next two sections show how Spark can be easily started.
 
 Local Spark context
 ....................
 
-On a local resource, such as a laptop or PC, there is no need to start a Spark cluster. In such a scenario the ``IP`` koios requires for submitting jobs is just called ``local``.
+On a local resource, such as a laptop or PC, there is no need to start a Spark cluster. In such a scenario the ``IP`` PyBDA requires for submitting jobs is just called ``local``.
 
 Alternatively, you can always *simulate* a cluster environment. You would then start the spark environment using:
 
@@ -192,7 +192,7 @@ Cluster environment
 If you are working on a cluster, you can use the provided scripts to start a cluster.
 **Make sure to have a working ``openmpi`` and ``Java`` installed**. We use ``sparkhpc``
 in order to start a standalone cluster on an LSF/SGE high-performance computing cluster.
-Sparkhpc install with koios, but in case it didn't just reinstall it:
+Sparkhpc install with PyBDA, but in case it didn't just reinstall it:
 
 .. code-block:: bash
 
@@ -229,19 +229,19 @@ For ``dimension-reduction``:
 
 .. code-block:: bash
 
-  koios dimension-reduction koios-usecase.config IP
+  pybda dimension-reduction pybda-usecase.config IP
 
 For ``clustering``:
 
 .. code-block:: bash
 
-   koios clustering koios-usecase.config IP
+   pybda clustering pybda-usecase.config IP
 
 For ``regression``:
 
 .. code-block:: bash
 
-   koios regression koios-usecase.config IP
+   pybda regression pybda-usecase.config IP
 
 In all cases, the methods create ``tsv`` files, plots and statistics.
 

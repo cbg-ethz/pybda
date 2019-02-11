@@ -18,17 +18,17 @@ Koios offers in total three ways to do dimension reduction:
 
 The config file we need to specify is in this case rather concise:
 
-.. literalinclude:: ../../koios-usecase-kpca.config
-  :caption: Contents of ``koios-usecase-kpca.config`` file
-  :name: koios-usecase-kpca.config
+.. literalinclude:: ../../pybda-usecase-kpca.config
+  :caption: Contents of ``pybda-usecase-kpca.config`` file
+  :name: pybda-usecase-kpca.config
 
 In the config above we will do the following:
 
 * Use a kpca to map the data set into a two-dimensional space,
 * give the Spark driver $3G$ of memory and the executor $6G$ of memory.
 
-Having the parameters set, we call koios
+Having the parameters set, we call PyBDA
 
 .. code-block:: bash
 
-  koios dimension-reduction koios-usecase-kpca.config IP
+  pybda dimension-reduction pybda-usecase-kpca.config IP

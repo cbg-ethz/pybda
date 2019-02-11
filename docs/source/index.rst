@@ -1,16 +1,16 @@
-Κοῖος /ˈci.os/
-==============
+PyBDA
+=====
 
 .. image:: http://www.repostatus.org/badges/latest/active.svg
    :target: http://www.repostatus.org/#active
-.. image:: https://travis-ci.org/cbg-ethz/koios.svg?branch=master
-   :target: https://travis-ci.org/cbg-ethz/koios/
-.. image:: https://codecov.io/gh/cbg-ethz/koios/branch/master/graph/badge.svg
-   :target: https://codecov.io/gh/cbg-ethz/koios/
+.. image:: https://travis-ci.org/cbg-ethz/pybda.svg?branch=master
+   :target: https://travis-ci.org/cbg-ethz/pybda/
+.. image:: https://codecov.io/gh/cbg-ethz/pybda/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/cbg-ethz/pybda/
 .. image:: https://api.codacy.com/project/badge/Grade/1822ba83768d4d7389ba667a9c839638
    :target: https://www.codacy.com/app/simon-dirmeier/rnaiutilities_2?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=cbg-ethz/rnaiutilities&amp;utm_campaign=Badge_Grade
-.. image:: https://readthedocs.org/projects/koios/badge/?version=latest
-   :target: http://koios.readthedocs.io/en/latest/
+.. image:: https://readthedocs.org/projects/pybda/badge/?version=latest
+   :target: http://pybda.readthedocs.io/en/latest/
    :alt: doc
 
 A command line tool for big data analytics and machine learning using Apache Spark and Snakemake.
@@ -29,20 +29,20 @@ A command line tool for big data analytics and machine learning using Apache Spa
 About
 -----
 
-Welcome to ``koios``.
+Welcome to PyBDA.
 
-``koios`` is a Python library and command line tool for big data analytics and machine learning scaling to tera byte sized data sets.
+PyBDA is a Python library and command line tool for big data analytics and machine learning scaling to tera byte sized data sets.
 
-In order to make koios scale to big data sets, we use Apache [Spark]_'s DataFrame API which, if developed against, automatically distributes
+In order to make PyBDA scale to big data sets, we use Apache [Spark]_'s DataFrame API which, if developed against, automatically distributes
 data to the nodes of a high-performance cluster and does the computation of expensive machine learning tasks in parallel.
-For scheduling, koios uses [Snakemake]_ to automatically execute pipelines of jobs. In particular, koios will first build a DAG of methods/jobs
+For scheduling, PyBDA uses [Snakemake]_ to automatically execute pipelines of jobs. In particular, PyBDA will first build a DAG of methods/jobs
 you want to execute in succession (e.g. dimensionality reduction into clustering) and then compute every method by traversing the DAG.
-In the case of a successful computation of a job, koios will write results and plots, and create statistics. If one of the jobs fails koios will report where and which method failed
+In the case of a successful computation of a job, PyBDA will write results and plots, and create statistics. If one of the jobs fails PyBDA will report where and which method failed
 (owing to Snakemake's scheduling) such that the same pipeline can effortlessly be continued from where it failed the last time.
 
-Sofar ``koios`` supports several methods from [MLLib]_ and some that have been developed from scratch to scale to big data settings:
+Sofar PyBDA supports several methods from [MLLib]_ and some that have been developed from scratch to scale to big data settings:
 
-* dimensionality reduction using PCA, factor analysis, kPCA, and linear discriminant analysis,
+* dimensionality reduction using PCA, factor analysis, kPCA, linear discriminant analysis and ICA,
 * clustering using k-means and Gaussian mixture models,
 * supervised learning using generalized linear regression models, random forests and gradient boosting.
 
@@ -58,19 +58,19 @@ Dependencies
 Example
 -------
 
-``koios`` only requires a config-file and, if possible, the IP of a spark-cluster. Otherwise you can just call koios locally using ``local``).
+PyBDA only requires a config-file and, if possible, the IP of a spark-cluster. Otherwise you can just call PyBDA locally using ``local``).
 The config file might for a simple clustering case look like this:
 
-.. literalinclude:: ../../koios-usecase-kmeans.config
-  :caption: Contents of ``koios-usecase-kmeans.config`` file
-  :name: koios-usecase-gmm.config
+.. literalinclude:: ../../pybda-usecase-kmeans.config
+  :caption: Contents of ``pybda-usecase-kmeans.config`` file
+  :name: pybda-usecase-gmm.config
 
 This would fight several k-means clusterings with different numbers of clusters.
 Calling the tool is then as simple as:
 
 .. code-block:: bash
 
-   koios clustering koios-usecase-kmeans.config local
+   pybda clustering pybda-usecase-kmeans.config local
 
 The result of any call creates several different data files and appropriate distributions.
 For instance, for the example above, two of the plots generated are shown below:

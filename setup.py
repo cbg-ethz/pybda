@@ -11,7 +11,7 @@ def readme():
 
 
 setup(
-  name='koios',
+  name='pybda',
   version='0.0.1',
   description='Big Data analytics powered by Apache Spark',
   long_description=readme(),
@@ -21,7 +21,7 @@ setup(
   license='GPLv3',
   keywords='bigdata analysis pipeline workflow spark pyspark machinelearning',
   packages=find_packages(),
-  scripts=['scripts/koios'],
+  scripts=['scripts/pybda'],
   include_package_data=True,
   python_requires='>=3',
   install_requires=[
@@ -40,7 +40,8 @@ setup(
   ],
   classifiers=[
       'Development Status :: 3 - Alpha',
-      'Intended Audience :: Developers',
+      'Environment :: Console',
+      'Intended Audience :: End Users/Desktop',
       'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
       'Programming Language :: Python :: 3',
       'Programming Language :: Python :: 3.4',
