@@ -1,23 +1,22 @@
 # Copyright (C) 2018 Simon Dirmeier
 #
-# This file is part of koios.
+# This file is part of pybda.
 #
-# koios is free software: you can redistribute it and/or modify
+# pybda is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# koios is distributed in the hope that it will be useful,
+# pybda is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with koios. If not, see <http://www.gnu.org/licenses/>.
+# along with pybda. If not, see <http://www.gnu.org/licenses/>.
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
-
 
 import logging
 
@@ -26,11 +25,11 @@ import scipy
 from pyspark.mllib.linalg import DenseMatrix
 from pyspark.mllib.linalg.distributed import RowMatrix
 
-from koios.dimension_reduction import DimensionReduction
-from koios.fit.pca_fit import PCAFit
-from koios.spark.dataframe import join
-from koios.stats.linalg import svd
-from koios.stats.stats import scale
+from pybda.dimension_reduction import DimensionReduction
+from pybda.fit.pca_fit import PCAFit
+from pybda.spark.dataframe import join
+from pybda.stats.linalg import svd
+from pybda.stats.stats import scale
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -88,11 +87,11 @@ def run(components, file, features, outpath):
     Fit a PCA to a data set.
     """
 
-    from koios.util.string import drop_suffix
-    from koios.logger import set_logger
-    from koios.spark_session import SparkSession
-    from koios.io.as_filename import as_logfile
-    from koios.io.io import read_and_transmute, read_info
+    from pybda.util.string import drop_suffix
+    from pybda.logger import set_logger
+    from pybda.spark_session import SparkSession
+    from pybda.io.as_filename import as_logfile
+    from pybda.io.io import read_and_transmute, read_info
 
     outpath = drop_suffix(outpath, "/")
     set_logger(as_logfile(outpath))

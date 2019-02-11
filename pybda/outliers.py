@@ -1,5 +1,22 @@
-#!/usr/bin/env python3
-
+# Copyright (C) 2018 Simon Dirmeier
+#
+# This file is part of pybda.
+#
+# pybda is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# pybda is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with pybda. If not, see <http://www.gnu.org/licenses/>.
+#
+# @author = 'Simon Dirmeier'
+# @email = 'simon.dirmeier@bsse.ethz.ch'
 
 import logging
 
@@ -9,10 +26,10 @@ from pyspark.mllib.linalg.distributed import RowMatrix
 from pyspark.sql.functions import udf, col
 from pyspark.sql.types import DoubleType
 
-from koios.spark_model import SparkModel
-from koios.stats.linalg import precision
-from koios.util.cast_as import as_rdd_of_array
-from koios.stats.stats import center, chisquare
+from pybda.spark_model import SparkModel
+from pybda.stats.linalg import precision
+from pybda.util.cast_as import as_rdd_of_array
+from pybda.stats.stats import center, chisquare
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -66,11 +83,11 @@ class Outliers(SparkModel):
 @click.argument("outpath", type=str)
 @click.argument("pval", type=float)
 def run(inpath, outpath, pval):
-    from koios.spark_session import SparkSession
-    from koios.io.as_filename import as_logfile
-    from koios.io.io import read_parquet, write_parquet
-    from koios.util.string import drop_suffix
-    from koios.logger import set_logger
+    from pybda.spark_session import SparkSession
+    from pybda.io.as_filename import as_logfile
+    from pybda.io.io import read_parquet, write_parquet
+    from pybda.util.string import drop_suffix
+    from pybda.logger import set_logger
 
     outpath = drop_suffix(outpath, "/")
     set_logger(as_logfile(outpath))

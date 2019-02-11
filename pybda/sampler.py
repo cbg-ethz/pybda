@@ -1,19 +1,19 @@
 # Copyright (C) 2018 Simon Dirmeier
 #
-# This file is part of koios.
+# This file is part of pybda.
 #
-# koios is free software: you can redistribute it and/or modify
+# pybda is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# koios is distributed in the hope that it will be useful,
+# pybda is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with koios. If not, see <http://www.gnu.org/licenses/>.
+# along with pybda. If not, see <http://www.gnu.org/licenses/>.
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
@@ -41,12 +41,12 @@ def sample(data, n):
 @click.argument("split", type=bool)
 def run(input, output, n, split):
     import pathlib
-    from koios.logger import set_logger
-    from koios.spark_session import SparkSession
-    from koios.spark.features import split_vector
-    from koios.util.string import drop_suffix
-    from koios.io.io import as_logfile
-    from koios.io.io import read_tsv, read_parquet, write_parquet, write_tsv
+    from pybda.logger import set_logger
+    from pybda.spark_session import SparkSession
+    from pybda.spark.features import split_vector
+    from pybda.util.string import drop_suffix
+    from pybda.io.io import as_logfile
+    from pybda.io.io import read_tsv, read_parquet, write_parquet, write_tsv
 
     output = drop_suffix(output, "/")
     set_logger(as_logfile(output))

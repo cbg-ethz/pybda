@@ -1,41 +1,37 @@
 # Copyright (C) 2018 Simon Dirmeier
 #
-# This file is part of koios.
+# This file is part of pybda.
 #
-# koios is free software: you can redistribute it and/or modify
+# pybda is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# koios is distributed in the hope that it will be useful,
+# pybda is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with koios. If not, see <http://www.gnu.org/licenses/>.
+# along with pybda. If not, see <http://www.gnu.org/licenses/>.
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
-
 
 import logging
 import os
 
 from pandas import DataFrame
 
-from koios.fit.dimension_reduction_fit import DimensionReductionFit
-from koios.globals import FEATURES__
-from koios.io.io import write_parquet
-from koios.plot.descriptive import scatter, histogram
-
-from koios.plot.dimension_reduction_plot import biplot, \
+from pybda.fit.dimension_reduction_fit import DimensionReductionFit
+from pybda.globals import FEATURES__
+from pybda.plot.descriptive import scatter, histogram
+from pybda.plot.dimension_reduction_plot import biplot, \
     plot_cumulative_variance, plot_likelihood_path
-from koios.sampler import sample
-from koios.util.cast_as import as_pandas
-from koios.spark.features import split_vector
-from koios.stats.stats import cumulative_explained_variance
-
+from pybda.sampler import sample
+from pybda.spark.features import split_vector
+from pybda.stats.stats import cumulative_explained_variance
+from pybda.util.cast_as import as_pandas
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

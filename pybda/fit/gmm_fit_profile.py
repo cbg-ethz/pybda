@@ -1,22 +1,23 @@
 # Copyright (C) 2018 Simon Dirmeier
 #
-# This file is part of koios.
+# This file is part of pybda.
 #
-# koios is free software: you can redistribute it and/or modify
+# pybda is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# koios is distributed in the hope that it will be useful,
+# pybda is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with koios. If not, see <http://www.gnu.org/licenses/>.
+# along with pybda. If not, see <http://www.gnu.org/licenses/>.
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
+
 
 import glob
 import logging
@@ -26,14 +27,11 @@ import pandas
 import matplotlib.pyplot as plt
 import re
 
-from koios.fit.clustering_fit_profile import FitProfile
-from koios.globals import K_, LOGLIK_, BIC_, PLOT_STYLE_, PLOT_FONT_FAMILY_
+from pybda.fit.clustering_fit_profile import FitProfile
+from pybda.globals import K_, LOGLIK_, BIC_
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-
-plt.style.use([PLOT_STYLE_])
-plt.rcParams['font.family'] = PLOT_FONT_FAMILY_
 
 
 class GMMFitProfile(FitProfile):
