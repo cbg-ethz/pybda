@@ -1,28 +1,29 @@
 # Copyright (C) 2018 Simon Dirmeier
 #
-# This file is part of koios.
+# This file is part of pybda.
 #
-# koios is free software: you can redistribute it and/or modify
+# pybda is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# koios is distributed in the hope that it will be useful,
+# pybda is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with koios. If not, see <http://www.gnu.org/licenses/>.
+# along with pybda. If not, see <http://www.gnu.org/licenses/>.
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
+
 
 import os
 import subprocess
 import unittest
 
-from koios.globals import *
+from pybda.globals import *
 
 
 class TestKoios(unittest.TestCase):
@@ -32,7 +33,7 @@ class TestKoios(unittest.TestCase):
     """
 
     __CONFIG__ = {
-        DIM_RED__: [PCA__, KPCA__, FACTOR_ANALYSIS__],
+        DIM_RED__: [PCA__, KPCA__, FACTOR_ANALYSIS__, ICA__, LDA__],
         REGRESSION__: [GLM__, GBM__, FOREST__],
         N_COMPONENTS__: 2,
         CLUSTERING__: [GMM__, KMEANS__],
@@ -44,13 +45,15 @@ class TestKoios(unittest.TestCase):
     def setUp(self):
         unittest.TestCase.setUp(self)
         self._test_path = os.path.dirname(__file__)
-        self._koios_path = os.path.dirname(self._test_path)
-        self._test_out = os.path.join(self._koios_path, "data", "test")
-        self._test_file = os.path.join(self._test_path, "koios-test.config")
+        self._pybda_path = os.path.dirname(self._test_path)
+        self._test_out = os.path.join(self._pybda_path, "data", "test")
+        self._test_file = os.path.join(self._test_path, "pybda-test.config")
 
         self._fa_file = os.path.join(self._test_path, "factor_analysis.config")
         self._pca_file = os.path.join(self._test_path, "pca.config")
         self._kpca_file = os.path.join(self._test_path, "kpca.config")
+        self._ica_file = os.path.join(self._test_path, "ica.config")
+        self._lda_file = os.path.join(self._test_path, "lda.config")
 
         self._gmm_file = os.path.join(self._test_path, "gmm.config")
         self._kmeans_file = os.path.join(self._test_path, "kmeans.config")
@@ -68,7 +71,7 @@ class TestKoios(unittest.TestCase):
         self._forst_gauss_file = os.path.join(self._test_path,
                                               "forest_gaussian.config")
 
-        self._koios = os.path.join(self._koios_path, "scripts", "koios")
+        self._pybda = os.path.join(self._pybda_path, "scripts", "pybda")
         self._create_dim_red_configs()
         self._create_regression_configs()
         self._create_clustering_configs()
@@ -130,64 +133,76 @@ class TestKoios(unittest.TestCase):
 
     def test_fa(self):
         self._recreate_test_folder()
-        pr = subprocess.run([self._koios, "dimension-reduction",
+        pr = subprocess.run([self._pybda, "dimension-reduction",
                              self._fa_file, "local"])
         assert pr.returncode == 0
 
     def test_pca(self):
         self._recreate_test_folder()
         pr = subprocess.run(
-          [self._koios, "dimension-reduction", self._pca_file, "local"])
+          [self._pybda, "dimension-reduction", self._pca_file, "local"])
         assert pr.returncode == 0
 
     def test_kpca(self):
         self._recreate_test_folder()
         pr = subprocess.run(
-          [self._koios, "dimension-reduction", self._kpca_file, "local"])
+          [self._pybda, "dimension-reduction", self._kpca_file, "local"])
+        assert pr.returncode == 0
+
+    def test_ica(self):
+        self._recreate_test_folder()
+        pr = subprocess.run(
+          [self._pybda, "dimension-reduction", self._ica_file, "local"])
+        assert pr.returncode == 0
+
+    def test_lda(self):
+        self._recreate_test_folder()
+        pr = subprocess.run(
+          [self._pybda, "dimension-reduction", self._lda_file, "local"])
         assert pr.returncode == 0
 
     def test_kmeans(self):
         pr = subprocess.run(
-          [self._koios, "clustering", self._kmeans_file, "local"])
+          [self._pybda, "clustering", self._kmeans_file, "local"])
         assert pr.returncode == 0
 
     def test_gmm(self):
         pr = subprocess.run(
-          [self._koios, "clustering", self._gmm_file, "local"])
+          [self._pybda, "clustering", self._gmm_file, "local"])
         assert pr.returncode == 0
 
     def test_glm_gaussian(self):
         self._recreate_test_folder()
         pr = subprocess.run(
-          [self._koios, "regression", self._glm_gauss_file, "local"])
+          [self._pybda, "regression", self._glm_gauss_file, "local"])
         assert pr.returncode == 0
 
     def test_glm_binomial(self):
         self._recreate_test_folder()
         pr = subprocess.run(
-          [self._koios, "regression", self._glm_binomial_file, "local"])
+          [self._pybda, "regression", self._glm_binomial_file, "local"])
         assert pr.returncode == 0
 
     def test_forest_gaussian(self):
         self._recreate_test_folder()
         pr = subprocess.run(
-          [self._koios, "regression", self._forst_gauss_file, "local"])
+          [self._pybda, "regression", self._forst_gauss_file, "local"])
         assert pr.returncode == 0
 
     def test_forest_binomial(self):
         self._recreate_test_folder()
         pr = subprocess.run(
-          [self._koios, "regression", self._forst_binomial_file, "local"])
+          [self._pybda, "regression", self._forst_binomial_file, "local"])
         assert pr.returncode == 0
 
     def test_gbm_gaussian(self):
         self._recreate_test_folder()
         pr = subprocess.run(
-          [self._koios, "regression", self._gbm_gauss_file, "local"])
+          [self._pybda, "regression", self._gbm_gauss_file, "local"])
         assert pr.returncode == 0
 
     def test_gbm_binomial(self):
         self._recreate_test_folder()
         pr = subprocess.run(
-          [self._koios, "regression", self._glm_binomial_file, "local"])
+          [self._pybda, "regression", self._glm_binomial_file, "local"])
         assert pr.returncode == 0
