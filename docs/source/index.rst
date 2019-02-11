@@ -1,19 +1,23 @@
 PyBDA
 =====
 
-.. image:: http://www.repostatus.org/badges/latest/active.svg
-   :target: http://www.repostatus.org/#active
+.. image:: http://www.repostatus.org/badges/latest/wip.svg
+   :target: http://www.repostatus.org/#wip
+   :alt: Status
 .. image:: https://travis-ci.org/cbg-ethz/pybda.svg?branch=master
    :target: https://travis-ci.org/cbg-ethz/pybda/
+   :alt: Travis
 .. image:: https://codecov.io/gh/cbg-ethz/pybda/branch/master/graph/badge.svg
-   :target: https://codecov.io/gh/cbg-ethz/pybda/
-.. image:: https://api.codacy.com/project/badge/Grade/1822ba83768d4d7389ba667a9c839638
-   :target: https://www.codacy.com/app/simon-dirmeier/rnaiutilities_2?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=cbg-ethz/rnaiutilities&amp;utm_campaign=Badge_Grade
+   :target: https://codecov.io/gh/cbg-ethz/pybda
+   :alt: Codecov
+.. image:: https://api.codacy.com/project/badge/Grade/a4cca665933a4def9c2cfc88d7bbbeae
+   :target: https://www.codacy.com/app/simon-dirmeier/pybda?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=cbg-ethz/pybda&amp;utm_campaign=Badge_Grade
+   :alt: Codacy
 .. image:: https://readthedocs.org/projects/pybda/badge/?version=latest
-   :target: http://pybda.readthedocs.io/en/latest/
-   :alt: doc
+   :target: https://pybda.readthedocs.io/en/latest/?badge=latest
+   :alt: Documentation
 
-A command line tool for big data analytics and machine learning using Apache Spark and Snakemake.
+A commandline tool for analysis of big biological data sets using Snakemake, powered by Apache Spark.
 
 .. toctree::
    :hidden:
