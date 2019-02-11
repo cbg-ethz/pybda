@@ -6,9 +6,9 @@
 [![codedacy](https://api.codacy.com/project/badge/Grade/a4cca665933a4def9c2cfc88d7bbbeae)](https://www.codacy.com/app/simon-dirmeier/pybda?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=cbg-ethz/pybda&amp;utm_campaign=Badge_Grade)
 [![readthedocs](https://readthedocs.org/projects/pybda/badge/?version=latest)](http://pybda.readthedocs.io/en/latest)
 
-A commandline tool for analysis of big biological data sets using Snakemake, powered by Apache Spark.
+A commandline tool for analysis of big biological data sets using Snakemake and Apache Spark.
 
-## Introduction
+## About
 
 PyBDA is a Python library and command line tool for big data analytics and machine learning scaling to tera byte sized data sets.
 

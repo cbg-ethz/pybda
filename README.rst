@@ -2,10 +2,10 @@
 PyBDA
 *****
 
-A commandline tool for analysis of big biological data sets using Snakemake, powered by Apache Spark.
+A commandline tool for analysis of big biological data sets using Snakemake and Apache Spark.
 
-Introduction
-============
+About
+=====
 
 PyBDA is a Python library and command line tool for big data analytics and machine learning scaling to tera byte sized data sets.
 
