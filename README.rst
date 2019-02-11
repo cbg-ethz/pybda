@@ -35,7 +35,7 @@ In the case of a successful computation of a job, PyBDA will write results and p
 Documentation
 =============
 
-Check out the documentation [here](https://cbg-ethz.github.io/pybda/index.html).
+Check out the documentation `here <https://cbg-ethz.github.io/pybda/index.html>`_.
 The documentation will walk you though
 
 * the installation process,
@@ -45,7 +45,7 @@ The documentation will walk you though
 Author
 ======
 
-Simon Dirmeier <a href="mailto:simon.dirmeier@bsse.ethz.ch">simon.dirmeier@bsse.ethz.ch</a>
+Simon Dirmeier `simon.dirmeier at bsse.ethz.ch <mailto:simon.dirmeier@bsse.ethz.ch>`_.
 
-.. _`Apache Spark`: https://spark.apache.org/)
+.. _`Apache Spark`: https://spark.apache.org/
 .. _Snakemake: https://snakemake.readthedocs.io/en/stable/
