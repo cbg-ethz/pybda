@@ -87,42 +87,42 @@ Method specific arguments
 The following tables show the arguments required for the single methods, i.e. dimension reduction,
 clustering and regression.
 
-+------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| *Parameter*            | *Argument*                           |  *Explanation*                                                                                                              |
-+========================+======================================+=============================================================================================================================+
-| **Dimension reduction**                                                                                                                                                                     |
-+------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
++------------------------+------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
+| *Parameter*            | *Argument*                                           |  *Explanation*                                                                                                              |
++========================+======================================================+=============================================================================================================================+
+| **Dimension reduction**                                                                                                                                                                                     |
++------------------------+------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
 | ``dimension_reduction``| ``factor_analysis``/``pca``/``kpca``/``lda``/``ica`` | specifies which method to use for dimension reduction                                                                       |
-+------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| ``n_components``       | e.g ``2,3,4`` or ``2``               | comma-separated list of integers specifying the number of variables in the lower dimensional space to use per reduction     |
-+------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| **Clustering**                                                                                                                                                                              |
-+------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| ``clustering``         | ``kmeans``/``gmm``                   | specifies which method to use for clustering                                                                                |
-+------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| ``n_centers``          | e.g ``2,3,4`` or ``2``               | comma-separated list of integers specifying the number of clusters to use per cluystering                                   |
-+------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| **Regression**                                                                                                                                                                              |
-+------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| ``regression``         |  ``glm``/``forest``/``gbm``          | specifies which method to use for regression                                                                                |
-+------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| ``response``                                                  | name of column in ``infile`` that is the response                                                                           |
-+------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| ``family``             | ``gaussian``/``binomial``/``categorical``       | distribution family of the response variable                                                                                |
-+------------------------+--------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
++------------------------+------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
+| ``n_components``       | e.g ``2,3,4`` or ``2``                               | comma-separated list of integers specifying the number of variables in the lower dimensional space to use per reduction     |
++------------------------+------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
+| **Clustering**                                                                                                                                                                                              |
++------------------------+------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
+| ``clustering``         | ``kmeans``/``gmm``                                   | specifies which method to use for clustering                                                                                |
++------------------------+------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
+| ``n_centers``          | e.g ``2,3,4`` or ``2``                               | comma-separated list of integers specifying the number of clusters to use per cluystering                                   |
++------------------------+------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
+| **Regression**                                                                                                                                                                                              |
++------------------------+------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
+| ``regression``         |  ``glm``/``forest``/``gbm``                          | specifies which method to use for regression                                                                                |
++------------------------+------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
+| ``response``                                                                  | name of column in ``infile`` that is the response                                                                           |
++------------------------+------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
+| ``family``             | ``gaussian``/``binomial``/``categorical``            | distribution family of the response variable                                                                                |
++------------------------+------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
 
 The abbreveations of the methods are explained in the following list.
 
-* ``glm`` for `generalized linear regression models <https://en.wikipedia.org/wiki/Generalized_linear_model>`_,
-* ``gbm`` for stochastic `gradient boosting <https://en.wikipedia.org/wiki/Gradient_boosting>`_ [SGB]_,
-* ``forest`` for `random forests <https://en.wikipedia.org/wiki/Random_forest>`_ [RF]_,
-* ``kmeans`` for `K-means <https://en.wikipedia.org/wiki/K-means_clustering>`_,
-* ``gmm`` for `Gaussian mixture models <https://en.wikipedia.org/wiki/Mixture_model#Gaussian_mixture_model>`_,
-* ``pca`` for `principal component analysis <https://en.wikipedia.org/wiki/Principal_component_analysis>`_,
 * ``factor_analysis`` `for factor analysis <https://en.wikipedia.org/wiki/Factor_analysis>`_,
-* ``kpca`` for `kernel principal component analysis <https://en.wikipedia.org/wiki/Kernel_principal_component_analysis>`_ using Fourier features [FF]_ to approximate the kernel,
+* ``forest`` for `random forests <https://en.wikipedia.org/wiki/Random_forest>`_ [RF]_,
+* ``gbm`` for stochastic `gradient boosting <https://en.wikipedia.org/wiki/Gradient_boosting>`_ [SGB]_,
+* ``glm`` for `generalized linear regression models <https://en.wikipedia.org/wiki/Generalized_linear_model>`_,
+* ``gmm`` for `Gaussian mixture models <https://en.wikipedia.org/wiki/Mixture_model#Gaussian_mixture_model>`_,
+* ``ica`` for `independent component analysis <https://en.wikipedia.org/wiki/Independent_component_analysis>`_,
 * ``lda`` for `linear discriminant analysis <https://en.wikipedia.org/wiki/Linear_discriminant_analysis>`_,
-* ``ica`` for `independent component analysis <https://en.wikipedia.org/wiki/Independent_component_analysis>`_.
+* ``kmeans`` for `K-means <https://en.wikipedia.org/wiki/K-means_clustering>`_,
+* ``kpca`` for `kernel principal component analysis <https://en.wikipedia.org/wiki/Kernel_principal_component_analysis>`_ using Fourier features [FF]_ to approximate the kernel.
+* ``pca`` for `principal component analysis <https://en.wikipedia.org/wiki/Principal_component_analysis>`_,
 
 
 Example
