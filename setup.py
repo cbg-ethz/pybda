@@ -25,7 +25,7 @@ setup(
   include_package_data=True,
   python_requires='>=3',
   install_requires=[
-      'pyspark>=2.3.0',
+      'pyspark>=2.4.0',
       'numpy>=1.15.0',
       'scipy>=1.0.0',
       'pandas>=0.23.3',
@@ -46,7 +46,6 @@ setup(
       'Programming Language :: Python :: 3',
       'Programming Language :: Python :: 3.4',
       'Programming Language :: Python :: 3.5',
-      'Programming Language :: Python :: 3.6',
-      'Programming Language :: Python :: 3.7'
+      'Programming Language :: Python :: 3.6'
   ]
 )

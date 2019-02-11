@@ -1,4 +1,4 @@
-pyspark
+pyspark==2.4.0
 click
 findspark
 ipython
