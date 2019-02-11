@@ -37,7 +37,7 @@ suppress_warnings = ['image.nonlocal_uri']
 source_suffix = '.rst'
 master_doc = 'index'
 
-project = 'koios'
+project = 'pybda'
 copyright = '2018, Simon Dirmeier'
 author = 'Simon Dirmeier'
 
@@ -66,4 +66,4 @@ html_sidebars = {
 }
 html_title = ""
 html_static_path = ['_static']
-htmlhelp_basename = 'koiosdoc'
+htmlhelp_basename = 'pybdadoc'

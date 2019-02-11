@@ -19,17 +19,17 @@ several regression methods
 
 The config file we need to specify is in this case rather concise:
 
-.. literalinclude:: ../../koios-usecase-logreg.config
-  :caption: Contents of ``koios-usecase-logreg.config`` file
-  :name: koios-usecase-logreg.config
+.. literalinclude:: ../../pybda-usecase-logreg.config
+  :caption: Contents of ``pybda-usecase-logreg.config`` file
+  :name: pybda-usecase-logreg.config
 
 In the config above we will do the following:
 
 * Use a kpca to map the data set into a two-dimensional space,
 * give the Spark driver $3G$ of memory and the executor $6G$ of memory.
 
-Having the parameters set, we call koios
+Having the parameters set, we call PyBDA
 
 .. code-block:: bash
 
-  koios dimension-reduction koios-usecase-kpca.config IP
+  pybda dimension-reduction pybda-usecase-kpca.config IP
