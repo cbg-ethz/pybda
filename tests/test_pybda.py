@@ -38,9 +38,7 @@ class TestKoios(unittest.TestCase):
         REGRESSION__: [GLM__, GBM__, FOREST__],
         N_COMPONENTS__: 2,
         CLUSTERING__: [GMM__, KMEANS__],
-        N_CENTERS__: "2,3",
-        META__: "data/meta_columns.tsv",
-        FEATURES__: "data/feature_columns.tsv"
+        N_CENTERS__: "2,3"
     }
 
     def setUp(self):
