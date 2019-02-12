@@ -65,8 +65,8 @@ Example
 PyBDA only requires a config-file and, if possible, the IP of a spark-cluster. Otherwise you can just call PyBDA locally using ``local``).
 The config file might for a simple clustering case look like this:
 
-.. literalinclude:: ../../pybda-usecase-kmeans.config
-  :caption: Contents of ``pybda-usecase-kmeans.config`` file
+.. literalinclude:: ../../pybda-usecase-clustering.config
+  :caption: Contents of ``pybda-usecase-clustering.config`` file
   :name: pybda-usecase-gmm.config
 
 This would fight several k-means clusterings with different numbers of clusters.

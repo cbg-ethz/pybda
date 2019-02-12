@@ -19,8 +19,8 @@ In order to account for correlated features, we first map the features into a lo
 dimensional space using factor analysis (we could also use a GMM, where we estimate
 the correlations too, or remove the line in the config):
 
-.. literalinclude:: ../../pybda-usecase-kmeans.config
-  :caption: Contents of ``pybda-usecase-kmeans.config`` file
+.. literalinclude:: ../../pybda-usecase-clustering.config
+  :caption: Contents of ``pybda-usecase-clustering.config`` file
   :name: pybda-usecase-kmeans.config
 
 In the config above we will do the following.
