@@ -1,4 +1,0 @@
-pytest>=3.6.2
-pytest-pep8
-pytest-cov
-scikit-learn

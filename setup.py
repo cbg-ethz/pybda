@@ -9,6 +9,20 @@ def readme():
     with open('README.rst') as fl:
         return fl.read()
 
+
+test_deps = [
+    'coverage',
+    'flake8',
+    'nose',
+    'sphinx'
+    'pylint',
+    'pytest>=3.6.2',
+    'pytest-cov',
+    'pytest-pep8',
+    'scikit-learn',
+    'yapf'
+]
+
 setup(
   name='pybda',
   version='0.0.3',
@@ -36,12 +50,8 @@ setup(
       'sparkhpc>=0.3.post4',
       'uuid>=1.3.0'
   ],
-  tests_require=[
-      'pytest>=3.6.2',
-      'pytest-pep8',
-      'pytest-cov',
-      'scikit-learn'
-  ],
+  test_requires=test_deps,
+  extras_require={'test': test_deps},
   classifiers=[
       'Development Status :: 3 - Alpha',
       'Environment :: Console',
@@ -53,4 +63,3 @@ setup(
       'Programming Language :: Python :: 3.6'
   ]
 )
-

@@ -1,3 +1,8 @@
+# __author__ = 'Simon Dirmeier'
+# __email__  = 'simon.dirmeier@bsse.ethz.ch'
+# __date__   = 12.02.19
+from sklearn import datasets
+
 # Copyright (C) 2018 Simon Dirmeier
 #
 # This file is part of pybda.
