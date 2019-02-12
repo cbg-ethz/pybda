@@ -51,13 +51,10 @@ class LDA(DimensionReduction):
 
     def fit(self, data):
         logger.info("Fitting LDA")
-
         targets = distinct(data, self.__response)
         SW = within_group_scatter(data, self.features, self.response, targets)
         SB = covariance_matrix(self._row_matrix(data)) * (data.count() - 1) - SW
-
         eval, evec = self._compute_eigens(SW, SB)
-
         return evec, eval
 
     def _row_matrix(self, data):
@@ -76,7 +73,6 @@ class LDA(DimensionReduction):
         W = W[:, :self.n_components]
         W = DenseMatrix(numRows=W.shape[0], numCols=W.shape[1],
                         isTransposed=True, values=W.flatten())
-        logger.info(W.toArray())
         X = self._row_matrix(data).multiply(W)
         data = join(data, X, self.spark)
         del X

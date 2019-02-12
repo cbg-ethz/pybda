@@ -5,6 +5,7 @@ pca*
 kpca*
 linear_*
 ica*
+lda*
 
 outlier*
 mahalanobis*
