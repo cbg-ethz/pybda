@@ -82,19 +82,19 @@ class TestPyBDA(unittest.TestCase):
                 os.mkdir(os.path.join(self._test_out, f))
 
     def _create_dim_red_configs(self):
-        for d in TestKoios.__CONFIG__[DIM_RED__]:
+        for d in TestPyBDA.__CONFIG__[DIM_RED__]:
             out = os.path.join(self._test_path, d + ".config")
             with open(out, "w") as fr, open(self._test_file, "r") as fh:
                 for l in fh.readlines():
                     fr.write(l)
                 fr.write("{}: {}\n".format(DIM_RED__, d))
                 fr.write("{}: {}\n".format(
-                  N_COMPONENTS__, TestKoios.__CONFIG__[N_COMPONENTS__]))
+                  N_COMPONENTS__, TestPyBDA.__CONFIG__[N_COMPONENTS__]))
                 if d == LDA__:
                     fr.write("{}: {}\n".format(RESPONSE__, "Species"))
 
     def _create_clustering_configs(self):
-        for d in TestKoios.__CONFIG__[CLUSTERING__]:
+        for d in TestPyBDA.__CONFIG__[CLUSTERING__]:
             out = os.path.join(self._test_path, d + ".config")
             with open(out, "w") as fr, open(self._test_file, "r") as fh:
                 for l in fh.readlines():
@@ -104,10 +104,10 @@ class TestPyBDA(unittest.TestCase):
                     fr.write("{}: {}\n".format(N_COMPONENTS__, "3"))
                 fr.write("{}: {}\n".format(CLUSTERING__, d))
                 fr.write("{}: {}\n".format(
-                  N_CENTERS__, TestKoios.__CONFIG__[N_CENTERS__]))
+                  N_CENTERS__, TestPyBDA.__CONFIG__[N_CENTERS__]))
 
     def _create_regression_configs(self):
-        for d in TestKoios.__CONFIG__[REGRESSION__]:
+        for d in TestPyBDA.__CONFIG__[REGRESSION__]:
             for f in [BINOMIAL_, GAUSSIAN_]:
                 outfolder = os.path.join(self._test_out, f)
                 out = os.path.join(self._test_path, d + "_" + f + ".config")
@@ -128,10 +128,10 @@ class TestPyBDA(unittest.TestCase):
         if os.path.exists(self._test_out):
             shutil.rmtree(self._test_out)
         fls = []
-        for d in TestKoios.__CONFIG__[DIM_RED__] + TestKoios.__CONFIG__[CLUSTERING__]:
+        for d in TestPyBDA.__CONFIG__[DIM_RED__] + TestPyBDA.__CONFIG__[CLUSTERING__]:
             out = os.path.join(self._test_path, d + ".config")
             fls.append(out)
-        for d in TestKoios.__CONFIG__[REGRESSION__]:
+        for d in TestPyBDA.__CONFIG__[REGRESSION__]:
             for f in [BINOMIAL_, GAUSSIAN_]:
                 out = os.path.join(self._test_path, d + "_" + f + ".config")
                 fls.append(out)
