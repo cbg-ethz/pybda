@@ -18,7 +18,6 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import logging
 
 import click
@@ -34,8 +33,8 @@ logger.setLevel(logging.INFO)
 
 
 class GLM(Regression):
-    def __init__(self, spark, response, meta, features,
-                 family=GAUSSIAN_, max_iter=20):
+    def __init__(self, spark, response, meta, features, family=GAUSSIAN_,
+                 max_iter=20):
         super().__init__(spark, family, response, features)
         self.__max_iter = max_iter
         self.__meta = meta
@@ -43,8 +42,7 @@ class GLM(Regression):
     def fit(self, data):
         logger.info("Fitting GLM with family='{}'".format(self.family))
         model = self._fit(data)
-        return GLMFit(data, model, self.response,
-                      self.family, self.features)
+        return GLMFit(data, model, self.response, self.family, self.features)
 
     def _model(self):
         if self.family == GAUSSIAN_:
@@ -52,8 +50,8 @@ class GLM(Regression):
         elif self.family == BINOMIAL_:
             reg = LogisticRegression(family="binomial")
         else:
-            raise NotImplementedError(
-              "Family '{}' not implemented".format(self.family))
+            raise NotImplementedError("Family '{}' not implemented".format(
+                self.family))
         reg.setLabelCol(self.response)
         reg.setMaxIter(self.__max_iter)
         return reg
@@ -96,8 +94,8 @@ def run(file, meta, features, response, family, outpath, predict):
             fit = fl.fit(data)
             fit.write_files(outpath)
             if pathlib.Path(predict).exists():
-                pre_data = read_and_transmute(
-                  spark, predict, features, drop=False)
+                pre_data = read_and_transmute(spark, predict, features,
+                                              drop=False)
                 pre_data = fit.transform(pre_data)
                 pre_data.write_files(outpath)
 

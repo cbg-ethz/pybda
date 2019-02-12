@@ -59,4 +59,3 @@ class ClusteringTransformed(TransformedData):
                 header = False if pathlib.Path(out).exists() else True
                 sub.to_csv(out, sep="\t", mode="a", header=header, index=False)
         rm(files)
-

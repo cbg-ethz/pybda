@@ -18,7 +18,6 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import logging
 import os
 
@@ -34,8 +33,8 @@ logger.setLevel(logging.INFO)
 
 
 class GMMFit(ClusteringFit):
-    def __init__(self, data, fit, k, mixing_weights,
-                 estimates, loglik, n, p, path=None):
+    def __init__(self, data, fit, k, mixing_weights, estimates, loglik, n, p,
+                 path=None):
         super().__init__(data, fit, n, p, k)
         self.__mixing_weights = mixing_weights
         self.__estimates = estimates
@@ -60,11 +59,7 @@ class GMMFit(ClusteringFit):
 
     @property
     def values(self):
-        return {
-            K_: self.k,
-            LOGLIK_: self.__loglik,
-            BIC_: self.__bic
-        }
+        return {K_: self.k, LOGLIK_: self.__loglik, BIC_: self.__bic}
 
     @property
     def bic(self):
@@ -101,12 +96,7 @@ class GMMFit(ClusteringFit):
         ll_file = outfile + "_statistics.tsv"
         logger.info("Writing LogLik and BIC to: {}".format(ll_file))
         with open(ll_file, 'w') as fh:
+            fh.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(K_, LOGLIK_, BIC_, N_,
+                                                       P_, "path"))
             fh.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(
-              K_, LOGLIK_, BIC_, N_, P_, "path"))
-            fh.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(
-              self.k,
-              self.__loglik,
-              self.__bic,
-              self.n,
-              self.p,
-              outfile))
+                self.k, self.__loglik, self.__bic, self.n, self.p, outfile))

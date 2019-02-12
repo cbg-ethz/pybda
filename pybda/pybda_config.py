@@ -38,8 +38,8 @@ class PyBDAConfig:
     def __init__(self, config):
         for key, value in config.items():
             setattr(self, key, value)
-        self.__tree = RuleTree(getattr(self, INFILE__),
-                               getattr(self, OUTFOLDER__))
+        self.__tree = RuleTree(
+            getattr(self, INFILE__), getattr(self, OUTFOLDER__))
         self.__check_required_args()
         self.__check_available_method()
         self.__set_filenames()
@@ -59,13 +59,13 @@ class PyBDAConfig:
         for el in REQUIRED_ARGS__:
             if not hasattr(self, el):
                 raise ValueError(
-                  "'{}' needs to be a key-value pair in the config".format(el))
+                    "'{}' needs to be a key-value pair in the config".format(
+                        el))
 
     def __check_available_method(self):
         if not any(hasattr(self, x) for x in METHODS__):
-            raise ValueError(
-              "Provide at least one of the following methods: " +
-              "'{}'".format("/".join(METHODS__)))
+            raise ValueError("Provide at least one of the following methods: " +
+                             "'{}'".format("/".join(METHODS__)))
 
     def __set_filenames(self):
         for m in METHODS__:

@@ -18,7 +18,6 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import logging
 import os
 from abc import abstractmethod, ABC
@@ -83,8 +82,7 @@ class ClusteringFit(ABC):
         pass
 
     def as_statfile(self, fit_folder, k):
-        return os.path.join(
-          fit_folder, self._k_fit_path(k) + "_statistics.tsv")
+        return os.path.join(fit_folder, self._k_fit_path(k) + "_statistics.tsv")
 
     def _write_fit(self, outfolder):
         logger.info("Writing cluster fit to: {}".format(outfolder))

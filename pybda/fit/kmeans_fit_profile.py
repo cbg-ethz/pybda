@@ -18,7 +18,6 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import glob
 import logging
 import matplotlib.pyplot as plt
@@ -44,7 +43,7 @@ class KMeansFitProfile(FitProfile):
         for suf in ["png", "pdf", "svg", "eps"]:
             self._plot_profile(outpath + "-profile." + suf, pand)
             self._plot_cluster_sizes(
-              outpath + "-cluster_sizes-histogram." + suf, data, labels)
+                outpath + "-cluster_sizes-histogram." + suf, data, labels)
 
     def _cluster_sizes(self, path):
         fls = glob.glob(path + "*/*cluster_sizes.tsv")
@@ -77,8 +76,7 @@ class KMeansFitProfile(FitProfile):
         ax.set_yticklabels([0, 0.25, 0.5, 0.75, 1])
         cols = ["black"] * n
         cols[numpy.argmax(profile[EXPL_VAR_].values)] = "#5668AD"
-        plt.bar(ks, profile[EXPL_VAR_].values, color=cols, alpha=.75,
-                width=0.5)
+        plt.bar(ks, profile[EXPL_VAR_].values, color=cols, alpha=.75, width=0.5)
 
         ax = plt.subplot(212)
         ax.grid(linestyle="")
@@ -88,7 +86,6 @@ class KMeansFitProfile(FitProfile):
         ax.set_ylabel('BIC', fontsize=12)
         cols = ["black"] * n
         cols[numpy.argmin(profile[BIC_].values)] = "#5668AD"
-        plt.bar(ks, profile[BIC_].values, color=cols, alpha=.75,
-                width=0.5)
+        plt.bar(ks, profile[BIC_].values, color=cols, alpha=.75, width=0.5)
         plt.savefig(file_name, dpi=720)
         plt.close("all")

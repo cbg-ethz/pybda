@@ -18,7 +18,6 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import logging
 
 import click
@@ -34,10 +33,10 @@ logger.setLevel(logging.INFO)
 
 class GBM(Ensemble):
     def __init__(self, spark, response, meta, features, family=GAUSSIAN_,
-                 max_iter=25, step_size=0.1,
-                 max_depth=10, subsampling_rate=0.5):
-        super().__init__(spark, family, response, features,
-                         max_depth, subsampling_rate)
+                 max_iter=25, step_size=0.1, max_depth=10,
+                 subsampling_rate=0.5):
+        super().__init__(spark, family, response, features, max_depth,
+                         subsampling_rate)
         self.__meta = meta
         self.__max_iter = max_iter
         self.__step_size = step_size
@@ -48,8 +47,8 @@ class GBM(Ensemble):
         elif self.family == BINOMIAL_:
             reg = GBTClassifier
         else:
-            raise NotImplementedError(
-              "Family '{}' not implemented".format(self.family))
+            raise NotImplementedError("Family '{}' not implemented".format(
+                self.family))
         model = reg(subsamplingRate=self.subsampling_rate, seed=23,
                     stepSize=self.__step_size, maxDepth=self.max_depth,
                     maxIter=self.__max_iter)
@@ -94,8 +93,8 @@ def run(file, meta, features, response, family, outpath, predict):
             fit = fl.fit(data)
             fit.write_files(outpath)
             if pathlib.Path(predict).exists():
-                pre_data = read_and_transmute(
-                  spark, predict, features, drop=False)
+                pre_data = read_and_transmute(spark, predict, features,
+                                              drop=False)
                 pre_data = fit.transform(pre_data)
                 pre_data.write_files(outpath)
 

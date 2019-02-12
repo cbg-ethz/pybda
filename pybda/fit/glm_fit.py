@@ -18,7 +18,6 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import logging
 import pandas
 
@@ -60,8 +59,8 @@ class GLMFit:
         self.__table = self._compute_table_stats(model)
 
     def _compute_table_stats(self, model):
-        beta = sp.append(sp.array(model.intercept),
-                         sp.array(model.coefficients))
+        beta = sp.append(
+            sp.array(model.intercept), sp.array(model.coefficients))
         ps = sp.ones_like(beta) * sp.nan
         ts = sp.ones_like(beta) * sp.nan
         se = sp.ones_like(beta) * sp.nan
@@ -70,13 +69,16 @@ class GLMFit:
             ts = model.summary.tValues
             se = model.summary.coefficientStandardErrors
         except Exception as _:
-            logger.warning(
-              "Could not compute p-values, t-values and SEs. "
-              "Possibly due to singular vcov.")
+            logger.warning("Could not compute p-values, t-values and SEs. "
+                           "Possibly due to singular vcov.")
 
         return pandas.DataFrame({
             "features": ["intecept"] + self.__features,
-            "beta": beta, "p_values": ps, "t_values": ts, "se": se})
+            "beta": beta,
+            "p_values": ps,
+            "t_values": ts,
+            "se": se
+        })
 
     def write_files(self, outfolder):
         self._write_stats(outfolder)
@@ -87,34 +89,33 @@ class GLMFit:
 
     def _write_table(self, outfolder):
         logger.info("Writing regression table")
-        self.__table.to_csv(outfolder + "-table.tsv", na_rep="NaN",
-                            sep="\t", index=False, header=True)
+        self.__table.to_csv(outfolder + "-table.tsv", na_rep="NaN", sep="\t",
+                            index=False, header=True)
 
     def _write_stats(self, outfolder):
         logger.info("Writing regression statistics")
         out_file = outfolder + "-statistics.tsv"
         with open(out_file, "w") as fh:
             if self.family == BINOMIAL_:
-                fh.write("{}\t{}\t{}\t{}\n".format(
-                  "family", "response", "accuracy", "auc"))
-                fh.write("{}\t{}\t{}\t{}\n".format(
-                  self.family, self.__response, self.__accuracy, self.__auc))
+                fh.write("{}\t{}\t{}\t{}\n".format("family", "response",
+                                                   "accuracy", "auc"))
+                fh.write("{}\t{}\t{}\t{}\n".format(self.family, self.__response,
+                                                   self.__accuracy, self.__auc))
             else:
                 fh.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                  "family", "response", "df", "mse", "r2", "rmse"))
+                    "family", "response", "df", "mse", "r2", "rmse"))
                 fh.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                  self.family, self.__response, self.__df, self.__mse,
-                  self.__r2,
-                  self.__rmse))
+                    self.family, self.__response, self.__df, self.__mse,
+                    self.__r2, self.__rmse))
 
     def _write_binomial_measures(self, outfolder):
         logger.info("Writing regression measures")
-        self.__pr.to_csv(outfolder + "-precision_recall.tsv",
-                         sep="\t", index=False, header=True)
-        self.__roc.to_csv(outfolder + "-roc_curve.tsv",
-                          sep="\t", index=False, header=True)
-        self.__measures.to_csv(outfolder + "-measures.tsv",
-                               sep="\t", index=False, header=True)
+        self.__pr.to_csv(outfolder + "-precision_recall.tsv", sep="\t",
+                         index=False, header=True)
+        self.__roc.to_csv(outfolder + "-roc_curve.tsv", sep="\t", index=False,
+                          header=True)
+        self.__measures.to_csv(outfolder + "-measures.tsv", sep="\t",
+                               index=False, header=True)
 
     def _plot(self, outfolder):
         for suf in ["png", "pdf", "svg", "eps"]:

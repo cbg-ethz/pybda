@@ -34,4 +34,3 @@ def formatter():
 
 def logger_format():
     return '[%(asctime)s - %(levelname)s - %(name)s]: %(message)s'
-

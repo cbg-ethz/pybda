@@ -18,7 +18,6 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import logging
 import os
 
@@ -37,7 +36,7 @@ logger.setLevel(logging.INFO)
 
 
 class ICAFit(DimensionReductionFit):
-    def __init__(self, data, n_components, W,  features):
+    def __init__(self, data, n_components, W, features):
         super().__init__(data, n_components, features, W.T)
         self.__data = data
 
@@ -52,15 +51,13 @@ class ICAFit(DimensionReductionFit):
     def _plot(self, outfile):
         logger.info("Plotting")
         subsamp = as_pandas(
-          split_vector(sample(self.__data, 10000), FEATURES__))
+            split_vector(sample(self.__data, 10000), FEATURES__))
         for suf in ["png", "pdf", "svg", "eps"]:
-            biplot(
-              outfile + "-loadings-biplot." + suf,
-              DataFrame(self.loadings, columns=self.feature_names),
-              "Component 1", "Component 2")
-            scatter(
-              outfile + "-scatter_plot." + suf,
-              subsamp, "f_0", "f_1", "Component 1", "Component 2")
+            biplot(outfile + "-loadings-biplot." + suf,
+                   DataFrame(self.loadings, columns=self.feature_names),
+                   "Component 1", "Component 2")
+            scatter(outfile + "-scatter_plot." + suf, subsamp, "f_0", "f_1",
+                    "Component 1", "Component 2")
             for i in map(lambda x: "f_" + str(x),
                          range(min(10, self.n_components))):
                 histogram(outfile + "-histogram_{}.".format(i) + suf,

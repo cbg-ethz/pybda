@@ -28,8 +28,8 @@ logger.setLevel(logging.INFO)
 
 
 class Ensemble(Regression):
-    def __init__(self, spark, family, response, features,
-                 max_depth, subsampling_rate):
+    def __init__(self, spark, family, response, features, max_depth,
+                 subsampling_rate):
         super().__init__(spark, family, response, features)
         self.__max_depth = max_depth
         self.__subsampling_rate = subsampling_rate
@@ -38,8 +38,8 @@ class Ensemble(Regression):
         logger.info("Fitting forest with family='{}'".format(self.family))
         model = self._fit(data)
         data = model.transform(data)
-        return EnsembleFit(data, model, self.response,
-                           self.family, self.features)
+        return EnsembleFit(data, model, self.response, self.family,
+                           self.features)
 
     @property
     def max_depth(self):

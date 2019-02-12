@@ -18,7 +18,6 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import logging
 from abc import ABC, abstractmethod
 from collections import OrderedDict
@@ -89,10 +88,9 @@ class FitProfile(ABC):
     def _plot_cluster_sizes(self, file_name, data, labels):
         logger.info("Plotting cluster sizes to: {}".format(file_name))
         _, ax = plt.subplots(figsize=(5, 3))
-        fig, axes = joypy.joyplot(data, by=K_, hist="True", ax=ax,
-                                  bins=50, overlap=0, grid="y", color="grey",
-                                  labels=labels,
-                                  title="Cluster size distribution")
+        fig, axes = joypy.joyplot(
+            data, by=K_, hist="True", ax=ax, bins=50, overlap=0, grid="y",
+            color="grey", labels=labels, title="Cluster size distribution")
         for x in axes:
             x.spines['bottom'].set_color('grey')
             x.grid(color="grey", axis="y")

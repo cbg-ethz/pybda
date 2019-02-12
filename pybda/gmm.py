@@ -18,7 +18,6 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import logging
 
 import click
@@ -49,10 +48,10 @@ class GMM(Clustering):
     def _fit_one(self, k, data, n, p, stat):
         logger.info("Clustering with K: {}".format(k))
         gmm = pyspark.ml.clustering.GaussianMixture(
-          k=k, seed=23, probabilityCol=RESPONSIBILITIES__)
+            k=k, seed=23, probabilityCol=RESPONSIBILITIES__)
         fit = gmm.fit(data)
-        model = GMMFit(data=None, fit=fit, k=k,
-                       mixing_weights=fit.weights, estimates=fit.gaussiansDF,
+        model = GMMFit(data=None, fit=fit, k=k, mixing_weights=fit.weights,
+                       estimates=fit.gaussiansDF,
                        loglik=fit.summary.logLikelihood, n=n, p=p, path=None)
         return model
 

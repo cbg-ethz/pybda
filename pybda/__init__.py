@@ -18,7 +18,6 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 from pybda.pybda_config import PyBDAConfig
 
 
@@ -30,4 +29,3 @@ def snake_file():
 def dirname():
     import os
     return os.path.dirname(__file__)
-

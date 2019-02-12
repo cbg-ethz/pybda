@@ -18,7 +18,6 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import logging
 import os
 
@@ -34,9 +33,8 @@ logger.setLevel(logging.INFO)
 
 
 class KMeansFit(ClusteringFit):
-    def __init__(self, data, fit, k,
-                 within_cluster_variance, total_variance,
-                 n, p, path=None):
+    def __init__(self, data, fit, k, within_cluster_variance, total_variance, n,
+                 p, path=None):
         super().__init__(data, fit, n, p, k)
         self.__within_cluster_variance = within_cluster_variance
         self.__total_variance = total_variance
@@ -107,13 +105,8 @@ class KMeansFit(ClusteringFit):
         logger.info("Writing SSE and BIC to: {}".format(sse_file))
         with open(sse_file, 'w') as fh:
             fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-              K_, WITHIN_VAR_, EXPL_VAR_, TOTAL_VAR_, BIC_, N_, P_, "path"))
+                K_, WITHIN_VAR_, EXPL_VAR_, TOTAL_VAR_, BIC_, N_, P_, "path"))
             fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-              self.k,
-              self.__within_cluster_variance,
-              self.__explained_variance,
-              self.__total_variance,
-              self.__bic,
-              self.n,
-              self.p,
-              outfile))
+                self.k, self.__within_cluster_variance,
+                self.__explained_variance, self.__total_variance, self.__bic,
+                self.n, self.p, outfile))

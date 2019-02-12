@@ -74,7 +74,7 @@ class Regression(SparkModel):
                 df_1 = data.filter("{} == 1".format(self.response)).limit(mcnt)
                 logger.info("#group 1: {}".format(df_1.count()))
                 data = df_0.union(df_1)
-                logger.info("Size of data set after subsampling: {}".
-                            format(data.count()))
+                logger.info("Size of data set after subsampling: {}".format(
+                    data.count()))
         data = data.coalesce(300)
         return self._model().fit(data)

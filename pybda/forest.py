@@ -18,7 +18,6 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import logging
 
 import click
@@ -35,8 +34,8 @@ logger.setLevel(logging.INFO)
 class Forest(Ensemble):
     def __init__(self, spark, response, meta, features, family=GAUSSIAN_,
                  n_trees=50, max_depth=10, subsampling_rate=0.5):
-        super().__init__(spark, family, response, features,
-                         max_depth, subsampling_rate)
+        super().__init__(spark, family, response, features, max_depth,
+                         subsampling_rate)
         self.__n_trees = n_trees
         self.__meta = meta
 
@@ -46,8 +45,8 @@ class Forest(Ensemble):
         elif self.family == BINOMIAL_:
             reg = RandomForestClassifier
         else:
-            raise NotImplementedError(
-              "Family '{}' not implemented".format(self.family))
+            raise NotImplementedError("Family '{}' not implemented".format(
+                self.family))
         model = reg(subsamplingRate=self.subsampling_rate, seed=23,
                     numTrees=self.__n_trees, maxDepth=self.max_depth)
         model.setLabelCol(self.response)
@@ -91,8 +90,8 @@ def run(file, meta, features, response, family, outpath, predict):
             fit = fl.fit(data)
             fit.write_files(outpath)
             if pathlib.Path(predict).exists():
-                pre_data = read_and_transmute(
-                  spark, predict, features, drop=False)
+                pre_data = read_and_transmute(spark, predict, features,
+                                              drop=False)
                 pre_data = fit.transform(pre_data)
                 pre_data.write_files(outpath)
 

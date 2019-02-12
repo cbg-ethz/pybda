@@ -18,10 +18,8 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import logging
 import click
-
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

@@ -55,8 +55,8 @@ class Outliers(SparkModel):
         quant = chisquare(pres, self.__pvalue)
         n = data.count()
         data = data.filter(data.maha < quant)
-        logger.info("DataFrame rowcount before/after removal: {}/{}"
-                    .format(n, data.count()))
+        logger.info("DataFrame rowcount before/after removal: {}/{}".format(
+            n, data.count()))
 
         return data
 
