@@ -141,8 +141,8 @@ def chisquare(data, pval):
     n, _ = data.shape
 
     logger.info(
-      "Computing chi-square ppf with {} degrees of freedom and {}"
-      " percentile".format(n, 100 * thresh))
+      "Computing chi-square ppf with %d degrees of freedom and %d"
+      " percentile", n, 100 * thresh)
 
     return stats.chi2.ppf(q=thresh, df=n)
 
