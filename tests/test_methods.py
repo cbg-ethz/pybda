@@ -1,8 +1,3 @@
-# __author__ = 'Simon Dirmeier'
-# __email__  = 'simon.dirmeier@bsse.ethz.ch'
-# __date__   = 12.02.19
-from sklearn import datasets
-
 # Copyright (C) 2018 Simon Dirmeier
 #
 # This file is part of pybda.
@@ -24,21 +19,17 @@ from sklearn import datasets
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
 
-import os
-import shutil
-import subprocess
 import unittest
-import sklearn
-
-from pybda.globals import *
+from sklearn import datasets
 
 
-class TestFA(unittest.TestCase):
+class TestMethodAPI(unittest.TestCase):
     """
-    Tests the facor analysis API
-
+    Tests the factor analysis API
     """
 
     def setUp(self):
         unittest.TestCase.setUp(self)
-
+        self.iris = datasets.load_iris()
+        self.X = self.iris.data[:, :4]
+        self.y = self.iris.target
