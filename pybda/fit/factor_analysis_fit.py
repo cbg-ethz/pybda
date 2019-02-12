@@ -22,12 +22,13 @@ import logging
 import os
 
 from pandas import DataFrame
+import matplotlib.pyplot as plt
 
 from pybda.fit.dimension_reduction_fit import DimensionReductionFit
 from pybda.globals import FEATURES__
 from pybda.plot.descriptive import scatter, histogram
 from pybda.plot.dimension_reduction_plot import biplot, \
-    plot_cumulative_variance, plot_likelihood_path
+    plot_cumulative_variance
 from pybda.sampler import sample
 from pybda.spark.features import split_vector
 from pybda.stats.stats import cumulative_explained_variance
@@ -66,25 +67,44 @@ class FactorAnalysisFit(DimensionReductionFit):
 
     def _write_likelihood(self, outfile):
         logger.info("Writing likelihood profile")
-        DataFrame(data=self.__ll).to_csv(outfile, sep="\t", index=False)
+        DataFrame(data=self.loglikelihood).to_csv(
+          outfile, sep="\t", index=False)
 
     def _plot(self, outfile):
         logger.info("Plotting")
-        cev = cumulative_explained_variance(self.__W.transpose())
+        cev = cumulative_explained_variance(self.loadings.transpose())
         subsamp = as_pandas(
-            split_vector(sample(self.__data, 10000), FEATURES__))
+          split_vector(sample(self.data, 10000), FEATURES__))
         for suf in ["png", "pdf", "svg", "eps"]:
             plot_cumulative_variance(
-                outfile + "-loadings-explained_variance." + suf, cev,
-                "# factors")
+              outfile + "-loadings-explained_variance." + suf, cev,
+              "# factors")
             biplot(outfile + "-loadings-biplot." + suf,
-                   DataFrame(self.__W, columns=self.feature_names), "Factor 1",
-                   "Factor 2")
-            plot_likelihood_path(outfile + "-likelihood_path." + suf,
-                                 DataFrame({"L": self.__ll}))
-            scatter(outfile + "-scatter_plot." + suf, subsamp["f_0"].values,
-                    subsamp["f_1"].values, "Factor 1", "Factor 2")
+                   DataFrame(self.loadings, columns=self.feature_names),
+                   "Factor 1", "Factor 2")
+            self._plot_likelihood_path(outfile + "-likelihood_path." + suf,
+                                 DataFrame({"L": self.loglikelihood}))
+            scatter(outfile + "-scatter_plot." + suf, subsamp, "f_0",
+                    "f_1", "Factor 1", "Factor 2")
             for i in map(lambda x: "f_" + str(x), range(
-                    min(10, self.n_factors))):
+              min(10, self.n_factors))):
                 histogram(outfile + "-histogram_{}.".format(i) + suf,
                           subsamp[i].values, i)
+
+    def _plot_likelihood_path(self, file_name, data):
+        data = data.query("L < 0")
+        data["Index"] = range(1, data.shape[0] + 1)
+        _, ax = plt.subplots(figsize=(8, 5), dpi=720)
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.xaxis.set_label_coords(x=1, y=-0.075)
+        ax.yaxis.set_label_coords(x=-0.075, y=1)
+        ax.grid(linestyle="")
+
+        plt.plot(data["Index"].values, -data["L"].values, color='#696969')
+
+        plt.xlabel('# iterations', fontsize=15)
+        plt.ylabel("-\u2113(" + r"$\theta$)", fontsize=15)
+        plt.savefig(file_name, dpi=720)
+        plt.tight_layout()
+        plt.close('all')

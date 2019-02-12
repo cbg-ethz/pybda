@@ -73,8 +73,8 @@ class PCAFit(DimensionReductionFit):
                 outfile + "-loadings-biplot." + suf,
                 DataFrame(self.loadings[:self.n_components],
                           columns=self.feature_names), "PC 1", "PC 2")
-            scatter(outfile + "-scatter_plot." + suf, subsamp["f_0"].values,
-                    subsamp["f_1"].values, "PC 1", "PC 2")
+            scatter(outfile + "-scatter_plot." + suf, subsamp,
+                    "f_0", "f_1", "PC 1", "PC 2")
             for i in map(lambda x: "f_" + str(x),
                          range(min(10, self.n_components))):
                 histogram(outfile + "-histogram_{}.".format(i) + suf,
