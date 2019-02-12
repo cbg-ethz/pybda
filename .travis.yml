@@ -20,15 +20,14 @@ before_install:
   - curl -s https://raw.githubusercontent.com/dirmeier/spark-travis/master/setup_spark.sh | bash
 
 install:
-  - pip install -r requirements.txt
-  - pip install -e .
+  - pip install -e '.[test]'
   - pip install codecov
   - pip install pytest-cov
   - pip install tox-travis
 
 script:
-  - py.test --cov=./
   - spark-submit -h
+  - py.test --cov=./
 
 after_success:
   - codecov

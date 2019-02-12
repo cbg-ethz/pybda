@@ -15,7 +15,7 @@ test_deps = [
     'findspark',
     'flake8',
     'nose',
-    'sphinx'
+    'sphinx',
     'pylint',
     'pytest>=3.6.2',
     'pytest-cov',
