@@ -33,7 +33,7 @@ class SparkSession:
         logger.info("Initializing pyspark session")
         spark = pyspark.sql.SparkSession.builder.getOrCreate()
         for conf in spark.sparkContext.getConf().getAll():
-            logger.info("Config: {}, value: {}".format(conf[0], conf[1]))
+            logger.info("Config: %s, value: %s", conf[0], conf[1])
 
         self.__session = spark
         return self.__session
