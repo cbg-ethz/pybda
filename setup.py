@@ -9,13 +9,12 @@ def readme():
     with open('README.rst') as fl:
         return fl.read()
 
-
 setup(
   name='pybda',
   version='0.0.3',
   description='Big Data analytics powered by Apache Spark',
   long_description=readme(),
-  url='https://github.com/cbg-ethz/koios',
+  url='https://github.com/cbg-ethz/pybda',
   author='Simon Dirmeier',
   author_email='simon.dirmeier@bsse.ethz.de',
   license='GPLv3',
@@ -25,18 +24,23 @@ setup(
   include_package_data=True,
   python_requires='>=3',
   install_requires=[
-      'pyspark>=2.4.0',
-      'numpy>=1.15.0',
-      'scipy>=1.0.0',
-      'pandas>=0.23.3',
       'click>=6.7',
-      'pytest>=3.6.2',
-      'matplotlib>=2.2.3',
-      'snakemake>=5.2.2',
       'joypy>=0.1.9',
-      'uuid>=1.3.0',
+      'matplotlib>=2.2.3',
+      'numpy>=1.15.0',
+      'pandas>=0.23.3',
+      'pyspark>=2.4.0',
+      'scipy>=1.0.0',
+      'seaborn>=0.9.0',
+      'snakemake>=5.2.2',
       'sparkhpc>=0.3.post4',
-      'seaborn>=0.9.0'
+      'uuid>=1.3.0'
+  ],
+  tests_require=[
+      'pytest>=3.6.2',
+      'pytest-pep8',
+      'pytest-cov',
+      'scikit-learn'
   ],
   classifiers=[
       'Development Status :: 3 - Alpha',
@@ -49,3 +53,4 @@ setup(
       'Programming Language :: Python :: 3.6'
   ]
 )
+
