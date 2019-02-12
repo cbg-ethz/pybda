@@ -12,6 +12,7 @@ def readme():
 
 test_deps = [
     'coverage',
+    'findspark',
     'flake8',
     'nose',
     'sphinx'

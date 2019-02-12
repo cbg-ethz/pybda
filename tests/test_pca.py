@@ -18,18 +18,21 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import unittest
+
+import numpy
+import pandas
+import pyspark
+
 from sklearn import datasets
+import sklearn.decomposition
+
+from pybda.factor_analysis import FactorAnalysis
+from pybda.globals import FEATURES__
+from pybda.spark.features import split_vector
 
 
-class TestMethodAPI(unittest.TestCase):
+class TestPCA(unittest.TestCase):
     """
-    Tests the factor analysis API
+    Tests the PCA API
     """
-
-    def setUp(self):
-        unittest.TestCase.setUp(self)
-        self.iris = datasets.load_iris()
-        self.X = self.iris.data[:, :4]
-        self.y = self.iris.target
