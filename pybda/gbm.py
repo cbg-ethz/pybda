@@ -99,7 +99,7 @@ def run(file, meta, features, response, family, outpath, predict):
                 pre_data.write_files(outpath)
 
         except Exception as e:
-            logger.error("Some error: {}".format(str(e)))
+            logger.error("Some error: %s", str(e))
 
 
 if __name__ == "__main__":

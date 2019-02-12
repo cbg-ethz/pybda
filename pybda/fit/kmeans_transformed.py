@@ -35,7 +35,7 @@ class KMeansTransformed(ClusteringTransformed):
 
     def write_clusters(self, outpath, suff="", sort_me=True):
         outpath = outpath + "-clusters" + str(suff)
-        logger.info("Writing clusters to: {}".format(outpath))
+        logger.info("Writing clusters to: %s", outpath)
         if not os.path.exists(outpath):
             os.mkdir(outpath)
         data = split_vector(self.data, FEATURES__)

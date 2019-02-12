@@ -26,6 +26,8 @@ import pandas
 import joypy
 import matplotlib.pyplot as plt
 
+from pybda.globals import K_
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
@@ -88,7 +90,7 @@ class FitProfile(ABC):
     def _plot_cluster_sizes(self, file_name, data, labels):
         logger.info("Plotting cluster sizes to: {}".format(file_name))
         _, ax = plt.subplots(figsize=(5, 3))
-        fig, axes = joypy.joyplot(
+        _, axes = joypy.joyplot(
             data, by=K_, hist="True", ax=ax, bins=50, overlap=0, grid="y",
             color="grey", labels=labels, title="Cluster size distribution")
         for x in axes:
