@@ -14,12 +14,14 @@ Koios offers in total three ways to do dimension reduction:
 
 * ``pca`` for `principal component analysis <https://en.wikipedia.org/wiki/Principal_component_analysis>`_,
 * ``factor_analysis`` `for factor analysis <https://en.wikipedia.org/wiki/Factor_analysis>`_,
-* ``kpca`` for `kernel principal component analysis <https://en.wikipedia.org/wiki/Kernel_principal_component_analysis>`_ using Fourier features [FF]_ to approximate the kernel.
+* ``kpca`` for `kernel principal component analysis <https://en.wikipedia.org/wiki/Kernel_principal_component_analysis>`_ using Fourier features [FF]_ to approximate the kernel,
+* ``lda`` for `linear discriminant analysis <https://en.wikipedia.org/wiki/Linear_discriminant_analysis>`_,
+* ``ica`` for `indepent component analysis <https://en.wikipedia.org/wiki/Independent_component_analysis>`_.
 
 The config file we need to specify is in this case rather concise:
 
-.. literalinclude:: ../../pybda-usecase-kpca.config
-  :caption: Contents of ``pybda-usecase-kpca.config`` file
+.. literalinclude:: ../../pybda-usecase-dimred.config
+  :caption: Contents of ``pybda-usecase-dimred.config`` file
   :name: pybda-usecase-kpca.config
 
 In the config above we will do the following:

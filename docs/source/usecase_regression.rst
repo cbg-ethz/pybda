@@ -19,8 +19,8 @@ several regression methods
 
 The config file we need to specify is in this case rather concise:
 
-.. literalinclude:: ../../pybda-usecase-logreg.config
-  :caption: Contents of ``pybda-usecase-logreg.config`` file
+.. literalinclude:: ../../pybda-usecase-regression.config
+  :caption: Contents of ``pybda-usecase-regression.config`` file
   :name: pybda-usecase-logreg.config
 
 In the config above we will do the following:
