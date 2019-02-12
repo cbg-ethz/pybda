@@ -18,7 +18,6 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import glob
 import logging
 import numpy
@@ -44,7 +43,7 @@ class GMMFitProfile(FitProfile):
         for suf in ["png", "pdf", "svg", "eps"]:
             self._plot_profile(outpath + "-profile." + suf, pand)
             self._plot_cluster_sizes(
-              outpath + "-cluster_sizes-histogram." + suf, data, labels)
+                outpath + "-cluster_sizes-histogram." + suf, data, labels)
 
     def _cluster_sizes(self, path):
         fls = glob.glob(path + "*/*cluster_sizes.tsv")

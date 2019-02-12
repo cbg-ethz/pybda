@@ -18,7 +18,6 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import logging
 from abc import ABC, abstractmethod
 
@@ -61,13 +60,12 @@ class DimensionReductionFit(ABC):
 
     def _write_loadings(self, outfile):
         logger.info("Writing loadings to file")
-        DataFrame(
-          self.loadings, columns=self.feature_names
-        ).to_csv(outfile, sep="\t", index=False)
+        DataFrame(self.loadings, columns=self.feature_names).to_csv(
+            outfile, sep="\t", index=False)
 
     @abstractmethod
     def _plot(self, outfile):
-       pass
+        pass
 
     def write_tsv(self, outfolder):
         data = split_vector(self.data, FEATURES__)

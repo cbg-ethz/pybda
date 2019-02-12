@@ -18,7 +18,6 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import logging
 
 import click
@@ -33,7 +32,8 @@ logger.setLevel(logging.INFO)
 
 
 class KPCA(PCA):
-    def __init__(self, spark, n_components, features, n_fourier_features=200, gamma=1):
+    def __init__(self, spark, n_components, features, n_fourier_features=200,
+                 gamma=1):
         super().__init__(spark, n_components, features)
         self.__n_fourier_features = n_fourier_features
         self.__gamma = gamma

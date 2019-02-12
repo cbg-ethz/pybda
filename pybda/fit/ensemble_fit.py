@@ -18,7 +18,6 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import logging
 
 from pyspark.ml.evaluation import MulticlassClassificationEvaluator
@@ -41,22 +40,22 @@ class EnsembleFit:
 
         if family == GAUSSIAN_:
             evaluator = RegressionEvaluator(labelCol=self.response)
-            self.__rmse = evaluator.evaluate(
-              self.data, {evaluator.metricName: "rmse"})
-            self.__mse = self.__rmse ** 2
-            self.__r2 = evaluator.evaluate(
-              self.data, {evaluator.metricName: "r2"})
+            self.__rmse = evaluator.evaluate(self.data,
+                                             {evaluator.metricName: "rmse"})
+            self.__mse = self.__rmse**2
+            self.__r2 = evaluator.evaluate(self.data,
+                                           {evaluator.metricName: "r2"})
         else:
             evaluator = MulticlassClassificationEvaluator(
-              labelCol=self.response)
-            self.__f1 = evaluator.evaluate(
-              self.data, {evaluator.metricName: "f1"})
+                labelCol=self.response)
+            self.__f1 = evaluator.evaluate(self.data,
+                                           {evaluator.metricName: "f1"})
             self.__accuracy = evaluator.evaluate(
-              self.data, {evaluator.metricName: "accuracy"})
+                self.data, {evaluator.metricName: "accuracy"})
             self.__precision = evaluator.evaluate(
-              self.data, {evaluator.metricName: "weightedPrecision"})
+                self.data, {evaluator.metricName: "weightedPrecision"})
             self.__recall = evaluator.evaluate(
-              self.data, {evaluator.metricName: "weightedRecall"})
+                self.data, {evaluator.metricName: "weightedRecall"})
 
     def write_files(self, outfolder):
         logger.info("Writing regression statistics")
@@ -64,16 +63,17 @@ class EnsembleFit:
         with open(out_file, "w") as fh:
             if self.family == BINOMIAL_:
                 fh.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                  "family", "response", "accuracy", "f1", "precision", "recall"))
+                    "family", "response", "accuracy", "f1", "precision",
+                    "recall"))
                 fh.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                  self.family, self.response, self.__accuracy,
-                  self.__f1, self.__precision, self.__recall))
+                    self.family, self.response, self.__accuracy, self.__f1,
+                    self.__precision, self.__recall))
             else:
+                fh.write("{}\t{}\t{}\t{}\t{}\n".format("family", "response",
+                                                       "mse", "r2", "rmse"))
                 fh.write("{}\t{}\t{}\t{}\t{}\n".format(
-                  "family", "response", "mse", "r2", "rmse"))
-                fh.write("{}\t{}\t{}\t{}\t{}\n".format(
-                  self.family, self.response, self.__mse,
-                  self.__r2, self.__rmse))
+                    self.family, self.response, self.__mse, self.__r2,
+                    self.__rmse))
 
     @property
     def family(self):

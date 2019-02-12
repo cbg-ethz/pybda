@@ -18,7 +18,6 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import logging
 import os
 
@@ -34,7 +33,6 @@ from pybda.sampler import sample
 from pybda.util.cast_as import as_pandas
 from pybda.spark.features import split_vector
 from pybda.stats.stats import cumulative_explained_variance
-
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -69,18 +67,15 @@ class PCAFit(DimensionReductionFit):
         subsamp = as_pandas(split_vector(sample(self.data, 10000), FEATURES_))
         for suf in ["png", "pdf", "svg", "eps"]:
             plot_cumulative_variance(
-              outfile + "-loadings-explained_variance." + suf,
-              cev[:self.n_components], "# components")
+                outfile + "-loadings-explained_variance." + suf,
+                cev[:self.n_components], "# components")
             biplot(
-              outfile + "-loadings-biplot." + suf,
-              DataFrame(self.loadings[:self.n_components],
-                        columns=self.feature_names), "PC 1", "PC 2")
-            scatter(
-              outfile + "-scatter_plot." + suf,
-              subsamp["f_0"].values, subsamp["f_1"].values,
-              "PC 1", "PC 2")
+                outfile + "-loadings-biplot." + suf,
+                DataFrame(self.loadings[:self.n_components],
+                          columns=self.feature_names), "PC 1", "PC 2")
+            scatter(outfile + "-scatter_plot." + suf, subsamp["f_0"].values,
+                    subsamp["f_1"].values, "PC 1", "PC 2")
             for i in map(lambda x: "f_" + str(x),
                          range(min(10, self.n_components))):
-                histogram(
-                  outfile + "-histogram_{}.".format(i) + suf,
-                  subsamp[i].values, i)
+                histogram(outfile + "-histogram_{}.".format(i) + suf,
+                          subsamp[i].values, i)

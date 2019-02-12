@@ -18,7 +18,6 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import collections
 
 LOGLIK_ = "loglik"
@@ -89,17 +88,10 @@ FAMILY__ = "family"
 
 RULE_INFILE__ = "rule" + "_" + INFILE__
 
-REQUIRED_ARGS__ = [
-    SPARK__,
-    INFILE__,
-    OUTFOLDER__
-]
+REQUIRED_ARGS__ = [SPARK__, INFILE__, OUTFOLDER__]
 
 PREPROCESSING_METHODS__ = [DIM_RED__, OUTLIERS__]
 METHODS__ = PREPROCESSING_METHODS__ + [CLUSTERING__, REGRESSION__]
-PARENT_METHODS__ = collections.OrderedDict(
-  [
-      (CLUSTERING__, PREPROCESSING_METHODS__),
-      (REGRESSION__, None)
-  ]
-)
+PARENT_METHODS__ = collections.OrderedDict([(CLUSTERING__,
+                                             PREPROCESSING_METHODS__),
+                                            (REGRESSION__, None)])

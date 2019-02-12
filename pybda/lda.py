@@ -18,7 +18,6 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import logging
 
 import click
@@ -87,8 +86,8 @@ class LDA(DimensionReduction):
         logger.info("Running LDA ...")
         W, eval = self.fit(data)
         data = self.transform(data, W)
-        return LDAFit(data, self.n_components, W, eval,
-                      self.features, self.response)
+        return LDAFit(data, self.n_components, W, eval, self.features,
+                      self.response)
 
 
 @click.command()
@@ -114,8 +113,8 @@ def run(discriminants, file, features, response, outpath):
     with SparkSession() as spark:
         try:
             features = read_info(features)
-            data = read_and_transmute(
-              spark, file, features, assemble_features=False)
+            data = read_and_transmute(spark, file, features,
+                                      assemble_features=False)
             fl = LDA(spark, discriminants, features, response)
             fit = fl.fit_transform(data)
             fit.write_files(outpath)

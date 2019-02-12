@@ -88,13 +88,13 @@ class Clustering(SparkModel):
             logger.info("Computing variance")
             sse = sum_of_squared_errors(data)
             if sse_file:
-                write_line("{}\n{}\n".format(TOTAL_VAR_, sse), sse_file)
-        logger.info("\t{}: {}".format(TOTAL_VAR_, sse))
+                write_line("{}\n%\n".format(TOTAL_VAR_, sse), sse_file)
+        logger.info("\t%s: %d", TOTAL_VAR_, sse)
         return sse
 
     def dimension(self, data):
         n, p = data.count(), n_features(data, FEATURES__)
-        logger.info("Using data with n={} and p={}".format(n, p))
+        logger.info("Using data with n=%d and p=%d", n, p)
         return n, p
 
     def _fit(self, models, outpath, data, n, p, stat):

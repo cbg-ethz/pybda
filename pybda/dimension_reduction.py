@@ -18,7 +18,6 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 from abc import abstractmethod
 
 from pybda.spark_model import SparkModel

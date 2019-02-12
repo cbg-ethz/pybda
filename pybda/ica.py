@@ -18,7 +18,6 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import logging
 
 import click
@@ -67,14 +66,14 @@ class ICA(DimensionReduction):
 
         for c in range(self.n_components):
             w = w_init[c, :].copy()
-            w /= scipy.sqrt((w ** 2).sum())
+            w /= scipy.sqrt((w**2).sum())
             for i in range(self.max_iter):
                 g, gd = self.exp(Xw.multiply(DenseMatrix(len(w), 1, w)))
                 w1 = column_mean(elementwise_product(Xw, g, self.spark))
                 del g
                 w1 = w1 - gd * w
                 w1 = gs_decorrelate(w1, W, c)
-                w1 /= scipy.sqrt((w1 ** 2).sum())
+                w1 /= scipy.sqrt((w1**2).sum())
                 lim = scipy.absolute(scipy.absolute((w1 * w).sum()) - 1)
                 w = w1
                 if lim < self.threshold:
@@ -86,10 +85,8 @@ class ICA(DimensionReduction):
 
     def exp(self, X):
         g = X.rows.map(lambda x: x * scipy.exp(-(scipy.power(x, 2.0)) / 2.0))
-        g_ = X.rows.map(
-          lambda x: (1 - scipy.power(x, 2.0)) *
-                    scipy.exp( -(scipy.power(x, 2.0)) / 2.0)
-        )
+        g_ = X.rows.map(lambda x: (1 - scipy.power(x, 2.0)) * scipy.exp(-(
+            scipy.power(x, 2.0)) / 2.0))
         gm = column_mean(g_).mean()
         return RowMatrix(g), gm
 
@@ -105,8 +102,7 @@ class ICA(DimensionReduction):
 
     def transform(self, data, X, unmixing):
         logger.info("Transforming data")
-        L = DenseMatrix(numRows=unmixing.shape[0],
-                        numCols=unmixing.shape[1],
+        L = DenseMatrix(numRows=unmixing.shape[0], numCols=unmixing.shape[1],
                         values=unmixing.flatten())
         data = join(data, X.multiply(L), self.spark)
         del X
@@ -141,8 +137,8 @@ def run(components, file, features, outpath):
     with SparkSession() as spark:
         try:
             features = read_info(features)
-            data = read_and_transmute(
-              spark, file, features, assemble_features=False)
+            data = read_and_transmute(spark, file, features,
+                                      assemble_features=False)
             fl = ICA(spark, components, features)
             fit = fl.fit_transform(data)
             fit.write_files(outpath)

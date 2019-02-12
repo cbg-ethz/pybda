@@ -18,7 +18,6 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import logging
 
 from pybda.globals import FEATURES__, RAW_PREDICTION__, PROBABILITY__
@@ -53,4 +52,3 @@ class TransformedData:
     @data.setter
     def data(self, data):
         self.__data = data
-

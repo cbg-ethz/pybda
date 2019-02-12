@@ -18,7 +18,6 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import logging
 import os
 
@@ -77,19 +76,16 @@ class LDAFit(DimensionReductionFit):
         logger.info("Plotting")
         cev = normalized_cumsum(self.variances)
         subsamp = as_pandas(
-          split_vector(sample(self.__data, 10000), FEATURES__))
+            split_vector(sample(self.__data, 10000), FEATURES__))
         for suf in ["png", "pdf", "svg", "eps"]:
             plot_cumulative_variance(
-              outfile + "-discriminants-explained_variance." + suf,
-              cev, "# discriminants")
-            biplot(
-              outfile + "-loadings-biplot." + suf,
-              DataFrame(self.loadings, columns=self.feature_names),
-              "Discriminant 1", "Discriminant 2")
-            scatter(
-              outfile + "-scatter_plot." + suf,
-              subsamp, "f_0", "f_1", "Discriminant 1", "Discriminant 2",
-              color=self.response)
+                outfile + "-discriminants-explained_variance." + suf, cev,
+                "# discriminants")
+            biplot(outfile + "-loadings-biplot." + suf,
+                   DataFrame(self.loadings, columns=self.feature_names),
+                   "Discriminant 1", "Discriminant 2")
+            scatter(outfile + "-scatter_plot." + suf, subsamp, "f_0", "f_1",
+                    "Discriminant 1", "Discriminant 2", color=self.response)
             for i in map(lambda x: "f_" + str(x),
                          range(min(10, self.n_discriminants))):
                 histogram(outfile + "-histogram_{}.".format(i) + suf,

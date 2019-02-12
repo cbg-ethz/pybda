@@ -72,23 +72,19 @@ class FactorAnalysisFit(DimensionReductionFit):
         logger.info("Plotting")
         cev = cumulative_explained_variance(self.__W.transpose())
         subsamp = as_pandas(
-          split_vector(sample(self.__data, 10000), FEATURES__))
+            split_vector(sample(self.__data, 10000), FEATURES__))
         for suf in ["png", "pdf", "svg", "eps"]:
             plot_cumulative_variance(
-              outfile + "-loadings-explained_variance." + suf,
-              cev, "# factors")
-            biplot(
-              outfile + "-loadings-biplot." + suf,
-              DataFrame(self.__W, columns=self.feature_names), "Factor 1", "Factor 2")
-            plot_likelihood_path(
-              outfile + "-likelihood_path." + suf,
-              DataFrame({"L": self.__ll}))
-            scatter(
-              outfile + "-scatter_plot." + suf,
-              subsamp["f_0"].values, subsamp["f_1"].values,
-              "Factor 1", "Factor 2")
-            for i in map(lambda x: "f_" + str(x),
-                         range(min(10, self.n_factors))):
-                histogram(
-                  outfile + "-histogram_{}.".format(i) + suf,
-                  subsamp[i].values, i)
+                outfile + "-loadings-explained_variance." + suf, cev,
+                "# factors")
+            biplot(outfile + "-loadings-biplot." + suf,
+                   DataFrame(self.__W, columns=self.feature_names), "Factor 1",
+                   "Factor 2")
+            plot_likelihood_path(outfile + "-likelihood_path." + suf,
+                                 DataFrame({"L": self.__ll}))
+            scatter(outfile + "-scatter_plot." + suf, subsamp["f_0"].values,
+                    subsamp["f_1"].values, "Factor 1", "Factor 2")
+            for i in map(lambda x: "f_" + str(x), range(
+                    min(10, self.n_factors))):
+                histogram(outfile + "-histogram_{}.".format(i) + suf,
+                          subsamp[i].values, i)
