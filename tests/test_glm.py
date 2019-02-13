@@ -31,14 +31,12 @@ class TestFA(TestDimredAPI):
     Tests the facor analysis API
     """
 
-    def mo(self):
-        self.log()
+    def setUp(self):
         super().setUp()
         self.fa = FactorAnalysis(self.spark, 2, self.features)
         self.skfa = sklearn.decomposition.FactorAnalysis(2, max_iter=25)
 
     def tearDown(self):
-        self.log()
         super().tearDown()
 
     def test_fa(self):

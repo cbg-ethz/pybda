@@ -17,32 +17,40 @@
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
+import inspect
 
-import sklearn.decomposition
+import numpy
+import pandas
+import unittest
 
-from pybda.factor_analysis import FactorAnalysis
-from pybda.globals import FEATURES__
-from pybda.spark.features import split_vector
-from tests.test_dimred_api import TestDimredAPI
+import pyspark
+from sklearn import datasets
 
 
-class TestFA(TestDimredAPI):
+class TestAPI(unittest.TestCase):
     """
-    Tests the facor analysis API
+    Tests the factor analysis API
     """
 
-    def mo(self):
+    def log(self):
+        currentTest = self.id().split('.')[-1]
+        callingFunction = inspect.stack()[1][3]
+        print('in {} - {}()'.format(currentTest, callingFunction))
+
+    def setUp(self):
         self.log()
-        super().setUp()
-        self.fa = FactorAnalysis(self.spark, 2, self.features)
-        self.skfa = sklearn.decomposition.FactorAnalysis(2, max_iter=25)
+        unittest.TestCase.setUp(self)
+        self._spark = (pyspark.sql.SparkSession.builder
+                      .master("local")
+                      .appName("unittest")
+                      .config("spark.driver.memory", "3g")
+                      .config("spark.executor.memory", "3g")
+                      .getOrCreate())
 
     def tearDown(self):
         self.log()
-        super().tearDown()
+        self._spark.stop()
 
-    def test_fa(self):
-        fit = self.fa.fit_transform(self.spark_df)
-        df = (split_vector(fit.data, FEATURES__))[["f_0", "f_1"]]
-        df = df.toPandas().values
-        skfit = self.skfa.fit_transform(self.X)
+    @property
+    def spark(self):
+        return self._spark

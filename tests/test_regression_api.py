@@ -20,19 +20,27 @@
 
 import numpy
 import pandas
+import unittest
+
+import pyspark
 from sklearn import datasets
 
-from tests.test_api import TestAPI
 
-
-class TestDimredAPI(TestAPI):
+class TestDimredAPI(unittest.TestCase):
     """
     Tests the factor analysis API
     """
 
     def setUp(self):
-        self.log()
-        super().setUp()
+        print("Setup")
+        unittest.TestCase.setUp(self)
+        self._spark = (pyspark.sql.SparkSession.builder
+                      .master("local")
+                      .appName("unittest")
+                      .config("spark.driver.memory", "3g")
+                      .config("spark.executor.memory", "3g")
+                      .getOrCreate())
+
         iris = datasets.load_iris()
         self._X = iris.data[:, :4]
         y = iris.target
@@ -42,8 +50,8 @@ class TestDimredAPI(TestAPI):
         self._spark_df = self.spark.createDataFrame(df)
 
     def tearDown(self):
-        self.log()
-        super().tearDown()
+        print("Teardown")
+        self._spark.stop()
 
     @property
     def X(self):
@@ -56,3 +64,7 @@ class TestDimredAPI(TestAPI):
     @property
     def spark_df(self):
         return self._spark_df
+
+    @property
+    def spark(self):
+        return self._spark
