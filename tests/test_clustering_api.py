@@ -20,38 +20,26 @@
 
 import numpy
 import pandas
-import unittest
-
-import pyspark
 from sklearn import datasets
 
+from tests.test_api import TestAPI
 
-class TestDimredAPI(unittest.TestCase):
+
+class TestClusteringAPI(TestAPI):
     """
     Tests the factor analysis API
     """
 
     def setUp(self):
-        print("Setup")
-        unittest.TestCase.setUp(self)
-        self._spark = (pyspark.sql.SparkSession.builder
-                      .master("local")
-                      .appName("unittest")
-                      .config("spark.driver.memory", "3g")
-                      .config("spark.executor.memory", "3g")
-                      .getOrCreate())
-
+        TestAPI.log("Clustering")
+        super().setUp()
         iris = datasets.load_iris()
         self._X = iris.data[:, :4]
         y = iris.target
         self._features = ["sl", "sw", "pl", "pw"]
         df = pandas.DataFrame(data=numpy.column_stack((self.X, y)),
                               columns=self.features + ["species"])
-        self._spark_df = self.spark.createDataFrame(df)
-
-    def tearDown(self):
-        print("Teardown")
-        self._spark.stop()
+        self._spark_df = TestAPI.spark().createDataFrame(df)
 
     @property
     def X(self):
@@ -64,7 +52,3 @@ class TestDimredAPI(unittest.TestCase):
     @property
     def spark_df(self):
         return self._spark_df
-
-    @property
-    def spark(self):
-        return self._spark

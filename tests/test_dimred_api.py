@@ -31,7 +31,7 @@ class TestDimredAPI(TestAPI):
     """
 
     def setUp(self):
-        self.log()
+        TestAPI.log("DimRed")
         super().setUp()
         iris = datasets.load_iris()
         self._X = iris.data[:, :4]
@@ -39,11 +39,7 @@ class TestDimredAPI(TestAPI):
         self._features = ["sl", "sw", "pl", "pw"]
         df = pandas.DataFrame(data=numpy.column_stack((self.X, y)),
                               columns=self.features + ["species"])
-        self._spark_df = self.spark.createDataFrame(df)
-
-    def tearDown(self):
-        self.log()
-        super().tearDown()
+        self._spark_df = TestAPI.spark().createDataFrame(df)
 
     @property
     def X(self):
