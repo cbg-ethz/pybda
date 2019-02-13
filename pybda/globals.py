@@ -78,6 +78,7 @@ N_CENTERS__ = "n_centers"
 RESPONSIBILITIES__ = "responsibilities"
 RAW_PREDICTION__ = "rawPrediction"
 PROBABILITY__ = "probability"
+PREDICTION__ = "prediction"
 
 REGRESSION__ = "regression"
 REGRESSION_INFILE__ = REGRESSION__ + "_" + INFILE__

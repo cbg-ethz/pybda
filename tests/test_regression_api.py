@@ -25,30 +25,47 @@ from sklearn import datasets
 from tests.test_api import TestAPI
 
 
-class TestDimredAPI(TestAPI):
+class TestRegressionAPI(TestAPI):
     """
     Tests the factor analysis API
     """
 
-    def setUp(self):
-        TestAPI.log("DimRed")
-        super().setUp()
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.log("Regression")
         iris = datasets.load_iris()
-        self._X = iris.data[:, :4]
-        y = iris.target
-        self._features = ["sl", "sw", "pl", "pw"]
-        df = pandas.DataFrame(data=numpy.column_stack((self.X, y)),
-                              columns=self.features + ["species"])
-        self._spark_df = TestAPI.spark().createDataFrame(df)
+        cls._features = ["sl", "sw", "pl", "pw"]
+        cls._X = iris.data[iris.target < 2, :4]
+        mu = cls._X.dot(numpy.array([-1, 2, -2, 1]))
+        cls._y = mu + numpy.random.normal(0, .1, 100)
+        eta = 1 / (1 + numpy.exp(-mu))
+        cls._y_log = numpy.random.binomial(1, eta)
+        df = pandas.DataFrame(
+          data=numpy.column_stack((cls._X,
+                                   cls._y,
+                                   cls._y_log)),
+          columns=cls.features() +
+                  [cls.response(),
+                   cls.log_response()])
+        cls._spark_df = TestAPI.spark().createDataFrame(df)
 
-    @property
-    def X(self):
-        return self._X
+    @classmethod
+    def X(cls):
+        return cls._X
 
-    @property
-    def features(self):
-        return self._features
+    @classmethod
+    def features(cls):
+        return cls._features
 
-    @property
-    def spark_df(self):
-        return self._spark_df
+    @classmethod
+    def log_response(cls):
+        return "logresponse"
+
+    @classmethod
+    def response(cls):
+        return "response"
+
+    @classmethod
+    def spark_df(cls):
+        return cls._spark_df

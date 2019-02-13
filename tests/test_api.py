@@ -19,6 +19,7 @@
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
 import inspect
+import socket
 import unittest
 
 import pyspark
@@ -36,18 +37,18 @@ class TestAPI(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        TestAPI.log("API")
+        cls.log("API")
         unittest.TestCase.setUp(cls)
         TestAPI._spark = (pyspark.sql.SparkSession.builder
-                      .master("local")
-                      .appName("unittest")
-                      .config("spark.driver.memory", "3g")
-                      .config("spark.executor.memory", "3g")
-                      .getOrCreate())
+                          .master("local")
+                          .appName("unittest")
+                          .config("spark.driver.memory", "3g")
+                          .config("spark.executor.memory", "3g")
+                          .getOrCreate())
 
     @classmethod
     def tearDownClass(cls):
-        TestAPI.log("API")
+        cls.log("API")
         TestAPI._spark.stop()
 
     @classmethod

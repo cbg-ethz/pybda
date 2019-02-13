@@ -41,7 +41,11 @@ class TestKPCA(unittest.TestCase):
 
         def setUp(self):
             super().setUp()
-            self.fa = KPCA(self.spark, 2, self.features,)
+            self.fa = KPCA(
+                self.spark,
+                2,
+                self.features,
+            )
             self.skfa = sklearn.decomposition.KernelPCA(2, max_iter=1)
 
         def tearDown(self):
@@ -52,6 +56,3 @@ class TestKPCA(unittest.TestCase):
             df = (split_vector(fit.data, FEATURES__))[["f_0", "f_1"]]
             df = df.toPandas().values
             skfit = self.skfa.fit_transform(self.X)
-
-
-

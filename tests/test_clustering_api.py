@@ -37,8 +37,9 @@ class TestClusteringAPI(TestAPI):
         self._X = iris.data[:, :4]
         y = iris.target
         self._features = ["sl", "sw", "pl", "pw"]
-        df = pandas.DataFrame(data=numpy.column_stack((self.X, y)),
-                              columns=self.features + ["species"])
+        df = pandas.DataFrame(
+            data=numpy.column_stack((self.X, y)),
+            columns=self.features + ["species"])
         self._spark_df = TestAPI.spark().createDataFrame(df)
 
     @property

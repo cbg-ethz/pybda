@@ -32,12 +32,11 @@ logger.setLevel(logging.INFO)
 
 
 class Forest(Ensemble):
-    def __init__(self, spark, response, meta, features, family=GAUSSIAN_,
+    def __init__(self, spark, response, features, family=GAUSSIAN_,
                  n_trees=50, max_depth=10, subsampling_rate=0.5):
         super().__init__(spark, family, response, features, max_depth,
                          subsampling_rate)
         self.__n_trees = n_trees
-        self.__meta = meta
 
     def _model(self):
         if self.family == GAUSSIAN_:
@@ -52,7 +51,7 @@ class Forest(Ensemble):
         model.setLabelCol(self.response)
         return model
 
-    def fit_transform(self):
+    def fit_transform(self, data):
         raise NotImplementedError()
 
     def transform(self, predict):
@@ -86,7 +85,7 @@ def run(file, meta, features, response, family, outpath, predict):
         try:
             meta, features = read_column_info(meta, features)
             data = read_and_transmute(spark, file, features, response)
-            fl = Forest(spark, response, meta, features, family)
+            fl = Forest(spark, response, features, family)
             fit = fl.fit(data)
             fit.write_files(outpath)
             if pathlib.Path(predict).exists():

@@ -18,14 +18,12 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import os
 import shutil
 import subprocess
 import unittest
 
 from pybda.globals import *
-
 
 # class TestPyBDA(unittest.TestCase):
 #     """

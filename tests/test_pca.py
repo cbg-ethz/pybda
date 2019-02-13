@@ -34,7 +34,11 @@ class TestPCA(unittest.TestCase):
 
     def setUp(self):
         super().setUp()
-        self.fa = PCA(self.spark, 2, self.features,)
+        self.fa = PCA(
+            self.spark,
+            2,
+            self.features,
+        )
         self.skfa = sklearn.decomposition.PCA(2, max_iter=1)
 
     def tearDown(self):
@@ -45,5 +49,3 @@ class TestPCA(unittest.TestCase):
         df = (split_vector(fit.data, FEATURES__))[["f_0", "f_1"]]
         df = df.toPandas().values
         skfit = self.skfa.fit_transform(self.X)
-
-
