@@ -82,6 +82,18 @@ def write_tsv(data, outfile, header=True, index=False):
         shutil.rmtree(outfile)
 
 
+def read(spark, file_name, header=True):
+    if file_name.endswith(TSV_):
+        data = read_tsv(spark, file_name, header)
+    elif matches(file_name, ".*/.+\..+"):
+        raise ValueError("Can only parse tsv files or parquet folders.")
+    elif pathlib.Path(file_name).is_dir():
+        data = read_parquet(spark, file_name)
+    else:
+        raise ValueError("{} is neither tsv nor folder.".format(file_name))
+    return data
+
+
 def read_and_transmute(spark, file_name,
                        feature_cols,
                        respone=None,
@@ -103,14 +115,7 @@ def read_and_transmute(spark, file_name,
         a list of features
     """
 
-    if file_name.endswith(TSV_):
-        data = read_tsv(spark, file_name, header)
-    elif matches(file_name, ".*/.+\..+"):
-        raise ValueError("Can only parse tsv files or parquet folders.")
-    elif pathlib.Path(file_name).is_dir():
-        data = read_parquet(spark, file_name, header)
-    else:
-        raise ValueError("{} is neither tsv nor folder.".format(file_name))
+    data = read(spark, file_name, header)
     data = to_double(data, feature_cols, respone)
     data = fill_na(data)
     if assemble_features:

@@ -91,7 +91,8 @@ class FactorAnalysisFit(DimensionReductionFit):
                 histogram(outfile + "-histogram_{}.".format(i) + suf,
                           subsamp[i].values, i)
 
-    def _plot_likelihood_path(self, file_name, data):
+    @staticmethod
+    def _plot_likelihood_path(file_name, data):
         data = data.query("L < 0")
         data["Index"] = range(1, data.shape[0] + 1)
         _, ax = plt.subplots(figsize=(8, 5), dpi=720)

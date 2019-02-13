@@ -84,7 +84,7 @@ class FitProfile(ABC):
         return pandas.DataFrame(df)
 
     @abstractmethod
-    def _plot_profile(self, outpath, data):
+    def _plot_profile(self, file_name, profile):
         pass
 
     def _plot_cluster_sizes(self, file_name, data, labels):

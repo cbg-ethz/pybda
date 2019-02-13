@@ -44,15 +44,15 @@ class DimensionReduction(SparkModel):
         return self.__max_iter
 
     @abstractmethod
-    def fit(self):
+    def fit(self, data):
         pass
 
     @abstractmethod
-    def fit_transform(self):
+    def fit_transform(self, data):
         pass
 
     @abstractmethod
-    def transform(self):
+    def transform(self, data):
         pass
 
     def _feature_matrix(self, data):

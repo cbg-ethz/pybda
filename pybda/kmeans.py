@@ -29,6 +29,7 @@ from pybda.fit.kmeans_fit import KMeansFit
 from pybda.fit.kmeans_fit_profile import KMeansFitProfile
 from pybda.fit.kmeans_transformed import KMeansTransformed
 from pybda.globals import FEATURES__, KMEANS__
+from pybda.spark.dataframe import dimension
 from pybda.spark.features import split_vector
 
 logger = logging.getLogger(__name__)
@@ -40,7 +41,7 @@ class KMeans(Clustering):
         super().__init__(spark, clusters, threshold, max_iter, KMEANS__)
 
     def fit(self, data, outpath):
-        n, p = self.dimension(data)
+        n, p = dimension(data)
         data = data.select(FEATURES__)
         tot_var = self.tot_var(split_vector(data, FEATURES__), outpath)
         models = KMeansFitProfile()

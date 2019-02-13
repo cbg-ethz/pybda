@@ -67,7 +67,7 @@ class ICA(DimensionReduction):
         for c in range(self.n_components):
             w = w_init[c, :].copy()
             w /= scipy.sqrt((w**2).sum())
-            for i in range(self.max_iter):
+            for _ in range(self.max_iter):
                 g, gd = self.exp(Xw.multiply(DenseMatrix(len(w), 1, w)))
                 w1 = column_mean(elementwise_product(Xw, g, self.spark))
                 del g
