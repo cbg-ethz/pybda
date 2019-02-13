@@ -18,10 +18,7 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-import numpy
-import pandas
 import sklearn.decomposition
-from sklearn import datasets
 
 from pybda.factor_analysis import FactorAnalysis
 from pybda.globals import FEATURES__
@@ -36,15 +33,7 @@ class TestFA(TestDimredAPI):
 
     def setUp(self):
         super().setUp()
-        iris = datasets.load_iris()
-        self.X = iris.data[:, :4]
-        y = iris.target
-        self.features = ["sl", "sw", "pl", "pw"]
-        df = pandas.DataFrame(data=numpy.column_stack((self.X, y)),
-                              columns=self.features + ["species"])
-        self.spark_df = self.spark.createDataFrame(df)
         self.fa = FactorAnalysis(self.spark, 2, self.features)
-
         self.skfa = sklearn.decomposition.FactorAnalysis(2, max_iter=25)
 
     def tearDown(self):

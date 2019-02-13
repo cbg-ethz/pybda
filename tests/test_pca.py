@@ -20,15 +20,10 @@
 
 import unittest
 
-import numpy
-import pandas
-import pyspark
-
-from sklearn import datasets
 import sklearn.decomposition
 
-from pybda.factor_analysis import FactorAnalysis
 from pybda.globals import FEATURES__
+from pybda.pca import PCA
 from pybda.spark.features import split_vector
 
 
@@ -36,3 +31,19 @@ class TestPCA(unittest.TestCase):
     """
     Tests the PCA API
     """
+
+    def setUp(self):
+        super().setUp()
+        self.fa = PCA(self.spark, 2, self.features,)
+        self.skfa = sklearn.decomposition.PCA(2, max_iter=1)
+
+    def tearDown(self):
+        super().tearDown()
+
+    def test_pca(self):
+        fit = self.fa.fit_transform(self.spark_df)
+        df = (split_vector(fit.data, FEATURES__))[["f_0", "f_1"]]
+        df = df.toPandas().values
+        skfit = self.skfa.fit_transform(self.X)
+
+

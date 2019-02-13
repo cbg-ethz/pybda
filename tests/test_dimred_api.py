@@ -18,10 +18,12 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
+import numpy
+import pandas
 import unittest
 
 import pyspark
+from sklearn import datasets
 
 
 class TestDimredAPI(unittest.TestCase):
@@ -39,9 +41,29 @@ class TestDimredAPI(unittest.TestCase):
                       .config("spark.executor.memory", "3g")
                       .getOrCreate())
 
+        iris = datasets.load_iris()
+        self._X = iris.data[:, :4]
+        y = iris.target
+        self._features = ["sl", "sw", "pl", "pw"]
+        df = pandas.DataFrame(data=numpy.column_stack((self.X, y)),
+                              columns=self.features + ["species"])
+        self._spark_df = self.spark.createDataFrame(df)
+
     def tearDown(self):
         print("Teardown")
         self._spark.stop()
+
+    @property
+    def X(self):
+        return self._X
+
+    @property
+    def features(self):
+        return self._features
+
+    @property
+    def spark_df(self):
+        return self._spark_df
 
     @property
     def spark(self):
