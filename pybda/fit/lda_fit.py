@@ -38,10 +38,10 @@ logger.setLevel(logging.INFO)
 
 
 class LDAFit(DimensionReductionFit):
-    def __init__(self, data, n_components, W, vars, features, response):
+    def __init__(self, data, n_components, W, var, features, response):
         super().__init__(data, n_components, features, W)
         self.__data = data
-        self.__vars = vars
+        self.__vars = var
         self.__response = response
 
     @property

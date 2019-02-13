@@ -19,14 +19,14 @@
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
 import logging
-import pandas
 import pathlib
 from abc import abstractmethod
 
-from pybda.globals import GMM__, FEATURES__, TOTAL_VAR_
+import pandas
+
+from pybda.globals import GMM__, TOTAL_VAR_
 from pybda.io.as_filename import as_ssefile
 from pybda.io.io import write_line
-from pybda.spark.features import n_features
 from pybda.spark_model import SparkModel
 from pybda.stats.stats import sum_of_squared_errors
 
@@ -88,14 +88,9 @@ class Clustering(SparkModel):
             logger.info("Computing variance")
             sse = sum_of_squared_errors(data)
             if sse_file:
-                write_line("{}\n%\n".format(TOTAL_VAR_, sse), sse_file)
+                write_line("{}\n{}\n".format(TOTAL_VAR_, sse), sse_file)
         logger.info("\t%s: %d", TOTAL_VAR_, sse)
         return sse
-
-    def dimension(self, data):
-        n, p = data.count(), n_features(data, FEATURES__)
-        logger.info("Using data with n=%d and p=%d", n, p)
-        return n, p
 
     def _fit(self, models, outpath, data, n, p, stat):
         for k in self.clusters:

@@ -1,5 +1,5 @@
+from sys import version_info
 from setuptools import setup, find_packages
-from sys import version_info, exit
 
 if version_info[0] == 2:
     exit("Sorry, Python 2 is not supported. Move to Python 3 already.")

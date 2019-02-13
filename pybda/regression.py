@@ -48,7 +48,7 @@ class Regression(SparkModel):
         return self.__family
 
     @abstractmethod
-    def fit(self):
+    def fit(self, data):
         pass
 
     @abstractmethod
@@ -56,7 +56,7 @@ class Regression(SparkModel):
         pass
 
     @abstractmethod
-    def transform(self):
+    def transform(self, data):
         pass
 
     def _fit(self, data):

@@ -56,10 +56,10 @@ class GLM(Regression):
         reg.setMaxIter(self.__max_iter)
         return reg
 
-    def fit_transform(self):
+    def fit_transform(self, data):
         raise NotImplementedError()
 
-    def transform(self, predict):
+    def transform(self, data):
         raise NotImplementedError()
 
 

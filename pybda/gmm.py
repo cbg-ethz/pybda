@@ -30,6 +30,7 @@ from pybda.fit.gmm_fit import GMMFit
 from pybda.fit.gmm_fit_profile import GMMFitProfile
 from pybda.fit.gmm_transformed import GMMTransformed
 from pybda.globals import RESPONSIBILITIES__, GMM__, FEATURES__
+from pybda.spark.dataframe import dimension
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -40,12 +41,13 @@ class GMM(Clustering):
         super().__init__(spark, clusters, threshold, max_iter, GMM__)
 
     def fit(self, data, outpath):
-        n, p = self.dimension(data)
+        n, p = dimension(data)
         data = data.select(FEATURES__)
         models = GMMFitProfile()
         return self._fit(models, outpath, data, n, p, scipy.nan)
 
-    def _fit_one(self, k, data, n, p, stat):
+    @staticmethod
+    def _fit_one(k, data, n, p, stat):
         logger.info("Clustering with K: {}".format(k))
         gmm = pyspark.ml.clustering.GaussianMixture(
             k=k, seed=23, probabilityCol=RESPONSIBILITIES__)

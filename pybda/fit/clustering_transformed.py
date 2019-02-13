@@ -43,7 +43,7 @@ class ClusteringTransformed(TransformedData):
         self.write_clusters(outpath)
 
     @abstractmethod
-    def write_clusters(self, outfolder, suff="", sort_me=True):
+    def write_clusters(self, outpath, suff="", sort_me=True):
         pass
 
     def _write_clusters(self, data, outpath, sort_me):

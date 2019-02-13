@@ -85,12 +85,12 @@ class GMMFit(ClusteringFit):
         ccw = outfile + "_mixing_weights.tsv"
         numpy.savetxt(ccw, self.__mixing_weights, delimiter="\t")
         means = self.__estimates.select("mean").toPandas().values
-        vars = self.__estimates.select("cov").toPandas().values
+        varis = self.__estimates.select("cov").toPandas().values
         for i in range(self.__estimates.count()):
             ccm = outfile + "_means_{}.tsv".format(i)
             ccv = outfile + "_variances_{}.tsv".format(i)
             numpy.savetxt(ccm, means[i][0].values, delimiter="\t")
-            numpy.savetxt(ccv, vars[i][0].values, delimiter="\t")
+            numpy.savetxt(ccv, varis[i][0].values, delimiter="\t")
 
     def _write_statistics(self, outfile):
         ll_file = outfile + "_statistics.tsv"

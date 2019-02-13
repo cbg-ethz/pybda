@@ -19,7 +19,10 @@
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
 import logging
+
 import click
+
+from pybda.io.as_filename import as_logfile
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -28,50 +31,28 @@ logger.setLevel(logging.INFO)
 def sample(data, n):
     data_row_cnt = data.count()
     sample_ratio = float(min(n / data_row_cnt, 1))
-
     return data.sample(withReplacement=False, fraction=sample_ratio, seed=23)
 
 
 @click.command()
-@click.argument("input", type=str)
+@click.argument("file", type=str)
 @click.argument("output", type=str)
 @click.argument("n", type=int)
-@click.argument("split", type=bool)
-def run(input, output, n, split):
-    import pathlib
+def run(file, output, n):
     from pybda.logger import set_logger
     from pybda.spark_session import SparkSession
-    from pybda.spark.features import split_vector
     from pybda.util.string import drop_suffix
-    from pybda.io.io import as_logfile
-    from pybda.io.io import read_tsv, read_parquet, write_parquet, write_tsv
+    from pybda.io.io import write_tsv
 
     output = drop_suffix(output, "/")
     set_logger(as_logfile(output))
 
-    if input.endswith(".tsv") and pathlib.Path(input).is_file():
-        logger.info("Found suffix 'tsv', expecting tsv file as input")
-        reader = read_tsv
-    elif pathlib.Path(input).is_dir():
-        logger.info("Found folder, expecting parquet file as input")
-        reader = read_parquet
-    if output.endswith(".tsv"):
-        logger.info("Found suffix 'tsv', writing RDDs as tsvs")
-        output = output.replace(".tsv", "")
-        if not split:
-            split = True
-            logger.info("Setting split=true since 'tsv' output detected.")
-        writer = write_tsv
-    else:
-        logger.info("Found no suffix, writing RDD as parquet!")
-        writer = write_parquet
-
     with SparkSession() as spark:
         try:
-            subsamp = sample(reader(spark, input), n)
-            if split:
-                subsamp = split_vector(subsamp, "features")
-            writer(subsamp, output)
+            from pybda.io.io import read
+            data = read(spark, file)
+            subsamp = sample(data, n)
+            write_tsv(subsamp, output)
         except Exception as e:
             logger.error("Some error: {}".format(str(e)))
 

@@ -27,6 +27,7 @@ from pyspark.ml.linalg import VectorUDT
 from pyspark.mllib.linalg.distributed import RowMatrix
 from pyspark.sql.functions import udf
 from pybda.globals import FEATURES__
+from pybda.spark.features import n_features
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -55,3 +56,9 @@ def as_df_with_idx(X: RowMatrix, idx, spark):
     X = spark.createDataFrame(X.rows.map(lambda x: (x,)))
     X = X.withColumn(idx, func.monotonically_increasing_id())
     return X
+
+
+def dimension(data):
+    n, p = data.count(), n_features(data, FEATURES__)
+    logger.info("Using data with n=%d and p=%d", n, p)
+    return n, p

@@ -47,7 +47,7 @@ class FactorAnalysis(DimensionReduction):
 
     def fit(self, data):
         logger.info("Fitting FA")
-        X, means, var = self._preprocess_data(data)
+        X, _, var = self._preprocess_data(data)
         W, ll, psi = self._estimate(X, var, self.n_factors)
         return X, W, ll, psi
 

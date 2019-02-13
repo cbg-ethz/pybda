@@ -80,9 +80,9 @@ class LDA(DimensionReduction):
 
     def fit_transform(self, data):
         logger.info("Running LDA ...")
-        W, eval = self.fit(data)
+        W, eigen_vals = self.fit(data)
         data = self.transform(data, W)
-        return LDAFit(data, self.n_components, W, eval, self.features,
+        return LDAFit(data, self.n_components, W, eigen_vals, self.features,
                       self.response)
 
 

@@ -77,9 +77,9 @@ def biplot(file_name, data, xlab, ylab):
     ax.yaxis.set_label_coords(x=-0.075, y=1)
     ax.grid(which="major", axis="both", linestyle="-", color="gainsboro")
 
-    for i in range(len(nms)):
+    for i, nm in enumerate(nms):
         plt.arrow(0, 0, vals[i, 0], vals[i, 1], color='#696969', alpha=0.75)
-        plt.text(vals[i, 0] * 1.15, vals[i, 1] * 1.15, nms[i], color='black',
+        plt.text(vals[i, 0] * 1.15, vals[i, 1] * 1.15, nm, color='black',
                  ha='center', va='center', size=6)
     plt.scatter(vals[:, 0], vals[:, 1], color='#696969')
     plt.xlabel(xlab, fontsize=15)
