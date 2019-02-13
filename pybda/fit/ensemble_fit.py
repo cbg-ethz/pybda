@@ -32,7 +32,7 @@ logger.setLevel(logging.INFO)
 
 class EnsembleFit:
     def __init__(self, data, model, response, family, features):
-        self.__data = data
+        self.__data = model.transform(data)
         self.__model = model
         self.__response = response
         self.__family = family
@@ -83,7 +83,13 @@ class EnsembleFit:
     def response(self):
         return self.__response
 
-    def transform(self, data):
+    @property
+    def features(self):
+        return self.__features
+
+    def transform(self, data=None):
+        if data is None:
+            return TransformedData(self.data)
         return TransformedData(self.__model.transform(data))
 
     @property
@@ -101,3 +107,19 @@ class EnsembleFit:
     @property
     def rmse(self):
         return self.__rmse
+
+    @property
+    def f1(self):
+        return self.__f1
+
+    @property
+    def accuracy(self):
+        return self.__accuracy
+
+    @property
+    def precision(self):
+        return self.__precision
+
+    @property
+    def recall(self):
+        return self.__recall

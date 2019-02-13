@@ -44,4 +44,3 @@ class TestICA(TestDimredAPI):
         df = (split_vector(fit.data, FEATURES__))[["f_0", "f_1"]]
         df = df.toPandas().values
         skfit = self.skfa.fit_transform(self.X)
-

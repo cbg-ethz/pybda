@@ -18,30 +18,81 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-import sklearn.decomposition
 
-from pybda.globals import FEATURES__
-from pybda.ica import ICA
-from pybda.spark.features import split_vector
-from tests.test_dimred_api import TestDimredAPI
+from pybda.forest import Forest
+from pybda.globals import PROBABILITY__, BINOMIAL_, GAUSSIAN_, PREDICTION__
+from pybda.spark.features import split_vector, assemble
+from tests.test_regression_api import TestRegressionAPI
 
 
-class TestICA(TestDimredAPI):
+class TestForest(TestRegressionAPI):
     """
-    Tests the ICA API
+    Tests the Forest API
     """
 
-    def setUp(self):
-        super().setUp()
-        self.fa = ICA(self.spark, 2, self.features)
-        self.skfa = sklearn.decomposition.ICA(2, max_iter=1)
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        data = assemble(cls.spark_df(),
+                        cls.features(),
+                        True)
 
-    def tearDown(self):
-        super().tearDown()
+        cls.model_gau = Forest(cls.spark(),
+                               cls.response(),
+                               cls.features())
+        cls.fit_gau = cls.model_gau.fit(data)
+        cls.transform_gau = cls.fit_gau.transform(data)
 
-    def test_ica(self):
-        fit = self.fa.fit_transform(self.spark_df)
-        df = (split_vector(fit.data, FEATURES__))[["f_0", "f_1"]]
-        df = df.toPandas().values
-        skfit = self.skfa.fit_transform(self.X)
+        cls.model_bin = Forest(cls.spark(),
+                               cls.log_response(),
+                               cls.features(), BINOMIAL_)
+        cls.fit_bin = TestForest.model_bin.fit(data)
+        cls.transform_bin = cls.fit_bin.transform(data)
 
+    def test_fit_forest_gaussian_family(self):
+        assert self.fit_gau.family == GAUSSIAN_
+
+    def test_fit_forest_gaussian_response(self):
+        assert self.fit_gau.response == self.response()
+
+    def test_fit_forest_gaussian_features(self):
+        assert self.fit_gau.features == self.features()
+
+    def test_fit_forest_gaussian_mse(self):
+        assert isinstance(self.fit_gau.mse, float)
+
+    def test_fit_forest_gaussian_r2(self):
+        assert isinstance(self.fit_gau.r2, float)
+
+    def test_fit_forest_gaussian_rmse(self):
+        assert isinstance(self.fit_gau.rmse, float)
+
+    def test_fit_forest_binomial_family(self):
+        assert self.fit_bin.family == BINOMIAL_
+
+    def test_fit_forest_binomial_respose(self):
+        assert self.fit_bin.response == self.log_response()
+
+    def test_fit_forest_binomial_features(self):
+        assert self.fit_bin.features == self.features()
+
+    def test_fit_forest_binomial_precision(self):
+        assert isinstance(self.fit_bin.precision, float)
+
+    def test_fit_forest_binomial_recall(self):
+        assert isinstance(self.fit_bin.recall, float)
+
+    def test_fit_forest_binomial_f1(self):
+        assert isinstance(self.fit_bin.f1, float)
+
+    def test_fit_forest_binomial_accuracy(self):
+        assert isinstance(self.fit_bin.accuracy, float)
+
+    def test_transform_forest_gaussian(self):
+        df = self.transform_gau.data.toPandas()
+        assert PREDICTION__ in df.columns.values
+
+    def test_transform_forest_binomial(self):
+        df = split_vector(self.transform_bin.data, PROBABILITY__)
+        df = df.toPandas()
+        assert "p_1" in df.columns.values
