@@ -28,7 +28,6 @@ from pyspark.mllib.linalg.distributed import RowMatrix
 
 from pybda.dimension_reduction import DimensionReduction
 from pybda.fit.ica_fit import ICAFit
-from pybda.fit.lda_fit import LDAFit
 from pybda.spark.dataframe import join
 from pybda.stats.linalg import svd, elementwise_product
 from pybda.stats.random import mtrand
