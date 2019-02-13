@@ -17,14 +17,11 @@
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
-import inspect
 
-import numpy
-import pandas
+import inspect
 import unittest
 
 import pyspark
-from sklearn import datasets
 
 
 class TestAPI(unittest.TestCase):
@@ -32,25 +29,27 @@ class TestAPI(unittest.TestCase):
     Tests the factor analysis API
     """
 
-    def log(self):
-        currentTest = self.id().split('.')[-1]
+    @classmethod
+    def log(cls, frm):
         callingFunction = inspect.stack()[1][3]
-        print('in {} - {}()'.format(currentTest, callingFunction))
+        print('in {} - {}()'.format(frm, callingFunction))
 
-    def setUp(self):
-        self.log()
-        unittest.TestCase.setUp(self)
-        self._spark = (pyspark.sql.SparkSession.builder
+    @classmethod
+    def setUpClass(cls):
+        TestAPI.log("API")
+        unittest.TestCase.setUp(cls)
+        TestAPI._spark = (pyspark.sql.SparkSession.builder
                       .master("local")
                       .appName("unittest")
                       .config("spark.driver.memory", "3g")
                       .config("spark.executor.memory", "3g")
                       .getOrCreate())
 
-    def tearDown(self):
-        self.log()
-        self._spark.stop()
+    @classmethod
+    def tearDownClass(cls):
+        TestAPI.log("API")
+        TestAPI._spark.stop()
 
-    @property
-    def spark(self):
-        return self._spark
+    @classmethod
+    def spark(cls):
+        return TestAPI._spark

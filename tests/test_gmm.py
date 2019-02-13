@@ -20,26 +20,28 @@
 
 import sklearn.decomposition
 
-from pybda.factor_analysis import FactorAnalysis
 from pybda.globals import FEATURES__
+from pybda.ica import ICA
 from pybda.spark.features import split_vector
-from tests.test_api import TestAPI
 from tests.test_dimred_api import TestDimredAPI
 
 
-class TestFA(TestDimredAPI):
+class TestICA(TestDimredAPI):
     """
-    Tests the facor analysis API
+    Tests the ICA API
     """
 
     def setUp(self):
         super().setUp()
-        TestAPI.log("FA")
-        self.fa = FactorAnalysis(TestAPI.spark(), 2, self.features)
-        self.skfa = sklearn.decomposition.FactorAnalysis(2, max_iter=25)
+        self.fa = ICA(self.spark, 2, self.features)
+        self.skfa = sklearn.decomposition.ICA(2, max_iter=1)
 
-    def test_fa(self):
+    def tearDown(self):
+        super().tearDown()
+
+    def test_ica(self):
         fit = self.fa.fit_transform(self.spark_df)
         df = (split_vector(fit.data, FEATURES__))[["f_0", "f_1"]]
         df = df.toPandas().values
         skfit = self.skfa.fit_transform(self.X)
+
