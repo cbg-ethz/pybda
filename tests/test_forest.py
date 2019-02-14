@@ -17,12 +17,17 @@
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
+import pandas
+
+import numpy
 
 import pytest
+from sklearn import datasets
 
 from pybda.forest import Forest
 from pybda.globals import PROBABILITY__, BINOMIAL_, GAUSSIAN_, PREDICTION__
 from pybda.spark.features import split_vector, assemble
+from tests.test_api import TestAPI
 from tests.test_regression_api import TestRegressionAPI
 
 
@@ -34,6 +39,20 @@ class TestForest(TestRegressionAPI):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.log("Forest")
+
+        iris = datasets.load_iris()
+        cls._features = ["sl", "sw", "pl", "pw"]
+        cls._X = iris.data[iris.target < 2, :4]
+        mu = cls._X.dot(numpy.array([-1, 2, -2, 1]))
+        cls._y = mu + numpy.random.normal(0, .1, 100)
+        eta = 1 / (1 + numpy.exp(-mu))
+        cls._y_log = numpy.random.binomial(1, eta)
+        df = pandas.DataFrame(
+          data=numpy.column_stack((cls._X, cls._y, cls._y_log)),
+          columns=cls.features() + [cls.response(),
+                                    cls.log_response()])
+        cls._spark_df = TestAPI.spark().createDataFrame(df)
         data = assemble(cls.spark_df(), cls.features(), True)
 
         cls.model_gau = Forest(cls.spark(), cls.response(), cls.features())

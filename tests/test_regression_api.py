@@ -35,19 +35,6 @@ class TestRegressionAPI(TestAPI):
         super().setUpClass()
         cls.log("Regression")
 
-        iris = datasets.load_iris()
-        cls._features = ["sl", "sw", "pl", "pw"]
-        cls._X = iris.data[iris.target < 2, :4]
-        mu = cls._X.dot(numpy.array([-1, 2, -2, 1]))
-        cls._y = mu + numpy.random.normal(0, .1, 100)
-        eta = 1 / (1 + numpy.exp(-mu))
-        cls._y_log = numpy.random.binomial(1, eta)
-        df = pandas.DataFrame(
-            data=numpy.column_stack((cls._X, cls._y, cls._y_log)),
-            columns=cls.features() + [cls.response(),
-                                      cls.log_response()])
-        cls._spark_df = TestAPI.spark().createDataFrame(df)
-
     @classmethod
     def tearDownClass(cls):
         cls.log("Regression")
