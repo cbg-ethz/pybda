@@ -34,11 +34,11 @@ class TestKMeans(TestClusteringAPI):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        data = assemble(cls.spark_df(), cls.features(), True)
+        cls.data = assemble(cls.spark_df(), cls.features(), True)
 
         cls.model = KMeans(cls.spark(), [2, 3])
-        cls.fit = cls.model.fit(data)
-        cls.transform = cls.fit[2].transform(data).toPandas()
+        cls.fit = cls.model.fit(cls.data)
+        cls.transform = cls.fit[2].transform(cls.data).toPandas()
 
     @classmethod
     def tearDownClass(cls):
@@ -84,6 +84,9 @@ class TestKMeans(TestClusteringAPI):
     def test_transform_kmeans_has_prediction(self):
         assert PREDICTION__ in self.transform.columns
 
-    def test_transform_kmeans_prediction(self):
+    def test_transform_kmeans_prediction_works(self):
         vals = numpy.unique(self.transform[PREDICTION__].values)
         assert len(vals) == 2
+
+    def test_transform_kmeans_transform(self):
+        self.model.transform(self. data, self.fit)

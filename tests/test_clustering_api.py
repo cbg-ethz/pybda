@@ -42,7 +42,7 @@ class TestClusteringAPI(TestAPI):
 
     @classmethod
     def tearDownClass(cls):
-        cls.log("lustering")
+        cls.log("Clustering")
         super().tearDownClass()
 
     @classmethod
