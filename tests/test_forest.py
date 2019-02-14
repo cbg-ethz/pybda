@@ -36,15 +36,12 @@ class TestForest(TestRegressionAPI):
         super().setUpClass()
         data = assemble(cls.spark_df(), cls.features(), True)
 
-        cls.model_gau = Forest(cls.spark(),
-                               cls.response(),
-                               cls.features())
+        cls.model_gau = Forest(cls.spark(), cls.response(), cls.features())
         cls.fit_gau = cls.model_gau.fit(data)
         cls.transform_gau = cls.fit_gau.transform(data)
 
-        cls.model_bin = Forest(cls.spark(),
-                               cls.log_response(),
-                               cls.features(), BINOMIAL_)
+        cls.model_bin = Forest(cls.spark(), cls.log_response(), cls.features(),
+                               BINOMIAL_)
         cls.fit_bin = cls.model_bin.fit(data)
         cls.transform_bin = cls.fit_bin.transform(data)
 

@@ -34,6 +34,7 @@ class TestRegressionAPI(TestAPI):
     def setUpClass(cls):
         super().setUpClass()
         cls.log("Regression")
+
         iris = datasets.load_iris()
         cls._features = ["sl", "sw", "pl", "pw"]
         cls._X = iris.data[iris.target < 2, :4]
@@ -42,12 +43,9 @@ class TestRegressionAPI(TestAPI):
         eta = 1 / (1 + numpy.exp(-mu))
         cls._y_log = numpy.random.binomial(1, eta)
         df = pandas.DataFrame(
-          data=numpy.column_stack((cls._X,
-                                   cls._y,
-                                   cls._y_log)),
-          columns=cls.features() +
-                  [cls.response(),
-                   cls.log_response()])
+            data=numpy.column_stack((cls._X, cls._y, cls._y_log)),
+            columns=cls.features() + [cls.response(),
+                                      cls.log_response()])
         cls._spark_df = TestAPI.spark().createDataFrame(df)
 
     @classmethod

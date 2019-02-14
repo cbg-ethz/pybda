@@ -18,7 +18,6 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import sklearn.decomposition
 
 from pybda.factor_analysis import FactorAnalysis
