@@ -18,34 +18,31 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-import unittest
-
-import sklearn.decomposition
-
 from pybda.globals import FEATURES__
 from pybda.pca import PCA
 from pybda.spark.features import split_vector
+from tests.test_dimred_api import TestDimredAPI
 
 
-class TestPCA(unittest.TestCase):
+class TestPCA(TestDimredAPI):
     """
     Tests the PCA API
     """
 
-    def setUp(self):
-        super().setUp()
-        self.fa = PCA(
-            self.spark,
-            2,
-            self.features,
-        )
-        self.skfa = sklearn.decomposition.PCA(2, max_iter=1)
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.pca = PCA(cls.spark(), 2, cls.features())
+        cls.X, cls.loadings, cls.sds = cls.pca.fit(cls.spark_df())
+        cls.trans = cls.pca.transform(cls.spark_df(), cls.X, cls.loadings)
 
-    def tearDown(self):
-        super().tearDown()
+    @classmethod
+    def tearDownClass(cls):
+        cls.log("PCA")
+        super().tearDownClass()
 
     def test_pca(self):
-        fit = self.fa.fit_transform(self.spark_df)
-        df = (split_vector(fit.data, FEATURES__))[["f_0", "f_1"]]
-        df = df.toPandas().values
-        skfit = self.skfa.fit_transform(self.X)
+        df = split_vector(self.trans, FEATURES__).toPandas()
+        assert "f_0" in df.columns
+        assert "f_1" in df.columns
+        assert "f_2" not in df.columns

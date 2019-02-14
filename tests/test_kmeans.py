@@ -17,6 +17,7 @@
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
+
 import numpy
 
 from pybda.fit.kmeans_fit import KMeansFit

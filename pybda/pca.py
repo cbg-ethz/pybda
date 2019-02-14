@@ -99,8 +99,8 @@ def run(components, file, features, outpath):
     with SparkSession() as spark:
         try:
             features = read_info(features)
-            data = read_and_transmute(spark, file, features,
-                                      assemble_features=False)
+            data = read_and_transmute(
+              spark, file, features, assemble_features=False)
             fl = PCA(spark, components, features)
             fit = fl.fit_transform(data)
             fit.write_files(outpath)

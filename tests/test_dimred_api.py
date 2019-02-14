@@ -31,26 +31,32 @@ class TestDimredAPI(TestAPI):
     Tests the factor analysis API
     """
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
         TestAPI.log("DimRed")
-        super().setUp()
         iris = datasets.load_iris()
-        self._X = iris.data[:, :4]
+        cls._X = iris.data[:, :4]
         y = iris.target
-        self._features = ["sl", "sw", "pl", "pw"]
+        cls._features = ["sl", "sw", "pl", "pw"]
         df = pandas.DataFrame(
-            data=numpy.column_stack((self.X, y)),
-            columns=self.features + ["species"])
-        self._spark_df = TestAPI.spark().createDataFrame(df)
+            data=numpy.column_stack((cls._X, y[:, numpy.newaxis])),
+            columns=cls.features() + ["species"])
+        cls._spark_df = TestAPI.spark().createDataFrame(df)
 
-    @property
-    def X(self):
-        return self._X
+    @classmethod
+    def tearDownClass(cls):
+        cls.log("Dimred")
+        super().tearDownClass()
 
-    @property
-    def features(self):
-        return self._features
+    @classmethod
+    def X(cls):
+        return cls._X
 
-    @property
-    def spark_df(self):
-        return self._spark_df
+    @classmethod
+    def features(cls):
+        return cls._features
+
+    @classmethod
+    def spark_df(cls):
+        return cls._spark_df

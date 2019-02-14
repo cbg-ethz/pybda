@@ -31,21 +31,3 @@ class TestLDA(unittest.TestCase):
     """
     Tests the LDA API
     """
-
-    def setUp(self):
-        super().setUp()
-        self.fa = LDA(
-            self.spark,
-            2,
-            self.features,
-        )
-        self.skfa = sklearn.decomposition.LDA(2, max_iter=1)
-
-    def tearDown(self):
-        super().tearDown()
-
-    def test_lda(self):
-        fit = self.fa.fit_transform(self.spark_df)
-        df = (split_vector(fit.data, FEATURES__))[["f_0", "f_1"]]
-        df = df.toPandas().values
-        skfit = self.skfa.fit_transform(self.X)
