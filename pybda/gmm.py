@@ -41,11 +41,10 @@ class GMM(Clustering):
     def __init__(self, spark, clusters, threshold=scipy.inf, max_iter=25):
         super().__init__(spark, clusters, threshold, max_iter, GMM__)
 
-    def fit(self, data, outpath):
+    def fit(self, data, outpath=None):
         n, p = dimension(data)
         data = data.select(FEATURES__)
-        models = GMMFitProfile()
-        return self._fit(models, outpath, data, n, p, scipy.nan)
+        return self._fit(GMMFitProfile(), outpath, data, n, p, scipy.nan)
 
     @staticmethod
     def _fit_one(k, data, n, p, stat):
@@ -58,10 +57,11 @@ class GMM(Clustering):
                        loglik=fit.summary.logLikelihood, n=n, p=p, path=None)
         return model
 
-    def transform(self, data, models, outpath):
+    def transform(self, data, models, outpath=None):
         for k, fit in models:
             m = GMMTransformed(fit.transform(data))
-            m.write_files(outpath, k)
+            if outpath:
+                m.write_files(outpath, k)
 
 
 @click.command()

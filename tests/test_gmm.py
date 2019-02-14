@@ -18,29 +18,89 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-import sklearn.decomposition
+import numpy
 
-from pybda.globals import FEATURES__
-from pybda.ica import ICA
-from pybda.spark.features import split_vector
-from tests.test_dimred_api import TestDimredAPI
+from pybda.fit.gmm_fit import GMMFit
+from pybda.globals import PREDICTION__
+from pybda.gmm import GMM
+from pybda.spark.features import assemble
+from tests.test_clustering_api import TestClusteringAPI
 
 
-class TestICA(TestDimredAPI):
+class TestGMM(TestClusteringAPI):
     """
-    Tests the ICA API
+    Tests the GMM API
     """
 
-    def setUp(self):
-        super().setUp()
-        self.fa = ICA(self.spark, 2, self.features)
-        self.skfa = sklearn.decomposition.ICA(2, max_iter=1)
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.data = assemble(cls.spark_df(), cls.features(), True)
 
-    def tearDown(self):
-        super().tearDown()
+        cls.model = GMM(cls.spark(), [2, 3])
+        cls.fit = cls.model.fit(cls.data)
+        cls.transform = cls.fit[2].transform(cls.data).toPandas()
 
-    def test_ica(self):
-        fit = self.fa.fit_transform(self.spark_df)
-        df = (split_vector(fit.data, FEATURES__))[["f_0", "f_1"]]
-        df = df.toPandas().values
-        skfit = self.skfa.fit_transform(self.X)
+    @classmethod
+    def tearDownClass(cls):
+        cls.log("GMM")
+        super().tearDownClass()
+
+    def test_fit_gmm_size(self):
+        assert len(self.fit.models) == 2
+
+    def test_fit_gmm_keys(self):
+        assert 2 in self.fit.models.keys()
+        assert 3 in self.fit.models.keys()
+
+    def test_fit_gmm_accessor(self):
+        assert isinstance(self.fit[2], GMMFit)
+
+    def test_fit_gmm_mixing_weights(self):
+        m2 = self.fit[2]
+        assert isinstance(m2.weights, list)
+
+    def test_fit_gmm_params_smaller(self):
+        m2, m3 = self.fit[2], self.fit[3]
+        assert m2.n_params < m3.n_params
+
+    def test_fit_gmm_loglik(self):
+        m2 = self.fit[2]
+        assert isinstance(m2.loglik, float)
+
+    def test_fit_gmm_values(self):
+        assert isinstance(self.fit[3].values, dict)
+
+    def test_fit_gmm_bic(self):
+        assert isinstance(self.fit[3].bic, float)
+
+    def test_fit_gmm_means(self):
+        means = self.fit[3].estimates.select("mean").toPandas().values
+        assert len(means) == 3
+
+    def test_fit_gmm_means_len(self):
+        means = self.fit[3].estimates.select("mean").toPandas().values
+        assert means[0][0].values.shape == (4,)
+
+    def test_fit_gmm_cov(self):
+        cov = self.fit[3].estimates.select("cov").toPandas().values
+        assert len(cov) == 3
+
+    def test_fit_gmm_cov(self):
+        cov = self.fit[3].estimates.select("cov").toPandas().values
+        assert cov[0][0].toArray().shape == (4, 4)
+
+    def test_transform_gmm_has_prediction(self):
+        assert PREDICTION__ in self.transform.columns
+
+    def test_transform_gmm_prediction_works(self):
+        vals = numpy.unique(self.transform[PREDICTION__].values)
+        assert len(vals) == 2
+
+    def test_transform_gmm_transform(self):
+        self.model.transform(self. data, self.fit)
+
+
+
+
+

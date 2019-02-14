@@ -59,6 +59,18 @@ class GMMFit(ClusteringFit):
                "\n"
 
     @property
+    def n_params(self):
+        return self.__n_params
+
+    @property
+    def weights(self):
+        return self.__mixing_weights
+
+    @property
+    def estimates(self):
+        return self.__estimates
+
+    @property
     def values(self):
         return {K_: self.k, LOGLIK_: self.__loglik, BIC_: self.__bic}
 
@@ -91,7 +103,7 @@ class GMMFit(ClusteringFit):
             ccm = outfile + "_means_{}.tsv".format(i)
             ccv = outfile + "_variances_{}.tsv".format(i)
             numpy.savetxt(ccm, means[i][0].values, delimiter="\t")
-            numpy.savetxt(ccv, varis[i][0].values, delimiter="\t")
+            numpy.savetxt(ccv, varis[i][0].toArray(), delimiter="\t")
 
     def _write_statistics(self, outfile):
         ll_file = outfile + "_statistics.tsv"
