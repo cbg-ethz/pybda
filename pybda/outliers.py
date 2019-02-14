@@ -1,4 +1,4 @@
-# Copyright (C) 2018 Simon Dirmeier
+# Copyright (C) 2018, 2019 Simon Dirmeier
 #
 # This file is part of pybda.
 #
@@ -18,6 +18,7 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
+
 import logging
 
 import click
@@ -27,9 +28,8 @@ from pyspark.sql.functions import udf, col
 from pyspark.sql.types import DoubleType
 
 from pybda.spark_model import SparkModel
-from pybda.stats.linalg import precision
 from pybda.util.cast_as import as_rdd_of_array
-from pybda.stats.stats import center, chisquare
+from pybda.stats.stats import center, chisquare, precision
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

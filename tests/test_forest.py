@@ -1,4 +1,4 @@
-# Copyright (C) 2018 Simon Dirmeier
+# Copyright (C) 2018, 2019 Simon Dirmeier
 #
 # This file is part of pybda.
 #
@@ -18,6 +18,7 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
+import pytest
 
 from pybda.forest import Forest
 from pybda.globals import PROBABILITY__, BINOMIAL_, GAUSSIAN_, PREDICTION__
@@ -33,9 +34,7 @@ class TestForest(TestRegressionAPI):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        data = assemble(cls.spark_df(),
-                        cls.features(),
-                        True)
+        data = assemble(cls.spark_df(), cls.features(), True)
 
         cls.model_gau = Forest(cls.spark(),
                                cls.response(),
@@ -46,8 +45,13 @@ class TestForest(TestRegressionAPI):
         cls.model_bin = Forest(cls.spark(),
                                cls.log_response(),
                                cls.features(), BINOMIAL_)
-        cls.fit_bin = TestForest.model_bin.fit(data)
+        cls.fit_bin = cls.model_bin.fit(data)
         cls.transform_bin = cls.fit_bin.transform(data)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.log("Forest")
+        super().tearDownClass()
 
     def test_fit_forest_gaussian_family(self):
         assert self.fit_gau.family == GAUSSIAN_
@@ -66,6 +70,25 @@ class TestForest(TestRegressionAPI):
 
     def test_fit_forest_gaussian_rmse(self):
         assert isinstance(self.fit_gau.rmse, float)
+
+    def test_fit_forest_gaussian_rmse(self):
+        assert isinstance(self.fit_gau.rmse, float)
+
+    def test_fit_forest_gaussian_precision_fails(self):
+        with pytest.raises(AttributeError):
+            self.fit_gau.precision
+
+    def test_fit_forest_gaussian_recall_fails(self):
+        with pytest.raises(AttributeError):
+            self.fit_gau.recall
+
+    def test_fit_forest_gaussian_f1_fails(self):
+        with pytest.raises(AttributeError):
+            self.fit_gau.f1
+
+    def test_fit_forest_gaussian_accuracy_fails(self):
+        with pytest.raises(AttributeError):
+            self.fit_gau.accuracy
 
     def test_fit_forest_binomial_family(self):
         assert self.fit_bin.family == BINOMIAL_
@@ -95,4 +118,17 @@ class TestForest(TestRegressionAPI):
     def test_transform_forest_binomial(self):
         df = split_vector(self.transform_bin.data, PROBABILITY__)
         df = df.toPandas()
+        assert "p_0" in df.columns.values
         assert "p_1" in df.columns.values
+
+    def test_fit_forest_binomial_rmse_fails(self):
+        with pytest.raises(AttributeError):
+            self.fit_bin.rmse
+
+    def test_fit_forest_binomial_mse_fails(self):
+        with pytest.raises(AttributeError):
+            self.fit_bin.mse
+
+    def test_fit_forest_binomial_r2_fails(self):
+        with pytest.raises(AttributeError):
+            self.fit_bin.r2

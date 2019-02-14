@@ -1,4 +1,4 @@
-# Copyright (C) 2018 Simon Dirmeier
+# Copyright (C) 2018, 2019 Simon Dirmeier
 #
 # This file is part of pybda.
 #
@@ -18,13 +18,15 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-import logging
-import pandas
 
+import logging
+
+import numpy
+import pandas
 import scipy as sp
 
 from pybda.fit.transformed_data import TransformedData
-from pybda.globals import GAUSSIAN_, BINOMIAL_
+from pybda.globals import GAUSSIAN_, BINOMIAL_, INTERCEPT__
 from pybda.plot.regression_plot import plot_curves
 
 logger = logging.getLogger(__name__)
@@ -73,7 +75,7 @@ class GLMFit:
                            "Possibly due to singular vcov.")
 
         return pandas.DataFrame({
-            "features": ["intecept"] + self.__features,
+            "features": [INTERCEPT__] + self.__features,
             "beta": beta,
             "p_values": ps,
             "t_values": ts,
@@ -129,6 +131,10 @@ class GLMFit:
     def response(self):
         return self.__response
 
+    @property
+    def features(self):
+        return numpy.squeeze(self.__table[["features"]].values)
+
     def transform(self, data):
         return TransformedData(self.__model.transform(data))
 
@@ -138,11 +144,11 @@ class GLMFit:
 
     @property
     def coefficients(self):
-        return self.__coefficients
+        return numpy.squeeze(self.__table[["beta"]].values)
 
     @property
     def standard_errors(self):
-        return self.__se
+        return numpy.squeeze(self.__table[["se"]].values)
 
     @property
     def df(self):
@@ -154,15 +160,11 @@ class GLMFit:
 
     @property
     def p_values(self):
-        return self.__pvalues
+        return numpy.squeeze(self.__table[["p_values"]].values)
 
     @property
     def t_values(self):
-        return self.__tvalues
-
-    @property
-    def residuals(self):
-        return self.__residuals
+        return numpy.squeeze(self.__table[["t_values"]].values)
 
     @property
     def r2(self):
@@ -171,3 +173,23 @@ class GLMFit:
     @property
     def rmse(self):
         return self.__rmse
+
+    @property
+    def accuracy(self):
+        return self.__accuracy
+
+    @property
+    def auc(self):
+        return self.__auc
+
+    @property
+    def roc(self):
+        return self.__roc
+
+    @property
+    def precision_recall(self):
+        return self.__pr
+
+    @property
+    def measures(self):
+        return self.__measures

@@ -1,4 +1,4 @@
-# Copyright (C) 2018 Simon Dirmeier
+# Copyright (C) 2018, 2019 Simon Dirmeier
 #
 # This file is part of pybda.
 #
@@ -18,6 +18,7 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
+
 import logging
 
 import click
@@ -32,12 +33,11 @@ logger.setLevel(logging.INFO)
 
 
 class GBM(Ensemble):
-    def __init__(self, spark, response, meta, features, family=GAUSSIAN_,
+    def __init__(self, spark, response, features, family=GAUSSIAN_,
                  max_iter=25, step_size=0.1, max_depth=10,
                  subsampling_rate=0.5):
         super().__init__(spark, family, response, features, max_depth,
                          subsampling_rate)
-        self.__meta = meta
         self.__max_iter = max_iter
         self.__step_size = step_size
 
@@ -89,7 +89,7 @@ def run(file, meta, features, response, family, outpath, predict):
         try:
             meta, features = read_column_info(meta, features)
             data = read_and_transmute(spark, file, features, response)
-            fl = GBM(spark, response, meta, features, family)
+            fl = GBM(spark, response, features, family)
             fit = fl.fit(data)
             fit.write_files(outpath)
             if pathlib.Path(predict).exists():

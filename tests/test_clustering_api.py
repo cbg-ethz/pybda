@@ -1,4 +1,4 @@
-# Copyright (C) 2018 Simon Dirmeier
+# Copyright (C) 2018, 2019 Simon Dirmeier
 #
 # This file is part of pybda.
 #
@@ -18,7 +18,7 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-import numpy
+
 import pandas
 from sklearn import datasets
 
@@ -27,29 +27,32 @@ from tests.test_api import TestAPI
 
 class TestClusteringAPI(TestAPI):
     """
-    Tests the factor analysis API
+    Setup for the clustering unit tests
     """
 
-    def setUp(self):
-        TestAPI.log("Clustering")
-        super().setUp()
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.log("Clustering")
         iris = datasets.load_iris()
-        self._X = iris.data[:, :4]
-        y = iris.target
-        self._features = ["sl", "sw", "pl", "pw"]
-        df = pandas.DataFrame(
-            data=numpy.column_stack((self.X, y)),
-            columns=self.features + ["species"])
-        self._spark_df = TestAPI.spark().createDataFrame(df)
+        cls._features = ["sl", "sw", "pl", "pw"]
+        cls._X = iris.data[:, :4]
+        df = pandas.DataFrame(cls._X, columns=cls.features())
+        cls._spark_df = TestAPI.spark().createDataFrame(df)
 
-    @property
-    def X(self):
-        return self._X
+    @classmethod
+    def tearDownClass(cls):
+        cls.log("lustering")
+        super().tearDownClass()
 
-    @property
-    def features(self):
-        return self._features
+    @classmethod
+    def X(cls):
+        return cls._X
 
-    @property
-    def spark_df(self):
-        return self._spark_df
+    @classmethod
+    def features(cls):
+        return cls._features
+
+    @classmethod
+    def spark_df(cls):
+        return cls._spark_df

@@ -1,4 +1,4 @@
-# Copyright (C) 2018 Simon Dirmeier
+# Copyright (C) 2018, 2019 Simon Dirmeier
 #
 # This file is part of pybda.
 #
@@ -17,30 +17,73 @@
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
+import numpy
 
-import sklearn.decomposition
+from pybda.fit.kmeans_fit import KMeansFit
+from pybda.globals import PREDICTION__
+from pybda.kmeans import KMeans
+from pybda.spark.features import assemble
+from tests.test_clustering_api import TestClusteringAPI
 
-from pybda.globals import FEATURES__
-from pybda.ica import ICA
-from pybda.spark.features import split_vector
-from tests.test_dimred_api import TestDimredAPI
 
-
-class TestICA(TestDimredAPI):
+class TestKMeans(TestClusteringAPI):
     """
-    Tests the ICA API
+    Tests the KMeans API
     """
 
-    def setUp(self):
-        super().setUp()
-        self.fa = ICA(self.spark, 2, self.features)
-        self.skfa = sklearn.decomposition.ICA(2, max_iter=1)
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        data = assemble(cls.spark_df(), cls.features(), True)
 
-    def tearDown(self):
-        super().tearDown()
+        cls.model = KMeans(cls.spark(), [2, 3])
+        cls.fit = cls.model.fit(data)
+        cls.transform = cls.fit[2].transform(data).toPandas()
 
-    def test_ica(self):
-        fit = self.fa.fit_transform(self.spark_df)
-        df = (split_vector(fit.data, FEATURES__))[["f_0", "f_1"]]
-        df = df.toPandas().values
-        skfit = self.skfa.fit_transform(self.X)
+    @classmethod
+    def tearDownClass(cls):
+        cls.log("Kmeans")
+        super().tearDownClass()
+
+    def test_fit_kmeans_size(self):
+        assert len(self.fit.models) == 2
+
+    def test_fit_kmeans_keys(self):
+        assert 2 in self.fit.models.keys()
+        assert 3 in self.fit.models.keys()
+
+    def test_fit_kmeans_accessor(self):
+        assert isinstance(self.fit[2], KMeansFit)
+
+    def test_fit_kmeans_explained_variance(self):
+        m2 = self.fit[2]
+        assert isinstance(m2.explained_variance, float)
+
+    def test_fit_kmeans_total_variance(self):
+        m2 = self.fit[2]
+        assert isinstance(m2.total_variance, float)
+
+    def test_fit_kmeans_total_variance_same(self):
+        m2, m3 = self.fit[2], self.fit[3]
+        assert m2.total_variance == m3.total_variance
+
+    def test_fit_kmeans_within_cluster_variance(self):
+        m2 = self.fit[2]
+        assert isinstance(m2.within_cluster_variance, float)
+
+    def test_fit_kmeans_variance_smaller(self):
+        m2, m3 = self.fit[2], self.fit[3]
+        assert m2.explained_variance < m3.explained_variance
+
+    def test_fit_kmeans_values(self):
+        assert isinstance(self.fit[3].values, dict)
+
+    def test_fit_kmeans_bic(self):
+        assert isinstance(self.fit[3].bic, float)
+
+    def test_transform_kmeans_has_prediction(self):
+        assert PREDICTION__ in self.transform.columns
+
+    def test_transform_kmeans_prediction(self):
+        vals = numpy.unique(self.transform[PREDICTION__].values)
+        assert len(vals) == 2

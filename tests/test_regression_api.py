@@ -1,4 +1,4 @@
-# Copyright (C) 2018 Simon Dirmeier
+# Copyright (C) 2018, 2019 Simon Dirmeier
 #
 # This file is part of pybda.
 #
@@ -27,7 +27,7 @@ from tests.test_api import TestAPI
 
 class TestRegressionAPI(TestAPI):
     """
-    Tests the factor analysis API
+    Setup for the regression unit tests
     """
 
     @classmethod
@@ -49,6 +49,11 @@ class TestRegressionAPI(TestAPI):
                   [cls.response(),
                    cls.log_response()])
         cls._spark_df = TestAPI.spark().createDataFrame(df)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.log("Regression")
+        super().tearDownClass()
 
     @classmethod
     def X(cls):

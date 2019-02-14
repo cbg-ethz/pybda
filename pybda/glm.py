@@ -1,4 +1,4 @@
-# Copyright (C) 2018 Simon Dirmeier
+# Copyright (C) 2018, 2019 Simon Dirmeier
 #
 # This file is part of pybda.
 #
@@ -33,11 +33,10 @@ logger.setLevel(logging.INFO)
 
 
 class GLM(Regression):
-    def __init__(self, spark, response, meta, features, family=GAUSSIAN_,
+    def __init__(self, spark, response, features, family=GAUSSIAN_,
                  max_iter=20):
         super().__init__(spark, family, response, features)
         self.__max_iter = max_iter
-        self.__meta = meta
 
     def fit(self, data):
         logger.info("Fitting GLM with family='{}'".format(self.family))
@@ -90,7 +89,7 @@ def run(file, meta, features, response, family, outpath, predict):
         try:
             meta, features = read_column_info(meta, features)
             data = read_and_transmute(spark, file, features, response)
-            fl = GLM(spark, response, meta, features, family)
+            fl = GLM(spark, response, features, family)
             fit = fl.fit(data)
             fit.write_files(outpath)
             if pathlib.Path(predict).exists():
