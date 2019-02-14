@@ -30,17 +30,3 @@ class TestICA(TestDimredAPI):
     """
     Tests the ICA API
     """
-
-    def setUp(self):
-        super().setUp()
-        self.fa = ICA(self.spark, 2, self.features)
-        self.skfa = sklearn.decomposition.ICA(2, max_iter=1)
-
-    def tearDown(self):
-        super().tearDown()
-
-    def test_ica(self):
-        fit = self.fa.fit_transform(self.spark_df)
-        df = (split_vector(fit.data, FEATURES__))[["f_0", "f_1"]]
-        df = df.toPandas().values
-        skfit = self.skfa.fit_transform(self.X)

@@ -30,17 +30,5 @@ from tests.test_dimred_api import TestDimredAPI
 
 class TestFA(TestDimredAPI):
     """
-    Tests the facor analysis API
+    Tests the factor analysis API
     """
-
-    def setUp(self):
-        super().setUp()
-        TestAPI.log("FA")
-        self.fa = FactorAnalysis(TestAPI.spark(), 2, self.features)
-        self.skfa = sklearn.decomposition.FactorAnalysis(2, max_iter=25)
-
-    def test_fa(self):
-        fit = self.fa.fit_transform(self.spark_df)
-        df = (split_vector(fit.data, FEATURES__))[["f_0", "f_1"]]
-        df = df.toPandas().values
-        skfit = self.skfa.fit_transform(self.X)
