@@ -1,4 +1,4 @@
-# Copyright (C) 2018 Simon Dirmeier
+# Copyright (C) 2018, 2019 Simon Dirmeier
 #
 # This file is part of pybda.
 #
@@ -17,6 +17,7 @@
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
+
 
 import logging
 from abc import ABC, abstractmethod
@@ -87,7 +88,8 @@ class FitProfile(ABC):
     def _plot_profile(self, file_name, profile):
         pass
 
-    def _plot_cluster_sizes(self, file_name, data, labels):
+    @staticmethod
+    def _plot_cluster_sizes(file_name, data, labels):
         logger.info("Plotting cluster sizes to: {}".format(file_name))
         _, ax = plt.subplots(figsize=(5, 3))
         _, axes = joypy.joyplot(

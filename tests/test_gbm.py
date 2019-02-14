@@ -1,4 +1,4 @@
-# Copyright (C) 2018 Simon Dirmeier
+# Copyright (C) 2018, 2019 Simon Dirmeier
 #
 # This file is part of pybda.
 #
@@ -18,29 +18,115 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-import sklearn.decomposition
+import pytest
 
-from pybda.globals import FEATURES__
-from pybda.ica import ICA
-from pybda.spark.features import split_vector
-from tests.test_dimred_api import TestDimredAPI
+from pybda.gbm import GBM
+from pybda.globals import PROBABILITY__, BINOMIAL_, GAUSSIAN_, PREDICTION__
+from pybda.spark.features import split_vector, assemble
+from tests.test_regression_api import TestRegressionAPI
 
 
-class TestICA(TestDimredAPI):
+class TestGBM(TestRegressionAPI):
     """
-    Tests the ICA API
+    Tests the GBM API
     """
 
-    def setUp(self):
-        super().setUp()
-        self.fa = ICA(self.spark, 2, self.features)
-        self.skfa = sklearn.decomposition.ICA(2, max_iter=1)
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        data = assemble(cls.spark_df(), cls.features(), True)
 
-    def tearDown(self):
-        super().tearDown()
+        cls.model_gau = GBM(cls.spark(), cls.response(), cls.features())
+        cls.fit_gau = cls.model_gau.fit(data)
+        cls.transform_gau = cls.fit_gau.transform(data)
 
-    def test_ica(self):
-        fit = self.fa.fit_transform(self.spark_df)
-        df = (split_vector(fit.data, FEATURES__))[["f_0", "f_1"]]
-        df = df.toPandas().values
-        skfit = self.skfa.fit_transform(self.X)
+        cls.model_bin = GBM(cls.spark(),
+                            cls.log_response(),
+                            cls.features(), BINOMIAL_)
+        cls.fit_bin = cls.model_bin.fit(data)
+        cls.transform_bin = cls.fit_bin.transform(data)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.log("GBM")
+        super().tearDownClass()
+
+    def test_fit_gbm_gaussian_family(self):
+        assert self.fit_gau.family == GAUSSIAN_
+
+    def test_fit_gbm_gaussian_response(self):
+        assert self.fit_gau.response == self.response()
+
+    def test_fit_gbm_gaussian_features(self):
+        assert self.fit_gau.features == self.features()
+
+    def test_fit_gbm_gaussian_mse(self):
+        assert isinstance(self.fit_gau.mse, float)
+
+    def test_fit_gbm_gaussian_r2(self):
+        assert isinstance(self.fit_gau.r2, float)
+
+    def test_fit_gbm_gaussian_rmse(self):
+        assert isinstance(self.fit_gau.rmse, float)
+
+    def test_fit_gbm_gaussian_rmse(self):
+        assert isinstance(self.fit_gau.rmse, float)
+
+    def test_fit_gbm_gaussian_precision_fails(self):
+        with pytest.raises(AttributeError):
+            self.fit_gau.precision
+
+    def test_fit_gbm_gaussian_recall_fails(self):
+        with pytest.raises(AttributeError):
+            self.fit_gau.recall
+
+    def test_fit_gbm_gaussian_f1_fails(self):
+        with pytest.raises(AttributeError):
+            self.fit_gau.f1
+
+    def test_fit_gbm_gaussian_accuracy_fails(self):
+        with pytest.raises(AttributeError):
+            self.fit_gau.accuracy
+
+    def test_fit_gbm_binomial_family(self):
+        assert self.fit_bin.family == BINOMIAL_
+
+    def test_fit_gbm_binomial_respose(self):
+        assert self.fit_bin.response == self.log_response()
+
+    def test_fit_gbm_binomial_features(self):
+        assert self.fit_bin.features == self.features()
+
+    def test_fit_gbm_binomial_precision(self):
+        assert isinstance(self.fit_bin.precision, float)
+
+    def test_fit_gbm_binomial_recall(self):
+        assert isinstance(self.fit_bin.recall, float)
+
+    def test_fit_gbm_binomial_f1(self):
+        assert isinstance(self.fit_bin.f1, float)
+
+    def test_fit_gbm_binomial_accuracy(self):
+        assert isinstance(self.fit_bin.accuracy, float)
+
+    def test_transform_gbm_gaussian(self):
+        df = self.transform_gau.data.toPandas()
+        assert PREDICTION__ in df.columns.values
+
+    def test_transform_gbm_binomial(self):
+        df = split_vector(self.transform_bin.data, PROBABILITY__)
+        df = df.toPandas()
+        assert "p_0" in df.columns.values
+        assert "p_1" in df.columns.values
+
+    def test_fit_gbm_binomial_rmse_fails(self):
+        with pytest.raises(AttributeError):
+            self.fit_bin.rmse
+
+    def test_fit_gbm_binomial_mse_fails(self):
+        with pytest.raises(AttributeError):
+            self.fit_bin.mse
+
+    def test_fit_gbm_binomial_r2_fails(self):
+        with pytest.raises(AttributeError):
+            self.fit_bin.r2

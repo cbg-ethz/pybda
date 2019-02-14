@@ -1,4 +1,4 @@
-# Copyright (C) 2018 Simon Dirmeier
+# Copyright (C) 2018, 2019 Simon Dirmeier
 #
 # This file is part of pybda.
 #
@@ -17,6 +17,7 @@
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
+
 
 import logging
 import pathlib
@@ -62,7 +63,7 @@ class Clustering(SparkModel):
     def threshold(self):
         return self.__threshold
 
-    def fit_transform(self, data, outpath):
+    def fit_transform(self, data, outpath=None):
         models = self.fit(data, outpath)
         self.transform(data, models, outpath)
 
@@ -75,7 +76,8 @@ class Clustering(SparkModel):
         if fit_folder is None and models is None:
             raise ValueError("Provide either 'models' or a 'models_folder'")
 
-    def tot_var(self, data, outpath=None):
+    @staticmethod
+    def tot_var(data, outpath=None):
         if outpath:
             sse_file = as_ssefile(outpath)
         else:
@@ -95,6 +97,8 @@ class Clustering(SparkModel):
     def _fit(self, models, outpath, data, n, p, stat):
         for k in self.clusters:
             models[k] = self._fit_one(k, data, n, p, stat)
-            models[k].write_files(outpath)
-        models.write_files(outpath)
+            if outpath:
+                models[k].write_files(outpath)
+        if outpath:
+            models.write_files(outpath)
         return models

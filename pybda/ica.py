@@ -1,4 +1,4 @@
-# Copyright (C) 2018 Simon Dirmeier
+# Copyright (C) 2018, 2019 Simon Dirmeier
 #
 # This file is part of pybda.
 #
@@ -17,6 +17,7 @@
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
+
 
 import logging
 
@@ -82,7 +83,8 @@ class ICA(DimensionReduction):
 
         return W, K
 
-    def exp(self, X):
+    @staticmethod
+    def exp(X):
         g = X.rows.map(lambda x: x * scipy.exp(-(scipy.power(x, 2.0)) / 2.0))
         g_ = X.rows.map(lambda x: (1 - scipy.power(x, 2.0)) * scipy.exp(-(
             scipy.power(x, 2.0)) / 2.0))

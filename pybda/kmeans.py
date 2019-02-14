@@ -1,4 +1,4 @@
-# Copyright (C) 2018 Simon Dirmeier
+# Copyright (C) 2018, 2019 Simon Dirmeier
 #
 # This file is part of pybda.
 #
@@ -17,6 +17,7 @@
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
+
 
 import logging
 
@@ -40,14 +41,14 @@ class KMeans(Clustering):
     def __init__(self, spark, clusters, threshold=.01, max_iter=25):
         super().__init__(spark, clusters, threshold, max_iter, KMEANS__)
 
-    def fit(self, data, outpath):
+    def fit(self, data, outpath=None):
         n, p = dimension(data)
         data = data.select(FEATURES__)
         tot_var = self.tot_var(split_vector(data, FEATURES__), outpath)
-        models = KMeansFitProfile()
-        return self._fit(models, outpath, data, n, p, tot_var)
+        return self._fit(KMeansFitProfile(), outpath, data, n, p, tot_var)
 
-    def _fit_one(self, k, data, n, p, tot_var):
+    @staticmethod
+    def _fit_one(k, data, n, p, tot_var):
         logger.info("Clustering with K: {}".format(k))
         km = pyspark.ml.clustering.KMeans(k=k, seed=23)
         fit = km.fit(data)
@@ -56,10 +57,11 @@ class KMeans(Clustering):
                           total_variance=tot_var, n=n, p=p, path=None)
         return model
 
-    def transform(self, data, models, outpath):
+    def transform(self, data, models, outpath=None):
         for k, fit in models:
             m = KMeansTransformed(fit.transform(data))
-            m.write_files(outpath, k)
+            if outpath:
+                m.write_files(outpath, k)
 
 
 @click.command()

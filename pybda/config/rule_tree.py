@@ -1,4 +1,4 @@
-# Copyright (C) 2018 Simon Dirmeier
+# Copyright (C) 2018, 2019 Simon Dirmeier
 #
 # This file is part of pybda.
 #
@@ -42,10 +42,10 @@ class RuleTree:
         return tree
 
     @staticmethod
-    def __tree(node, str):
-        str += "\t" * node.level + " -> " + node.method + \
-               " (" + node.infile + ", " + node.outfile + ")\n"
-        return str
+    def __tree(node, stri):
+        stri += "\t" * node.level + " -> " + node.method + \
+                " (" + node.infile + ", " + node.outfile + ")\n"
+        return stri
 
     @property
     def nodes(self):

@@ -44,7 +44,7 @@ setup(
       'matplotlib>=2.2.3',
       'numpy>=1.15.0',
       'pandas>=0.23.3',
-      'pyspark>=2.4.0',
+      'pyspark==2.4.0',
       'scipy>=1.0.0',
       'seaborn>=0.9.0',
       'snakemake>=5.2.2',

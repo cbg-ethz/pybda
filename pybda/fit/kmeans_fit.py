@@ -1,4 +1,4 @@
-# Copyright (C) 2018 Simon Dirmeier
+# Copyright (C) 2018, 2019 Simon Dirmeier
 #
 # This file is part of pybda.
 #
@@ -17,6 +17,7 @@
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
+
 
 import logging
 import os
@@ -68,6 +69,10 @@ class KMeansFit(ClusteringFit):
             TOTAL_VAR_: self.__total_variance,
             BIC_: self.__bic
         }
+
+    @property
+    def bic(self):
+        return self.__bic
 
     @property
     def explained_variance(self):

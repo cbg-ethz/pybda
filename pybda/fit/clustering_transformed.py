@@ -1,4 +1,4 @@
-# Copyright (C) 2018 Simon Dirmeier
+# Copyright (C) 2018, 2019 Simon Dirmeier
 #
 # This file is part of pybda.
 #
@@ -17,6 +17,7 @@
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
+
 
 import glob
 import logging
@@ -46,7 +47,8 @@ class ClusteringTransformed(TransformedData):
     def write_clusters(self, outpath, suff="", sort_me=True):
         pass
 
-    def _write_clusters(self, data, outpath, sort_me):
+    @staticmethod
+    def _write_clusters(data, outpath, sort_me):
         if sort_me:
             data.sort(col('prediction'))
         data.write.csv(path=outpath, sep='\t', mode='overwrite', header=True)

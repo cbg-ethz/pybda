@@ -1,4 +1,4 @@
-# Copyright (C) 2018 Simon Dirmeier
+# Copyright (C) 2018, 2019 Simon Dirmeier
 #
 # This file is part of pybda.
 #
@@ -17,6 +17,7 @@
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
+
 
 import collections
 
@@ -79,6 +80,7 @@ RESPONSIBILITIES__ = "responsibilities"
 RAW_PREDICTION__ = "rawPrediction"
 PROBABILITY__ = "probability"
 PREDICTION__ = "prediction"
+INTERCEPT__ = "intercept"
 
 REGRESSION__ = "regression"
 REGRESSION_INFILE__ = REGRESSION__ + "_" + INFILE__
