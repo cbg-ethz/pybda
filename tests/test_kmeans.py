@@ -90,4 +90,4 @@ class TestKMeans(TestClusteringAPI):
         assert len(vals) == 2
 
     def test_transform_kmeans_transform(self):
-        self.model.transform(self. data, self.fit)
+        self.model.transform(self.data, self.fit)

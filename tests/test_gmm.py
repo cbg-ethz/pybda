@@ -80,7 +80,7 @@ class TestGMM(TestClusteringAPI):
 
     def test_fit_gmm_means_len(self):
         means = self.fit[3].estimates.select("mean").toPandas().values
-        assert means[0][0].values.shape == (4,)
+        assert means[0][0].values.shape == (4, )
 
     def test_fit_gmm_cov(self):
         cov = self.fit[3].estimates.select("cov").toPandas().values
@@ -98,9 +98,4 @@ class TestGMM(TestClusteringAPI):
         assert len(vals) == 2
 
     def test_transform_gmm_transform(self):
-        self.model.transform(self. data, self.fit)
-
-
-
-
-
+        self.model.transform(self.data, self.fit)
