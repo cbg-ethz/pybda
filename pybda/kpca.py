@@ -52,7 +52,7 @@ class KPCA(PCA):
         X = self._preprocess_data(data)
         X, w, b = fourier(
           X, self.n_fourier_features, self.__seed, self.gamma)
-        loadings, sds = self._compute_pcs(X)
+        loadings, sds = PCA._compute_pcs(X)
         return X, loadings, sds, w, b
 
     def fit_transform(self, data: DataFrame):
