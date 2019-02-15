@@ -57,9 +57,9 @@ class PCA(DimensionReduction):
 
     @staticmethod
     def _compute_pcs(X):
-        sds, loadings, _ = svd(X, X.numCols())
+        sds, loadings, _ = svd(X)
         sds = sds / scipy.sqrt(max(1, X.numRows() - 1))
-        return loadings.T, sds
+        return loadings, sds
 
     def transform(self, data, X, loadings):
         logger.info("Transforming data")
@@ -67,6 +67,7 @@ class PCA(DimensionReduction):
         loadings = DenseMatrix(X.numCols(), self.n_components,
                                loadings.flatten())
         X = X.multiply(loadings)
+        print(loadings.toArray())
         data = join(data, X, self.spark)
         del X
         return data

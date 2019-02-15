@@ -46,7 +46,7 @@ class TestDimredAPI(TestAPI):
         df = pandas.DataFrame(
             data=numpy.column_stack((cls._X, cls._y[:, numpy.newaxis])),
             columns=cls.features() + [cls.response()])
-        cls._spark_df = TestAPI.spark().createDataFrame(df)
+        cls._spark_df = cls.spark().createDataFrame(df)
 
     @classmethod
     def tearDownClass(cls):

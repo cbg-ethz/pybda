@@ -17,16 +17,15 @@
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
-import pandas
+
 
 import numpy
+import pandas
 import sklearn.kernel_approximation
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import scale
 
 from pybda.kpca import KPCA
-from pybda.spark.features import split_vector
-from pybda.stats.stats import fourier
 from tests.test_dimred_api import TestDimredAPI
 
 
@@ -45,7 +44,6 @@ class TestKPCA(TestDimredAPI):
         df = pandas.DataFrame(data=cls.X_lo, columns=cls.features())
         cls._spark_lo = TestDimredAPI.spark().createDataFrame(df)
 
-
         cls.sbf_feature = sklearn.kernel_approximation.RBFSampler\
             (random_state=23, n_components=5)
         cls._X_transformed = cls.sbf_feature.fit_transform(cls.X_lo)
@@ -61,20 +59,6 @@ class TestKPCA(TestDimredAPI):
     def tearDownClass(cls):
         cls.log("KPCA")
         super().tearDownClass()
-
-    def test_fourier_w(self):
-        assert numpy.allclose(
-          numpy.absolute(self.w.toArray()),
-          numpy.absolute(self.sbf_feature.random_weights_),
-          atol=1e-01,
-        )
-
-    def test_fourier_offset(self):
-        assert numpy.allclose(
-          numpy.absolute(self.b),
-          numpy.absolute(self.sbf_feature.random_offset_),
-          atol=1e-01,
-        )
 
     def test_loadings(self):
         print(numpy.absolute(self._X_transformed))

@@ -132,7 +132,10 @@ def scale(data: pyspark.rdd.RDD, means=None, variance=None):
     logger.info("Scaling data")
     if means is None or variance is None:
         means, variance = column_statistics(data)
-    data = data.map(lambda x: (x - means) / numpy.sqrt(variance))
+        n = data.count()
+        variance = variance * (n - 1) / n
+    sd = numpy.sqrt(variance)
+    data = data.map(lambda x: (x - means) / sd)
     return data
 
 

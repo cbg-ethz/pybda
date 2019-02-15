@@ -38,7 +38,7 @@ class TestAPI(unittest.TestCase):
     def setUpClass(cls):
         cls.log("API")
         unittest.TestCase.setUp(cls)
-        cls._spark = pyspark.sql.SparkSession.builder \
+        TestAPI._spark = pyspark.sql.SparkSession.builder \
             .master("local") \
             .appName("unittest") \
             .config("spark.driver.memory", "3g") \
@@ -48,8 +48,8 @@ class TestAPI(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.log("API")
-        cls._spark.stop()
+        TestAPI._spark.stop()
 
     @classmethod
     def spark(cls):
-        return cls._spark
+        return TestAPI._spark
