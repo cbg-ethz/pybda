@@ -15,11 +15,13 @@ test_deps = [
     'findspark',
     'flake8',
     'nose',
-    'sphinx',
     'pylint',
     'pytest>=3.6.2',
     'pytest-cov',
     'pytest-pep8',
+    'sphinx',
+    'sphinx_fontawesome',
+    'sphinxcontrib-fulltoc',
     'scikit-learn',
     'yapf'
 ]
@@ -52,7 +54,9 @@ setup(
       'uuid>=1.3.0'
   ],
   test_requires=test_deps,
-  extras_require={'test': test_deps},
+  extras_require={
+      'test': test_deps
+  },
   classifiers=[
       'Development Status :: 3 - Alpha',
       'Environment :: Console',
