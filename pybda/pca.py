@@ -22,6 +22,7 @@
 import logging
 
 import click
+import pyspark
 import scipy
 from pyspark.mllib.linalg import DenseMatrix
 from pyspark.mllib.linalg.distributed import RowMatrix
@@ -48,11 +49,14 @@ class PCA(DimensionReduction):
     def fit(self, data):
         logger.info("Fitting PCA")
         X = self._preprocess_data(data)
-        loadings, sds = PCA._compute_pcs(X)
+        loadings, sds = self._compute_pcs(X)
         return X, loadings, sds
 
     def _preprocess_data(self, data):
-        X = self._feature_matrix(data)
+        if isinstance(data, pyspark.sql.DataFrame):
+            X = self._feature_matrix(data)
+        else:
+            X = data.rows
         return RowMatrix(scale(X))
 
     @staticmethod
@@ -63,11 +67,9 @@ class PCA(DimensionReduction):
 
     def transform(self, data, X, loadings):
         logger.info("Transforming data")
-        loadings = loadings[:self.n_components]
         loadings = DenseMatrix(X.numCols(), self.n_components,
                                loadings.flatten())
         X = X.multiply(loadings)
-        print(loadings.toArray())
         data = join(data, X, self.spark)
         del X
         return data
