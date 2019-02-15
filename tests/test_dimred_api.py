@@ -21,6 +21,7 @@
 import numpy
 import pandas
 from sklearn import datasets
+from sklearn.preprocessing import scale
 
 from tests.test_api import TestAPI
 
@@ -36,8 +37,11 @@ class TestDimredAPI(TestAPI):
         TestAPI.log("DimRed")
 
         iris = datasets.load_iris()
-        cls._X = iris.data[:, :4] - numpy.mean(iris.data[:, :4], axis=0)
+
+        cls._X = iris.data[:, :4]
+        cls._X = scale(cls._X)
         cls._y = iris.target
+
         cls._features = ["sl", "sw", "pl", "pw"]
         df = pandas.DataFrame(
             data=numpy.column_stack((cls._X, cls._y[:, numpy.newaxis])),

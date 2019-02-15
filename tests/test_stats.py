@@ -17,49 +17,50 @@
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
-import pandas
 
 import numpy
+import pandas
 import sklearn.kernel_approximation
+from pyspark.mllib.linalg.distributed import RowMatrix
+from sklearn import datasets
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import scale
 
 from pybda.kpca import KPCA
-from pybda.spark.features import split_vector
 from pybda.stats.stats import fourier
+from pybda.util.cast_as import as_rdd_of_array
+from tests.test_api import TestAPI
 from tests.test_dimred_api import TestDimredAPI
 
 
-class TestKPCA(TestDimredAPI):
+class TestStats(TestAPI):
     """
-    Tests the KPCA API
+    Tests the Stats API
     """
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.log("KPCA")
+        cls.log("Stats")
 
-        cls.X_lo = cls.X()[:10,:]
-        cls.X_lo = scale(cls.X_lo)
-        df = pandas.DataFrame(data=cls.X_lo, columns=cls.features())
-        cls._spark_lo = TestDimredAPI.spark().createDataFrame(df)
+        iris = datasets.load_iris()
+        cls._X = iris.data[:10, :4]
+        cls._X = scale(cls._X)
+        cls._features = ["sl", "sw", "pl", "pw"]
 
+        df = pandas.DataFrame(data=cls._X, columns=cls._features)
+        cls._spark_lo = cls.spark().createDataFrame(df)
 
-        cls.sbf_feature = sklearn.kernel_approximation.RBFSampler\
+        cls.sbf_feature = sklearn.kernel_approximation.RBFSampler \
             (random_state=23, n_components=5)
-        cls._X_transformed = cls.sbf_feature.fit_transform(cls.X_lo)
-        cls.sk_pca = PCA(n_components=2)
-        cls.sk_pca_trans = cls.sk_pca.fit_transform(cls._X_transformed)
 
-        cls.kpca = KPCA(cls.spark(), 2, cls.features(), 5, 1.)
-        cls.Xf, cls.evals, cls.sds, cls.w, cls.b = cls.kpca.fit(cls._spark_lo)
-        cls.trans = cls.kpca.transform(cls._spark_lo, cls.Xf, cls.evals)
-        cls.fit_tran = cls.kpca.fit_transform(cls._spark_lo)
+        cls._sbf_X_transformed = cls.sbf_feature.fit_transform(cls._X)
+        cls.Xf, cls.w, cls.b = fourier(
+            RowMatrix(as_rdd_of_array(cls._spark_lo)), 5, 23, 1)
 
     @classmethod
     def tearDownClass(cls):
-        cls.log("KPCA")
+        cls.log("Stats")
         super().tearDownClass()
 
     def test_fourier_w(self):
@@ -77,6 +78,8 @@ class TestKPCA(TestDimredAPI):
         )
 
     def test_loadings(self):
-        print(numpy.absolute(self._X_transformed))
-        print("--------------------")
-        print(numpy.absolute(self.Xf.rows.collect()))
+        assert numpy.allclose(
+          numpy.absolute(self.Xf.rows.collect()),
+          numpy.absolute(self._sbf_X_transformed),
+          atol=1e-01,
+        )

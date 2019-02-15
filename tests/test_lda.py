@@ -17,14 +17,12 @@
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
+
+
 import numpy
-
-import sklearn.decomposition
-
-from pybda.globals import FEATURES__
-from pybda.lda import LDA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-from pybda.spark.features import split_vector
+
+from pybda.lda import LDA
 from tests.test_dimred_api import TestDimredAPI
 
 

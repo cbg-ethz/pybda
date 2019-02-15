@@ -55,13 +55,14 @@ class LDA(DimensionReduction):
         targets = distinct(data, self.__response)
         SW = within_group_scatter(data, self.features, self.response, targets)
         SB = covariance_matrix(self._row_matrix(data)) * (data.count() - 1) - SW
-        eval, evec = self._compute_eigens(SW, SB)
-        return evec, eval
+        evals, evec = self._compute_eigens(SW, SB)
+        return evec, evals
 
     def _row_matrix(self, data):
         return RowMatrix(self._feature_matrix(data))
 
-    def _compute_eigens(self, SW, SB):
+    @staticmethod
+    def _compute_eigens(SW, SB):
         logger.info("Computing eigen values")
         evals, evec = scipy.linalg.eig(scipy.linalg.inv(SW).dot(SB))
         evals = scipy.real(evals)
