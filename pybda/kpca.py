@@ -34,7 +34,7 @@ logger.setLevel(logging.INFO)
 
 class KPCA(PCA):
     def __init__(self, spark, n_components, features, n_fourier_features=200,
-                 gamma=1):
+                 gamma=1.):
         super().__init__(spark, n_components, features)
         self.__n_fourier_features = n_fourier_features
         self.__gamma = gamma
@@ -50,13 +50,14 @@ class KPCA(PCA):
 
     def fit(self, data):
         X = self._preprocess_data(data)
-        X = fourier(X, self.n_fourier_features, self.__seed, self.gamma)
+        X, w, b = fourier(
+          X, self.n_fourier_features, self.__seed, self.gamma)
         loadings, sds = PCA._compute_pcs(X)
-        return X, loadings, sds
+        return X, loadings, sds, w, b
 
     def fit_transform(self, data: DataFrame):
         logger.info("Running kernel principal component analysis ...")
-        X, loadings, sds = self.fit(data)
+        X, loadings, sds, _, _ = self.fit(data)
         data = self.transform(data, X, loadings)
         return KPCAFit(data, self.n_components, loadings, sds, self.features,
                        self.n_fourier_features, self.gamma)

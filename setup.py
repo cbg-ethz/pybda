@@ -11,19 +11,21 @@ def readme():
 
 
 test_deps = [
+    'black',
     'coverage',
     'findspark',
     'flake8',
-    'nose',
     'pylint',
     'pytest>=3.6.2',
     'pytest-cov',
     'pytest-pep8',
+    'scikit-learn'
+]
+
+doc_deps = [
     'sphinx',
     'sphinx_fontawesome',
-    'sphinxcontrib-fulltoc',
-    'scikit-learn',
-    'yapf'
+    'sphinxcontrib-fulltoc'
 ]
 
 setup(
@@ -55,7 +57,9 @@ setup(
   ],
   test_requires=test_deps,
   extras_require={
-      'test': test_deps
+      'test': test_deps,
+      'doc': doc_deps,
+      'dev': test_deps + doc_deps
   },
   classifiers=[
       'Development Status :: 3 - Alpha',

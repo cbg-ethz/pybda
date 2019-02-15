@@ -193,13 +193,12 @@ def fourier(X: RowMatrix, n_features, seed=23, gamma=1):
 
     random_state = numpy.random.RandomState(seed)
     w = numpy.sqrt(2 * gamma) * random_state.normal(size=(p, n_features))
-    w = DenseMatrix(p, n_features, w.flatten())
+    w = DenseMatrix(p, n_features, w.flatten(), isTransposed=True)
     b = random_state.uniform(0, 2 * numpy.pi, size=n_features)
-
     Y = X.multiply(w)
     Y = Y.rows.map(lambda x: numpy.sqrt(2.0 / n_features) * numpy.cos(x + b))
 
-    return RowMatrix(Y)
+    return RowMatrix(Y), w, b
 
 
 def normalized_cumsum(vec):
