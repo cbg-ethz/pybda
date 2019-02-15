@@ -67,7 +67,7 @@ class FactorAnalysis(DimensionReduction):
         logliks = []
 
         logger.info("Computing factor analysis")
-        for i in range(self.max_iter):
+        for _ in range(self.max_iter):
             sqrt_psi = numpy.sqrt(psi) + self.threshold
             s, V, unexp_var = svd(self._tilde(X, sqrt_psi, nsqrt), n_factors)
             s = s**2

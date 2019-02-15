@@ -17,17 +17,55 @@
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
-
-import unittest
+import numpy
 
 import sklearn.decomposition
 
 from pybda.globals import FEATURES__
 from pybda.lda import LDA
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from pybda.spark.features import split_vector
+from tests.test_dimred_api import TestDimredAPI
 
 
-class TestLDA(unittest.TestCase):
+class TestLDA(TestDimredAPI):
     """
     Tests the LDA API
     """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.log("LDA")
+        cls.sk_lda = LinearDiscriminantAnalysis(n_components=2, solver="eigen")
+        cls.sk_lda_trans = cls.sk_lda.fit(cls.X(), cls.y()).transform(cls.X())
+
+        cls.lda = LDA(cls.spark(), 2, cls.features(), cls.response())
+        cls.eval, cls.evec = cls.lda.fit(cls.spark_df())
+        cls.trans = cls.lda.transform(cls.spark_df(), cls.sk_lda.scalings_)
+        cls.fit_tran = cls.lda.fit_transform(cls.spark_df())
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.log("LDA")
+        super().tearDownClass()
+
+    def test_loadings(self):
+        assert numpy.allclose(
+          numpy.absolute(self.sk_lda.scalings_[:,:2]),
+          numpy.absolute(self.eval[:,:2]),
+          atol=1e-01)
+
+    def test_response(self):
+        assert self.fit_tran.response == self.response()
+
+    def test_discrimants(self):
+        assert self.fit_tran.n_discriminants == 2
+
+    def test_projection(self):
+        assert isinstance(self.fit_tran.projection, numpy.ndarray)
+
+    def test_correct_loadings_were_chosen(self):
+        arr = self.fit_tran.variances
+        assert numpy.all(arr[:-1] >= arr[1:])
+

@@ -184,7 +184,7 @@ def split_vector(data, col_name):
         data.withColumn(initial, as_array(col(col_name)))
             .select(cols + [col(initial)[i] for i in range(len_vec)]))
 
-    for i, x in enumerate(data.columns):
+    for _, x in enumerate(data.columns):
         if x.startswith(initial + "["):
             data = data.withColumnRenamed(
               x, x.replace("[", "_").replace("]", ""))

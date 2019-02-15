@@ -63,6 +63,10 @@ class Clustering(SparkModel):
     def threshold(self):
         return self.__threshold
 
+    @abstractmethod
+    def transform(self, data, outpath):
+        pass
+
     def fit_transform(self, data, outpath=None):
         models = self.fit(data, outpath)
         self.transform(data, models, outpath)
