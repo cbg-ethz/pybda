@@ -96,7 +96,7 @@ def explained_variance(data):
     """
 
     if len(data.shape) == 2:
-        n, p = data.shape
+        _, p = data.shape
         # TODO: this might be a bug or rather how did i come up with this
         var = numpy.apply_along_axis(lambda x: sum(x ** 2) / p, 0, data)
     else:

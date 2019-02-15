@@ -34,13 +34,14 @@ class TestDimredAPI(TestAPI):
     def setUpClass(cls):
         super().setUpClass()
         TestAPI.log("DimRed")
+
         iris = datasets.load_iris()
-        cls._X = iris.data[:, :4]
-        y = iris.target
+        cls._X = iris.data[:, :4] - numpy.mean(iris.data[:, :4], axis=0)
+        cls._y = iris.target
         cls._features = ["sl", "sw", "pl", "pw"]
         df = pandas.DataFrame(
-            data=numpy.column_stack((cls._X, y[:, numpy.newaxis])),
-            columns=cls.features() + ["species"])
+            data=numpy.column_stack((cls._X, cls._y[:, numpy.newaxis])),
+            columns=cls.features() + [cls.response()])
         cls._spark_df = TestAPI.spark().createDataFrame(df)
 
     @classmethod
@@ -53,8 +54,16 @@ class TestDimredAPI(TestAPI):
         return cls._X
 
     @classmethod
+    def y(cls):
+        return cls._y
+
+    @classmethod
     def features(cls):
         return cls._features
+
+    @classmethod
+    def response(cls):
+        return "species"
 
     @classmethod
     def spark_df(cls):

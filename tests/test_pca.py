@@ -32,6 +32,7 @@ class TestPCA(TestDimredAPI):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.log("PCA")
         cls.pca = PCA(cls.spark(), 2, cls.features())
         cls.X, cls.loadings, cls.sds = cls.pca.fit(cls.spark_df())
         cls.trans = cls.pca.transform(cls.spark_df(), cls.X, cls.loadings)

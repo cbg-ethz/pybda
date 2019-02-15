@@ -86,8 +86,8 @@ class ICA(DimensionReduction):
     @staticmethod
     def exp(X):
         g = X.rows.map(lambda x: x * scipy.exp(-(scipy.power(x, 2.0)) / 2.0))
-        g_ = X.rows.map(lambda x: (1 - scipy.power(x, 2.0)) * scipy.exp(-(
-            scipy.power(x, 2.0)) / 2.0))
+        g_ = X.rows.map(lambda x: (1 - scipy.power(x, 2.0)) *
+                                  scipy.exp(-(scipy.power(x, 2.0)) / 2.0))
         gm = column_mean(g_).mean()
         return RowMatrix(g), gm
 
