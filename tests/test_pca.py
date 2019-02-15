@@ -51,7 +51,8 @@ class TestPCA(TestDimredAPI):
         cls.X__, cls.loadings, cls.sds = cls.pca.fit(cls._spark_lo)
 
         cls.sk_pca_trans = cls.sk_pca.fit(cls.X_lo).transform(cls.X_lo)
-        cls.trans = cls.pca.transform(cls._spark_lo, cls.X__, cls.sk_pca.components_)
+        cls.trans = cls.pca.transform(cls._spark_lo, cls.X__,
+                                      cls.sk_pca.components_)
 
     @classmethod
     def tearDownClass(cls):
@@ -65,18 +66,20 @@ class TestPCA(TestDimredAPI):
         assert "f_2" not in df.columns
 
     def test_loadings(self):
-        print(self.sk_pca.components_)
         assert numpy.allclose(
-            numpy.absolute(self.loadings[:2]),
-            numpy.absolute(self.sk_pca.components_),
-            atol=1e-01,
+          numpy.absolute(self.loadings[:2]),
+          numpy.absolute(self.sk_pca.components_),
+          atol=1e-01
         )
 
     def test_scores(self):
         sk_ax1 = sorted(self.sk_pca_trans[:, 0])
         sk_ax2 = sorted(self.sk_pca_trans[:, 1])
-        m = split_vector(self.trans.select(FEATURES__), FEATURES__).toPandas().values
+        m = split_vector(self.trans.select(FEATURES__),
+                         FEATURES__).toPandas().values
         ax1 = sorted(m[:, 0])
         ax2 = sorted(m[:, 1])
-        assert numpy.allclose(numpy.absolute(ax1), numpy.absolute(sk_ax1), atol=1e-01)
-        assert numpy.allclose(numpy.absolute(ax2), numpy.absolute(sk_ax2), atol=1e-01)
+        assert numpy.allclose(numpy.absolute(ax1), numpy.absolute(sk_ax1),
+                              atol=1e-01)
+        assert numpy.allclose(numpy.absolute(ax2), numpy.absolute(sk_ax2),
+                              atol=1e-01)
