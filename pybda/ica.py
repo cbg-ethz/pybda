@@ -39,10 +39,10 @@ logger.setLevel(logging.INFO)
 
 
 class ICA(DimensionReduction):
-    def __init__(self, spark, n_components, features):
-        super().__init__(spark, features, 1e-03, 25)
+    def __init__(self, spark, n_components, features, max_iter=25, thresh=1e-03):
+        super().__init__(spark, features, thresh, max_iter)
         self.__n_components = n_components
-        numpy.random.seed(seed=233423)
+        self.__seed = 23
 
     @property
     def response(self):
@@ -59,14 +59,15 @@ class ICA(DimensionReduction):
         return X, K.dot(W)
 
     def _fit(self, X):
+        print("test")
         Xw, K = self._whiten(X)
-
         W = scipy.zeros(shape=(self.n_components, self.n_components))
-        w_init = mtrand(self.n_components, self.n_components)
+        w_init = mtrand(self.n_components, self.n_components, seed=self.__seed)
 
         for c in range(self.n_components):
             w = w_init[c, :].copy()
             w /= scipy.sqrt((w**2).sum())
+            print("w", w)
             for _ in range(self.max_iter):
                 g, gd = self.exp(Xw.multiply(DenseMatrix(len(w), 1, w)))
                 w1 = column_mean(elementwise_product(Xw, g, self.spark))
@@ -80,7 +81,7 @@ class ICA(DimensionReduction):
                     break
             W[c, :] = w
         del Xw
-
+        print("W", W)
         return W, K
 
     @staticmethod
@@ -103,14 +104,15 @@ class ICA(DimensionReduction):
 
     def transform(self, data, X, unmixing):
         logger.info("Transforming data")
-        L = DenseMatrix(numRows=unmixing.shape[0], numCols=unmixing.shape[1],
+        L = DenseMatrix(numRows=unmixing.shape[0],
+                        numCols=unmixing.shape[1],
                         values=unmixing.flatten())
         data = join(data, X.multiply(L), self.spark)
         del X
         return data
 
     def fit_transform(self, data):
-        logger.info("Running LDA ...")
+        logger.info("Running ICA ...")
         X, unmixing = self.fit(data)
         data = self.transform(data, X, unmixing)
         return ICAFit(data, self.n_components, unmixing, self.features)

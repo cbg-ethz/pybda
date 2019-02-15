@@ -28,18 +28,6 @@ install:
 script:
   - spark-submit -h
   - py.test --cov=./ tests/test_pybda.py
-  - py.test --cov=./ tests/test_kmeans.py
-  - py.test --cov=./ tests/test_gmm.py
-  - py.test --cov=./ tests/test_forest.py
-  - py.test --cov=./ tests/test_gbm.py
-  - py.test --cov=./ tests/test_glm.py
-  - py.test --cov=./ tests/test_fa.py
-  - py.test --cov=./ tests/test_ica.py
-  - py.test --cov=./ tests/test_kpca.py
-  - py.test --cov=./ tests/test_lda.py
-  - py.test --cov=./ tests/test_pca.py
-  - py.test --cov=./ tests/test_stats.py
-
 
 after_success:
   - codecov
