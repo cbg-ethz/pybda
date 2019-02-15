@@ -20,12 +20,14 @@
 
 
 import numpy
-from scipy.stats import norm
 
 
 def sample(x, n, replace=False):
     return x if n >= len(x) else numpy.random.choice(x, n, replace=replace)
 
 
-def mtrand(ncol,  nrow):
-    return numpy.asarray(norm.rvs(size=(nrow, ncol)))
+def mtrand(ncol,  nrow, seed=None):
+    if not seed:
+        seed = numpy.random.randint(0, 100)
+    random_state = numpy.random.RandomState(seed)
+    return numpy.asarray(random_state.normal(size=(nrow, ncol)))
