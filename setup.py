@@ -11,7 +11,6 @@ def readme():
 
 
 test_deps = [
-    'black',
     'coverage',
     'findspark',
     'flake8',
@@ -19,7 +18,8 @@ test_deps = [
     'pytest>=3.6.2',
     'pytest-cov',
     'pytest-pep8',
-    'scikit-learn'
+    'scikit-learn',
+    'yapf'
 ]
 
 doc_deps = [
