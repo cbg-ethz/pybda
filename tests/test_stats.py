@@ -77,7 +77,7 @@ class TestStats(TestAPI):
           atol=1e-01,
         )
 
-    def test_loadings(self):
+    def test_fourier_transform(self):
         assert numpy.allclose(
           numpy.absolute(self.Xf.rows.collect()),
           numpy.absolute(self._sbf_X_transformed),
