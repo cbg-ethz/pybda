@@ -59,20 +59,20 @@ class TestPCA(TestDimredAPI):
         cls.log("PCA")
         super().tearDownClass()
 
-    def test_pca(self):
+    def test_pca_cols(self):
         df = split_vector(self.trans, FEATURES__).toPandas()
         assert "f_0" in df.columns
         assert "f_1" in df.columns
         assert "f_2" not in df.columns
 
-    def test_loadings(self):
+    def test_pca_loadings(self):
         assert numpy.allclose(
           numpy.absolute(self.loadings[:2]),
           numpy.absolute(self.sk_pca.components_),
           atol=1e-01
         )
 
-    def test_scores(self):
+    def test_pca_scores(self):
         sk_ax1 = sorted(self.sk_pca_trans[:, 0])
         sk_ax2 = sorted(self.sk_pca_trans[:, 1])
         m = split_vector(self.trans.select(FEATURES__),

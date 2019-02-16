@@ -48,22 +48,22 @@ class TestLDA(TestDimredAPI):
         cls.log("LDA")
         super().tearDownClass()
 
-    def test_loadings(self):
+    def test_lda_loadings(self):
         assert numpy.allclose(
           numpy.absolute(self.sk_lda.scalings_[:,:2]),
           numpy.absolute(self.eval[:,:2]),
           atol=1e-01)
 
-    def test_response(self):
+    def test_lda_response(self):
         assert self.fit_tran.response == self.response()
 
-    def test_discrimants(self):
+    def test_lda_discrimants(self):
         assert self.fit_tran.n_discriminants == 2
 
-    def test_projection(self):
+    def test_lda_projection(self):
         assert isinstance(self.fit_tran.projection, numpy.ndarray)
 
-    def test_correct_loadings_were_chosen(self):
+    def test_lda_correct_loadings_were_chosen(self):
         arr = self.fit_tran.variances
         assert numpy.all(arr[:-1] >= arr[1:])
 

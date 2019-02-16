@@ -66,7 +66,7 @@ class TestKPCA(TestDimredAPI):
         cls.log("KPCA")
         super().tearDownClass()
 
-    def test_fourier(self):
+    def test_kpca_fourier(self):
         df = self.spark().createDataFrame(self.Xf.rows.map(lambda x: (x,)))
         df = split_vector(df, "_1").toPandas().values
         for i in range(5):
@@ -78,7 +78,7 @@ class TestKPCA(TestDimredAPI):
               atol=1e-01
             )
 
-    def test_transform(self):
+    def test_kpca_transform(self):
         df = split_vector(self.trans.select(FEATURES__),
                           FEATURES__).toPandas().values
         for i in range(2):

@@ -86,7 +86,7 @@ class GLMFit:
     def write_files(self, outfolder):
         self._write_stats(outfolder)
         self._write_table(outfolder)
-    
+
     def _write_table(self, outfolder):
         logger.info("Writing regression table")
         self.__table.to_csv(outfolder + "-table.tsv", na_rep="NaN", sep="\t",
