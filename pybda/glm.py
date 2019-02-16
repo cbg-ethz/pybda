@@ -21,8 +21,7 @@
 import logging
 
 import click
-from pyspark.ml.regression import LinearRegression
-from pyspark.ml.classification import LogisticRegression
+from pyspark.ml.regression import LinearRegression, GeneralizedLinearRegression
 
 from pybda.fit.glm_fit import GLMFit
 from pybda.globals import GAUSSIAN_, BINOMIAL_
@@ -47,7 +46,8 @@ class GLM(Regression):
         if self.family == GAUSSIAN_:
             reg = LinearRegression()
         elif self.family == BINOMIAL_:
-            reg = LogisticRegression(family="binomial")
+            reg = GeneralizedLinearRegression(
+              family="binomial",  link="logit")
         else:
             raise NotImplementedError("Family '{}' not implemented".format(
                 self.family))
@@ -97,7 +97,6 @@ def run(file, meta, features, response, family, outpath, predict):
                                               drop=False)
                 pre_data = fit.transform(pre_data)
                 pre_data.write_files(outpath)
-
         except Exception as e:
             logger.error("Some error: {}".format(str(e)))
 

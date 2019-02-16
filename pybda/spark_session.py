@@ -20,6 +20,8 @@
 
 
 import logging
+import time
+
 import pyspark
 
 logger = logging.getLogger(__name__)
@@ -37,8 +39,13 @@ class SparkSession:
             logger.info("Config: %s, value: %s", conf[0], conf[1])
 
         self.__session = spark
+        self.__start_t = time.time()
+        logger.info("Openened spark context at: %s", time.ctime(self.__start_t))
         return self.__session
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         logger.info("Stopping Spark context")
+        self.__stop_t = time.time()
+        logger.info("Closed spark context at: %s", time.ctime(self.__stop_t))
+        logger.info("Copmutation took: %d", (self.__stop_t - self.__start_t))
         self.__session.stop()
