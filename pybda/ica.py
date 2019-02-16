@@ -22,7 +22,6 @@
 import logging
 
 import click
-import numpy
 import scipy
 from pyspark.mllib.linalg import DenseMatrix
 from pyspark.mllib.linalg.distributed import RowMatrix
@@ -59,7 +58,6 @@ class ICA(DimensionReduction):
         return X, K.dot(W), W, K
 
     def _fit(self, X):
-        print("test")
         Xw, K = self._whiten(X)
         W = scipy.zeros(shape=(self.n_components, self.n_components))
         w_init = mtrand(self.n_components, self.n_components, seed=self.__seed)
@@ -67,7 +65,6 @@ class ICA(DimensionReduction):
         for c in range(self.n_components):
             w = w_init[c, :].copy()
             w /= scipy.sqrt((w**2).sum())
-            print("w", w)
             for _ in range(self.max_iter):
                 g, gd = self.exp(Xw.multiply(DenseMatrix(len(w), 1, w)))
                 w1 = column_mean(elementwise_product(Xw, g, self.spark))
@@ -81,8 +78,7 @@ class ICA(DimensionReduction):
                     break
             W[c, :] = w
         del Xw
-        print("W", W)
-        return W, K
+        return W.T, K
 
     @staticmethod
     def exp(X):
@@ -94,9 +90,10 @@ class ICA(DimensionReduction):
 
     def _whiten(self, X):
         s, v, _ = svd(X, X.numCols())
-        K = (v.T / s)[:, :self.n_components] * scipy.sqrt(X.numRows())
-        K = DenseMatrix(K.shape[0], K.shape[1], K.flatten(), True)
-        return X.multiply(K), K.toArray()
+        K = (v.T / s)[:, :self.n_components]
+        S = K * scipy.sqrt(X.numRows())
+        S = DenseMatrix(S.shape[0], S.shape[1], S.flatten(), True)
+        return X.multiply(S), K
 
     def _center(self, data):
         X = self._feature_matrix(data)
@@ -106,16 +103,17 @@ class ICA(DimensionReduction):
         logger.info("Transforming data")
         L = DenseMatrix(numRows=unmixing.shape[0],
                         numCols=unmixing.shape[1],
-                        values=unmixing.flatten())
+                        values=unmixing.flatten(),
+                        isTransposed=True)
         data = join(data, X.multiply(L), self.spark)
         del X
         return data
 
     def fit_transform(self, data):
         logger.info("Running ICA ...")
-        X, unmixing = self.fit(data)
-        data = self.transform(data, X, unmixing)
-        return ICAFit(data, self.n_components, unmixing, self.features)
+        X, components, W , K = self.fit(data)
+        data = self.transform(data, X, components)
+        return ICAFit(data, self.n_components, components, self.features)
 
 
 @click.command()

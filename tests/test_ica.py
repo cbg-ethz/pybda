@@ -22,6 +22,7 @@
 import numpy
 import pandas
 import sklearn.decomposition
+from numpy.linalg import linalg
 from sklearn.preprocessing import scale
 
 from pybda.globals import FEATURES__
@@ -49,33 +50,45 @@ class TestICA(TestDimredAPI):
         cls.sk_ica = sklearn.decomposition.FastICA(
           n_components=2, algorithm="deflation", fun="exp",
           max_iter=5, random_state=23)
-        cls.sk_ica_trans = cls.sk_ica.fit(cls.X_lo).transform(cls.X_lo)
+        cls.sk_fit = cls.sk_ica.fit(cls.X_lo)
+        cls.sk_fit.whiten = False
 
         cls.ica = ICA(cls.spark(), 2, cls.features())
-        cls.X__, cls.unmixing, cls.W, cls.K = cls.ica.fit(cls._spark_lo)
-        cls.trans = cls.ica.transform(cls._spark_lo, cls.X__, cls.unmixing)
+        cls.X__, cls.compo, cls.W, cls.K = cls.ica.fit(cls._spark_lo)
+
+        cls.trans = cls.ica.transform(cls._spark_lo, cls.X__,
+                                      cls.sk_ica.components_.T)
+        cls.sk_trans = cls.sk_fit.transform(cls.X__.rows.collect())
 
     @classmethod
     def tearDownClass(cls):
         cls.log("ICA")
         super().tearDownClass()
 
+    def test_ica_transform(self):
+        mk = split_vector(self.trans.select(FEATURES__), FEATURES__) \
+            .toPandas().values
+        for i in range(2):
+            ax1 = sorted(mk[:, i])
+            ax2 = sorted(self.sk_trans[:, i])
+            assert numpy.allclose(numpy.absolute(ax1),
+                                  numpy.absolute(ax2), atol=1e-02)
+
     def test_ica_whitening(self):
-        print("whitening")
-        print(self.K)
-        print(self.sk_ica.whitening_)
+        assert numpy.allclose(
+          numpy.absolute(self.K),
+          numpy.absolute(self.sk_ica.whitening_.T),
+          atol=1e-03)
 
     def test_ica_loadings(self):
-        print("load")
-        print(self.W)
-        print(self.sk_ica.components_)
+        assert numpy.allclose(
+          numpy.absolute(self.compo),
+          numpy.absolute(self.sk_ica.components_.T),
+          atol=1e-03)
 
-    def test_ica_mixing(self):
-        print(self.unmixing)
-        print(self.sk_ica.components_)
-        # assert numpy.allclose(
-        #   numpy.absolute(self.unmixing),
-        #   numpy.absolute(self.sk_ica.components_.T),
-        #   atol=1e-01
-        # )
-        assert 0 == 0
+    def test_ica_unmixing(self):
+        sk_w = self.sk_ica.components_.dot(linalg.pinv(self.sk_ica.whitening_))
+        assert numpy.allclose(
+          numpy.absolute(self.W),
+          numpy.absolute(sk_w),
+          atol=1e-03)
