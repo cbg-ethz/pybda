@@ -56,7 +56,7 @@ class ICA(DimensionReduction):
         logger.info("Fitting ICA")
         X = self._center(data)
         W, K = self._fit(X)
-        return X, K.dot(W)
+        return X, K.dot(W), W, K
 
     def _fit(self, X):
         print("test")
