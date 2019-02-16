@@ -24,6 +24,7 @@ import logging
 import numpy
 import pandas
 import scipy as sp
+from pyspark.ml.evaluation import MulticlassClassificationEvaluator
 
 from pybda.fit.transformed_data import TransformedData
 from pybda.globals import GAUSSIAN_, BINOMIAL_, INTERCEPT__
@@ -47,22 +48,22 @@ class GLMFit:
             self.__r2 = model.summary.r2
             self.__rmse = model.summary.rootMeanSquaredError
         else:
-            self.__accuracy = model.summary.accuracy
-            self.__auc = model.summary.areaUnderROC
-            self.__pr = model.summary.pr.toPandas()
-            self.__roc = model.summary.roc.toPandas()
-            self.__measures = pandas.DataFrame({
-                "f_measure": model.summary.fMeasureByLabel(),
-                "fpr": model.summary.falsePositiveRateByLabel,
-                "precision": model.summary.precisionByLabel,
-                "recall": model.summary.recallByLabel,
-                "tpr": model.summary.truePositiveRateByLabel
-            })
+            evaluator = MulticlassClassificationEvaluator(labelCol=response)
+            self.__data = self.__model.transform(self.__data)
+
+            self.__f1 = evaluator.evaluate(self.data,
+                                           {evaluator.metricName: "f1"})
+            self.__accuracy = evaluator.evaluate(
+              self.data, {evaluator.metricName: "accuracy"})
+            self.__precision = evaluator.evaluate(
+              self.data, {evaluator.metricName: "weightedPrecision"})
+            self.__recall = evaluator.evaluate(
+              self.data, {evaluator.metricName: "weightedRecall"})
         self.__table = self._compute_table_stats(model)
 
     def _compute_table_stats(self, model):
         beta = sp.append(
-            sp.array(model.intercept), sp.array(model.coefficients))
+          sp.array(model.intercept), sp.array(model.coefficients))
         ps = sp.ones_like(beta) * sp.nan
         ts = sp.ones_like(beta) * sp.nan
         se = sp.ones_like(beta) * sp.nan
@@ -99,16 +100,18 @@ class GLMFit:
         out_file = outfolder + "-statistics.tsv"
         with open(out_file, "w") as fh:
             if self.family == BINOMIAL_:
-                fh.write("{}\t{}\t{}\t{}\n".format("family", "response",
-                                                   "accuracy", "auc"))
-                fh.write("{}\t{}\t{}\t{}\n".format(self.family, self.__response,
-                                                   self.__accuracy, self.__auc))
+                fh.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(
+                  "family", "response", "accuracy", "f1", "precision",
+                  "recall"))
+                fh.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(
+                  self.family, self.response, self.__accuracy, self.__f1,
+                  self.__precision, self.__recall))
             else:
                 fh.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                    "family", "response", "df", "mse", "r2", "rmse"))
+                  "family", "response", "df", "mse", "r2", "rmse"))
                 fh.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                    self.family, self.__response, self.__df, self.__mse,
-                    self.__r2, self.__rmse))
+                  self.family, self.__response, self.__df, self.__mse,
+                  self.__r2, self.__rmse))
 
     def _write_binomial_measures(self, outfolder):
         logger.info("Writing regression measures")
@@ -175,21 +178,18 @@ class GLMFit:
         return self.__rmse
 
     @property
+    def f1(self):
+        return self.__f1
+
+    @property
     def accuracy(self):
         return self.__accuracy
 
     @property
-    def auc(self):
-        return self.__auc
+    def precision(self):
+        return self.__precision
 
     @property
-    def roc(self):
-        return self.__roc
+    def recall(self):
+        return self.__recall
 
-    @property
-    def precision_recall(self):
-        return self.__pr
-
-    @property
-    def measures(self):
-        return self.__measures
