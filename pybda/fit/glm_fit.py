@@ -86,10 +86,7 @@ class GLMFit:
     def write_files(self, outfolder):
         self._write_stats(outfolder)
         self._write_table(outfolder)
-        if self.family == BINOMIAL_:
-            self._write_binomial_measures(outfolder)
-            self._plot(outfolder)
-
+    
     def _write_table(self, outfolder):
         logger.info("Writing regression table")
         self.__table.to_csv(outfolder + "-table.tsv", na_rep="NaN", sep="\t",
@@ -112,19 +109,6 @@ class GLMFit:
                 fh.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(
                   self.family, self.__response, self.__df, self.__mse,
                   self.__r2, self.__rmse))
-
-    def _write_binomial_measures(self, outfolder):
-        logger.info("Writing regression measures")
-        self.__pr.to_csv(outfolder + "-precision_recall.tsv", sep="\t",
-                         index=False, header=True)
-        self.__roc.to_csv(outfolder + "-roc_curve.tsv", sep="\t", index=False,
-                          header=True)
-        self.__measures.to_csv(outfolder + "-measures.tsv", sep="\t",
-                               index=False, header=True)
-
-    def _plot(self, outfolder):
-        for suf in ["png", "pdf", "svg", "eps"]:
-            plot_curves(outfolder + "-plot." + suf, self.__pr, self.__roc)
 
     @property
     def family(self):

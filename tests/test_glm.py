@@ -109,17 +109,21 @@ class TestGLM(TestRegressionAPI):
         with pytest.raises(AttributeError):
             self.fit_gau.auc
 
-    def test_fit_glm_gaussian_pr_fails(self):
+    def test_fit_glm_gaussian_f1_fails(self):
         with pytest.raises(AttributeError):
-            self.fit_gau.precision_recall
+            self.fit_gau.f1
 
-    def test_fit_glm_gaussian_roc_fails(self):
+    def test_fit_glm_gaussian_accuract_fails(self):
         with pytest.raises(AttributeError):
-            self.fit_gau.roc
+            self.fit_gau.accuracy
 
-    def test_fit_glm_gaussian_roc_fails(self):
+    def test_fit_glm_gaussian_precision_fails(self):
         with pytest.raises(AttributeError):
-            self.fit_gau.measures
+            self.fit_gau.precision
+
+    def test_fit_glm_gaussian_recall_fails(self):
+        with pytest.raises(AttributeError):
+            self.fit_gau.recall
 
     def test_fit_glm_binomial_family(self):
         assert self.fit_bin.family == BINOMIAL_
@@ -130,14 +134,14 @@ class TestGLM(TestRegressionAPI):
     def test_fit_glm_binomial_accuracy(self):
         assert isinstance(self.fit_bin.accuracy, float)
 
-    def test_fit_glm_binomial_pre(self):
-        assert isinstance(self.fit_bin.precision_recall, pandas.DataFrame)
+    def test_fit_glm_binomial_f1(self):
+        assert isinstance(self.fit_bin.f1, float)
 
-    def test_fit_glm_binomial_roc(self):
-        assert isinstance(self.fit_bin.roc, pandas.DataFrame)
+    def test_fit_glm_binomial_precision(self):
+        assert isinstance(self.fit_bin.precision, float)
 
-    def test_fit_glm_binomial_measures(self):
-        assert isinstance(self.fit_bin.measures, pandas.DataFrame)
+    def test_fit_glm_binomial_recall(self):
+        assert isinstance(self.fit_bin.recall, float)
 
     def test_transform_glm_gaussian(self):
         df = self.transform_gau.data.toPandas()
