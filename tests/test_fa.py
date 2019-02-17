@@ -55,7 +55,10 @@ class TestFA(TestDimredAPI):
         cls.fa = FactorAnalysis(cls.spark(), 2, cls.features(), max_iter=5)
         cls.X, cls.W, cls.ll, cls.psi = cls.fa.fit(cls._spark_lo)
 
-        cls.trans = cls.fa.transform(cls._spark_lo, cls.X, cls.W, cls.psi)
+        cls.trans = cls.fa.transform(cls._spark_lo, cls.X,
+                                     cls.sk_fit.components_, cls.psi)
+        #
+        cls.sk_fit.mean_ = numpy.zeros(4)
         cls.sk_trans = cls.sk_fit.transform(cls.X.rows.collect())
 
     @classmethod
@@ -63,14 +66,32 @@ class TestFA(TestDimredAPI):
         cls.log("FA")
         super().tearDownClass()
 
+    def test_fa_loglik(self):
+        assert numpy.allclose(
+          numpy.absolute(self.ll),
+          numpy.absolute(self.sk_fit.loglike_),
+          atol=1e-01)
+
     def test_fa_transform(self):
-        print(self.trans.toPandas())
-        print(self.sk_trans)
+        ta = split_vector(self.trans.select(FEATURES__),
+                          FEATURES__).toPandas().values
+        for i in range(2):
+            ax1 = sorted(ta[:, i])
+            ax2 = sorted(self.sk_trans[:, i])
+            assert numpy.allclose(
+              numpy.absolute(ax1),
+              numpy.absolute(ax2),
+              atol=1e-01
+            )
 
     def test_fa_loadings(self):
-        print(self.W)
-        print(self.sk_fit.components_)
+        assert numpy.allclose(
+          numpy.absolute(self.W),
+          numpy.absolute(self.sk_fit.components_),
+          atol=1e-01)
 
     def test_fa_psi(self):
-        print(self.psi)
-        print(self.sk_fit.noise_variance_)
+        assert numpy.allclose(
+          numpy.absolute(self.psi),
+          numpy.absolute(self.sk_fit.noise_variance_),
+          atol=1e-01)
