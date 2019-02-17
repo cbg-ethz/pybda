@@ -30,6 +30,7 @@ from pyspark.sql.functions import udf
 
 from pybda.dimension_reduction import DimensionReduction
 from pybda.fit.factor_analysis_fit import FactorAnalysisFit
+from pybda.spark.dataframe import join
 from pybda.stats.linalg import svd
 from pybda.stats.stats import column_statistics, center
 
@@ -55,7 +56,9 @@ class FactorAnalysis(DimensionReduction):
 
     def _preprocess_data(self, data):
         X = self._feature_matrix(data)
+        n = X.count()
         means, var = column_statistics(X)
+        var = var * (n - 1) / n
         X = RowMatrix(center(X, means=means))
         return X, means, var
 
@@ -115,16 +118,9 @@ class FactorAnalysis(DimensionReduction):
         cov_z = numpy.linalg.inv(Ih + numpy.dot(Wpsi, W.T))
         tmp = numpy.dot(Wpsi.T, cov_z)
         tmp_dense = DenseMatrix(numRows=tmp.shape[0], numCols=tmp.shape[1],
-                                values=tmp.flatten())
-
-        as_ml = udf(lambda v: v.asML() if v is not None else None, VectorUDT())
-
+                                values=tmp.flatten(), isTransposed=True)
         X = X.multiply(tmp_dense)
-        X = self.spark.createDataFrame(X.rows.map(lambda x: (x, )))
-        X = X.withColumnRenamed("_1", "features")
-        X = X.withColumn("features", as_ml("features"))
-
-        data = self._join(data, X)
+        data = join(data, X, self.spark)
         del X
 
         return data
