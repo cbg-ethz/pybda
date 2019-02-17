@@ -38,8 +38,9 @@ logger.setLevel(logging.INFO)
 
 
 class FactorAnalysis(DimensionReduction):
-    def __init__(self, spark, n_factors, features, threshold=1e-9, max_iter=25):
+    def __init__(self, spark, n_factors, features, threshold=1e-3, max_iter=25):
         super().__init__(spark, features, threshold, max_iter)
+        self.__eps = 1e-09
         self.__n_factors = n_factors
 
     @property
@@ -68,10 +69,9 @@ class FactorAnalysis(DimensionReduction):
 
         logger.info("Computing factor analysis")
         for _ in range(self.max_iter):
-            sqrt_psi = numpy.sqrt(psi) + self.threshold
+            sqrt_psi = numpy.sqrt(psi) + self.__eps
             s, V, unexp_var = svd(self._tilde(X, sqrt_psi, nsqrt), n_factors)
-            s = s**2
-
+            s = s ** 2
             # factor updated
             W = self._update_factors(s, V, sqrt_psi)
             # loglik update
@@ -79,8 +79,7 @@ class FactorAnalysis(DimensionReduction):
             logliks.append(ll)
             # variance update
             psi = self._update_variance(var, W)
-
-            if abs(ll - old_ll) < 0.001:
+            if abs(ll - old_ll) < self.threshold:
                 break
             old_ll = ll
 
@@ -106,7 +105,7 @@ class FactorAnalysis(DimensionReduction):
         return ll
 
     def _update_variance(self, var, W):
-        psi = numpy.maximum(var - numpy.sum(W**2, axis=0), self.threshold)
+        psi = numpy.maximum(var - numpy.sum(W**2, axis=0), self.__eps)
         return psi
 
     def transform(self, data, X, W, psi):

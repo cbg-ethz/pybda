@@ -18,7 +18,6 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import logging
 
 import numpy
@@ -28,7 +27,6 @@ from pyspark.ml.evaluation import MulticlassClassificationEvaluator
 
 from pybda.fit.transformed_data import TransformedData
 from pybda.globals import GAUSSIAN_, BINOMIAL_, INTERCEPT__
-from pybda.plot.regression_plot import plot_curves
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
