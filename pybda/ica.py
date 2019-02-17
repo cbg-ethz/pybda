@@ -38,7 +38,8 @@ logger.setLevel(logging.INFO)
 
 
 class ICA(DimensionReduction):
-    def __init__(self, spark, n_components, features, max_iter=25, thresh=1e-03):
+    def __init__(self, spark, n_components, features, max_iter=25,
+                 thresh=1e-03):
         super().__init__(spark, features, thresh, max_iter)
         self.__n_components = n_components
         self.__seed = 23
@@ -64,14 +65,14 @@ class ICA(DimensionReduction):
 
         for c in range(self.n_components):
             w = w_init[c, :].copy()
-            w /= scipy.sqrt((w**2).sum())
+            w /= scipy.sqrt((w ** 2).sum())
             for _ in range(self.max_iter):
                 g, gd = self.exp(Xw.multiply(DenseMatrix(len(w), 1, w)))
                 w1 = column_mean(elementwise_product(Xw, g, self.spark))
                 del g
                 w1 = w1 - gd * w
                 w1 = gs_decorrelate(w1, W, c)
-                w1 /= scipy.sqrt((w1**2).sum())
+                w1 /= scipy.sqrt((w1 ** 2).sum())
                 lim = scipy.absolute(scipy.absolute((w1 * w).sum()) - 1)
                 w = w1
                 if lim < self.threshold:
@@ -111,7 +112,7 @@ class ICA(DimensionReduction):
 
     def fit_transform(self, data):
         logger.info("Running ICA ...")
-        X, components, W , K = self.fit(data)
+        X, components, _, _ = self.fit(data)
         data = self.transform(data, X, components)
         return ICAFit(data, self.n_components, components, self.features)
 

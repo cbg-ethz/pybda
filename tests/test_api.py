@@ -31,8 +31,7 @@ class TestAPI(unittest.TestCase):
 
     @classmethod
     def log(cls, frm):
-        callingFunction = inspect.stack()[1][3]
-        print('in {} - {}()'.format(frm, callingFunction))
+        print('in {} - {}()'.format(frm, inspect.stack()[1][3]))
 
     @classmethod
     def setUpClass(cls):
