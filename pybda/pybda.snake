@@ -84,7 +84,7 @@ rule factor_analysis:
     output:
         expand("{outfolder}/{dimred}{fls}",
                outfolder=pybda_config[OUTFOLDER__],
-               dimred=FACTOR_ANALYSIS__, fls=[".tsv", ".log", "-loadings.tsv", "-loglik.tsv"]),
+               dimred=FACTOR_ANALYSIS__, fls=[".tsv", "-loadings.tsv", "-loglik.tsv"]),
         directory(expand("{outfolder}/{dimred}-plot",
                          outfolder=pybda_config[OUTFOLDER__],
                          dimred=FACTOR_ANALYSIS__))
@@ -104,7 +104,7 @@ rule pca:
     output:
         expand("{outfolder}/{dimred}{fls}",
                outfolder=pybda_config[OUTFOLDER__],
-               dimred=PCA__, fls=[".tsv", ".log", "-loadings.tsv"]),
+               dimred=PCA__, fls=[".tsv", "-loadings.tsv"]),
         directory(expand("{outfolder}/{dimred}-plot",
                          outfolder=pybda_config[OUTFOLDER__],
                          dimred=PCA__))
@@ -124,7 +124,7 @@ rule kpca:
     output:
         expand("{outfolder}/{dimred}{fls}",
                outfolder=pybda_config[OUTFOLDER__],
-               dimred=KPCA__, fls=[".tsv", ".log", "-loadings.tsv"]),
+               dimred=KPCA__, fls=[".tsv", "-loadings.tsv"]),
         directory(expand("{outfolder}/{dimred}-plot",
                          outfolder=pybda_config[OUTFOLDER__],
                          dimred=KPCA__))
@@ -144,7 +144,7 @@ rule ica:
     output:
         expand("{outfolder}/{dimred}{fls}",
                outfolder=pybda_config[OUTFOLDER__],
-               dimred=ICA__, fls=[".tsv", ".log", "-unmixing.tsv"]),
+               dimred=ICA__, fls=[".tsv", "-unmixing.tsv"]),
         directory(expand("{outfolder}/{dimred}-plot",
                          outfolder=pybda_config[OUTFOLDER__],
                          dimred=ICA__))
@@ -260,7 +260,7 @@ rule glm:
         expand("{outfolder}/{regression}{out}",
                outfolder=pybda_config[OUTFOLDER__],
                regression=pybda_config[REGRESSION__],
-               out=["-table.tsv", "-statistics.tsv", ".log"])
+               out=["-table.tsv", "-statistics.tsv"])
     params:
         out = os.path.join(
             pybda_config[OUTFOLDER__], pybda_config[REGRESSION__]),
@@ -277,7 +277,7 @@ rule forest:
         expand("{outfolder}/{regression}{out}",
                outfolder=pybda_config[OUTFOLDER__],
                regression=pybda_config[REGRESSION__],
-               out=["-statistics.tsv", ".log"])
+               out=["-statistics.tsv"])
     params:
         out = os.path.join(
             pybda_config[OUTFOLDER__], pybda_config[REGRESSION__]),
@@ -294,7 +294,7 @@ rule gbm:
         expand("{outfolder}/{regression}{out}",
                outfolder=pybda_config[OUTFOLDER__],
                regression=pybda_config[REGRESSION__],
-               out=["-statistics.tsv", ".log"])
+               out=["-statistics.tsv"])
     params:
         out = os.path.join(
             pybda_config[OUTFOLDER__], pybda_config[REGRESSION__]),
@@ -328,9 +328,6 @@ rule kmeans:
         expand("{outfolder}/{clust}-profile.{out}",
                clust=pybda_config[CLUSTERING__],
                outfolder=pybda_config[OUTFOLDER__], out=["png", "pdf", "eps", "svg", "tsv"]),
-        expand("{outfolder}/{clust}.{out}",
-               clust=pybda_config[CLUSTERING__],
-               outfolder=pybda_config[OUTFOLDER__], out=["log"]),
         directory(expand("{outfolder}/{clust}-transformed-K{k}-clusters",
                          clust=pybda_config[CLUSTERING__],
                          outfolder=pybda_config[OUTFOLDER__],
@@ -353,9 +350,6 @@ rule gmm:
         expand("{outfolder}/{clust}-profile.{out}",
                clust=pybda_config[CLUSTERING__],
                outfolder=pybda_config[OUTFOLDER__], out=["png", "pdf", "eps", "svg", "tsv"]),
-        expand("{outfolder}/{clust}.{out}",
-               clust=pybda_config[CLUSTERING__],
-               outfolder=pybda_config[OUTFOLDER__], out=["log"]),
         directory(expand("{outfolder}/{clust}-transformed-K{k}-components",
                          clust=pybda_config[CLUSTERING__],
                          outfolder=pybda_config[OUTFOLDER__],
