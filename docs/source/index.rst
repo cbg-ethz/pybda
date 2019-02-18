@@ -7,6 +7,9 @@ PyBDA
 .. image:: https://travis-ci.org/cbg-ethz/pybda.svg?branch=master
    :target: https://travis-ci.org/cbg-ethz/pybda/
    :alt: Travis
+.. image:: https://ci.appveyor.com/api/projects/status/r58ut2jfxguucdwb/branch/master?svg=true
+   :target: https://ci.appveyor.com/project/dirmeier/pybda/branch/master
+   :alt: Appveyor
 .. image:: https://codecov.io/gh/cbg-ethz/pybda/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/cbg-ethz/pybda
    :alt: Codecov
@@ -16,6 +19,10 @@ PyBDA
 .. image:: https://readthedocs.org/projects/pybda/badge/?version=latest
    :target: https://pybda.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation
+.. image:: https://img.shields.io/pypi/v/pybda.svg?colorB=black&style=flat
+   :target: https://pypi.org/project/pybda/
+   :alt: PyPi
+
 
 A commandline tool for analysis of big biological data sets using Snakemake and Apache Spark.
 
