@@ -2,9 +2,8 @@ Clustering
 ==========
 
 Here we show a small use case of how to cluster data on a small sample data set
-(``data/single_cell_samples.tsv``). We assume you
-already set up the cluster for Spark (other check `here <./usage.html#spark>`_) with
-an ``IP`` address.
+(``data/iris.tsv``). We assume you
+already set up the cluster for Spark (other check `here <./usage.html#spark>`_) with an ``IP`` address.
 
 Analysis
 --------
@@ -21,19 +20,19 @@ the correlations too, or remove the line in the config):
 
 .. literalinclude:: ../../pybda-usecase-clustering.config
   :caption: Contents of ``pybda-usecase-clustering.config`` file
-  :name: pybda-usecase-kmeans.config
+  :name: pybda-usecase-clustering.config
 
 In the config above we will do the following.
 
-* Use a factor analysis into a space with three dimensions on the features in ``data/feature_columns.tsv``,
-* do a clustering with $50, \dots, 200$ cluster centers on the three features we got from the factor analysis,
-* give the Spark driver $3G$ of memory and the executor $6G$ of memory.
+* Use a factor analysis into a space with two dimensions on the features in ``data/iris_feature_columns.tsv``,
+* do a clustering with 2, 3 and 5 cluster centers on the two features we got from the factor analysis,
+* give the Spark driver 3G of memory and the executor 1G of memory.
 
 Having the parameters set, we call PyBDA
 
 .. code-block:: bash
 
-  pybda clustering pybda-usecase-kmeans.config IP
+  pybda clustering pybda-usecase-clustering.config ``IP``
 
 The above command first executes the dimension reduction and then the clustering.
 After both ran, you should check the plots and statistics.

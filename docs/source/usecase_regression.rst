@@ -2,7 +2,7 @@ Regression
 ==========
 
 Here we show a small use case of how to regress a variable onto another set of variables exemplified
-on a small sample data set (``data/single_cell_samples.tsv``). We assume you
+on a small sample data set (``data/iris.tsv``). We assume you
 already set up the cluster for Spark (other check `here <./usage.html#spark>`_) with
 an ``IP`` address.
 
@@ -25,8 +25,11 @@ The config file we need to specify is in this case rather concise:
 
 In the config above we will do the following:
 
-* Use a kpca to map the data set into a two-dimensional space,
-* give the Spark driver $3G$ of memory and the executor $6G$ of memory.
+* Use a generalized linear regression model with logit-link,
+* take as response the column called ``log_response``,
+* predict the response of for the same data set,
+* give the Spark driver 1G of memory and the executor 1G of memory,
+* set the Spark configuration variable ``spark.driver.maxResultSize`` to 1G
 
 Having the parameters set, we call PyBDA
 

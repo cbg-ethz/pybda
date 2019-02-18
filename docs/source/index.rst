@@ -17,7 +17,7 @@ PyBDA
    :target: https://pybda.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation
 
-A commandline tool for analysis of big biological data sets using Snakemake, powered by Apache Spark.
+A commandline tool for analysis of big biological data sets using Snakemake and Apache Spark.
 
 .. toctree::
    :hidden:
@@ -35,7 +35,7 @@ About
 
 Welcome to PyBDA.
 
-PyBDA is a Python library and command line tool for big data analytics and machine learning scaling to tera byte sized data sets.
+PyBDA is a Python library and command line tool for big data analytics and machine learning.
 
 In order to make PyBDA scale to big data sets, we use Apache [Spark]_'s DataFrame API which, if developed against, automatically distributes
 data to the nodes of a high-performance cluster and does the computation of expensive machine learning tasks in parallel.
@@ -44,7 +44,8 @@ you want to execute in succession (e.g. dimensionality reduction into clustering
 In the case of a successful computation of a job, PyBDA will write results and plots, and create statistics. If one of the jobs fails PyBDA will report where and which method failed
 (owing to Snakemake's scheduling) such that the same pipeline can effortlessly be continued from where it failed the last time.
 
- PyBDA implements several methods from scratch to scale to big data settings and interfaces some methods from [MLLib]_:
+PyBDA supports multiple machine learning methods that scale to big data scenarios.
+We either entirely implemented these from scratch or interface the methodology from [MLLib]_:
 
 * dimensionality reduction using PCA, factor analysis, kPCA, linear discriminant analysis and ICA,
 * clustering using k-means and Gaussian mixture models,
@@ -65,9 +66,9 @@ Example
 To run PyBDA you only need to provide a config-file and, if possible, the IP of a spark-cluster (otherwise you can just call PyBDA locally using ``local``).
 The config file for a simple clustering task might look like this:
 
-.. literalinclude:: _static/pybda-usecase-clustering.config
-  :caption: Contents of ``pybda-usecase-clustering.config`` file
-  :name: pybda-usecase-clustering.config
+.. literalinclude:: _static/clustering-example.config
+  :caption: Example clustering configuration file.
+  :name: clustering-example.config
 
 The above configuration would tell PyBDA to first use factor analysis to embed the data into a ``5``-dimensional
 latent space and then fit several ``k``-means clusterings with different numbers of clusters on that space.
@@ -75,7 +76,7 @@ You call PyBDA like that:
 
 .. code-block:: bash
 
-   pybda clustering pybda-usecase-clustering.config local
+   pybda clustering clustering-example.config local
 
 where ``local`` tells PyBDA to just use your desktop as Spark cluster.
 The result of any PyBDA call creates several files and figures.
