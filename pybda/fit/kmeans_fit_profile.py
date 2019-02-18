@@ -19,12 +19,9 @@
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
 
-import glob
 import logging
-import matplotlib.pyplot as plt
-import pandas
-import re
 
+import matplotlib.pyplot as plt
 import numpy
 
 from pybda.fit.clustering_fit_profile import FitProfile
@@ -46,22 +43,6 @@ class KMeansFitProfile(FitProfile):
             self._plot_cluster_sizes(
                 outpath + "-cluster_sizes-histogram." + suf, data, labels)
 
-    def _cluster_sizes(self, path):
-        fls = glob.glob(path + "*/*cluster_sizes.tsv")
-        reg = re.compile(".*K(\d+)_cluster_sizes.tsv")
-        ll = self.as_pandas()
-        frames = [None] * len(fls)
-        for i, fl in enumerate(fls):
-            t = pandas.read_csv(fl, sep="\t", header=-1, names="c")
-            idx = int(reg.match(fl).group(1))
-            t[K_] = str(idx).zfill(9)
-            frames[i] = [idx, t]
-        frames = sorted(frames, key=lambda x: x[0])
-        frames = list(filter(lambda x: x[0] in ll["k"].values, frames))
-        labels = list(map(lambda x: "K = {}".format(x[0]), frames))
-        data = pandas.concat(map(lambda x: x[1], frames))
-        return data, labels
-
     def _plot_profile(self, file_name, profile):
         logger.info("Plotting profile to: {}".format(file_name))
         n = len(profile[K_].values)
@@ -74,7 +55,7 @@ class KMeansFitProfile(FitProfile):
         ax.spines["right"].set_visible(False)
         ax.set_ylabel('Explained variance in %', fontsize=12)
         ax.set_ylim(0, 1.05)
-        ax.set_yticklabels([0, 0.25, 0.5, 0.75, 1])
+        ax.set_yticks([0, 0.25, 0.5, 0.75, 1])
         cols = ["black"] * n
         cols[numpy.argmax(profile[EXPL_VAR_].values)] = "#5668AD"
         plt.bar(ks, profile[EXPL_VAR_].values, color=cols, alpha=.75, width=0.5)

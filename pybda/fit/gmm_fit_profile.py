@@ -19,13 +19,10 @@
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
 
-import glob
 import logging
-import numpy
 
-import pandas
 import matplotlib.pyplot as plt
-import re
+import numpy
 
 from pybda.fit.clustering_fit_profile import FitProfile
 from pybda.globals import K_, LOGLIK_, BIC_
@@ -45,23 +42,6 @@ class GMMFitProfile(FitProfile):
             self._plot_profile(outpath + "-profile." + suf, pand)
             self._plot_cluster_sizes(
                 outpath + "-cluster_sizes-histogram." + suf, data, labels)
-
-    def _cluster_sizes(self, path):
-        fls = glob.glob(path + "*/*cluster_sizes.tsv")
-        reg = re.compile(".*K(\d+)_cluster_sizes.tsv")
-        ll = self.as_pandas()
-        logger.info(len(fls))
-        frames = [None] * len(fls)
-        for i, fl in enumerate(fls):
-            t = pandas.read_csv(fl, sep="\t", header=-1, names="c")
-            idx = int(reg.match(fl).group(1))
-            t[K_] = str(idx).zfill(9)
-            frames[i] = [idx, t]
-        frames = sorted(frames, key=lambda x: x[0])
-        frames = list(filter(lambda x: x[0] in ll["k"].values, frames))
-        labels = list(map(lambda x: "K = {}".format(x[0]), frames))
-        data = pandas.concat(map(lambda x: x[1], frames))
-        return data, labels
 
     def _plot_profile(self, file_name, profile):
         logger.info("Plotting profile to: {}".format(file_name))

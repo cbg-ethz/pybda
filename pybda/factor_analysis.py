@@ -24,9 +24,7 @@ import logging
 import click
 import numpy
 import pyspark.sql.functions as func
-from pyspark.ml.linalg import VectorUDT
 from pyspark.mllib.linalg.distributed import RowMatrix, DenseMatrix
-from pyspark.sql.functions import udf
 
 from pybda.dimension_reduction import DimensionReduction
 from pybda.fit.factor_analysis_fit import FactorAnalysisFit

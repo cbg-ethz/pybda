@@ -30,7 +30,7 @@ doc_deps = [
 
 setup(
   name='pybda',
-  version='0.0.3',
+  version='0.1.0',
   description='Big Data analytics powered by Apache Spark',
   long_description=readme(),
   url='https://github.com/cbg-ethz/pybda',

@@ -13,20 +13,14 @@ Installing PyBDA is easy.
    previous versions. The best way to do that is to download `anaconda <https://www.continuum.io/downloads>`_ and create a
    virtual `environment <https://conda.io/docs/using/envs.html>`_.
 
-2) Either install PyBDA from conda
+2) Either install PyBDA from PyPI
    using
-
-  .. code-block:: bash
-
-     conda install pybda -c conda-forge
-
-  or from PYPI
 
   .. code-block:: bash
 
      pip install pybda
 
-  or by downloading the latest `release <https://github.com/cbg-ethz/biospark/releases>`_
+  or by downloading the latest `release <https://github.com/cbg-ethz/pybda/releases>`_
 
   .. code-block:: bash
 
@@ -51,7 +45,7 @@ Usage
 Using PyBDA requires providing two things:
 
 * a config file that specifies the methods you want to use, paths to files, and parameters,
-* and the IP to a running spark-cluster which runs the algorithms and methods to be executed. If no cluster
+* and the ``IP`` to a running spark-cluster which runs the algorithms and methods to be executed. If no cluster
   environment is available you can also run PyBDA locally. This, of course, somehow limits what PyBDA can do for you,
   since it's real strength lies in distributed computation.
 
@@ -73,7 +67,7 @@ The following table shows the arguments that are **mandatory** and need to be se
 ================ ================================================================
 *Parameter*      *Explanation*
 ================ ================================================================
-``spark``        path to Apache spark ``spark-submit`` exectuable
+``spark``        path to Apache spark ``spark-submit`` executable
 ``infile``       tab-separated input file to use for any of the methods
 ``outfolder``    folder where all results are written to.
 ``meta``         names of the columns that represent meta information ("\n"-separated)
@@ -123,9 +117,8 @@ The abbreveations of the methods are explained in the following list.
 * ``ica`` for `independent component analysis <https://en.wikipedia.org/wiki/Independent_component_analysis>`_,
 * ``lda`` for `linear discriminant analysis <https://en.wikipedia.org/wiki/Linear_discriminant_analysis>`_,
 * ``kmeans`` for `K-means <https://en.wikipedia.org/wiki/K-means_clustering>`_,
-* ``kpca`` for `kernel principal component analysis <https://en.wikipedia.org/wiki/Kernel_principal_component_analysis>`_ using Fourier features [FF]_ to approximate the kernel.
-* ``pca`` for `principal component analysis <https://en.wikipedia.org/wiki/Principal_component_analysis>`_,
-
+* ``kpca`` for `kernel principal component analysis <https://en.wikipedia.org/wiki/Kernel_principal_component_analysis>`_ using Fourier features [FF]_ to approximate the kernel,
+* ``pca`` for `principal component analysis <https://en.wikipedia.org/wiki/Principal_component_analysis>`_.
 
 Example
 .......
@@ -138,8 +131,12 @@ For instance, consider the config file below:
 
 It would execute the following jobs:
 
-1) dimension reduction on the input file with 5 components -> clustering on the result of the dimensionality reduction with 3 cluster centers
-2) binomial-family generalized regression model (i.e. logistic) on the input file with respone *is_infected*
+1) dimension reduction (PCA) on the input file with 5 components,
+2) clustering on the result of the dimensionality reduction with 3 cluster centers (``k``-means),
+3) binomial-family generalized regression model (i.e. logistic) on the input file with response *is_infected* and features from ``data/feature_columns.tsv``
+
+In addition we would allow Spark to use `3G` driver memory, `6G` executor memory and set the configuration variable ``spark.driver.maxResultSize``
+to `3G` (all configurations can be found `here <https://spark.apache.org/docs/latest/configuration.html#available-properties>`_).
 
 .. note:: PyBDA first parses through the config file and builds a DAG of the methods that should be executed. If it finds dimensionality reduction *and* clustering, it will first embed the data in a lower dimensional space und use the result of this for clustering (i.e. in order to remove correlated features). The same does *not* happen with regression.
 
@@ -156,6 +153,9 @@ Below, the most important two are listed:
 ``"--executor-memory=xG"``
     Amount of memory to use per executor process in giga byte.
 
+``"--conf spark.driver.maxResultSize=3G"``
+    Limit of total size of serialized results of all partitions for each Spark action.
+
 Spark
 ~~~~~~
 
@@ -165,14 +165,16 @@ You can find a good introduction
 `here <https://spark.apache.org/docs/latest/spark-standalone.html>`_ on how
 to start the standalone Spark cluster. Alternatively, as mentioned above, a desktop PC suffices as well, but will limit what PyBDA can do for you.
 
-We assume that you know how to use Apache Spark and start a cluster. However, for the sake of demonstration the next two sections show how Spark can be easily started.
+**We assume that you know how to use Apache Spark and start a cluster.**
+However, for the sake of demonstration the next two sections give a short introduction how Spark clusters are set up.
 
 Local Spark context
 ....................
 
-On a local resource, such as a laptop or PC, there is no need to start a Spark cluster. In such a scenario the ``IP`` PyBDA requires for submitting jobs is just called ``local``.
+On a local resource, such as a laptop or desktop computer, there is no need to start a Spark cluster.
+In such a scenario the ``IP`` PyBDA requires for submitting jobs is just called ``local``.
 
-Alternatively, you can always *simulate* a cluster environment. You would then start the spark environment using:
+Alternatively, you can always *simulate* a cluster environment. You start the Spark environment using:
 
 .. code-block:: bash
 
@@ -186,28 +188,38 @@ When calling ``start-master.sh`` Spark will log the ``IP`` it uses. Thus you nee
 
     2019-01-23 21:57:29 INFO  Master:54 - Starting Spark master at spark://<COMPUTERNAME>:7077
 
-In the above case the ``IP`` is ``spark://<COMPUTERNAME>:7077``.
+In the above case the ``IP`` is ``spark://<COMPUTERNAME>:7077``. Thus you start the slave using
+
+.. code-block:: bash
+
+    $SPARK_HOME/sbin/start-slave.sh spark://<COMPUTERNAME>:7077
+
+That is it.
 
 Cluster environment
 ....................
 
-If you are working on a cluster, you can use the provided scripts to start a cluster.
-**Make sure to have a working ``openmpi`` and ``Java`` installed**. We use ``sparkhpc``
-in order to start a standalone cluster on an LSF/SGE high-performance computing cluster.
-Sparkhpc install with PyBDA, but in case it didn't just reinstall it:
+If you are working on a cluster, you can use ``sparkhpc`` to set up a Spark instance (find the documenation `here <https://sparkhpc.readthedocs.io/en/latest/>`_).
+
+.. note:: If you want to use ``sparkhpc`` , please read its documentation to understand how Spark clusters are started.
+
+Sparkhpc can be used to start a standalone cluster on an LSF/SGE high-performance computing environment. In order for them to work make sure to have
+**openmpi and Java installed**. Sparkhpc installs with PyBDA, but in case it didn't just reinstall it:
 
 .. code-block:: bash
 
   pip install sparkhpc
 
-Sparkhpc helps you setting up spark clusters for LSF and Slurm cluster environments. If you have one of those start a Sparkcluster using:
+Sparkhpc helps you setting up spark clusters for LSF and Slurm cluster environments. If you have one of those start a Spark cluster, for instance, using:
 
 .. code-block:: bash
 
-  ./analysis/0a-start-cluster.sh &
-  ./analysis/0b-launch-cluster.sh &
+  sparkcluster start --memory-per-executor 50000 --memory-per-core 10000 --walltime 4:00 --cores-per-executor 5 2 &
+  sparkcluster launch &
 
 .. warning:: For your own cluster, you should modify the number of workers, nodes, cores and memory.
+
+In the above call we would request `2` nodes with `5` cores each. Every core would receive 10G of memory, while the entuire executor would receive `50G` of memory.
 
 After the job has started, you need to call
 
@@ -227,19 +239,19 @@ If you made it thus far, you successfully
 
 Now we can finally start our application.
 
-For ``dimension-reduction``:
+For dimension reduction:
 
 .. code-block:: bash
 
   pybda dimension-reduction pybda-usecase.config IP
 
-For ``clustering``:
+For clustering:
 
 .. code-block:: bash
 
    pybda clustering pybda-usecase.config IP
 
-For ``regression``:
+For regression:
 
 .. code-block:: bash
 

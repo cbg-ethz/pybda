@@ -44,14 +44,14 @@ you want to execute in succession (e.g. dimensionality reduction into clustering
 In the case of a successful computation of a job, PyBDA will write results and plots, and create statistics. If one of the jobs fails PyBDA will report where and which method failed
 (owing to Snakemake's scheduling) such that the same pipeline can effortlessly be continued from where it failed the last time.
 
-Sofar PyBDA supports several methods from [MLLib]_ and some that have been developed from scratch to scale to big data settings:
+ PyBDA implements several methods from scratch to scale to big data settings and interfaces some methods from [MLLib]_:
 
 * dimensionality reduction using PCA, factor analysis, kPCA, linear discriminant analysis and ICA,
 * clustering using k-means and Gaussian mixture models,
 * supervised learning using generalized linear regression models, random forests and gradient boosting.
 
 The package is actively developed and will add new features in a timely fashion. If you want to you can also contribute:
-`fork us on GitHub <https://github.com/cbg-ethz/biospark>`_.
+`fork us on GitHub <https://github.com/cbg-ethz/pybda>`_.
 
 Dependencies
 ------------
@@ -62,30 +62,34 @@ Dependencies
 Example
 -------
 
-PyBDA only requires a config-file and, if possible, the IP of a spark-cluster. Otherwise you can just call PyBDA locally using ``local``).
-The config file might for a simple clustering case look like this:
+To run PyBDA you only need to provide a config-file and, if possible, the IP of a spark-cluster (otherwise you can just call PyBDA locally using ``local``).
+The config file for a simple clustering task might look like this:
 
-.. literalinclude:: ../../pybda-usecase-clustering.config
+.. literalinclude:: _static/pybda-usecase-clustering.config
   :caption: Contents of ``pybda-usecase-clustering.config`` file
-  :name: pybda-usecase-gmm.config
+  :name: pybda-usecase-clustering.config
 
-This would fight several k-means clusterings with different numbers of clusters.
-Calling the tool is then as simple as:
+The above configuration would tell PyBDA to first use factor analysis to embed the data into a ``5``-dimensional
+latent space and then fit several ``k``-means clusterings with different numbers of clusters on that space.
+You call PyBDA like that:
 
 .. code-block:: bash
 
-   pybda clustering pybda-usecase-kmeans.config local
+   pybda clustering pybda-usecase-clustering.config local
 
-The result of any call creates several different data files and appropriate distributions.
-For instance, for the example above, two of the plots generated are shown below:
+where ``local`` tells PyBDA to just use your desktop as Spark cluster.
+The result of any PyBDA call creates several files and figures.
+For the example above, two of the plots generated are shown below:
 
-.. figure:: _static/kmeans-profile.png
+.. figure:: _static/kmeans-profile.svg
    :align: center
+   :height: 425px
 
    Number of clusters vs explained variance and BIC.
 
-.. figure:: _static/kmeans-cluster_sizes-histogram.png
+.. figure:: _static/kmeans-cluster_sizes-histogram.svg
    :align: center
+   :height: 325px
 
    Each row shows the distribution of the number of cells per cluster (component).
 
