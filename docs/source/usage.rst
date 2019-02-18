@@ -109,24 +109,24 @@ clustering and regression.
 
 The abbreveations of the methods are explained in the following list.
 
-* ``factor_analysis`` `for factor analysis <https://en.wikipedia.org/wiki/Factor_analysis>`_,
-* ``forest`` for `random forests <https://en.wikipedia.org/wiki/Random_forest>`_ [RF]_,
-* ``gbm`` for stochastic `gradient boosting <https://en.wikipedia.org/wiki/Gradient_boosting>`_ [SGB]_,
-* ``glm`` for `generalized linear regression models <https://en.wikipedia.org/wiki/Generalized_linear_model>`_,
-* ``gmm`` for `Gaussian mixture models <https://en.wikipedia.org/wiki/Mixture_model#Gaussian_mixture_model>`_,
-* ``ica`` for `independent component analysis <https://en.wikipedia.org/wiki/Independent_component_analysis>`_,
-* ``lda`` for `linear discriminant analysis <https://en.wikipedia.org/wiki/Linear_discriminant_analysis>`_,
-* ``kmeans`` for `K-means <https://en.wikipedia.org/wiki/K-means_clustering>`_,
-* ``kpca`` for `kernel principal component analysis <https://en.wikipedia.org/wiki/Kernel_principal_component_analysis>`_ using Fourier features [FF]_ to approximate the kernel,
-* ``pca`` for `principal component analysis <https://en.wikipedia.org/wiki/Principal_component_analysis>`_.
+* ``factor_analysis`` `for factor analysis <https://en.wikipedia.org/wiki/Factor_analysis>`__,
+* ``forest`` for `random forests <https://en.wikipedia.org/wiki/Random_forest>`__ [RF]_,
+* ``gbm`` for stochastic `gradient boosting <https://en.wikipedia.org/wiki/Gradient_boosting>`__ [SGB]_,
+* ``glm`` for `generalized linear regression models <https://en.wikipedia.org/wiki/Generalized_linear_model>`__,
+* ``gmm`` for `Gaussian mixture models <https://en.wikipedia.org/wiki/Mixture_model#Gaussian_mixture_model>`__,
+* ``ica`` for `independent component analysis <https://en.wikipedia.org/wiki/Independent_component_analysis>`__,
+* ``lda`` for `linear discriminant analysis <https://en.wikipedia.org/wiki/Linear_discriminant_analysis>`__,
+* ``kmeans`` for `K-means <https://en.wikipedia.org/wiki/K-means_clustering>`__,
+* ``kpca`` for `kernel principal component analysis <https://en.wikipedia.org/wiki/Kernel_principal_component_analysis>`__ using Fourier features [FF]_ to approximate the kernel map,
+* ``pca`` for `principal component analysis <https://en.wikipedia.org/wiki/Principal_component_analysis>`__.
 
 Example
 .......
 
 For instance, consider the config file below:
 
-.. literalinclude:: ../../pybda-usecase.config
-  :caption: Contents of ``pybda-usecase.config`` file
+.. literalinclude:: ../../data/pybda-usecase.config
+  :caption: Contents of ``data/pybda-usecase.config`` file
   :name: pybda-usecase.config
 
 It would execute the following jobs:
@@ -136,14 +136,14 @@ It would execute the following jobs:
 3) binomial-family generalized regression model (i.e. logistic) on the input file with response *is_infected* and features from ``data/feature_columns.tsv``
 
 In addition we would allow Spark to use `3G` driver memory, `6G` executor memory and set the configuration variable ``spark.driver.maxResultSize``
-to `3G` (all configurations can be found `here <https://spark.apache.org/docs/latest/configuration.html#available-properties>`_).
+to `3G` (all configurations can be found `here <https://spark.apache.org/docs/latest/configuration.html#available-properties>`__).
 
 .. note:: PyBDA first parses through the config file and builds a DAG of the methods that should be executed. If it finds dimensionality reduction *and* clustering, it will first embed the data in a lower dimensional space und use the result of this for clustering (i.e. in order to remove correlated features). The same does *not* happen with regression.
 
 Spark parameters
 ................
 
-The Spark `documentation <https://spark.apache.org/docs/latest/submitting-applications.html>`_
+The Spark `documentation <https://spark.apache.org/docs/latest/submitting-applications.html>`__
 for submitting applications provides details which arguments are valid here. You provide them as list in the yaml file as key ``sparkparams``:
 Below, the most important two are listed:
 
@@ -162,7 +162,7 @@ Spark
 In order for PyBDA to work you need to have a working
 *standalone spark environment* set up, running and listening to some ``IP``.
 You can find a good introduction
-`here <https://spark.apache.org/docs/latest/spark-standalone.html>`_ on how
+`here <https://spark.apache.org/docs/latest/spark-standalone.html>`__ on how
 to start the standalone Spark cluster. Alternatively, as mentioned above, a desktop PC suffices as well, but will limit what PyBDA can do for you.
 
 **We assume that you know how to use Apache Spark and start a cluster.**
@@ -199,7 +199,7 @@ That is it.
 Cluster environment
 ....................
 
-If you are working on a cluster, you can use ``sparkhpc`` to set up a Spark instance (find the documenation `here <https://sparkhpc.readthedocs.io/en/latest/>`_).
+If you are working on a cluster, you can use ``sparkhpc`` to set up a Spark instance (find the documenation `here <https://sparkhpc.readthedocs.io/en/latest/>`__).
 
 .. note:: If you want to use ``sparkhpc`` , please read its documentation to understand how Spark clusters are started.
 

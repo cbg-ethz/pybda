@@ -3,25 +3,25 @@ Regression
 
 Here we show a small use case of how to regress a variable onto another set of variables exemplified
 on a small sample data set (``data/iris.tsv``). We assume you
-already set up the cluster for Spark (other check `here <./usage.html#spark>`_) with
+already set up the cluster for Spark (other check `here <./usage.html#spark>`__) with
 an ``IP`` address.
 
 Analysis
 --------
 
 We will use a generalized linear regression model to establish a dependency between
-a response and a set of predictors. Apart to the GLM, you can overall choose from
+a response and a set of predictors. Apart to the GLM, you can choose from
 several regression methods
 
-* ``glm`` for `generalized linear regression models <https://en.wikipedia.org/wiki/Generalized_linear_model>`_,
-* ``gbm`` for stochastic `gradient boosting <https://en.wikipedia.org/wiki/Gradient_boosting>`_ [SGB]_,
-* ``forest`` for `random forests <https://en.wikipedia.org/wiki/Random_forest>`_ [RF]_.
+* ``glm`` for `generalized linear regression models <https://en.wikipedia.org/wiki/Generalized_linear_model>`__,
+* ``gbm`` for stochastic `gradient boosting <https://en.wikipedia.org/wiki/Gradient_boosting>`__ [SGB]_,
+* ``forest`` for `random forests <https://en.wikipedia.org/wiki/Random_forest>`__ [RF]_.
 
 The config file we need to specify is in this case rather concise:
 
-.. literalinclude:: ../../pybda-usecase-regression.config
-  :caption: Contents of ``pybda-usecase-regression.config`` file
-  :name: pybda-usecase-logreg.config
+.. literalinclude:: ../../data/pybda-usecase-regression.config
+  :caption: Contents of ``data/pybda-usecase-regression.config`` file
+  :name: pybda-usecase-regression.config
 
 In the config above we will do the following:
 
