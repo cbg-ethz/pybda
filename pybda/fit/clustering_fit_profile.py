@@ -18,8 +18,9 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
+import glob
 import logging
+import re
 from abc import ABC, abstractmethod
 from collections import OrderedDict
 
@@ -74,9 +75,22 @@ class FitProfile(ABC):
             profilefile = fl + "-profile.tsv"
         return profilefile
 
-    @abstractmethod
-    def _cluster_sizes(self):
-        pass
+    def _cluster_sizes(self, path):
+        fls = glob.glob(path + "*/*cluster_sizes.tsv")
+        reg = re.compile(".*K(\d+)_cluster_sizes.tsv")
+        ll = self.as_pandas()
+        logger.info(len(fls))
+        frames = [None] * len(fls)
+        for i, fl in enumerate(fls):
+            t = pandas.read_csv(fl, sep="\t", header=-1, names="c")
+            idx = int(reg.match(fl).group(1))
+            t[K_] = str(idx).zfill(9)
+            frames[i] = [idx, t]
+        frames = sorted(frames, key=lambda x: x[0])
+        frames = list(filter(lambda x: x[0] in ll["k"].values, frames))
+        labels = list(map(lambda x: "K = {}".format(x[0]), frames))
+        data = pandas.concat(map(lambda x: x[1], frames))
+        return data, labels
 
     def as_pandas(self):
         df = [None] * len(self.models)

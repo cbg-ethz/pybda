@@ -74,6 +74,7 @@ class FactorAnalysisFit(DimensionReductionFit):
     def _plot(self, outfile):
         logger.info("Plotting")
         cev = cumulative_explained_variance(self.loadings.transpose())
+        cev = cev / sum(cev)
         subsamp = as_pandas(
           split_vector(sample(self.data, 10000), FEATURES__))
         for suf in ["png", "pdf", "svg", "eps"]:

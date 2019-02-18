@@ -38,7 +38,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 project = 'pybda'
-copyright = '2018, Simon Dirmeier'
+copyright = '2018-2019, Simon Dirmeier'
 author = 'Simon Dirmeier'
 
 
