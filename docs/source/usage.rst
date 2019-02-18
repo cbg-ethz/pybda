@@ -227,7 +227,7 @@ After the job has started, you need to call
 
   sparkcluster info
 
-in order to receive the spark ``IP``.
+in order to receive the Spark ``IP``.
 
 Calling
 ~~~~~~~
