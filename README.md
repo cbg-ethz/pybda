@@ -1,7 +1,8 @@
 # PyBDA <img src="https://raw.githubusercontent.com/cbg-ethz/pybda/master/_fig/sticker_pybda.png" align="right" width="160px"/>
 
 [![Project Status](http://www.repostatus.org/badges/latest/wip.svg)](http://www.repostatus.org/#wip)
-[![Build Status](https://travis-ci.org/cbg-ethz/pybda.svg?branch=master)](https://travis-ci.org/cbg-ethz/pybda/)
+[![travis](https://travis-ci.org/cbg-ethz/pybda.svg?branch=master)](https://travis-ci.org/cbg-ethz/pybda/)
+[![appveyor](https://ci.appveyor.com/api/projects/status/r58ut2jfxguucdwb/branch/master?svg=true)](https://ci.appveyor.com/project/dirmeier/pybda/branch/master)
 [![codecov](https://codecov.io/gh/cbg-ethz/pybda/branch/master/graph/badge.svg)](https://codecov.io/gh/cbg-ethz/pybda)
 [![codedacy](https://api.codacy.com/project/badge/Grade/a4cca665933a4def9c2cfc88d7bbbeae)](https://www.codacy.com/app/simon-dirmeier/pybda?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=cbg-ethz/pybda&amp;utm_campaign=Badge_Grade)
 [![readthedocs](https://readthedocs.org/projects/pybda/badge/?version=latest)](http://pybda.readthedocs.io/en/latest)
