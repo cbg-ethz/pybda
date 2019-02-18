@@ -52,7 +52,7 @@ We either entirely implemented these from scratch or interface the methodology f
 * supervised learning using generalized linear regression models, random forests and gradient boosting.
 
 The package is actively developed and will add new features in a timely fashion. If you want to you can also contribute:
-`fork us on GitHub <https://github.com/cbg-ethz/pybda>`_.
+`fork us on GitHub <https://github.com/cbg-ethz/pybda>`__.
 
 Dependencies
 ------------
