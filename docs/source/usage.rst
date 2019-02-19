@@ -110,14 +110,14 @@ clustering and regression.
 The abbreveations of the methods are explained in the following list.
 
 * ``factor_analysis`` `for factor analysis <https://en.wikipedia.org/wiki/Factor_analysis>`__,
-* ``forest`` for `random forests <https://en.wikipedia.org/wiki/Random_forest>`__ [RF]_,
-* ``gbm`` for stochastic `gradient boosting <https://en.wikipedia.org/wiki/Gradient_boosting>`__ [SGB]_,
+* ``forest`` for `random forests <https://en.wikipedia.org/wiki/Random_forest>`__,
+* ``gbm`` for stochastic `gradient boosting <https://en.wikipedia.org/wiki/Gradient_boosting>`__,
 * ``glm`` for `generalized linear regression models <https://en.wikipedia.org/wiki/Generalized_linear_model>`__,
 * ``gmm`` for `Gaussian mixture models <https://en.wikipedia.org/wiki/Mixture_model#Gaussian_mixture_model>`__,
-* ``ica`` for `independent component analysis <https://en.wikipedia.org/wiki/Independent_component_analysis>`__,
+* ``ica``  for `independent component analysis <https://en.wikipedia.org/wiki/Independent_component_analysis>`__,
 * ``lda`` for `linear discriminant analysis <https://en.wikipedia.org/wiki/Linear_discriminant_analysis>`__,
 * ``kmeans`` for `K-means <https://en.wikipedia.org/wiki/K-means_clustering>`__,
-* ``kpca`` for `kernel principal component analysis <https://en.wikipedia.org/wiki/Kernel_principal_component_analysis>`__ using Fourier features [FF]_ to approximate the kernel map,
+* ``kpca`` for `kernel principal component analysis <https://en.wikipedia.org/wiki/Kernel_principal_component_analysis>`__ using Fourier features to approximate the kernel map,
 * ``pca`` for `principal component analysis <https://en.wikipedia.org/wiki/Principal_component_analysis>`__.
 
 Example
@@ -262,6 +262,21 @@ In all cases, the methods create ``tsv`` files, plots and statistics.
 References
 ----------
 
-.. [FF] `Rahimi, Ali, and Benjamin Recht. "Random features for large-scale kernel machines." Advances in neural information processing systems. 2008. <http://papers.nips.cc/paper/3182-random-features-for-large-scale-kernel-machines.pdf>`_
-.. [SGB] `Friedman, Jerome H. "Stochastic gradient boosting." Computational Statistics & Data Analysis 38.4 (2002): 367-378 <https://doi.org/10.1016/S0167-9473(01)00065-2>`_.
-.. [RF] `Breiman, Leo. "Random forests." Machine learning 45.1 (2001): 5-32. <https://doi.org/10.1023/A:1010933404324>`_
+Murphy, Kevin P. Machine learning: a probabilistic perspective. `MIT press` (2012).
+
+Breiman, Leo. "Random forests." `Machine learning` 45.1 (2001): 5-32.
+
+Friedman, Jerome H. "Stochastic gradient boosting." `Computational Statistics & Data Analysis` 38.4 (2002): 367-378.
+
+Trevor, Hastie, Tibshirani Robert, and Friedman JH. "The elements of statistical learning: data mining, inference, and prediction." (2009).
+
+Hyvärinen, Aapo, Juha Karhunen, and Erkki Oja. Independent component analysis. Vol. 46. `John Wiley & Sons` (2004).
+
+Köster, Johannes, and Sven Rahmann. "Snakemake—a scalable bioinformatics workflow engine." `Bioinformatics` 28.19 (2012): 2520-2522.
+
+Meng, Xiangrui, et al. "MLlib: Machine Learning in Apache Spark." `The Journal of Machine Learning Research` 17.1 (2016): 1235-1241
+
+Rahimi, Ali, and Benjamin Recht. "Random features for large-scale kernel machines." `Advances in Neural Information Processing Systems` (2008).
+
+Zaharia, Matei, et al. "Apache Spark: a unified engine for big data processing." `Communications of the ACM` 59.11 (2016): 56-65.
+

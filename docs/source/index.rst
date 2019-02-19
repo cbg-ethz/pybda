@@ -105,6 +105,6 @@ For the example above, two of the plots generated are shown below:
 References
 ----------
 
-.. [Snakemake] `Köster, Johannes, and Sven Rahmann. "Snakemake—a scalable bioinformatics workflow engine." Bioinformatics 28.19 (2012): 2520-2522. <https://doi.org/10.1093/bioinformatics/bts480>`_
-.. [Spark]     `Zaharia, Matei, et al. "Apache spark: a unified engine for big data processing." Communications of the ACM 59.11 (2016): 56-65. <https://doi.org/10.1145/2934664>`_
-.. [MLLib]     `Meng, Xiangrui, et al. "Mllib: Machine learning in apache spark." The Journal of Machine Learning Research 17.1 (2016): 1235-1241. <http://jmlr.org/papers/volume17/15-237/15-237.pdf>`_
+.. [Snakemake] `Köster, Johannes, and Sven Rahmann. "Snakemake—a scalable bioinformatics workflow engine." `Bioinformatics` 28.19 (2012): 2520-2522. <https://doi.org/10.1093/bioinformatics/bts480>`_
+.. [Spark]     `Zaharia, Matei, et al. "Apache Sspark: a unified engine for big data processing." `Communications of the ACM` 59.11 (2016): 56-65. <https://doi.org/10.1145/2934664>`_
+.. [MLLib]     `Meng, Xiangrui, et al. "MLlib: Machine Learning in Apache Spark." `The Journal of Machine Learning Research` 17.1 (2016): 1235-1241. <http://jmlr.org/papers/volume17/15-237/15-237.pdf>`_
