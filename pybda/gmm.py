@@ -44,7 +44,8 @@ class GMM(Clustering):
     def fit(self, data, outpath=None):
         n, p = dimension(data)
         data = data.select(FEATURES__)
-        return self._fit(GMMFitProfile(), outpath, data, n, p, scipy.nan)
+        self._fit(GMMFitProfile(), outpath, data, n, p, scipy.nan)
+        return self
 
     @staticmethod
     def _fit_one(k, data, n, p, stat):
@@ -57,8 +58,8 @@ class GMM(Clustering):
                        loglik=fit.summary.logLikelihood, n=n, p=p, path=None)
         return model
 
-    def transform(self, data, models, outpath=None):
-        for k, fit in models:
+    def write(self, data, outpath=None):
+        for k, fit in self.models:
             m = GMMTransformed(fit.transform(data))
             if outpath:
                 m.write_files(outpath, k)

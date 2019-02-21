@@ -45,7 +45,8 @@ class KMeans(Clustering):
         n, p = dimension(data)
         data = data.select(FEATURES__)
         tot_var = self.tot_var(split_vector(data, FEATURES__), outpath)
-        return self._fit(KMeansFitProfile(), outpath, data, n, p, tot_var)
+        self._fit(KMeansFitProfile(), outpath, data, n, p, tot_var)
+        return self
 
     @staticmethod
     def _fit_one(k, data, n, p, tot_var):
@@ -57,8 +58,8 @@ class KMeans(Clustering):
                           total_variance=tot_var, n=n, p=p, path=None)
         return model
 
-    def transform(self, data, models, outpath=None):
-        for k, fit in models:
+    def write(self, data, outpath=None):
+        for k, fit in self.models:
             m = KMeansTransformed(fit.transform(data))
             if outpath:
                 m.write_files(outpath, k)
