@@ -14,7 +14,7 @@ PyBDA offers the following methods to do dimension reduction:
 
 * ``pca`` for `principal component analysis <https://en.wikipedia.org/wiki/Principal_component_analysis>`__,
 * ``factor_analysis`` `for factor analysis <https://en.wikipedia.org/wiki/Factor_analysis>`__,
-* ``kpca`` for `kernel principal component analysis <https://en.wikipedia.org/wiki/Kernel_principal_component_analysis>`_ using Fourier features [FF]_ to approximate the kernel,
+* ``kpca`` for `kernel principal component analysis <https://en.wikipedia.org/wiki/Kernel_principal_component_analysis>`_ using Fourier features to approximate the kernel,
 * ``lda`` for `linear discriminant analysis <https://en.wikipedia.org/wiki/Linear_discriminant_analysis>`__,
 * ``ica`` for `independent component analysis <https://en.wikipedia.org/wiki/Independent_component_analysis>`__.
 

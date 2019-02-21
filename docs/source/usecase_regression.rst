@@ -14,8 +14,8 @@ a response and a set of predictors. Apart to the GLM, you can choose from
 several regression methods
 
 * ``glm`` for `generalized linear regression models <https://en.wikipedia.org/wiki/Generalized_linear_model>`__,
-* ``gbm`` for stochastic `gradient boosting <https://en.wikipedia.org/wiki/Gradient_boosting>`__ [SGB]_,
-* ``forest`` for `random forests <https://en.wikipedia.org/wiki/Random_forest>`__ [RF]_.
+* ``gbm`` for stochastic `gradient boosting <https://en.wikipedia.org/wiki/Gradient_boosting>`__ ,
+* ``forest`` for `random forests <https://en.wikipedia.org/wiki/Random_forest>`__ .
 
 The config file we need to specify is in this case rather concise:
 
