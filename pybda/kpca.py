@@ -49,18 +49,28 @@ class KPCA(PCA):
         return self.__n_fourier_features
 
     def fit(self, data):
+        X, = self._fit(data)
+        del X
+        return self
+
+    def _fit(self, data):
         X = self._preprocess_data(data)
-        X, w, b = fourier(
-          X, self.n_fourier_features, self.__seed, self.gamma)
+        X, w, b = fourier(X, self.n_fourier_features, self.__seed, self.gamma)
         loadings, sds = PCA._compute_pcs(X)
-        return X, loadings, sds, w, b
+
+        self.fourier_coefficient = w
+        self.fourier_offset = b
+        self.loadings = loadings
+        self.sds = sds
+
+        return X
 
     def fit_transform(self, data: DataFrame):
         logger.info("Running kernel principal component analysis ...")
-        X, loadings, sds, _, _ = self.fit(data)
-        data = self.transform(data, X, loadings)
-        return KPCAFit(data, self.n_components, loadings, sds, self.features,
-                       self.n_fourier_features, self.gamma)
+        X, = self._fit(data)
+        data = self.transform(data, X, self.loadings)
+        return KPCAFit(data, self.n_components, self.loadings, self.sds,
+                       self.features, self.n_fourier_features, self.gamma)
 
 
 @click.command()
@@ -89,7 +99,7 @@ def run(components, file, features, outpath):
                                       assemble_features=False)
             fl = KPCA(spark, components, features)
             fit = fl.fit_transform(data)
-            fit.write_files(outpath)
+            fit.write(outpath)
         except Exception as e:
             logger.error("Some error: {}".format(str(e)))
 
