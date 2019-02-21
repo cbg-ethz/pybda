@@ -24,8 +24,7 @@ import numpy
 import pandas
 import scipy as sp
 from pyspark.ml.evaluation import MulticlassClassificationEvaluator
-
-from pybda.fit.transformed_data import TransformedData
+from pybda.fit.predicted_data import PredictedData
 from pybda.globals import GAUSSIAN_, BINOMIAL_, INTERCEPT__
 
 logger = logging.getLogger(__name__)
@@ -121,7 +120,7 @@ class GLMFit:
         return numpy.squeeze(self.__table[["features"]].values)
 
     def predict(self, data):
-        return TransformedData(self.__model.transform(data))
+        return PredictedData(self.__model.transform(data))
 
     @property
     def data(self):
