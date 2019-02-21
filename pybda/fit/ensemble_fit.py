@@ -24,7 +24,7 @@ import logging
 from pyspark.ml.evaluation import MulticlassClassificationEvaluator
 from pyspark.ml.evaluation import RegressionEvaluator
 
-from pybda.fit.transformed_data import TransformedData
+from pybda.fit.predicted_data import PredictedData
 from pybda.globals import GAUSSIAN_, BINOMIAL_
 
 logger = logging.getLogger(__name__)
@@ -90,8 +90,8 @@ class EnsembleFit:
 
     def predict(self, data=None):
         if data is None:
-            return TransformedData(self.data)
-        return TransformedData(self.__model.transform(data))
+            return PredictedData(self.data)
+        return PredictedData(self.__model.transform(data))
 
     @property
     def data(self):

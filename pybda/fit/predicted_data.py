@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class TransformedData:
+class PredictedData:
     def __init__(self, data):
         self.__data = data
 
@@ -41,7 +41,7 @@ class TransformedData:
         :param outpath: the path to where the files are written.
         """
 
-        outpath = outpath + "-transformed"
+        outpath = outpath + "-predicted"
         data = drop(self.data, FEATURES__, RAW_PREDICTION__)
         data = split_vector(data, PROBABILITY__)
         write_tsv(data, outpath)
