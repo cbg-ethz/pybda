@@ -81,7 +81,7 @@ class GLMFit:
             "se": se
         })
 
-    def write_files(self, outfolder):
+    def write(self, outfolder):
         self._write_stats(outfolder)
         self._write_table(outfolder)
 
@@ -120,7 +120,7 @@ class GLMFit:
     def features(self):
         return numpy.squeeze(self.__table[["features"]].values)
 
-    def transform(self, data):
+    def predict(self, data):
         return TransformedData(self.__model.transform(data))
 
     @property

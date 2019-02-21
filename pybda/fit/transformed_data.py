@@ -34,7 +34,7 @@ class TransformedData:
     def __init__(self, data):
         self.__data = data
 
-    def write_files(self, outpath):
+    def write(self, outpath):
         """
         Write a transformed data set to tsv.
 
