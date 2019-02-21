@@ -50,6 +50,15 @@ class Clustering(SparkModel):
         self.__threshold = threshold
         self.__max_iter = max_iter
         self.__clusters = clusters
+        self.__models = None
+
+    @property
+    def models(self):
+        return self.__models
+
+    @models.setter
+    def models(self, models):
+        self.__models = models
 
     @property
     def clusters(self):
@@ -64,16 +73,16 @@ class Clustering(SparkModel):
         return self.__threshold
 
     @abstractmethod
-    def transform(self, data, outpath):
+    def fit(self, data, outpath=None):
         pass
-
-    def fit_transform(self, data, outpath=None):
-        models = self.fit(data, outpath)
-        self.transform(data, models, outpath)
 
     @abstractmethod
-    def fit(self):
+    def write(self, data, outpath=None):
         pass
+
+    def fit_write(self, data, outpath=None):
+        self.fit(data, outpath)
+        self.write(data, outpath)
 
     @staticmethod
     def _check_transform(models, fit_folder):
@@ -105,4 +114,4 @@ class Clustering(SparkModel):
                 models[k].write_files(outpath)
         if outpath:
             models.write_files(outpath)
-        return models
+        self.models = models
