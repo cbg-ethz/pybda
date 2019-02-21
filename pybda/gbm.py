@@ -36,8 +36,8 @@ class GBM(Ensemble):
     def __init__(self, spark, response, features, family=GAUSSIAN_,
                  max_iter=25, step_size=0.1, max_depth=10,
                  subsampling_rate=0.5):
-        super().__init__(spark, family, response, features, max_depth,
-                         subsampling_rate)
+        super().__init__(spark, family, response, features,
+                         max_depth, subsampling_rate)
         self.__max_iter = max_iter
         self.__step_size = step_size
 
@@ -54,13 +54,6 @@ class GBM(Ensemble):
                     maxIter=self.__max_iter)
         model.setLabelCol(self.response)
         return model
-
-    def fit_transform(self):
-        raise NotImplementedError()
-
-    def transform(self, predict):
-        raise NotImplementedError()
-
 
 @click.command()
 @click.argument("file", type=str)
@@ -90,13 +83,13 @@ def run(file, meta, features, response, family, outpath, predict):
             meta, features = read_column_info(meta, features)
             data = read_and_transmute(spark, file, features, response)
             fl = GBM(spark, response, features, family)
-            fit = fl.fit(data)
-            fit.write_files(outpath)
+            fl.fit(data)
+            fl.write(outpath)
             if pathlib.Path(predict).exists():
                 pre_data = read_and_transmute(spark, predict, features,
                                               drop=False)
-                pre_data = fit.transform(pre_data)
-                pre_data.write_files(outpath)
+                pre_data = fl.predict(pre_data)
+                pre_data.write(outpath)
 
         except Exception as e:
             logger.error("Some error: %s", str(e))

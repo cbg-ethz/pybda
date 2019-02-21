@@ -58,7 +58,7 @@ class EnsembleFit:
             self.__recall = evaluator.evaluate(
                 self.data, {evaluator.metricName: "weightedRecall"})
 
-    def write_files(self, outfolder):
+    def write(self, outfolder):
         logger.info("Writing regression statistics")
         out_file = outfolder + "-statistics.tsv"
         with open(out_file, "w") as fh:
@@ -88,7 +88,7 @@ class EnsembleFit:
     def features(self):
         return self.__features
 
-    def transform(self, data=None):
+    def predict(self, data=None):
         if data is None:
             return TransformedData(self.data)
         return TransformedData(self.__model.transform(data))

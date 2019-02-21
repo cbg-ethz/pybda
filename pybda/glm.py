@@ -40,7 +40,8 @@ class GLM(Regression):
     def fit(self, data):
         logger.info("Fitting GLM with family='{}'".format(self.family))
         model = self._fit(data)
-        return GLMFit(data, model, self.response, self.family, self.features)
+        self.fit = GLMFit(data, model, self.response, self.family, self.features)
+        return self
 
     def _model(self):
         if self.family == GAUSSIAN_:
@@ -54,12 +55,6 @@ class GLM(Regression):
         reg.setLabelCol(self.response)
         reg.setMaxIter(self.__max_iter)
         return reg
-
-    def fit_transform(self, data):
-        raise NotImplementedError()
-
-    def transform(self, data):
-        raise NotImplementedError()
 
 
 @click.command()
@@ -90,13 +85,13 @@ def run(file, meta, features, response, family, outpath, predict):
             meta, features = read_column_info(meta, features)
             data = read_and_transmute(spark, file, features, response)
             fl = GLM(spark, response, features, family)
-            fit = fl.fit(data)
-            fit.write_files(outpath)
+            fl = fl.fit(data)
+            fl.write(outpath)
             if pathlib.Path(predict).exists():
                 pre_data = read_and_transmute(spark, predict, features,
                                               drop=False)
-                pre_data = fit.transform(pre_data)
-                pre_data.write_files(outpath)
+                pre_data = fl.predict(pre_data)
+                pre_data.write(outpath)
         except Exception as e:
             logger.error("Some error: {}".format(str(e)))
 

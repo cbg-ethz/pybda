@@ -89,7 +89,7 @@ def run(clusters, file, features, outpath):
             features = read_info(features)
             data = read_and_transmute(spark, file, features)
             km = KMeans(spark, clusters, features)
-            km.fit_transform(data, outfolder)
+            km.fit_write(data, outfolder)
         except Exception as e:
             logger.error("Some error: {}".format(e))
 
