@@ -30,8 +30,8 @@ logger.setLevel(logging.INFO)
 class KPCAFit(PCAFit):
     __KIND__ = "kpca"
 
-    def __init__(self, data, n_components, loadings, sds, features,
-                 n_fourier_features, gamma):
+    def __init__(self, data, n_components, loadings,
+                 sds, features, n_fourier_features, gamma):
         super().__init__(data, n_components, loadings, sds, features)
         self.__n_ff = n_fourier_features
         self.__gamma = gamma,

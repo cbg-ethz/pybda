@@ -57,6 +57,7 @@ class ICA(DimensionReduction):
         X = self._center(data)
         W, K = self._fit(X)
         return X, K.dot(W), W, K
+        return self
 
     def _fit(self, X):
         Xw, K = self._whiten(X)
