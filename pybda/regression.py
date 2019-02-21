@@ -34,6 +34,7 @@ class Regression(SparkModel):
         self.__family = family
         self.__response = response
         self.__features = features
+        self.__fit = None
 
     @property
     def features(self):
@@ -51,13 +52,11 @@ class Regression(SparkModel):
     def fit(self, data):
         pass
 
-    @abstractmethod
-    def fit_transform(self, data):
-        pass
+    def predict(self, data):
+        self.__fit.predict(data)
 
-    @abstractmethod
-    def transform(self, data):
-        pass
+    def write(self, outpath):
+        self.__fit.write_files(outpath)
 
     def _fit(self, data):
         data = data.coalesce(300)

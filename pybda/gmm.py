@@ -89,7 +89,7 @@ def run(clusters, file, features, outpath):
             features = read_info(features)
             data = read_and_transmute(spark, file, features)
             gmm = GMM(spark, clusters, features)
-            gmm.fit_transform(data, outfolder)
+            gmm.fit_write(data, outfolder)
         except Exception as e:
             logger.error("Some error: {}".format(e))
 

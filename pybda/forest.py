@@ -52,12 +52,6 @@ class Forest(Ensemble):
         model.setLabelCol(self.response)
         return model
 
-    def fit_transform(self, data):
-        raise NotImplementedError()
-
-    def transform(self, predict):
-        raise NotImplementedError()
-
 
 @click.command()
 @click.argument("file", type=str)
@@ -88,13 +82,12 @@ def run(file, meta, features, response, family, outpath, predict):
             data = read_and_transmute(spark, file, features, response)
             fl = Forest(spark, response, features, family)
             fit = fl.fit(data)
-            fit.write_files(outpath)
+            fit.write(outpath)
             if pathlib.Path(predict).exists():
                 pre_data = read_and_transmute(spark, predict, features,
                                               drop=False)
                 pre_data = fit.transform(pre_data)
-                pre_data.write_files(outpath)
-
+                pre_data.write(outpath)
         except Exception as e:
             logger.error("Some error: {}".format(str(e)))
 
