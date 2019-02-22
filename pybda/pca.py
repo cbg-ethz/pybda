@@ -29,6 +29,7 @@ from pyspark.mllib.linalg.distributed import RowMatrix
 
 from pybda.dimension_reduction import DimensionReduction
 from pybda.fit.pca_fit import PCAFit
+from pybda.fit.pca_transform import PCATransform
 from pybda.spark.dataframe import join
 from pybda.stats.linalg import svd
 from pybda.stats.stats import scale
@@ -91,7 +92,7 @@ class PCA(DimensionReduction):
         X, model = self._fit(data)
         data = self._transform(data, X, model)
         del X
-        return PCATransform(data, self.n_components, self.features, self.model)
+        return PCATransform(data, self.n_components, self.features, model)
 
 
 @click.command()
@@ -119,8 +120,8 @@ def run(components, file, features, outpath):
             data = read_and_transmute(
               spark, file, features, assemble_features=False)
             fl = PCA(spark, components, features)
-            fit = fl.fit_transform(data)
-            fit.write_files(outpath)
+            tran = fl.fit_transform(data)
+            tran.write(outpath)
         except Exception as e:
             logger.error("Some error: {}".format(str(e)))
 

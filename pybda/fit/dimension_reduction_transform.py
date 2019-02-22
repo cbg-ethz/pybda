@@ -33,15 +33,15 @@ logger.setLevel(logging.INFO)
 
 
 class DimensionReductionTransform(ABC):
-    def __init__(self, data, n_components, features, W):
+    def __init__(self, data, n_components, features, model):
         self.__data = data
         self.__n_components = n_components
         self.__features = features
-        self.__W = W
+        self.__model = model
 
     @property
     def loadings(self):
-        return self.__W
+        return self.__model.loadings
 
     @property
     def data(self):
@@ -56,8 +56,12 @@ class DimensionReductionTransform(ABC):
         return self.__n_components
 
     @abstractmethod
-    def write_files(self, outfolder):
+    def write(self, outfolder):
         pass
+
+    @property
+    def model(self):
+        self.__model
 
     def _write_loadings(self, outfile):
         logger.info("Writing loadings to file")

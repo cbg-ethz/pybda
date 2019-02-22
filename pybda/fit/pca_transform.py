@@ -24,37 +24,35 @@ import os
 
 from pandas import DataFrame
 
-from pybda.fit.dimension_reduction_fit import DimensionReductionFit
+from pybda.fit.dimension_reduction_transform import DimensionReductionTransform
 from pybda.globals import FEATURES_
 from pybda.plot.descriptive import scatter, histogram
-
 from pybda.plot.dimension_reduction_plot import biplot, \
     plot_cumulative_variance
 from pybda.sampler import sample
-from pybda.util.cast_as import as_pandas
 from pybda.spark.features import split_vector
 from pybda.stats.stats import cumulative_explained_variance
+from pybda.util.cast_as import as_pandas
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class PCATransform(DimensionReductionFit):
+class PCATransform(DimensionReductionTransform):
     __KIND__ = "pca"
 
-    def __init__(self, data, n_components, features):
-        super().__init__(data, n_components, features, loadings)
-        self.__sds = sds
+    def __init__(self, data, n_components, features, model):
+        super().__init__(data, n_components, features, model)
 
     @property
     def kind(self):
-        return PCAFit.__KIND__
+        return PCATransform.__KIND__
 
     @property
     def sds(self):
-        return self.__sds
+        return self.model.sds
 
-    def write_files(self, outfolder):
+    def write(self, outfolder):
         self.write_tsv(outfolder)
         self._write_loadings(outfolder + "-loadings.tsv")
         plot_fold = outfolder + "-plot"
