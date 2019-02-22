@@ -49,25 +49,22 @@ class KPCA(PCA):
         return self.__n_fourier_features
 
     def fit(self, data):
-        X, = self._fit(data)
+        X, fit = self._fit(data)
         del X
-        return self
+        return fit
 
     def _fit(self, data):
         X = self._preprocess_data(data)
         X, w, b = fourier(X, self.n_fourier_features, self.__seed, self.gamma)
         loadings, sds = PCA._compute_pcs(X)
 
-        self.fourier_coefficient = w
-        self.fourier_offset = b
-        self.loadings = loadings
-        self.sds = sds
-
-        return X
+        fit = KPCAFit(self.n_components, loadings, sds, self.features,
+                      self.n_fourier_features, w, b, self.gamma)
+        return X, fit
 
     def fit_transform(self, data: DataFrame):
         logger.info("Running kernel principal component analysis ...")
-        X, = self._fit(data)
+        X, fit = self._fit(data)
         data = self.transform(data, X, self.loadings)
         return KPCAFit(data, self.n_components, self.loadings, self.sds,
                        self.features, self.n_fourier_features, self.gamma)

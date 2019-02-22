@@ -39,11 +39,11 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class PCAFit(DimensionReductionFit):
+class PCATransform(DimensionReductionFit):
     __KIND__ = "pca"
 
-    def __init__(self, n_components, loadings, sds, features):
-        super().__init__(n_components, features, loadings)
+    def __init__(self, data, n_components, features):
+        super().__init__(data, n_components, features, loadings)
         self.__sds = sds
 
     @property

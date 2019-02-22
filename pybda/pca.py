@@ -47,10 +47,17 @@ class PCA(DimensionReduction):
         return self.__n_components
 
     def fit(self, data):
+        X, _ = self._fit(data)
+        del X
+        return self
+
+    def _fit(self, data):
         logger.info("Fitting PCA")
         X = self._preprocess_data(data)
         loadings, sds = self._compute_pcs(X)
-        return X, loadings, sds
+        del X
+        self.model = PCAFit(self.n_components, loadings, sds, self.features)
+        return X, self.model
 
     def _preprocess_data(self, data):
         if isinstance(data, pyspark.sql.DataFrame):
@@ -65,10 +72,15 @@ class PCA(DimensionReduction):
         sds = sds / scipy.sqrt(max(1, X.numRows() - 1))
         return loadings, sds
 
-    def transform(self, data, X, loadings):
+    def transform(self, data):
+        X = self._preprocess_data(data)
+        return self._transform(data, X)
+
+    def _transform(self, data, X):
         logger.info("Transforming data")
-        loadings = DenseMatrix(X.numCols(), self.n_components,
-                               loadings.flatten())
+        loadings = DenseMatrix(X.numCols(),
+                               self.n_components,
+                               self.model.loadings.flatten())
         X = X.multiply(loadings)
         data = join(data, X, self.spark)
         del X
@@ -76,9 +88,10 @@ class PCA(DimensionReduction):
 
     def fit_transform(self, data):
         logger.info("Running principal component analysis ...")
-        X, loadings, sds = self.fit(data)
-        data = self.transform(data, X, loadings)
-        return PCAFit(data, self.n_components, loadings, sds, self.features)
+        X, model = self._fit(data)
+        data = self._transform(data, X, model)
+        del X
+        return PCATransform(data, self.n_components, self.features, self.model)
 
 
 @click.command()

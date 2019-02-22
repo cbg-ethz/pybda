@@ -31,6 +31,7 @@ class DimensionReduction(SparkModel):
         self.__features = features
         self.__threshold = threshold
         self.__max_iter = max_iter
+        self.__fit = None
 
     @property
     def features(self):
