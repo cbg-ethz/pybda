@@ -21,44 +21,32 @@
 
 import logging
 
-from pyspark.ml.evaluation import MulticlassClassificationEvaluator
 from pyspark.ml.evaluation import RegressionEvaluator
 
-from pybda.fit.predicted_data import PredictedData
+from pybda.fit.regression_fit import RegressionFit
 from pybda.globals import GAUSSIAN_, BINOMIAL_
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class EnsembleFit:
+class EnsembleFit(RegressionFit):
     def __init__(self, data, model, response, family, features):
-        self.__data = model.transform(data)
-        self.__model = model
-        self.__response = response
-        self.__family = family
-        self.__features = features
+        super().__init__(data, model, response, family, features)
 
         if family == GAUSSIAN_:
+            self.__data = model.transform(data)
             evaluator = RegressionEvaluator(labelCol=self.response)
             self.__rmse = evaluator.evaluate(self.data,
                                              {evaluator.metricName: "rmse"})
             self.__mse = self.__rmse**2
             self.__r2 = evaluator.evaluate(self.data,
                                            {evaluator.metricName: "r2"})
-        else:
-            evaluator = MulticlassClassificationEvaluator(
-                labelCol=self.response)
-            self.__f1 = evaluator.evaluate(self.data,
-                                           {evaluator.metricName: "f1"})
-            self.__accuracy = evaluator.evaluate(
-                self.data, {evaluator.metricName: "accuracy"})
-            self.__precision = evaluator.evaluate(
-                self.data, {evaluator.metricName: "weightedPrecision"})
-            self.__recall = evaluator.evaluate(
-                self.data, {evaluator.metricName: "weightedRecall"})
 
     def write(self, outfolder):
+        self._write_stats(outfolder)
+
+    def _write_stats(self, outfolder):
         logger.info("Writing regression statistics")
         out_file = outfolder + "-statistics.tsv"
         with open(out_file, "w") as fh:
@@ -77,50 +65,5 @@ class EnsembleFit:
                     self.__rmse))
 
     @property
-    def family(self):
-        return self.__family
-
-    @property
-    def response(self):
-        return self.__response
-
-    @property
     def features(self):
         return self.__features
-
-    def predict(self, data=None):
-        if data is None:
-            return PredictedData(self.data)
-        return PredictedData(self.__model.transform(data))
-
-    @property
-    def data(self):
-        return self.__data
-
-    @property
-    def mse(self):
-        return self.__mse
-
-    @property
-    def r2(self):
-        return self.__r2
-
-    @property
-    def rmse(self):
-        return self.__rmse
-
-    @property
-    def f1(self):
-        return self.__f1
-
-    @property
-    def accuracy(self):
-        return self.__accuracy
-
-    @property
-    def precision(self):
-        return self.__precision
-
-    @property
-    def recall(self):
-        return self.__recall
