@@ -86,7 +86,7 @@ def run(file, meta, features, response, family, outpath, predict):
             if pathlib.Path(predict).exists():
                 pre_data = read_and_transmute(spark, predict, features,
                                               drop=False)
-                pre_data = fit.transform(pre_data)
+                pre_data = fit.predict(pre_data)
                 pre_data.write(outpath)
         except Exception as e:
             logger.error("Some error: {}".format(str(e)))

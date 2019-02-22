@@ -40,7 +40,8 @@ class GLM(Regression):
     def fit(self, data):
         logger.info("Fitting GLM with family='{}'".format(self.family))
         model = self._fit(data)
-        self.fit = GLMFit(data, model, self.response, self.family, self.features)
+        self.model = GLMFit(data, model, self.response,
+                            self.family, self.features)
         return self
 
     def _model(self):
@@ -48,10 +49,10 @@ class GLM(Regression):
             reg = LinearRegression()
         elif self.family == BINOMIAL_:
             reg = GeneralizedLinearRegression(
-              family="binomial",  link="logit")
+              family="binomial", link="logit")
         else:
             raise NotImplementedError("Family '{}' not implemented".format(
-                self.family))
+              self.family))
         reg.setLabelCol(self.response)
         reg.setMaxIter(self.__max_iter)
         return reg

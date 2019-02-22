@@ -41,6 +41,9 @@ class DimensionReduction(SparkModel):
     def model(self, model):
         self.__model = model
 
+    def write(self, outfolder):
+        self.model.write(outfolder)
+
     @property
     def features(self):
         return self.__features
