@@ -56,7 +56,6 @@ class PCA(DimensionReduction):
         logger.info("Fitting PCA")
         X = self._preprocess_data(data)
         loadings, sds = self._compute_pcs(X)
-        del X
         self.model = PCAFit(self.n_components, loadings, sds, self.features)
         return X, self.model
 
@@ -79,9 +78,9 @@ class PCA(DimensionReduction):
 
     def _transform(self, data, X):
         logger.info("Transforming data")
-        loadings = DenseMatrix(X.numCols(),
-                               self.n_components,
-                               self.model.loadings.flatten())
+        loadings = self.model.loadings[:self.n_components]
+        loadings = DenseMatrix(X.numCols(), self.n_components,
+                               loadings.flatten())
         X = X.multiply(loadings)
         data = join(data, X, self.spark)
         del X
@@ -90,9 +89,9 @@ class PCA(DimensionReduction):
     def fit_transform(self, data):
         logger.info("Running principal component analysis ...")
         X, model = self._fit(data)
-        data = self._transform(data, X, model)
+        data = self._transform(data, X)
         del X
-        return PCATransform(data, self.n_components, self.features, model)
+        return PCATransform(data, model)
 
 
 @click.command()

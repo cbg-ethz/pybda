@@ -33,19 +33,14 @@ logger.setLevel(logging.INFO)
 
 
 class DimensionReductionFit(ABC):
-    def __init__(self, data, n_components, features, W):
-        self.__data = data
+    def __init__(self, n_components, features, loadings):
         self.__n_components = n_components
         self.__features = features
-        self.__W = W
+        self.__loadings = loadings
 
     @property
     def loadings(self):
-        return self.__W
-
-    @property
-    def data(self):
-        return self.__data
+        return self.__loadings
 
     @property
     def feature_names(self):
@@ -56,18 +51,14 @@ class DimensionReductionFit(ABC):
         return self.__n_components
 
     @abstractmethod
-    def write_files(self, outfolder):
+    def write(self, outfolder):
         pass
 
     def _write_loadings(self, outfile):
         logger.info("Writing loadings to file")
         DataFrame(self.loadings, columns=self.feature_names).to_csv(
-            outfile, sep="\t", index=False)
+          outfile, sep="\t", index=False)
 
     @abstractmethod
     def _plot(self, outfile):
         pass
-
-    def write_tsv(self, outfolder):
-        data = split_vector(self.data, FEATURES__)
-        write_tsv(data, outfolder)
