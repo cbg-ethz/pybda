@@ -22,13 +22,10 @@
 import numpy
 import pandas
 import sklearn.decomposition
-from numpy.linalg import linalg
 from sklearn.preprocessing import scale
 
 from pybda.factor_analysis import FactorAnalysis
 from pybda.globals import FEATURES__
-from pybda.ica import ICA
-from pybda.pca import PCA
 from pybda.spark.features import split_vector
 from tests.test_dimred_api import TestDimredAPI
 
@@ -53,13 +50,16 @@ class TestFA(TestDimredAPI):
         cls.sk_fit = cls.sk_fa.fit(cls.X_lo)
 
         cls.fa = FactorAnalysis(cls.spark(), 2, cls.features(), max_iter=5)
-        cls.X, cls.W, cls.ll, cls.psi = cls.fa.fit(cls._spark_lo)
+        cls.trans = cls.fa.fit_transform(cls._spark_lo)
+        model = cls.fa.model
+        cls.W = model.loadings
+        cls.ll = model.loglikelihood
+        cls.psi = model.error_vcov
 
-        cls.trans = cls.fa.transform(cls._spark_lo, cls.X,
-                                     cls.sk_fit.components_, cls.psi)
-        #
+        # we need to set the means to zero here since sklearn slighly computes
+        # FA differently
         cls.sk_fit.mean_ = numpy.zeros(4)
-        cls.sk_trans = cls.sk_fit.transform(cls.X.rows.collect())
+        cls.sk_trans = cls.sk_fit.transform(cls.X_lo)
 
     @classmethod
     def tearDownClass(cls):
@@ -73,16 +73,16 @@ class TestFA(TestDimredAPI):
           atol=1e-01)
 
     def test_fa_transform(self):
-        ta = split_vector(self.trans.select(FEATURES__),
+        ta = split_vector(self.trans.data.select(FEATURES__),
                           FEATURES__).toPandas().values
+        print(self.sk_trans)
+        print(ta)
         for i in range(2):
-            ax1 = sorted(ta[:, i])
-            ax2 = sorted(self.sk_trans[:, i])
+            ax1 = sorted(numpy.absolute(ta[:, i]))
+            ax2 = sorted(numpy.absolute(self.sk_trans[:, i]))
             assert numpy.allclose(
-              numpy.absolute(ax1),
-              numpy.absolute(ax2),
-              atol=1e-01
-            )
+              ax1, ax2,
+              atol=1e-01)
 
     def test_fa_loadings(self):
         assert numpy.allclose(

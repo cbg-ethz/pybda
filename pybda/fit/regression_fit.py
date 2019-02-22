@@ -32,14 +32,13 @@ logger.setLevel(logging.INFO)
 
 class RegressionFit(ABC):
     def __init__(self, data, model, response, family, features):
-        self.__data = data
+        self.__data = model.transform(data)
         self.__model = model
         self.__response = response
         self.__family = family
         self.__features = features
 
         if family == BINOMIAL_:
-            self.__data = model.transform(data)
             evaluator = MulticlassClassificationEvaluator(labelCol=response)
             self.__f1 = evaluator.evaluate(
               self.data, {evaluator.metricName: "f1"})
@@ -74,18 +73,6 @@ class RegressionFit(ABC):
     @property
     def data(self):
         return self.__data
-
-    @property
-    def mse(self):
-        return self.__mse
-
-    @property
-    def r2(self):
-        return self.__r2
-
-    @property
-    def rmse(self):
-        return self.__rmse
 
     @property
     def f1(self):
