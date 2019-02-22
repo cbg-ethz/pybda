@@ -21,36 +21,30 @@
 
 import logging
 
-from pybda.fit.pca_fit import PCAFit
+from pybda.fit.pca_transform import PCATransform
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class KPCATransform(PCAFit):
+class KPCATransform(PCATransform):
     __KIND__ = "kpca"
 
-    def __init__(self, data, n_components, loadings,
-                 sds, features, n_fourier_features, gamma):
-        super().__init__(data, n_components, loadings, sds, features)
-        self.__n_ff = n_fourier_features
-        self.__gamma = gamma,
-        self.__suffix = "kpca"
-        self.__ff_features = list(
-            map('fourier_feature_{}'.format, range(1, n_fourier_features + 1)))
+    def __init__(self, data, model):
+        super().__init__(data, model)
 
     @property
     def kind(self):
-        return KPCAFit.__KIND__
+        return KPCATransform.__KIND__
 
     @property
     def gamma(self):
-        return self.__gamma
+        return self.model.gamma
 
     @property
     def n_fourier_features(self):
-        return self.__n_ff
+        return self.model.n_fourier_features
 
     @property
     def feature_names(self):
-        return self.__ff_features
+        return self.model.feature_names

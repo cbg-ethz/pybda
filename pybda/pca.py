@@ -79,7 +79,8 @@ class PCA(DimensionReduction):
     def _transform(self, data, X):
         logger.info("Transforming data")
         loadings = self.model.loadings[:self.n_components]
-        loadings = DenseMatrix(X.numCols(), self.n_components,
+        loadings = DenseMatrix(X.numCols(),
+                               self.n_components,
                                loadings.flatten())
         X = X.multiply(loadings)
         data = join(data, X, self.spark)
