@@ -28,6 +28,7 @@ from pyspark.mllib.linalg.distributed import RowMatrix
 
 from pybda.dimension_reduction import DimensionReduction
 from pybda.fit.lda_fit import LDAFit
+from pybda.fit.lda_transform import LDATransform
 from pybda.spark.dataframe import join
 from pybda.spark.features import distinct
 from pybda.stats.stats import within_group_scatter, covariance_matrix
@@ -51,12 +52,17 @@ class LDA(DimensionReduction):
         return self.__n_components
 
     def fit(self, data):
-        logger.info("Fitting LDA")
+        self._fit(data)
+        return self
+
+    def _fit(self, data):
         targets = distinct(data, self.__response)
         SW = within_group_scatter(data, self.features, self.response, targets)
         SB = covariance_matrix(self._row_matrix(data)) * (data.count() - 1) - SW
-        evals, evec = self._compute_eigens(SW, SB)
-        return evec, evals
+        loadings, vars = self._compute_eigens(SW, SB)
+        self.model = LDAFit(self.n_components, loadings, vars,
+                            self.features, self.response)
+        return self.model
 
     def _row_matrix(self, data):
         return RowMatrix(self._feature_matrix(data))
@@ -68,11 +74,14 @@ class LDA(DimensionReduction):
         evals = scipy.real(evals)
         sorted_idxs = scipy.argsort(-abs(evals))
         evals, evec = evals[sorted_idxs], evec[:, sorted_idxs]
-        return evals, evec
+        return evec, evals
 
-    def transform(self, data, W):
+    def transform(self, data):
+        return self._transform(data)
+
+    def _transform(self, data):
         logger.info("Transforming data")
-        W = W[:, :self.n_components]
+        W = self.model.loadings[:, :self.n_components]
         W = DenseMatrix(numRows=W.shape[0], numCols=W.shape[1],
                         isTransposed=True, values=W.flatten())
         X = self._row_matrix(data).multiply(W)
@@ -82,10 +91,9 @@ class LDA(DimensionReduction):
 
     def fit_transform(self, data):
         logger.info("Running LDA ...")
-        W, eigen_vals = self.fit(data)
-        data = self.transform(data, W)
-        return LDAFit(data, self.n_components, W, eigen_vals, self.features,
-                      self.response)
+        self._fit(data)
+        data = self._transform(data)
+        return LDATransform(data, self.model)
 
 
 @click.command()
@@ -114,8 +122,8 @@ def run(discriminants, file, features, response, outpath):
             data = read_and_transmute(spark, file, features,
                                       assemble_features=False)
             fl = LDA(spark, discriminants, features, response)
-            fit = fl.fit_transform(data)
-            fit.write_files(outpath)
+            trans = fl.fit_transform(data)
+            trans.write(outpath)
         except Exception as e:
             logger.error("Some error: {}".format(str(e)))
 

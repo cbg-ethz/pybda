@@ -120,8 +120,8 @@ def run(components, file, features, outpath):
             data = read_and_transmute(
               spark, file, features, assemble_features=False)
             fl = PCA(spark, components, features)
-            tran = fl.fit_transform(data)
-            tran.write(outpath)
+            trans = fl.fit_transform(data)
+            trans.write(outpath)
         except Exception as e:
             logger.error("Some error: {}".format(str(e)))
 
