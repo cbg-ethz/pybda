@@ -39,8 +39,10 @@ class TestLDA(TestDimredAPI):
         cls.sk_lda_trans = cls.sk_lda.fit(cls.X(), cls.y()).transform(cls.X())
 
         cls.lda = LDA(cls.spark(), 2, cls.features(), cls.response())
-        cls.eval, cls.evec = cls.lda.fit(cls.spark_df())
-        cls.trans = cls.lda.transform(cls.spark_df(), cls.sk_lda.scalings_)
+        cls.trans = cls.lda.fit_transform(cls.spark_df())
+        model = cls.lda.model
+        cls.evec = model.projection
+
         cls.fit_tran = cls.lda.fit_transform(cls.spark_df())
 
     @classmethod
@@ -51,7 +53,7 @@ class TestLDA(TestDimredAPI):
     def test_lda_loadings(self):
         assert numpy.allclose(
           numpy.absolute(self.sk_lda.scalings_[:,:2]),
-          numpy.absolute(self.eval[:,:2]),
+          numpy.absolute(self.evec[:,:2]),
           atol=1e-01)
 
     def test_lda_response(self):
@@ -65,5 +67,6 @@ class TestLDA(TestDimredAPI):
 
     def test_lda_correct_loadings_were_chosen(self):
         arr = self.fit_tran.variances
+        print(arr)
         assert numpy.all(arr[:-1] >= arr[1:])
 

@@ -68,13 +68,14 @@ class TestICA(TestDimredAPI):
         super().tearDownClass()
 
     def test_ica_transform(self):
-        mk = split_vector(self.trans.select(FEATURES__), FEATURES__) \
+        mk = split_vector(self.trans.data.select(FEATURES__), FEATURES__) \
             .toPandas().values
+        print(mk)
+        print(self.sk_trans)
         for i in range(2):
-            ax1 = sorted(mk[:, i])
-            ax2 = sorted(self.sk_trans[:, i])
-            assert numpy.allclose(numpy.absolute(ax1),
-                                  numpy.absolute(ax2), atol=1e-02)
+            ax1 = sorted(numpy.absolute(mk[:, i]))
+            ax2 = sorted(numpy.absolute(self.sk_trans[:, i]))
+            assert numpy.allclose(ax1, ax2, atol=1e-02)
 
     def test_ica_whitening(self):
         assert numpy.allclose(
@@ -85,7 +86,7 @@ class TestICA(TestDimredAPI):
     def test_ica_loadings(self):
         assert numpy.allclose(
           numpy.absolute(self.compo),
-          numpy.absolute(self.sk_ica.components_.T),
+          numpy.absolute(self.sk_ica.components_),
           atol=1e-03)
 
     def test_ica_unmixing(self):

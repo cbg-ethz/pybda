@@ -49,19 +49,19 @@ class LDATransform(DimensionReductionTransform):
 
     @property
     def n_discriminants(self):
-        return self.n_components
+        return self.model.n_discriminants
 
     @property
     def projection(self):
-        return self.loadings
+        return self.model.projection
 
     @property
     def loglikelihood(self):
-        return self.__ll
+        return self.model.loglikelihood
 
     @property
     def variances(self):
-        return self.__vars
+        return self.model.variances
 
     def write(self, outfolder):
         logger.info("Writing transform")

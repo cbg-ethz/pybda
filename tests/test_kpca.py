@@ -28,6 +28,7 @@ from sklearn.preprocessing import scale
 from pybda.globals import FEATURES__
 from pybda.kpca import KPCA
 from pybda.spark.features import split_vector
+from pybda.stats.stats import fourier_transform
 from tests.test_dimred_api import TestDimredAPI
 
 
@@ -50,16 +51,22 @@ class TestKPCA(TestDimredAPI):
             (random_state=23, n_components=5)
         cls._X_transformed = cls.sbf_feature.fit_transform(cls.X_lo)
         cls.sk_pca = PCA(n_components=2).fit(cls._X_transformed)
+
+        cls.kpca = KPCA(cls.spark(), 2, cls.features(), 5, 1.)
+        cls.trans = cls.kpca.fit_transform(cls._spark_lo)
+        model = cls.kpca.model
+        cls.evals = model.loadings
+        cls.sds = model.sds
+        cls.w = model.fourier_coefficients
+        cls.b = model.fourier_offset
+
         # The sklearn PCA would substract the mean here
         # We don't want that to happen, but work and the Fourier matrix directly
         # setting the mean to None does the trick
         cls.sk_pca.mean_ = None
+        cls.sk_pca.components_ = cls.evals
         cls.sk_pca_trans = cls.sk_pca.transform(cls._X_transformed)
 
-        cls.kpca = KPCA(cls.spark(), 2, cls.features(), 5, 1.)
-        cls.Xf, cls.evals, cls.sds, cls.w, cls.b = cls.kpca.fit(cls._spark_lo)
-        cls.trans = cls.kpca.transform(cls._spark_lo, cls.Xf,
-                                       cls.sk_pca.components_)
 
     @classmethod
     def tearDownClass(cls):
@@ -67,7 +74,11 @@ class TestKPCA(TestDimredAPI):
         super().tearDownClass()
 
     def test_kpca_fourier(self):
-        df = self.spark().createDataFrame(self.Xf.rows.map(lambda x: (x,)))
+        X = self.kpca._preprocess_data(self._spark_lo)
+        X = fourier_transform(X,
+                              self.kpca.model.fourier_coefficients,
+                              self.kpca.model.fourier_offset)
+        df = self.spark().createDataFrame(X.rows.map(lambda x: (x,)))
         df = split_vector(df, "_1").toPandas().values
         for i in range(5):
             ax1 = sorted(df[:, i])
@@ -79,13 +90,9 @@ class TestKPCA(TestDimredAPI):
             )
 
     def test_kpca_transform(self):
-        df = split_vector(self.trans.select(FEATURES__),
+        df = split_vector(self.trans.data.select(FEATURES__),
                           FEATURES__).toPandas().values
         for i in range(2):
-            ax1 = sorted(df[:, i])
-            ax2 = sorted(self.sk_pca_trans[:, i])
-            assert numpy.allclose(
-              numpy.absolute(ax1),
-              numpy.absolute(ax2),
-              atol=1e-01
-            )
+            ax1 = sorted(numpy.absolute(df[:, i]))
+            ax2 = sorted(numpy.absolute(self.sk_pca_trans[:, i]))
+            assert numpy.allclose(ax1, ax2, atol=1e-01)

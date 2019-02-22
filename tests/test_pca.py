@@ -48,11 +48,12 @@ class TestPCA(TestDimredAPI):
         cls.sk_pca = sklearn.decomposition.PCA(n_components=2)
 
         cls.pca = PCA(cls.spark(), 2, cls.features())
-        cls.X__, cls.loadings, cls.sds = cls.pca.fit(cls._spark_lo)
+        cls.trans = cls.pca.fit_transform(cls._spark_lo)
+        model = cls.pca.model
+        cls.loadings = model.loadings
+        cls.sds = model.sds
 
         cls.sk_pca_trans = cls.sk_pca.fit(cls.X_lo).transform(cls.X_lo)
-        cls.trans = cls.pca.transform(cls._spark_lo, cls.X__,
-                                      cls.sk_pca.components_)
 
     @classmethod
     def tearDownClass(cls):
@@ -60,7 +61,7 @@ class TestPCA(TestDimredAPI):
         super().tearDownClass()
 
     def test_pca_cols(self):
-        df = split_vector(self.trans, FEATURES__).toPandas()
+        df = split_vector(self.trans.data, FEATURES__).toPandas()
         assert "f_0" in df.columns
         assert "f_1" in df.columns
         assert "f_2" not in df.columns
@@ -69,17 +70,14 @@ class TestPCA(TestDimredAPI):
         assert numpy.allclose(
           numpy.absolute(self.loadings[:2]),
           numpy.absolute(self.sk_pca.components_),
-          atol=1e-01
-        )
+          atol=1e-01)
 
     def test_pca_scores(self):
-        sk_ax1 = sorted(self.sk_pca_trans[:, 0])
-        sk_ax2 = sorted(self.sk_pca_trans[:, 1])
-        m = split_vector(self.trans.select(FEATURES__),
+        sk_ax1 = sorted(numpy.absolute(self.sk_pca_trans[:, 0]))
+        sk_ax2 = sorted(numpy.absolute(self.sk_pca_trans[:, 1]))
+        m = split_vector(self.trans.data.select(FEATURES__),
                          FEATURES__).toPandas().values
-        ax1 = sorted(m[:, 0])
-        ax2 = sorted(m[:, 1])
-        assert numpy.allclose(numpy.absolute(ax1), numpy.absolute(sk_ax1),
-                              atol=1e-01)
-        assert numpy.allclose(numpy.absolute(ax2), numpy.absolute(sk_ax2),
-                              atol=1e-01)
+        ax1 = sorted(numpy.absolute(m[:, 0]))
+        ax2 = sorted(numpy.absolute(m[:, 1]))
+        assert numpy.allclose(ax1, sk_ax1, atol=1e-01)
+        assert numpy.allclose(ax2, sk_ax2, atol=1e-01)

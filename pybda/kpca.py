@@ -63,10 +63,10 @@ class KPCA(PCA):
         X = fourier_transform(X,
                               self.model.fourier_coefficients,
                               self.model.fourier_offset)
-        return self._transform(data, X)
+        return KPCATransform(self._transform(data, X), self.model)
 
     def _transform(self, data, X):
-        return KPCATransform(super()._transform(data, X), self.model)
+        return super()._transform(data, X)
 
     def fit_transform(self, data: DataFrame):
         logger.info("Running kernel principal component analysis ...")
