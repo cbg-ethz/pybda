@@ -55,14 +55,13 @@ class EnsembleFit(RegressionFit):
                     "family", "response", "accuracy", "f1", "precision",
                     "recall"))
                 fh.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                    self.family, self.response, self.__accuracy, self.__f1,
-                    self.__precision, self.__recall))
+                    self.family, self.response, self.accuracy, self.f1,
+                    self.precision, self.recall))
             else:
                 fh.write("{}\t{}\t{}\t{}\t{}\n".format("family", "response",
                                                        "mse", "r2", "rmse"))
                 fh.write("{}\t{}\t{}\t{}\t{}\n".format(
-                    self.family, self.response, self.__mse, self.__r2,
-                    self.__rmse))
+                    self.family, self.response, self.mse, self.r2, self.rmse))
 
     @property
     def features(self):

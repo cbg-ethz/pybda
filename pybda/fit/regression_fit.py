@@ -62,9 +62,9 @@ class RegressionFit(ABC):
     def response(self):
         return self.__response
 
-    @abstractmethod
+    @property
     def features(self):
-        pass
+        return self.__features
 
     def predict(self, data=None):
         if data is None:
