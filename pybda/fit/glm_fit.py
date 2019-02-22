@@ -24,7 +24,6 @@ import numpy
 import pandas
 import scipy as sp
 
-from pybda.fit.predicted_data import PredictedData
 from pybda.fit.regression_fit import RegressionFit
 from pybda.globals import GAUSSIAN_, BINOMIAL_, INTERCEPT__
 
@@ -41,6 +40,7 @@ class GLMFit(RegressionFit):
             self.__mse = model.summary.meanSquaredError
             self.__r2 = model.summary.r2
             self.__rmse = model.summary.rootMeanSquaredError
+
         self.__table = self._compute_table_stats(model)
 
     def _compute_table_stats(self, model):
@@ -58,7 +58,7 @@ class GLMFit(RegressionFit):
                            "Possibly due to singular vcov.")
 
         return pandas.DataFrame({
-            "features": [INTERCEPT__] + self.__features,
+            "features": self.features,
             "beta": beta,
             "p_values": ps,
             "t_values": ts,
@@ -71,8 +71,8 @@ class GLMFit(RegressionFit):
 
     def _write_table(self, outfolder):
         logger.info("Writing regression table")
-        self.__table.to_csv(outfolder + "-table.tsv", na_rep="NaN", sep="\t",
-                            index=False, header=True)
+        self.table.to_csv(outfolder + "-table.tsv", na_rep="NaN", sep="\t",
+                          index=False, header=True)
 
     def _write_stats(self, outfolder):
         logger.info("Writing regression statistics")
@@ -83,18 +83,22 @@ class GLMFit(RegressionFit):
                   "family", "response", "accuracy", "f1", "precision",
                   "recall"))
                 fh.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                  self.family, self.response, self.__accuracy, self.__f1,
-                  self.__precision, self.__recall))
+                  self.family, self.response, self.accuracy, self.f1,
+                  self.precision, self.recall))
             else:
                 fh.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(
                   "family", "response", "df", "mse", "r2", "rmse"))
                 fh.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                  self.family, self.__response, self.__df, self.__mse,
-                  self.__r2, self.__rmse))
+                  self.family, self.response, self.df, self.mse,
+                  self.r2, self.rmse))
+
+    @property
+    def table(self):
+        return self.__table
 
     @property
     def features(self):
-        return numpy.squeeze(self.__table[["features"]].values)
+        return [INTERCEPT__] + super().features
 
     @property
     def df(self):
@@ -102,16 +106,16 @@ class GLMFit(RegressionFit):
 
     @property
     def coefficients(self):
-        return numpy.squeeze(self.__table[["beta"]].values)
+        return numpy.squeeze(self.table[["beta"]].values)
 
     @property
     def standard_errors(self):
-        return numpy.squeeze(self.__table[["se"]].values)
+        return numpy.squeeze(self.table[["se"]].values)
 
     @property
     def p_values(self):
-        return numpy.squeeze(self.__table[["p_values"]].values)
+        return numpy.squeeze(self.table[["p_values"]].values)
 
     @property
     def t_values(self):
-        return numpy.squeeze(self.__table[["t_values"]].values)
+        return numpy.squeeze(self.table[["t_values"]].values)
