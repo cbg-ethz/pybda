@@ -33,40 +33,34 @@ logger.setLevel(logging.INFO)
 
 
 class DimensionReductionTransform(ABC):
-    def __init__(self, data, n_components, features, model):
+    def __init__(self, data, model):
         self.__data = data
-        self.__n_components = n_components
-        self.__features = features
         self.__model = model
-
-    @property
-    def loadings(self):
-        return self.__model.loadings
+        logger.info(self.__model)
 
     @property
     def data(self):
         return self.__data
 
     @property
+    def loadings(self):
+        return self.__model.loadings
+
+    @property
     def feature_names(self):
-        return self.__features
+        return self.__model.feature_names
 
     @property
     def n_components(self):
-        return self.__n_components
+        return self.__model.n_components
+
+    @property
+    def model(self):
+        return self.__model
 
     @abstractmethod
     def write(self, outfolder):
         pass
-
-    @property
-    def model(self):
-        self.__model
-
-    def _write_loadings(self, outfile):
-        logger.info("Writing loadings to file")
-        DataFrame(self.loadings, columns=self.feature_names).to_csv(
-            outfile, sep="\t", index=False)
 
     @abstractmethod
     def _plot(self, outfile):

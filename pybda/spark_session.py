@@ -47,5 +47,5 @@ class SparkSession:
         logger.info("Stopping Spark context")
         self.__stop_t = time.time()
         logger.info("Closed spark context at: %s", time.ctime(self.__stop_t))
-        logger.info("Copmutation took: %d", (self.__stop_t - self.__start_t))
+        logger.info("Computation took: %d", (self.__stop_t - self.__start_t))
         self.__session.stop()

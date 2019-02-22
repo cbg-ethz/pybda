@@ -22,16 +22,12 @@
 import logging
 import os
 
-from pandas import DataFrame
-
 from pybda.fit.dimension_reduction_transform import DimensionReductionTransform
 from pybda.globals import FEATURES_
+from pybda.io.io import mkdir
 from pybda.plot.descriptive import scatter, histogram
-from pybda.plot.dimension_reduction_plot import biplot, \
-    plot_cumulative_variance
 from pybda.sampler import sample
 from pybda.spark.features import split_vector
-from pybda.stats.stats import cumulative_explained_variance
 from pybda.util.cast_as import as_pandas
 
 logger = logging.getLogger(__name__)
@@ -41,8 +37,8 @@ logger.setLevel(logging.INFO)
 class PCATransform(DimensionReductionTransform):
     __KIND__ = "pca"
 
-    def __init__(self, data, n_components, features, model):
-        super().__init__(data, n_components, features, model)
+    def __init__(self, data, model):
+        super().__init__(data, model)
 
     @property
     def kind(self):
@@ -53,25 +49,17 @@ class PCATransform(DimensionReductionTransform):
         return self.model.sds
 
     def write(self, outfolder):
+        logger.info("Writing PCA transform")
+        self.model.write(outfolder)
         self.write_tsv(outfolder)
-        self._write_loadings(outfolder + "-loadings.tsv")
         plot_fold = outfolder + "-plot"
-        if not os.path.exists(plot_fold):
-            os.mkdir(plot_fold)
+        mkdir(plot_fold)
         self._plot(os.path.join(plot_fold, self.kind))
 
     def _plot(self, outfile):
         logger.info("Plotting")
-        cev = cumulative_explained_variance(self.sds)
         subsamp = as_pandas(split_vector(sample(self.data, 10000), FEATURES_))
         for suf in ["png", "pdf", "svg", "eps"]:
-            plot_cumulative_variance(
-                outfile + "-loadings-explained_variance." + suf,
-                cev[:self.n_components], "# components")
-            biplot(
-                outfile + "-loadings-biplot." + suf,
-                DataFrame(self.loadings[:self.n_components],
-                          columns=self.feature_names), "PC 1", "PC 2")
             scatter(outfile + "-scatter_plot." + suf, subsamp,
                     "f_0", "f_1", "PC 1", "PC 2")
             for i in map(lambda x: "f_" + str(x),
