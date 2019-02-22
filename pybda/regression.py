@@ -34,7 +34,18 @@ class Regression(SparkModel):
         self.__family = family
         self.__response = response
         self.__features = features
-        self.__fit = None
+        self.__model = None
+
+    @property
+    def model(self):
+        return self.__model
+
+    @model.setter
+    def model(self, model):
+        self.__model = model
+
+    def write(self, outfolder):
+        self.model.write(outfolder)
 
     @property
     def features(self):
@@ -53,10 +64,10 @@ class Regression(SparkModel):
         pass
 
     def predict(self, data):
-        self.__fit.predict(data)
+        return self.model.predict(data)
 
     def write(self, outpath):
-        self.__fit.write_files(outpath)
+        self.model.write(outpath)
 
     def _fit(self, data):
         data = data.coalesce(300)

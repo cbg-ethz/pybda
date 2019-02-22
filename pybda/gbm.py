@@ -55,6 +55,7 @@ class GBM(Ensemble):
         model.setLabelCol(self.response)
         return model
 
+
 @click.command()
 @click.argument("file", type=str)
 @click.argument("meta", type=str)
@@ -83,7 +84,7 @@ def run(file, meta, features, response, family, outpath, predict):
             meta, features = read_column_info(meta, features)
             data = read_and_transmute(spark, file, features, response)
             fl = GBM(spark, response, features, family)
-            fl.fit(data)
+            fl = fl.fit(data)
             fl.write(outpath)
             if pathlib.Path(predict).exists():
                 pre_data = read_and_transmute(spark, predict, features,

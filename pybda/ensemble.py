@@ -38,8 +38,8 @@ class Ensemble(Regression):
     def fit(self, data):
         logger.info("Fitting forest with family='{}'".format(self.family))
         model = self._fit(data)
-        self.fit = EnsembleFit(data, model, self.response,
-                               self.family, self.features)
+        self.model = EnsembleFit(data, model, self.response,
+                                 self.family, self.features)
         return self
 
     @property
