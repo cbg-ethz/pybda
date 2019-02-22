@@ -33,9 +33,7 @@ logger.setLevel(logging.INFO)
 class EnsembleFit(RegressionFit):
     def __init__(self, data, model, response, family, features):
         super().__init__(data, model, response, family, features)
-
         if family == GAUSSIAN_:
-            self.__data = model.transform(data)
             evaluator = RegressionEvaluator(labelCol=self.response)
             self.__rmse = evaluator.evaluate(self.data,
                                              {evaluator.metricName: "rmse"})
@@ -64,5 +62,13 @@ class EnsembleFit(RegressionFit):
                     self.family, self.response, self.mse, self.r2, self.rmse))
 
     @property
-    def features(self):
-        return self.__features
+    def mse(self):
+        return self.__mse
+
+    @property
+    def r2(self):
+        return self.__r2
+
+    @property
+    def rmse(self):
+        return self.__rmse

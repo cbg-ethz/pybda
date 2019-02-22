@@ -119,3 +119,15 @@ class GLMFit(RegressionFit):
     @property
     def t_values(self):
         return numpy.squeeze(self.table[["t_values"]].values)
+
+    @property
+    def mse(self):
+        return self.__mse
+
+    @property
+    def r2(self):
+        return self.__r2
+
+    @property
+    def rmse(self):
+        return self.__rmse
