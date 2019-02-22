@@ -59,10 +59,10 @@ class KMeans(Clustering):
         return model
 
     def write(self, data, outpath=None):
-        for k, fit in self.models:
+        for k, fit in self.model:
             m = KMeansTransformed(fit.transform(data))
             if outpath:
-                m.write_files(outpath, k)
+                m.write(outpath, k)
 
 
 @click.command()

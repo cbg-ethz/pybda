@@ -58,13 +58,15 @@ class TestGLM(TestRegressionAPI):
         data = assemble(cls.spark_df(), cls.features(), True)
 
         cls.model_gau = GLM(cls.spark(), cls.response(), cls.features())
-        cls.fit_gau = cls.model_gau.fit(data)
-        cls.transform_gau = cls.fit_gau.transform(data)
+        cls.model_gau.fit(data)
+        cls.fit_gau = cls.model_gau.model
+        cls.transform_gau = cls.model_gau.predict(data)
 
-        cls.model_bin = GLM(cls.spark(), cls.log_response(), cls.features(),
-                            BINOMIAL_)
-        cls.fit_bin = cls.model_bin.fit(data)
-        cls.transform_bin = cls.fit_bin.transform(data)
+        cls.model_bin = GLM(cls.spark(), cls.log_response(),
+                            cls.features(), BINOMIAL_)
+        cls.model_bin.fit(data)
+        cls.fit_bin = cls.model_bin.model
+        cls.transform_bin = cls.model_bin.predict(data)
 
     @classmethod
     def tearDownClass(cls):
@@ -87,7 +89,7 @@ class TestGLM(TestRegressionAPI):
         assert isinstance(self.fit_gau.rmse, float)
 
     def test_fit_glm_gaussian_features(self):
-        assert (self.fit_gau.features == [INTERCEPT__] + self.features()).all()
+        assert self.fit_gau.features == [INTERCEPT__] + self.features()
 
     def test_fit_glm_gaussian_coefficients(self):
         assert len(self.fit_gau.coefficients) == 5
@@ -150,11 +152,10 @@ class TestGLM(TestRegressionAPI):
     def test_transform_glm_binomial(self):
         df = split_vector(self.transform_bin.data, PROBABILITY__)
         df = df.toPandas()
-        assert "p_0" in df.columns.values
-        assert "p_1" in df.columns.values
+        assert "prediction" in df.columns.values
 
     def test_fit_glm_binomial_features(self):
-        assert (self.fit_bin.features == [INTERCEPT__] + self.features()).all()
+        assert self.fit_bin.features == [INTERCEPT__] + self.features()
 
     def test_fit_glm_binomial_coefficients(self):
         assert len(self.fit_bin.coefficients) == 5

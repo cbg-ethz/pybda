@@ -38,7 +38,8 @@ class TestGMM(TestClusteringAPI):
         cls.data = assemble(cls.spark_df(), cls.features(), True)
 
         cls.model = GMM(cls.spark(), [2, 3])
-        cls.fit = cls.model.fit(cls.data)
+        cls.model.fit(cls.data)
+        cls.fit = cls.model.model
         cls.transform = cls.fit[2].transform(cls.data).toPandas()
 
     @classmethod
@@ -97,5 +98,5 @@ class TestGMM(TestClusteringAPI):
         vals = numpy.unique(self.transform[PREDICTION__].values)
         assert len(vals) == 2
 
-    def test_transform_gmm_transform(self):
-        self.model.transform(self.data, self.fit)
+    def test_transform_gmm_write(self):
+        self.model.write(self.data)

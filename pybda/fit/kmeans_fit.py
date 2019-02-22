@@ -86,7 +86,7 @@ class KMeansFit(ClusteringFit):
     def total_variance(self):
         return self.__total_variance
 
-    def write_files(self, outfolder):
+    def write(self, outfolder):
         mkdir(outfolder)
         path = os.path.join(outfolder, self._k_fit_path(self.k))
         self._write_fit(path)

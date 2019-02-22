@@ -24,6 +24,7 @@ import os
 
 from pybda.fit.clustering_transformed import ClusteringTransformed
 from pybda.globals import FEATURES__, RESPONSIBILITIES__
+from pybda.io.io import mkdir
 from pybda.spark.features import split_vector
 
 logger = logging.getLogger(__name__)
@@ -37,8 +38,7 @@ class GMMTransformed(ClusteringTransformed):
     def write_clusters(self, outpath, suff="", sort_me=True):
         outpath = outpath + "-components" + str(suff)
         logger.info("Writing components to: {}".format(outpath))
-        if not os.path.exists(outpath):
-            os.mkdir(outpath)
+        mkdir(outpath)
         data = split_vector(self.data, FEATURES__)
         data = split_vector(data, RESPONSIBILITIES__)
         self._write_clusters(data, outpath, sort_me)

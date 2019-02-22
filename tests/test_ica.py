@@ -54,11 +54,13 @@ class TestICA(TestDimredAPI):
         cls.sk_fit.whiten = False
 
         cls.ica = ICA(cls.spark(), 2, cls.features())
-        cls.X__, cls.compo, cls.W, cls.K = cls.ica.fit(cls._spark_lo)
+        cls.trans = cls.ica.fit_transform(cls._spark_lo)
+        model = cls.ica.model
+        cls.compo = model.loadings
+        cls.W = model.unmixing
+        cls.K = model.whitening
 
-        cls.trans = cls.ica.transform(cls._spark_lo, cls.X__,
-                                      cls.sk_ica.components_.T)
-        cls.sk_trans = cls.sk_fit.transform(cls.X__.rows.collect())
+        cls.sk_trans = cls.sk_fit.transform(cls.X_lo)
 
     @classmethod
     def tearDownClass(cls):

@@ -28,18 +28,18 @@ from abc import abstractmethod
 
 from pyspark.sql.functions import col
 
-from pybda.fit.transformed_data import TransformedData
+from pybda.fit.predicted_data import PredictedData
 from pybda.io.io import rm
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class ClusteringTransformed(TransformedData):
+class ClusteringTransformed(PredictedData):
     def __init__(self, data):
         super().__init__(data)
 
-    def write_files(self, outpath, k):
+    def write(self, outpath, k):
         outpath = outpath + "-transformed-K{}".format(k)
         self.write_clusters(outpath)
 
