@@ -23,39 +23,24 @@ import logging
 import numpy
 import pandas
 import scipy as sp
-from pyspark.ml.evaluation import MulticlassClassificationEvaluator
+
 from pybda.fit.predicted_data import PredictedData
+from pybda.fit.regression_fit import RegressionFit
 from pybda.globals import GAUSSIAN_, BINOMIAL_, INTERCEPT__
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class GLMFit:
+class GLMFit(RegressionFit):
     def __init__(self, data, model, response, family, features):
-        self.__data = data
-        self.__model = model
-        self.__response = response
-        self.__family = family
-        self.__features = features
+        super().__init__(data, model, response, family, features)
 
         if family == GAUSSIAN_:
             self.__df = model.summary.degreesOfFreedom
             self.__mse = model.summary.meanSquaredError
             self.__r2 = model.summary.r2
             self.__rmse = model.summary.rootMeanSquaredError
-        else:
-            evaluator = MulticlassClassificationEvaluator(labelCol=response)
-            self.__data = self.__model.transform(self.__data)
-
-            self.__f1 = evaluator.evaluate(self.data,
-                                           {evaluator.metricName: "f1"})
-            self.__accuracy = evaluator.evaluate(
-              self.data, {evaluator.metricName: "accuracy"})
-            self.__precision = evaluator.evaluate(
-              self.data, {evaluator.metricName: "weightedPrecision"})
-            self.__recall = evaluator.evaluate(
-              self.data, {evaluator.metricName: "weightedRecall"})
         self.__table = self._compute_table_stats(model)
 
     def _compute_table_stats(self, model):
@@ -108,23 +93,12 @@ class GLMFit:
                   self.__r2, self.__rmse))
 
     @property
-    def family(self):
-        return self.__family
-
-    @property
-    def response(self):
-        return self.__response
-
-    @property
     def features(self):
         return numpy.squeeze(self.__table[["features"]].values)
 
-    def predict(self, data):
-        return PredictedData(self.__model.transform(data))
-
     @property
-    def data(self):
-        return self.__data
+    def df(self):
+        return self.__df
 
     @property
     def coefficients(self):
@@ -135,42 +109,9 @@ class GLMFit:
         return numpy.squeeze(self.__table[["se"]].values)
 
     @property
-    def df(self):
-        return self.__df
-
-    @property
-    def mse(self):
-        return self.__mse
-
-    @property
     def p_values(self):
         return numpy.squeeze(self.__table[["p_values"]].values)
 
     @property
     def t_values(self):
         return numpy.squeeze(self.__table[["t_values"]].values)
-
-    @property
-    def r2(self):
-        return self.__r2
-
-    @property
-    def rmse(self):
-        return self.__rmse
-
-    @property
-    def f1(self):
-        return self.__f1
-
-    @property
-    def accuracy(self):
-        return self.__accuracy
-
-    @property
-    def precision(self):
-        return self.__precision
-
-    @property
-    def recall(self):
-        return self.__recall
-
