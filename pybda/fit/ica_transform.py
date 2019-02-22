@@ -22,13 +22,10 @@
 import logging
 import os
 
-from pandas import DataFrame
-
-from pybda.fit.dimension_reduction_fit import DimensionReductionFit
+from pybda.fit.dimension_reduction_transform import DimensionReductionTransform
 from pybda.globals import FEATURES__
 from pybda.io.io import mkdir
 from pybda.plot.descriptive import scatter, histogram
-from pybda.plot.dimension_reduction_plot import biplot
 from pybda.sampler import sample
 from pybda.spark.features import split_vector
 from pybda.util.cast_as import as_pandas
@@ -37,21 +34,26 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class ICAFit(DimensionReductionFit):
-    def __init__(self, n_components, loadings, features, unmixing, whitening):
-        super().__init__(n_components, features, loadings)
-        self.__unmixing = unmixing
-        self.__whitening = whitening
+class ICATransform(DimensionReductionTransform):
+    def __init__(self, data, model):
+        super().__init__(data, model)
 
     def write(self, outfolder):
-        self._write_loadings(outfolder + "-unmixing.tsv")
+        logger.info("Writing transform")
+        self.model.write(outfolder)
+        self.write_tsv(outfolder)
         plot_fold = outfolder + "-plot"
         mkdir(plot_fold)
         self._plot(os.path.join(plot_fold, "ica"))
 
     def _plot(self, outfile):
         logger.info("Plotting")
+        subsamp = as_pandas(
+            split_vector(sample(self.__data, 10000), FEATURES__))
         for suf in ["png", "pdf", "svg", "eps"]:
-            biplot(outfile + "-loadings-biplot." + suf,
-                   DataFrame(self.loadings, columns=self.feature_names),
-                   "Component 1", "Component 2")
+            scatter(outfile + "-scatter_plot." + suf, subsamp, "f_0", "f_1",
+                    "Component 1", "Component 2")
+            for i in map(lambda x: "f_" + str(x),
+                         range(min(10, self.n_components))):
+                histogram(outfile + "-histogram_{}.".format(i) + suf,
+                          subsamp[i].values, i)
