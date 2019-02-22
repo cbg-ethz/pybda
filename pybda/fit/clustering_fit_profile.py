@@ -52,7 +52,7 @@ class FitProfile(ABC):
     def models(self):
         return self.__models
 
-    def write_files(self, outpath):
+    def write(self, outpath):
         self._write_profile(outpath)
         self._plot(outpath)
 

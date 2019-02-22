@@ -63,7 +63,7 @@ class ClusteringFit(ABC):
         return self.__p
 
     @abstractmethod
-    def write_files(self, outfolder):
+    def write(self, outfolder):
         pass
 
     @abstractmethod

@@ -59,7 +59,7 @@ class GMM(Clustering):
         return model
 
     def write(self, data, outpath=None):
-        for k, fit in self.models:
+        for k, fit in self.model:
             m = GMMTransformed(fit.transform(data))
             if outpath:
                 m.write_files(outpath, k)
