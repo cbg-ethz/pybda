@@ -27,10 +27,30 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class KPCAFit(PCAFit):
+class KPCATransform(PCAFit):
     __KIND__ = "kpca"
 
-    def __init__(self, n_components, loadings, sds, features,
-                 n_fourier_features, fourier_coefficients, fourier_offset,
-                 gamma):
-        s = 1
+    def __init__(self, data, n_components, loadings,
+                 sds, features, n_fourier_features, gamma):
+        super().__init__(data, n_components, loadings, sds, features)
+        self.__n_ff = n_fourier_features
+        self.__gamma = gamma,
+        self.__suffix = "kpca"
+        self.__ff_features = list(
+            map('fourier_feature_{}'.format, range(1, n_fourier_features + 1)))
+
+    @property
+    def kind(self):
+        return KPCAFit.__KIND__
+
+    @property
+    def gamma(self):
+        return self.__gamma
+
+    @property
+    def n_fourier_features(self):
+        return self.__n_ff
+
+    @property
+    def feature_names(self):
+        return self.__ff_features
