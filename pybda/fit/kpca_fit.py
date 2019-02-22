@@ -33,4 +33,30 @@ class KPCAFit(PCAFit):
     def __init__(self, n_components, loadings, sds, features,
                  n_fourier_features, fourier_coefficients, fourier_offset,
                  gamma):
-        s = 1
+        super().__init__(n_components, loadings, sds, features)
+        self.__n_fourier_features = n_fourier_features
+        self.__fourier_coefficients = fourier_coefficients
+        self.__fourier_offset = fourier_offset
+        self.__gamma = gamma
+        self.__ff_features = list(
+          map('fourier_feature_{}'.format, range(1, n_fourier_features + 1)))
+
+    @property
+    def fourier_coefficients(self):
+        return self.__fourier_coefficients
+
+    @property
+    def fourier_offset(self):
+        return self.__fourier_offset
+
+    @property
+    def gamma(self):
+        return self.__gamma
+
+    @property
+    def n_fourier_features(self):
+        return self.__n_fourier_features
+
+    @property
+    def feature_names(self):
+        return self.__ff_features

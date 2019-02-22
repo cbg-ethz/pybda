@@ -25,8 +25,9 @@ import click
 from pyspark.sql import DataFrame
 
 from pybda.fit.kpca_fit import KPCAFit
+from pybda.fit.kpca_transform import KPCATransform
 from pybda.pca import PCA
-from pybda.stats.stats import fourier
+from pybda.stats.stats import fourier, fourier_transform
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -48,26 +49,32 @@ class KPCA(PCA):
     def n_fourier_features(self):
         return self.__n_fourier_features
 
-    def fit(self, data):
-        X, fit = self._fit(data)
-        del X
-        return fit
-
     def _fit(self, data):
+        logger.info("Fitting KPCA")
         X = self._preprocess_data(data)
         X, w, b = fourier(X, self.n_fourier_features, self.__seed, self.gamma)
         loadings, sds = PCA._compute_pcs(X)
+        self.model = KPCAFit(self.n_components, loadings, sds, self.features,
+                             self.n_fourier_features, w, b, self.gamma)
+        return X, self.model
 
-        fit = KPCAFit(self.n_components, loadings, sds, self.features,
-                      self.n_fourier_features, w, b, self.gamma)
-        return X, fit
+    def transform(self, data):
+        X = self._preprocess_data(data)
+        X = fourier_transform(X,
+                              self.model.fourier_coefficients,
+                              self.model.fourier_offset)
+        return self._transform(data, X)
+
+    def _transform(self, data, X):
+        # Just here for convenience
+        return super()._transform(data, X)
 
     def fit_transform(self, data: DataFrame):
         logger.info("Running kernel principal component analysis ...")
-        X, fit = self._fit(data)
-        data = self.transform(data, X, self.loadings)
-        return KPCAFit(data, self.n_components, self.loadings, self.sds,
-                       self.features, self.n_fourier_features, self.gamma)
+        X, model = self._fit(data)
+        data = self._transform(data, X)
+        del X
+        return KPCATransform(data, model)
 
 
 @click.command()
@@ -95,8 +102,8 @@ def run(components, file, features, outpath):
             data = read_and_transmute(spark, file, features,
                                       assemble_features=False)
             fl = KPCA(spark, components, features)
-            fit = fl.fit_transform(data)
-            fit.write(outpath)
+            tran = fl.fit_transform(data)
+            tran.write(outpath)
         except Exception as e:
             logger.error("Some error: {}".format(str(e)))
 

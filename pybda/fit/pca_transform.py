@@ -49,7 +49,7 @@ class PCATransform(DimensionReductionTransform):
         return self.model.sds
 
     def write(self, outfolder):
-        logger.info("Writing PCA transform")
+        logger.info("Writing transform")
         self.model.write(outfolder)
         self.write_tsv(outfolder)
         plot_fold = outfolder + "-plot"
