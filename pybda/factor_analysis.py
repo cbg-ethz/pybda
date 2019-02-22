@@ -28,6 +28,7 @@ from pyspark.mllib.linalg.distributed import RowMatrix, DenseMatrix
 
 from pybda.dimension_reduction import DimensionReduction
 from pybda.fit.factor_analysis_fit import FactorAnalysisFit
+from pybda.fit.factor_analysis_transform import FactorAnalysisTransform
 from pybda.spark.dataframe import join
 from pybda.stats.linalg import svd
 from pybda.stats.stats import column_statistics, center
@@ -47,10 +48,17 @@ class FactorAnalysis(DimensionReduction):
         return self.__n_factors
 
     def fit(self, data):
-        logger.info("Fitting FA")
+        X, _ = self._fit(data)
+        del X
+        return self
+
+    def _fit(self, data):
+        logger.info("Fitting factor analysis..")
         X, _, var = self._preprocess_data(data)
-        W, ll, psi = self._estimate(X, var, self.n_factors)
-        return X, W, ll, psi
+        loadings, ll, psi = self._estimate(X, var, self.n_factors)
+        self.model = FactorAnalysisFit(self.n_factors, loadings, psi,
+                                       ll, self.features)
+        return X, self.model
 
     def _preprocess_data(self, data):
         X = self._feature_matrix(data)
@@ -109,8 +117,15 @@ class FactorAnalysis(DimensionReduction):
         psi = numpy.maximum(var - numpy.sum(W**2, axis=0), self.__eps)
         return psi
 
-    def transform(self, data, X, W, psi):
+    def transform(self, data):
+        X = self._preprocess_data(data)
+        return FactorAnalysisTransform(self._transform(data, X), self.model)
+
+    def _transform(self, data, X):
         logger.info("Transforming data")
+        W = self.model.loadings
+        psi = self.model.error_vcov
+
         Ih = numpy.eye(len(W))
         Wpsi = W / psi
         cov_z = numpy.linalg.inv(Ih + numpy.dot(Wpsi, W.T))
@@ -125,10 +140,8 @@ class FactorAnalysis(DimensionReduction):
 
     def fit_transform(self, data):
         logger.info("Running factor analysis ...")
-        X, W, ll, psi = self.fit(data)
-        data = self.transform(data, X, W, psi)
-        return FactorAnalysisFit(data, self.n_factors, W, psi, ll,
-                                 self.features)
+        X, _ = self._fit(data)
+        return FactorAnalysisTransform(self._transform(data, X), self.model)
 
     @staticmethod
     def _join(data, X):
@@ -165,8 +178,8 @@ def run(factors, file, features, outpath):
             data = read_and_transmute(spark, file, features,
                                       assemble_features=False)
             fl = FactorAnalysis(spark, factors, features)
-            fit = fl.fit_transform(data)
-            fit.write_files(outpath)
+            trans = fl.fit_transform(data)
+            trans.write(outpath)
         except Exception as e:
             logger.error("Some error: {}".format(str(e)))
 

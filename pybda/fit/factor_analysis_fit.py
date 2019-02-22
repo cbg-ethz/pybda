@@ -22,26 +22,22 @@
 import logging
 import os
 
-from pandas import DataFrame
 import matplotlib.pyplot as plt
+from pandas import DataFrame
 
 from pybda.fit.dimension_reduction_fit import DimensionReductionFit
-from pybda.globals import FEATURES__
-from pybda.plot.descriptive import scatter, histogram
+from pybda.io.io import mkdir
 from pybda.plot.dimension_reduction_plot import biplot, \
     plot_cumulative_variance
-from pybda.sampler import sample
-from pybda.spark.features import split_vector
 from pybda.stats.stats import cumulative_explained_variance
-from pybda.util.cast_as import as_pandas
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
 class FactorAnalysisFit(DimensionReductionFit):
-    def __init__(self, data, n_factors, W, psi, ll, features):
-        super().__init__(data, n_factors, features, W)
+    def __init__(self, n_factors, loadings, psi, ll, features):
+        super().__init__(n_factors, features, loadings)
         self.__psi = psi
         self.__ll = ll
 
@@ -50,20 +46,18 @@ class FactorAnalysisFit(DimensionReductionFit):
         return self.n_components
 
     @property
-    def covariance(self):
+    def error_vcov(self):
         return self.__psi
 
     @property
     def loglikelihood(self):
         return self.__ll
 
-    def write_files(self, outfolder):
-        self.write_tsv(outfolder)
+    def write(self, outfolder):
         self._write_loadings(outfolder + "-loadings.tsv")
         self._write_likelihood(outfolder + "-loglik.tsv")
         plot_fold = outfolder + "-plot"
-        if not os.path.exists(plot_fold):
-            os.mkdir(plot_fold)
+        mkdir(plot_fold)
         self._plot(os.path.join(plot_fold, "factor_analysis"))
 
     def _write_likelihood(self, outfile):
@@ -75,8 +69,6 @@ class FactorAnalysisFit(DimensionReductionFit):
         logger.info("Plotting")
         cev = cumulative_explained_variance(self.loadings.transpose())
         cev = cev / sum(cev)
-        subsamp = as_pandas(
-          split_vector(sample(self.data, 10000), FEATURES__))
         for suf in ["png", "pdf", "svg", "eps"]:
             plot_cumulative_variance(
               outfile + "-loadings-explained_variance." + suf, cev,
@@ -85,13 +77,7 @@ class FactorAnalysisFit(DimensionReductionFit):
                    DataFrame(self.loadings, columns=self.feature_names),
                    "Factor 1", "Factor 2")
             self._plot_likelihood_path(outfile + "-likelihood_path." + suf,
-                                 DataFrame({"L": self.loglikelihood}))
-            scatter(outfile + "-scatter_plot." + suf, subsamp, "f_0",
-                    "f_1", "Factor 1", "Factor 2")
-            for i in map(lambda x: "f_" + str(x), range(
-              min(10, self.n_factors))):
-                histogram(outfile + "-histogram_{}.".format(i) + suf,
-                          subsamp[i].values, i)
+                                       DataFrame({"L": self.loglikelihood}))
 
     @staticmethod
     def _plot_likelihood_path(file_name, data):
