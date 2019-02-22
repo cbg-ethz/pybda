@@ -25,13 +25,8 @@ import os
 from pandas import DataFrame
 
 from pybda.fit.dimension_reduction_fit import DimensionReductionFit
-from pybda.globals import FEATURES__
 from pybda.io.io import mkdir
-from pybda.plot.descriptive import scatter, histogram
 from pybda.plot.dimension_reduction_plot import biplot
-from pybda.sampler import sample
-from pybda.spark.features import split_vector
-from pybda.util.cast_as import as_pandas
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
