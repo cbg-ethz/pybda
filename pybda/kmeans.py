@@ -45,7 +45,7 @@ class KMeans(Clustering):
         n, p = dimension(data)
         data = data.select(FEATURES__)
         tot_var = self.tot_var(split_vector(data, FEATURES__), outpath)
-        self._fit(KMeansFitProfile(), outpath, data, n, p, tot_var)
+        self.model = self._fit(KMeansFitProfile(), outpath, data, n, p, tot_var)
         return self
 
     @staticmethod
@@ -88,8 +88,9 @@ def run(clusters, file, features, outpath):
         try:
             features = read_info(features)
             data = read_and_transmute(spark, file, features)
-            km = KMeans(spark, clusters, features)
-            km.fit_write(data, outfolder)
+            fit = KMeans(spark, clusters, features)
+            fit = fit.fit(data, outfolder)
+            fit.write(data, outfolder)
         except Exception as e:
             logger.error("Some error: {}".format(e))
 

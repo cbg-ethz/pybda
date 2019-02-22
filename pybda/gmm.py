@@ -44,7 +44,7 @@ class GMM(Clustering):
     def fit(self, data, outpath=None):
         n, p = dimension(data)
         data = data.select(FEATURES__)
-        self._fit(GMMFitProfile(), outpath, data, n, p, scipy.nan)
+        self.model = self._fit(GMMFitProfile(), outpath, data, n, p, scipy.nan)
         return self
 
     @staticmethod
@@ -88,8 +88,9 @@ def run(clusters, file, features, outpath):
         try:
             features = read_info(features)
             data = read_and_transmute(spark, file, features)
-            gmm = GMM(spark, clusters, features)
-            gmm.fit_write(data, outfolder)
+            fit = GMM(spark, clusters, features)
+            fit = fit.fit(data, outfolder)
+            fit.write(data, outfolder)
         except Exception as e:
             logger.error("Some error: {}".format(e))
 
