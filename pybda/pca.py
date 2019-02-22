@@ -74,7 +74,7 @@ class PCA(DimensionReduction):
 
     def transform(self, data):
         X = self._preprocess_data(data)
-        return self._transform(data, X)
+        return PCATransform(self._transform(data, X), self.model)
 
     def _transform(self, data, X):
         logger.info("Transforming data")
@@ -89,10 +89,8 @@ class PCA(DimensionReduction):
 
     def fit_transform(self, data):
         logger.info("Running principal component analysis ...")
-        X, model = self._fit(data)
-        data = self._transform(data, X)
-        del X
-        return PCATransform(data, model)
+        X, _ = self._fit(data)
+        return PCATransform(self._transform(data, X), self.model)
 
 
 @click.command()

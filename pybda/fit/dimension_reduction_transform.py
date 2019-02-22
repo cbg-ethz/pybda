@@ -36,7 +36,6 @@ class DimensionReductionTransform(ABC):
     def __init__(self, data, model):
         self.__data = data
         self.__model = model
-        logger.info(self.__model)
 
     @property
     def data(self):
