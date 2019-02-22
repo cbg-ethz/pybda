@@ -77,7 +77,7 @@ class LDA(DimensionReduction):
         return evec, evals
 
     def transform(self, data):
-        return self._transform(data)
+        return LDATransform(self._transform(data), self.model)
 
     def _transform(self, data):
         logger.info("Transforming data")
@@ -92,8 +92,7 @@ class LDA(DimensionReduction):
     def fit_transform(self, data):
         logger.info("Running LDA ...")
         self._fit(data)
-        data = self._transform(data)
-        return LDATransform(data, self.model)
+        return LDATransform(self._transform(data), self.model)
 
 
 @click.command()

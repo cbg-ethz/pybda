@@ -144,7 +144,7 @@ rule ica:
     output:
         expand("{outfolder}/{dimred}{fls}",
                outfolder=pybda_config[OUTFOLDER__],
-               dimred=ICA__, fls=[".tsv", "-unmixing.tsv"]),
+               dimred=ICA__, fls=[".tsv", "-loadings.tsv"]),
         directory(expand("{outfolder}/{dimred}-plot",
                          outfolder=pybda_config[OUTFOLDER__],
                          dimred=ICA__))

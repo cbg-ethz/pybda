@@ -63,7 +63,7 @@ class ICA(DimensionReduction):
         X = self._preprocess_data(data)
         W, K = self._estimate(X)
         self.model = ICAFit(self.n_components, K.dot(W),
-                            self.features, K, W)
+                            self.features, W, K)
         return X, self.model
 
     def _estimate(self, X):
@@ -111,22 +111,22 @@ class ICA(DimensionReduction):
 
     def transform(self, data):
         X = self._preprocess_data(data)
-        return self._transform(data, X)
+        return ICATransform(self._transform(data, X), self.model)
 
     def _transform(self, data, X):
         logger.info("Transforming data")
-        unmixing = self.model.unmixing
-        L = DenseMatrix(numRows=unmixing.shape[0],
-                        numCols=unmixing.shape[1],
-                        values=unmixing.flatten(),
+        loadings = self.model.loadings.T
+        L = DenseMatrix(numRows=loadings.shape[0],
+                        numCols=loadings.shape[1],
+                        values=loadings.flatten(),
                         isTransposed=True)
         data = join(data, X.multiply(L), self.spark)
-        return ICATransform(data, self.model)
+        return data
 
     def fit_transform(self, data):
         logger.info("Running ICA ...")
-        X, model = self._fit(data)
-        return self._transform(data, X, model.loadings)
+        X, _ = self._fit(data)
+        return ICATransform(self._transform(data, X), self.model)
 
 
 @click.command()

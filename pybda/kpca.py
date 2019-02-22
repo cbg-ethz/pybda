@@ -66,15 +66,12 @@ class KPCA(PCA):
         return self._transform(data, X)
 
     def _transform(self, data, X):
-        # Just here for convenience
-        return super()._transform(data, X)
+        return KPCATransform(super()._transform(data, X), self.model)
 
     def fit_transform(self, data: DataFrame):
         logger.info("Running kernel principal component analysis ...")
-        X, model = self._fit(data)
-        data = self._transform(data, X)
-        del X
-        return KPCATransform(data, model)
+        X, _ = self._fit(data)
+        return KPCATransform(self._transform(data, X), self.model)
 
 
 @click.command()

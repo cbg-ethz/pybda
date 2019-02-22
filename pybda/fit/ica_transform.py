@@ -49,7 +49,7 @@ class ICATransform(DimensionReductionTransform):
     def _plot(self, outfile):
         logger.info("Plotting")
         subsamp = as_pandas(
-            split_vector(sample(self.__data, 10000), FEATURES__))
+            split_vector(sample(self.data, 10000), FEATURES__))
         for suf in ["png", "pdf", "svg", "eps"]:
             scatter(outfile + "-scatter_plot." + suf, subsamp, "f_0", "f_1",
                     "Component 1", "Component 2")

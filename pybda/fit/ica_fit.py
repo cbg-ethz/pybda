@@ -39,12 +39,20 @@ logger.setLevel(logging.INFO)
 
 class ICAFit(DimensionReductionFit):
     def __init__(self, n_components, loadings, features, unmixing, whitening):
-        super().__init__(n_components, features, loadings)
+        super().__init__(n_components, features, loadings.T)
         self.__unmixing = unmixing
         self.__whitening = whitening
 
+    @property
+    def unmixing(self):
+        return self.__unmixing
+
+    @property
+    def whitening(self):
+        return self.__whitening
+
     def write(self, outfolder):
-        self._write_loadings(outfolder + "-unmixing.tsv")
+        self._write_loadings(outfolder + "-loadings.tsv")
         plot_fold = outfolder + "-plot"
         mkdir(plot_fold)
         self._plot(os.path.join(plot_fold, "ica"))
