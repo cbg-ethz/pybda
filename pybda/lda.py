@@ -71,7 +71,7 @@ class LDA(DimensionReduction):
     def _compute_eigens(SW, SB):
         logger.info("Computing eigen values")
         evals, evec = scipy.linalg.eig(scipy.linalg.inv(SW).dot(SB))
-        evals = scipy.real(evals)
+        evals = scipy.absolute(scipy.real(evals))
         sorted_idxs = scipy.argsort(-abs(evals))
         evals, evec = evals[sorted_idxs], evec[:, sorted_idxs]
         return evec, evals
