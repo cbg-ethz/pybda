@@ -28,6 +28,7 @@ from pyspark.mllib.linalg.distributed import RowMatrix
 
 from pybda.dimension_reduction import DimensionReduction
 from pybda.fit.ica_fit import ICAFit
+from pybda.fit.ica_transform import ICATransform
 from pybda.spark.dataframe import join
 from pybda.stats.linalg import svd, elementwise_product
 from pybda.stats.random import mtrand
@@ -53,13 +54,19 @@ class ICA(DimensionReduction):
         return self.__n_components
 
     def fit(self, data):
-        logger.info("Fitting ICA")
-        X = self._center(data)
-        W, K = self._fit(X)
-        return X, K.dot(W), W, K
+        X, _ = self._fit(data)
+        del X
         return self
 
-    def _fit(self, X):
+    def _fit(self, data):
+        logger.info("Fitting ICA")
+        X = self._preprocess_data(data)
+        W, K = self._estimate(X)
+        self.model = ICAFit(self.n_components, K.dot(W),
+                            self.features, K, W)
+        return X, self.model
+
+    def _estimate(self, X):
         Xw, K = self._whiten(X)
         W = scipy.zeros(shape=(self.n_components, self.n_components))
         w_init = mtrand(self.n_components, self.n_components, seed=self.__seed)
@@ -68,7 +75,7 @@ class ICA(DimensionReduction):
             w = w_init[c, :].copy()
             w /= scipy.sqrt((w ** 2).sum())
             for _ in range(self.max_iter):
-                g, gd = self.exp(Xw.multiply(DenseMatrix(len(w), 1, w)))
+                g, gd = self._exp(Xw.multiply(DenseMatrix(len(w), 1, w)))
                 w1 = column_mean(elementwise_product(Xw, g, self.spark))
                 del g
                 w1 = w1 - gd * w
@@ -80,10 +87,11 @@ class ICA(DimensionReduction):
                     break
             W[c, :] = w
         del Xw
+
         return W.T, K
 
     @staticmethod
-    def exp(X):
+    def _exp(X):
         g = X.rows.map(lambda x: x * scipy.exp(-(scipy.power(x, 2.0)) / 2.0))
         g_ = X.rows.map(lambda x: (1 - scipy.power(x, 2.0)) *
                                   scipy.exp(-(scipy.power(x, 2.0)) / 2.0))
@@ -97,25 +105,28 @@ class ICA(DimensionReduction):
         S = DenseMatrix(S.shape[0], S.shape[1], S.flatten(), True)
         return X.multiply(S), K
 
-    def _center(self, data):
+    def _preprocess_data(self, data):
         X = self._feature_matrix(data)
         return RowMatrix(center(X))
 
-    def transform(self, data, X, unmixing):
+    def transform(self, data):
+        X = self._preprocess_data(data)
+        return self._transform(data, X)
+
+    def _transform(self, data, X):
         logger.info("Transforming data")
+        unmixing = self.model.unmixing
         L = DenseMatrix(numRows=unmixing.shape[0],
                         numCols=unmixing.shape[1],
                         values=unmixing.flatten(),
                         isTransposed=True)
         data = join(data, X.multiply(L), self.spark)
-        del X
-        return data
+        return ICATransform(data, self.model)
 
     def fit_transform(self, data):
         logger.info("Running ICA ...")
-        X, components, _, _ = self.fit(data)
-        data = self.transform(data, X, components)
-        return ICAFit(data, self.n_components, components, self.features)
+        X, model = self._fit(data)
+        return self._transform(data, X, model.loadings)
 
 
 @click.command()
@@ -143,8 +154,8 @@ def run(components, file, features, outpath):
             data = read_and_transmute(spark, file, features,
                                       assemble_features=False)
             fl = ICA(spark, components, features)
-            fit = fl.fit_transform(data)
-            fit.write_files(outpath)
+            trans = fl.fit_transform(data)
+            trans.write(outpath)
         except Exception as e:
             logger.error("Some error: {}".format(str(e)))
 
