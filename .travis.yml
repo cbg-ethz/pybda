@@ -3,6 +3,10 @@ language: python
 sudo: required
 cache: packages
 
+os:
+  - linux
+  - osx
+
 python:
   - "3.6"
 
