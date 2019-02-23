@@ -72,19 +72,24 @@ class TestPyBDA(unittest.TestCase):
         cls._create_dim_red_configs()
         cls._create_regression_configs()
         cls._create_clustering_configs()
+        cls._recreate_test_folder()
 
-    def _recreate_test_folder(self):
-        if os.path.exists(self._test_out):
-            shutil.rmtree(self._test_out)
-        if not os.path.exists(self._test_out):
-            os.mkdir(self._test_out)
+    @classmethod
+    def _recreate_test_folder(cls):
+        if os.path.exists(cls._test_out):
+           shutil.rmtree(cls._test_out)
+        if not os.path.exists(cls._test_out):
+            os.mkdir(cls._test_out)
             for f in [BINOMIAL_, GAUSSIAN_]:
-                os.mkdir(os.path.join(self._test_out, f))
+                p = os.path.join(cls._test_out, f)
+                if not os.path.exists(p):
+                    os.mkdir(p)
 
-    def _create_dim_red_configs(self):
+    @classmethod
+    def _create_dim_red_configs(cls):
         for d in TestPyBDA.__CONFIG__[DIM_RED__]:
-            out = os.path.join(self._test_path, d + ".config")
-            with open(out, "w") as fr, open(self._test_file, "r") as fh:
+            out = os.path.join(cls._test_path, d + ".config")
+            with open(out, "w") as fr, open(cls._test_file, "r") as fh:
                 for l in fh.readlines():
                     fr.write(l)
                 fr.write("{}: {}\n".format(DIM_RED__, d))
@@ -93,10 +98,11 @@ class TestPyBDA(unittest.TestCase):
                 if d == LDA__:
                     fr.write("{}: {}\n".format(RESPONSE__, "Species"))
 
-    def _create_clustering_configs(self):
+    @classmethod
+    def _create_clustering_configs(cls):
         for d in TestPyBDA.__CONFIG__[CLUSTERING__]:
-            out = os.path.join(self._test_path, d + ".config")
-            with open(out, "w") as fr, open(self._test_file, "r") as fh:
+            out = os.path.join(cls._test_path, d + ".config")
+            with open(out, "w") as fr, open(cls._test_file, "r") as fh:
                 for l in fh.readlines():
                     fr.write(l)
                 if d == KMEANS__:
@@ -106,12 +112,13 @@ class TestPyBDA(unittest.TestCase):
                 fr.write("{}: {}\n".format(N_CENTERS__,
                                            TestPyBDA.__CONFIG__[N_CENTERS__]))
 
-    def _create_regression_configs(self):
+    @classmethod
+    def _create_regression_configs(cls):
         for d in TestPyBDA.__CONFIG__[REGRESSION__]:
             for f in [BINOMIAL_, GAUSSIAN_]:
-                outfolder = os.path.join(self._test_out, f)
-                out = os.path.join(self._test_path, d + "_" + f + ".config")
-                with open(out, "w") as fr, open(self._test_file, "r") as fh:
+                outfolder = os.path.join(cls._test_out, f)
+                out = os.path.join(cls._test_path, d + "_" + f + ".config")
+                with open(out, "w") as fr, open(cls._test_file, "r") as fh:
                     for l in fh.readlines():
                         if l.startswith(OUTFOLDER__):
                             fr.write("{}: {}\n".format(OUTFOLDER__, outfolder))
@@ -140,35 +147,27 @@ class TestPyBDA(unittest.TestCase):
         for fl in fls:
             os.remove(fl)
 
-    def test_test(self):
-        assert 0 == 0
-
-    def test_fa(self):
-        self._recreate_test_folder()
+    def test_fact(self):
         pr = subprocess.run(
             [self._pybda, "dimension-reduction", self._fa_file, "local"])
         assert pr.returncode == 0
 
     def test_pca(self):
-        self._recreate_test_folder()
         pr = subprocess.run(
             [self._pybda, "dimension-reduction", self._pca_file, "local"])
         assert pr.returncode == 0
 
     def test_kpca(self):
-        self._recreate_test_folder()
         pr = subprocess.run(
             [self._pybda, "dimension-reduction", self._kpca_file, "local"])
         assert pr.returncode == 0
 
     def test_ica(self):
-        self._recreate_test_folder()
         pr = subprocess.run(
             [self._pybda, "dimension-reduction", self._ica_file, "local"])
         assert pr.returncode == 0
 
     def test_lda(self):
-        self._recreate_test_folder()
         pr = subprocess.run(
             [self._pybda, "dimension-reduction", self._lda_file, "local"])
         assert pr.returncode == 0
@@ -184,37 +183,31 @@ class TestPyBDA(unittest.TestCase):
         assert pr.returncode == 0
 
     def test_glm_gaussian(self):
-        self._recreate_test_folder()
         pr = subprocess.run(
             [self._pybda, "regression", self._glm_gauss_file, "local"])
         assert pr.returncode == 0
 
     def test_glm_binomial(self):
-        self._recreate_test_folder()
         pr = subprocess.run(
             [self._pybda, "regression", self._glm_binomial_file, "local"])
         assert pr.returncode == 0
 
     def test_forest_gaussian(self):
-        self._recreate_test_folder()
         pr = subprocess.run(
             [self._pybda, "regression", self._forst_gauss_file, "local"])
         assert pr.returncode == 0
 
     def test_forest_binomial(self):
-        self._recreate_test_folder()
         pr = subprocess.run(
             [self._pybda, "regression", self._forst_binomial_file, "local"])
         assert pr.returncode == 0
 
     def test_gbm_gaussian(self):
-        self._recreate_test_folder()
         pr = subprocess.run(
             [self._pybda, "regression", self._gbm_gauss_file, "local"])
         assert pr.returncode == 0
 
     def test_gbm_binomial(self):
-        self._recreate_test_folder()
         pr = subprocess.run(
             [self._pybda, "regression", self._glm_binomial_file, "local"])
         assert pr.returncode == 0
