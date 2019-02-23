@@ -3,12 +3,11 @@ language: python
 sudo: required
 cache: packages
 
-os:
-  - linux
-  - osx
-
-python:
-  - "3.6"
+matrix:
+  include:
+  - python: 3.6
+    os: linux
+    dist: xenial
 
 env:
   global:
