@@ -1,0 +1,51 @@
+
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/python:3.6.7
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+      
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "setup.py" }}
+            - v1-dependencies-
+
+      - run:
+          name: install dependencies
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install -e '.[test]'
+            pip install codecov
+            pip install pytest-cov
+            pip install tox-travis
+
+      - save_cache:
+          paths:
+            - ./venv
+          key: v1-dependencies-{{ checksum "setup.py" }}
+
+      - run:
+          name: run tests
+          command: |
+            . venv/bin/activate
+            py.test tests/test_fa.py
+            py.test tests/test_foresst.py
+            py.test tests/test_gbm.py
+            py.test tests/test_glm.py
+            py.test tests/test_gmm.py
+            py.test tests/test_ica.py
+            py.test tests/test_kmeans.py
+            py.test tests/test_kpca.py
+            py.test tests/test_lda.py
+            py.test tests/test_pca.py
+            py.test tests/test_stats.py
+
+      - store_artifacts:
+          path: test-reports
+          destination: test-reports
