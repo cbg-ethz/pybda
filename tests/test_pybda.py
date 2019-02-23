@@ -39,38 +39,39 @@ class TestPyBDA(unittest.TestCase):
         N_CENTERS__: "2,3"
     }
 
-    def setUp(self):
-        unittest.TestCase.setUp(self)
-        self._test_path = os.path.dirname(__file__)
-        self._pybda_path = os.path.dirname(self._test_path)
-        self._test_out = os.path.join(self._pybda_path, "data", "test")
-        self._test_file = os.path.join(self._test_path, "pybda-test.config")
+    @classmethod
+    def setUpClass(cls):
+        unittest.TestCase.setUp(cls)
+        cls._test_path = os.path.dirname(__file__)
+        cls._pybda_path = os.path.dirname(cls._test_path)
+        cls._test_out = os.path.join(cls._pybda_path, "data", "test")
+        cls._test_file = os.path.join(cls._test_path, "pybda-test.config")
 
-        self._fa_file = os.path.join(self._test_path, "factor_analysis.config")
-        self._pca_file = os.path.join(self._test_path, "pca.config")
-        self._kpca_file = os.path.join(self._test_path, "kpca.config")
-        self._ica_file = os.path.join(self._test_path, "ica.config")
-        self._lda_file = os.path.join(self._test_path, "lda.config")
+        cls._fa_file = os.path.join(cls._test_path, "factor_analysis.config")
+        cls._pca_file = os.path.join(cls._test_path, "pca.config")
+        cls._kpca_file = os.path.join(cls._test_path, "kpca.config")
+        cls._ica_file = os.path.join(cls._test_path, "ica.config")
+        cls._lda_file = os.path.join(cls._test_path, "lda.config")
 
-        self._gmm_file = os.path.join(self._test_path, "gmm.config")
-        self._kmeans_file = os.path.join(self._test_path, "kmeans.config")
+        cls._gmm_file = os.path.join(cls._test_path, "gmm.config")
+        cls._kmeans_file = os.path.join(cls._test_path, "kmeans.config")
 
-        self._gbm_binomial_file = os.path.join(self._test_path,
+        cls._gbm_binomial_file = os.path.join(cls._test_path,
                                                "gbm_binomial.config")
-        self._glm_binomial_file = os.path.join(self._test_path,
+        cls._glm_binomial_file = os.path.join(cls._test_path,
                                                "glm_binomial.config")
-        self._forst_binomial_file = os.path.join(self._test_path,
+        cls._forst_binomial_file = os.path.join(cls._test_path,
                                                  "forest_binomial.config")
-        self._gbm_gauss_file = os.path.join(self._test_path,
+        cls._gbm_gauss_file = os.path.join(cls._test_path,
                                             "gbm_gaussian.config")
-        self._glm_gauss_file = os.path.join(self._test_path,
+        cls._glm_gauss_file = os.path.join(cls._test_path,
                                             "glm_gaussian.config")
-        self._forst_gauss_file = os.path.join(self._test_path,
+        cls._forst_gauss_file = os.path.join(cls._test_path,
                                               "forest_gaussian.config")
-        self._pybda = os.path.join(self._pybda_path, "scripts", "pybda")
-        self._create_dim_red_configs()
-        self._create_regression_configs()
-        self._create_clustering_configs()
+        cls._pybda = os.path.join(cls._pybda_path, "scripts", "pybda")
+        cls._create_dim_red_configs()
+        cls._create_regression_configs()
+        cls._create_clustering_configs()
 
     def _recreate_test_folder(self):
         if os.path.exists(self._test_out):
@@ -123,17 +124,18 @@ class TestPyBDA(unittest.TestCase):
                     else:
                         fr.write("{}: {}\n".format(RESPONSE__, "response"))
 
-    def tearDown(self):
-        if os.path.exists(self._test_out):
-            shutil.rmtree(self._test_out)
+    @classmethod
+    def tearDownClass(cls):
+        if os.path.exists(cls._test_out):
+            shutil.rmtree(cls._test_out)
         fls = []
         for d in TestPyBDA.__CONFIG__[DIM_RED__] + TestPyBDA.__CONFIG__[
                 CLUSTERING__]:
-            out = os.path.join(self._test_path, d + ".config")
+            out = os.path.join(cls._test_path, d + ".config")
             fls.append(out)
         for d in TestPyBDA.__CONFIG__[REGRESSION__]:
             for f in [BINOMIAL_, GAUSSIAN_]:
-                out = os.path.join(self._test_path, d + "_" + f + ".config")
+                out = os.path.join(cls._test_path, d + "_" + f + ".config")
                 fls.append(out)
         for fl in fls:
             os.remove(fl)
