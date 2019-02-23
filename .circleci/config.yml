@@ -16,6 +16,25 @@ jobs:
             - v1-dependencies-
 
       - run:
+          name: install java
+          command: |
+              sudo apt-get install software-properties-common
+              sudo add-apt-repository ppa:webupd8team/java
+              sudo apt-get update
+              sudo apt-get install oracle-java8-installer
+
+      - run:
+          name: set env
+          command: |
+            export SPARK_VERSION='2.4.0'
+            export HADOOP_VERSION='2.7'
+            export SPARK_PATH="spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}"
+            export SPARK_HOME="/tmp/${SPARK_PATH}"
+            export JAVA_VERSION='oraclejdk8'
+            export PATH="${PATH}:${SPARK_HOME}/bin"
+            cd /tmp && curl "http://mirror.easyname.ch/apache/spark/spark-${SPARK_VERSION}/${SPARK_PATH}.tgz" --output "${SPARK_HOME}.tgz" && tar -xvzf "${SPARK_HOME}.tgz"
+
+      - run:
           name: install dependencies
           command: |
             python3 -m venv venv
@@ -25,6 +44,7 @@ jobs:
             pip install pytest-cov
             pip install tox-travis
 
+
       - save_cache:
           paths:
             - ./venv
@@ -33,6 +53,12 @@ jobs:
       - run:
           name: run tests
           command: |
+            export SPARK_VERSION='2.4.0'
+            export HADOOP_VERSION='2.7'
+            export SPARK_PATH="spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}"
+            export SPARK_HOME="/tmp/${SPARK_PATH}"
+            export JAVA_VERSION='oraclejdk8'
+            export PATH="${PATH}:${SPARK_HOME}/bin"
             . venv/bin/activate
             py.test tests/test_fa.py
             py.test tests/test_foresst.py
