@@ -107,7 +107,7 @@ class Clustering(SparkModel):
         for k in self.clusters:
             models[k] = self._fit_one(k, data, n, p, stat)
             if outpath:
-                models[k].write_files(outpath)
+                models[k].write(outpath)
         if outpath:
-            models.write_files(outpath)
+            models.write (outpath)
         return models

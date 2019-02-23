@@ -37,7 +37,6 @@ logger.setLevel(logging.INFO)
 
 
 def group_mean(data: pyspark.sql.DataFrame, groups, response, features):
-    logger.info("Computing group means")
     means = scipy.zeros((len(groups), len(features)))
     for i, target in enumerate(groups):
         df_t = data.filter("{} == {}".format(response, target))
@@ -54,7 +53,6 @@ def column_mean(data: pyspark.rdd.RDD):
     :return: returns column means as vector
     """
 
-    logger.info("Computing column means")
     summary = Statistics.colStats(data)
     return summary.mean()
 

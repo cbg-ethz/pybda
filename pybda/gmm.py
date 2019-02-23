@@ -62,7 +62,7 @@ class GMM(Clustering):
         for k, fit in self.model:
             m = GMMTransformed(fit.transform(data))
             if outpath:
-                m.write_files(outpath, k)
+                m.write(outpath, k)
 
 
 @click.command()
