@@ -33,6 +33,8 @@ from pybda.logger import logger_format
 def run(config, spark, cmd):
     from pybda import snake_file
     snakemake.snakemake(
+      lock=False,
+      unlock=False,
       snakefile=snake_file(),
       targets=[cmd],
       configfile=config,
@@ -105,6 +107,8 @@ def sample(config, spark, input, output, n, split):
 
     from pybda import snake_file
     snakemake.snakemake(
+      lock=False,
+      unlock=False,
       snakefile=snake_file(),
       targets=["sample"],
       configfile=config,
