@@ -19,6 +19,7 @@ env:
     - PATH="${PATH}:${SPARK_HOME}/bin"
 
 before_install:
+  - find -name "*\.snakemake*" -type d -exec rm -r "{}" \;
   - pip install --upgrade pip
   - curl -s https://raw.githubusercontent.com/dirmeier/spark-travis/master/setup_spark.sh | bash
 
