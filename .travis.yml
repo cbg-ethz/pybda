@@ -1,7 +1,6 @@
 language: python
 
 sudo: required
-cache: pip
 
 matrix:
   include:
@@ -31,4 +30,7 @@ install:
 
 script:
   - spark-submit -h
-  - py.test --cov=./ tests/test_pybda.py
+  - py.test --cov=./pybda tests/test_pybda.py
+
+after_success:
+  - codecov

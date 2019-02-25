@@ -68,7 +68,7 @@ jobs:
             py.test tests/test_lda.py
             py.test tests/test_pca.py
             py.test tests/test_stats.py
-            py.test --cov=./ tests/test_pybda.py
+            py.test --cov=./pybda/ tests/test_pybda.py
             
       - run:
           name: compute coverage
