@@ -4,9 +4,12 @@ PyBDA
 .. image:: http://www.repostatus.org/badges/latest/wip.svg
    :target: http://www.repostatus.org/#wip
    :alt: Status
-.. image:: https://travis-ci.org/cbg-ethz/pybda.svg?branch=master
+.. image:: https://img.shields.io/travis/cbg-ethz/pybda/master.svg?label=travis&logo=travis
    :target: https://travis-ci.org/cbg-ethz/pybda/
    :alt: Travis
+.. image:: https://img.shields.io/circleci/project/github/cbg-ethz/pybda/master.svg?label=circleci&logo=circleci
+   :target: https://circleci.com/gh/cbg-ethz/pybda
+   :alt: CircleCI
 .. image:: https://codecov.io/gh/cbg-ethz/pybda/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/cbg-ethz/pybda
    :alt: Codecov
