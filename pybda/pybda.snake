@@ -331,7 +331,7 @@ rule kmeans:
         directory(expand("{outfolder}/{clust}-transformed-K{k}-clusters",
                          clust=pybda_config[CLUSTERING__],
                          outfolder=pybda_config[OUTFOLDER__],
-                         k=pybda_config[N_CENTERS__].replace(" ", "").split(",")))
+                         k=str(pybda_config[N_CENTERS__]).replace(" ", "").split(",")))
     params:
         out = pybda_config[OUTFOLDER__] + "/kmeans",
         params = " ".join([x for x in pybda_config[SPARKPARAMS__]]),
@@ -353,7 +353,7 @@ rule gmm:
         directory(expand("{outfolder}/{clust}-transformed-K{k}-components",
                          clust=pybda_config[CLUSTERING__],
                          outfolder=pybda_config[OUTFOLDER__],
-                         k=pybda_config[N_CENTERS__].replace(" ", "").split(",")))
+                         k=str(pybda_config[N_CENTERS__]).replace(" ", "").split(",")))
     params:
         out = pybda_config[OUTFOLDER__] + "/gmm",
         params = " ".join([x for x in pybda_config[SPARKPARAMS__]]),
