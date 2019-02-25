@@ -32,6 +32,3 @@ install:
 script:
   - spark-submit -h
   - py.test --cov=./ tests/test_pybda.py
-
-after_success:
-  - codecov

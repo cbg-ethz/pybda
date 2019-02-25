@@ -21,7 +21,7 @@ jobs:
               sudo apt-get install openjdk-8-jdk
 
       - run:
-          name: set env
+          name: install spark
           command: |
             export SPARK_VERSION='2.4.0'
             export HADOOP_VERSION='2.7'
@@ -32,19 +32,20 @@ jobs:
             tar -xvzf "${SPARK_HOME}.tgz"
 
       - run:
-          name: install dependencies
+          name: install python dependencies
           command: |
             python3 -m venv venv
             . venv/bin/activate
-            pip install -e '.[test]'
-            pip install codecov
+            pip install -e '.[test]'            
             pip install pytest-cov
             pip install tox-travis
+            sudo pip install codecov
 
       - save_cache:
           paths:
             - ./venv
           key: v1-dependencies-{{ checksum "setup.py" }}
+
 
       - run:
           name: run tests
@@ -67,6 +68,12 @@ jobs:
             py.test tests/test_lda.py
             py.test tests/test_pca.py
             py.test tests/test_stats.py
+            py.test --cov=./ tests/test_pybda.py
+            
+      - run:
+          name: compute coverage
+          command: |
+            codecov
 
       - store_artifacts:
           path: test-reports
