@@ -20,7 +20,6 @@
 
 
 import logging
-import os
 
 from pybda.fit.clustering_transformed import ClusteringTransformed
 from pybda.globals import FEATURES__

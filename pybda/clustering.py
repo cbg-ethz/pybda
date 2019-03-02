@@ -18,7 +18,6 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import logging
 import pathlib
 from abc import abstractmethod
@@ -74,11 +73,11 @@ class Clustering(SparkModel):
 
     @abstractmethod
     def fit(self, data, outpath=None):
-        pass
+        ...
 
     @abstractmethod
     def write(self, data, outpath=None):
-        pass
+        ...
 
     @staticmethod
     def _check_transform(models, fit_folder):
@@ -109,5 +108,5 @@ class Clustering(SparkModel):
             if outpath:
                 models[k].write(outpath)
         if outpath:
-            models.write (outpath)
+            models.write(outpath)
         return models

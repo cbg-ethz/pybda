@@ -40,19 +40,18 @@ class GLM(Regression):
     def fit(self, data):
         logger.info("Fitting GLM with family='{}'".format(self.family))
         model = self._fit(data)
-        self.model = GLMFit(data, model, self.response,
-                            self.family, self.features)
+        self.model = GLMFit(data, model, self.response, self.family,
+                            self.features)
         return self
 
     def _model(self):
         if self.family == GAUSSIAN_:
             reg = LinearRegression()
         elif self.family == BINOMIAL_:
-            reg = GeneralizedLinearRegression(
-              family="binomial", link="logit")
+            reg = GeneralizedLinearRegression(family="binomial", link="logit")
         else:
             raise NotImplementedError("Family '{}' not implemented".format(
-              self.family))
+                self.family))
         reg.setLabelCol(self.response)
         reg.setMaxIter(self.__max_iter)
         return reg
@@ -89,8 +88,8 @@ def run(file, meta, features, response, family, outpath, predict):
             fl = fl.fit(data)
             fl.write(outpath)
             if pathlib.Path(predict).exists():
-                pre_data = read_and_transmute(
-                  spark, predict, features, drop=False)
+                pre_data = read_and_transmute(spark, predict, features,
+                                              drop=False)
                 pre_data = fl.predict(pre_data)
                 pre_data.write(outpath)
         except Exception as e:

@@ -49,4 +49,3 @@ class Ensemble(Regression):
     @property
     def subsampling_rate(self):
         return self.__subsampling_rate
-

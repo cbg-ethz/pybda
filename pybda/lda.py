@@ -59,8 +59,8 @@ class LDA(DimensionReduction):
         targets = distinct(data, self.__response)
         SW = within_group_scatter(data, self.features, self.response, targets)
         SB = covariance_matrix(self._row_matrix(data)) * (data.count() - 1) - SW
-        loadings, vars = self._compute_eigens(SW, SB)
-        self.model = LDAFit(self.n_components, loadings, vars,
+        loadings, var = self._compute_eigens(SW, SB)
+        self.model = LDAFit(self.n_components, loadings, var,
                             self.features, self.response)
         return self.model
 

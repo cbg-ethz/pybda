@@ -22,17 +22,12 @@
 import logging
 import os
 
-from pandas import DataFrame
-
 from pybda.fit.dimension_reduction_transform import DimensionReductionTransform
 from pybda.globals import FEATURES__
 from pybda.io.io import mkdir
 from pybda.plot.descriptive import scatter, histogram
-from pybda.plot.dimension_reduction_plot import biplot, \
-    plot_cumulative_variance
 from pybda.sampler import sample
 from pybda.spark.features import split_vector
-from pybda.stats.stats import normalized_cumsum
 from pybda.util.cast_as import as_pandas
 
 logger = logging.getLogger(__name__)

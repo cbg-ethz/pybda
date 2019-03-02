@@ -66,9 +66,6 @@ class Regression(SparkModel):
     def predict(self, data):
         return self.model.predict(data)
 
-    def write(self, outpath):
-        self.model.write(outpath)
-
     def _fit(self, data):
         data = data.coalesce(300)
         if self.family == BINOMIAL_:

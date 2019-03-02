@@ -23,50 +23,51 @@ import typing
 
 from pybda import dirname
 from pybda import PyBDAConfig
-from pybda.globals import CLUSTERING__
-from pybda.globals import CLUSTERING_INFILE__
-from pybda.globals import DEBUG__
-from pybda.globals import DIM_RED__
-from pybda.globals import DIM_RED_INFILE__
-from pybda.globals import FAMILY__
-from pybda.globals import FACTOR_ANALYSIS__
-from pybda.globals import FEATURES__
-from pybda.globals import INFILE__
-from pybda.globals import ICA__
-from pybda.globals import KPCA__
-from pybda.globals import LDA__
-from pybda.globals import MAHA__
-from pybda.globals import MAX_CENTERS__
-from pybda.globals import META__
-from pybda.globals import METHODS__
-from pybda.globals import N_CENTERS__
-from pybda.globals import N_COMPONENTS__
-from pybda.globals import OUTFOLDER__
-from pybda.globals import OUTLIERS__
-from pybda.globals import OUTLIERS_INFILE__
-from pybda.globals import PCA__
-from pybda.globals import PREDICT__
-from pybda.globals import PVAL__
-from pybda.globals import REGRESSION_INFILE__
-from pybda.globals import REGRESSION__
-from pybda.globals import RESPONSE__
-from pybda.globals import REQUIRED_ARGS__
-from pybda.globals import SPARKPARAMS__
-from pybda.globals import SPARKIP__
-from pybda.globals import SPARK__
+from pybda.globals import (
+    CLUSTERING__,
+    CLUSTERING_INFILE__,
+    DEBUG__,
+    DIM_RED__,
+    DIM_RED_INFILE__,
+    FAMILY__,
+    FACTOR_ANALYSIS__,
+    FEATURES__,
+    INFILE__,
+    ICA__,
+    KPCA__,
+    LDA__,
+    MAHA__,
+    MAX_CENTERS__,
+    META__,
+    METHODS__,
+    N_CENTERS__,
+    N_COMPONENTS__,
+    OUTFOLDER__,
+    OUTLIERS__,
+    OUTLIERS_INFILE__,
+    PCA__,
+    PREDICT__,
+    PVAL__,
+    REGRESSION_INFILE__,
+    REGRESSION__,
+    RESPONSE__,
+    REQUIRED_ARGS__,
+    SPARKPARAMS__,
+    SPARKIP__,
+    SPARK__)
 from pybda.logger import logger_format
 
 pybda_config = PyBDAConfig(config)
 
 
-def _submit_dim_red(method, input, out, params):
+def _submit_dim_red(method, inpt, out, params):
     cmd = """{} --master {} {} {} {} {} {} {}""".format(
         pybda_config[SPARK__],
         pybda_config[SPARKIP__],
         params,
         method,
         pybda_config[N_COMPONENTS__],
-        input,
+        inpt,
         pybda_config[FEATURES__],
         out)
     _run(cmd)
@@ -135,7 +136,7 @@ rule kpca:
         pca = os.path.join(dirname(), "kpca.py"),
         params = " ".join([x for x in pybda_config[SPARKPARAMS__]])
     run:
-      _submit_dim_red(params.pca, input, params.out[0], params.params)
+        _submit_dim_red(params.pca, input, params.out[0], params.params)
 
 
 rule ica:
@@ -155,7 +156,7 @@ rule ica:
         pca = os.path.join(dirname(), "ica.py"),
         params = " ".join([x for x in pybda_config[SPARKPARAMS__]])
     run:
-      _submit_dim_red(params.pca, input, params.out[0], params.params)
+        _submit_dim_red(params.pca, input, params.out[0], params.params)
 
 
 rule lda:
