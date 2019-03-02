@@ -40,14 +40,14 @@ class RegressionFit(ABC):
 
         if family == BINOMIAL_:
             evaluator = MulticlassClassificationEvaluator(labelCol=response)
-            self.__f1 = evaluator.evaluate(
-              self.data, {evaluator.metricName: "f1"})
+            self.__f1 = evaluator.evaluate(self.data,
+                                           {evaluator.metricName: "f1"})
             self.__accuracy = evaluator.evaluate(
-              self.data, {evaluator.metricName: "accuracy"})
+                self.data, {evaluator.metricName: "accuracy"})
             self.__precision = evaluator.evaluate(
-              self.data, {evaluator.metricName: "weightedPrecision"})
+                self.data, {evaluator.metricName: "weightedPrecision"})
             self.__recall = evaluator.evaluate(
-              self.data, {evaluator.metricName: "weightedRecall"})
+                self.data, {evaluator.metricName: "weightedRecall"})
 
     @abstractmethod
     def write(self, outfolder):

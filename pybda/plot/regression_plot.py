@@ -18,7 +18,6 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import logging
 
 import matplotlib.pyplot as plt
@@ -41,7 +40,7 @@ def plot_curves(file_name, pr, roc):
     ax.spines['left'].set_color('grey')
     ax.grid(linestyle="")
     plt.step(pr["recall"], pr["precision"], color='b', alpha=0.5, where='post')
-    plt.plot([0, 0.5, 1], [0.5, 0.5, .5] , color="black", alpha=.5)
+    plt.plot([0, 0.5, 1], [0.5, 0.5, .5], color="black", alpha=.5)
     plt.xlabel("Recall", fontsize=12)
     plt.ylabel("Precision", fontsize=12)
     ax.set_ylim([0, 1])
@@ -52,7 +51,7 @@ def plot_curves(file_name, pr, roc):
     ax.spines['left'].set_color('grey')
     ax.grid(linestyle="")
     plt.step(roc["FPR"], roc["TPR"], color='b', alpha=0.5, where='post')
-    plt.plot([0, 0.5, 1], [0, 0.5, 1] , color="black", alpha=.5)
+    plt.plot([0, 0.5, 1], [0, 0.5, 1], color="black", alpha=.5)
     plt.xlabel("FPR", fontsize=12)
     plt.ylabel("TPR", fontsize=12)
     ax.set_ylim([0, 1])

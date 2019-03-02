@@ -48,8 +48,7 @@ class FactorAnalysis(DimensionReduction):
         return self.__n_factors
 
     def fit(self, data):
-        X, _ = self._fit(data)
-        del X
+        self._fit(data)
         return self
 
     def _fit(self, data):

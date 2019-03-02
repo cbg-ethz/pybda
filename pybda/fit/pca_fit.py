@@ -18,7 +18,6 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import logging
 import os
 
@@ -26,8 +25,8 @@ from pandas import DataFrame
 
 from pybda.fit.dimension_reduction_fit import DimensionReductionFit
 from pybda.io.io import mkdir
-from pybda.plot.dimension_reduction_plot import biplot, \
-    plot_cumulative_variance
+from pybda.plot.dimension_reduction_plot import (biplot,
+                                                 plot_cumulative_variance)
 from pybda.stats.stats import cumulative_explained_variance
 
 logger = logging.getLogger(__name__)

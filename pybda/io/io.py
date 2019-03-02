@@ -18,7 +18,6 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import glob
 import logging
 import os
@@ -74,8 +73,8 @@ def write_tsv(data, outfile, header=True, index=False):
     if isinstance(data, pandas.DataFrame):
         data.to_csv(outfile, sep="\t", header=header, index=index)
     else:
-        data.coalesce(1).write.csv(
-          outfile, mode="overwrite", sep="\t", header=header)
+        data.coalesce(1).write.csv(outfile, mode="overwrite", sep="\t",
+                                   header=header)
         # puh, that is risky
         fl = glob.glob(outfile + "/part*")
         os.rename(fl[0], outfile + ".tsv")
@@ -94,12 +93,8 @@ def read(spark, file_name, header=True):
     return data
 
 
-def read_and_transmute(spark, file_name,
-                       feature_cols,
-                       respone=None,
-                       header=True,
-                       drop=True,
-                       assemble_features=True):
+def read_and_transmute(spark, file_name, feature_cols, respone=None,
+                       header=True, drop=True, assemble_features=True):
     """
     Reads either a 'tsv' or 'parquet' file as data frame.
 

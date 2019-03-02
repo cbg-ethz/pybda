@@ -18,7 +18,6 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import logging
 
 import click
@@ -62,8 +61,7 @@ class ICA(DimensionReduction):
         logger.info("Fitting ICA")
         X = self._preprocess_data(data)
         W, K = self._estimate(X)
-        self.model = ICAFit(self.n_components, K.dot(W),
-                            self.features, W, K)
+        self.model = ICAFit(self.n_components, K.dot(W), self.features, W, K)
         return X, self.model
 
     def _estimate(self, X):
@@ -73,14 +71,14 @@ class ICA(DimensionReduction):
 
         for c in range(self.n_components):
             w = w_init[c, :].copy()
-            w /= scipy.sqrt((w ** 2).sum())
+            w /= scipy.sqrt((w**2).sum())
             for _ in range(self.max_iter):
                 g, gd = self._exp(Xw.multiply(DenseMatrix(len(w), 1, w)))
                 w1 = column_mean(elementwise_product(Xw, g, self.spark))
                 del g
                 w1 = w1 - gd * w
                 w1 = gs_decorrelate(w1, W, c)
-                w1 /= scipy.sqrt((w1 ** 2).sum())
+                w1 /= scipy.sqrt((w1**2).sum())
                 lim = scipy.absolute(scipy.absolute((w1 * w).sum()) - 1)
                 w = w1
                 if lim < self.threshold:
@@ -93,8 +91,8 @@ class ICA(DimensionReduction):
     @staticmethod
     def _exp(X):
         g = X.rows.map(lambda x: x * scipy.exp(-(scipy.power(x, 2.0)) / 2.0))
-        g_ = X.rows.map(lambda x: (1 - scipy.power(x, 2.0)) *
-                                  scipy.exp(-(scipy.power(x, 2.0)) / 2.0))
+        g_ = X.rows.map(lambda x: (1 - scipy.power(x, 2.0)) * scipy.exp(-(
+            scipy.power(x, 2.0)) / 2.0))
         gm = column_mean(g_).mean()
         return RowMatrix(g), gm
 
@@ -116,10 +114,8 @@ class ICA(DimensionReduction):
     def _transform(self, data, X):
         logger.info("Transforming data")
         loadings = self.model.loadings.T
-        L = DenseMatrix(numRows=loadings.shape[0],
-                        numCols=loadings.shape[1],
-                        values=loadings.flatten(),
-                        isTransposed=True)
+        L = DenseMatrix(numRows=loadings.shape[0], numCols=loadings.shape[1],
+                        values=loadings.flatten(), isTransposed=True)
         data = join(data, X.multiply(L), self.spark)
         return data
 

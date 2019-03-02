@@ -18,7 +18,6 @@
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 
-
 import logging
 import scipy
 
@@ -73,9 +72,9 @@ def to_double(data, feature_cols, response=None):
     f_cols = list(filter(lambda x: x.startswith("f_"), cols))
     if len(f_cols):
         logger.info(
-          "Found columns with prefix f_ from previous computation: {}.\n"
-          "Preferring these columns as features/"
-          "".format("\t".join(f_cols)))
+            "Found columns with prefix f_ from previous computation: {}.\n"
+            "Preferring these columns as features/"
+            "".format("\t".join(f_cols)))
         feature_cols = f_cols
 
     logger.info("Casting columns to double.")
@@ -117,8 +116,7 @@ def assemble(data, feature_cols, drop=True):
                 "Preferring these columns as features"
                 "".format("\t".join(f_cols)))
             feature_cols = f_cols
-        assembler = VectorAssembler(
-          inputCols=feature_cols, outputCol=FEATURES_)
+        assembler = VectorAssembler(inputCols=feature_cols, outputCol=FEATURES_)
         data = assembler.transform(data)
     else:
         logger.info("Features already assembled")
@@ -156,8 +154,8 @@ def replace_column_names(data, fro=".", to="_"):
     new_cols = list(map(lambda x: x.replace(fro, to), old_cols))
 
     data = reduce(
-      lambda d, idx: d.withColumnRenamed(old_cols[idx], new_cols[idx]),
-      range(len(new_cols)), data)
+        lambda d, idx: d.withColumnRenamed(old_cols[idx], new_cols[idx]),
+        range(len(new_cols)), data)
 
     return data, new_cols
 
@@ -180,14 +178,14 @@ def split_vector(data, col_name):
     cols.remove(col_name)
     initial = col_name[0]
     len_vec = len(data.select(col_name).take(1)[0][0])
-    data = (
-        data.withColumn(initial, as_array(col(col_name)))
-            .select(cols + [col(initial)[i] for i in range(len_vec)]))
+    data = (data.withColumn(initial, as_array(
+        col(col_name))).select(cols + [col(initial)[i]
+                                       for i in range(len_vec)]))
 
     for _, x in enumerate(data.columns):
         if x.startswith(initial + "["):
-            data = data.withColumnRenamed(
-              x, x.replace("[", "_").replace("]", ""))
+            data = data.withColumnRenamed(x,
+                                          x.replace("[", "_").replace("]", ""))
 
     return data
 
@@ -197,6 +195,4 @@ def n_features(data: pyspark.sql.DataFrame, col_name):
 
 
 def distinct(data: pyspark.sql.DataFrame, col_name):
-    return (data.select(col_name)
-            .distinct().toPandas()
-            .values.flatten())
+    return (data.select(col_name).distinct().toPandas().values.flatten())

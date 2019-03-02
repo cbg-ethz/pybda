@@ -53,7 +53,7 @@ class GLMFit(RegressionFit):
             ps = model.summary.pValues
             ts = model.summary.tValues
             se = model.summary.coefficientStandardErrors
-        except Exception as _:
+        except Exception:
             logger.warning("Could not compute p-values, t-values and SEs. "
                            "Possibly due to singular vcov.")
 

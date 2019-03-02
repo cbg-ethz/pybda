@@ -48,7 +48,7 @@ def join(data: sql.DataFrame, X: RowMatrix, spark, on=FEATURES__):
     return data
 
 
-def as_df(X:RowMatrix, spark):
+def as_df(X: RowMatrix, spark):
     return spark.createDataFrame(X.rows.map(lambda x: (x,)))
 
 
