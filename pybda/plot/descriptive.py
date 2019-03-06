@@ -29,7 +29,6 @@ logger.setLevel(logging.INFO)
 
 sns.set_style("white", {'axes.grid': False})
 
-
 def scatter(file_name, data, x, y, xlab, ylab, color=None):
     _, ax = plt.subplots(figsize=(8, 5), dpi=720)
     if color is not None:
