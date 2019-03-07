@@ -40,8 +40,7 @@ class GMMFit(ClusteringFit):
         self.__estimates = estimates
         self.__loglik = loglik
         self.__n_params = k * p + k * p * (p + 1) / 2 + k - 1
-        self.__bic = scipy.log(n) * self.__n_params - \
-                     2 * self.__loglik
+        self.__bic = scipy.log(n) * self.__n_params - 2 * self.__loglik
         self.__path = path
 
     def __str__(self):

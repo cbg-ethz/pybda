@@ -26,7 +26,7 @@ jobs:
             export SPARK_VERSION='2.4.0'
             export HADOOP_VERSION='2.7'
             export SPARK_PATH="spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}"
-            export SPARK_HOME="/tmp/${SPARK_PATH}"            
+            export SPARK_HOME="/tmp/${SPARK_PATH}"
             export PATH="${PATH}:${SPARK_HOME}/bin"
             cd /tmp && curl "http://mirror.easyname.ch/apache/spark/spark-${SPARK_VERSION}/${SPARK_PATH}.tgz" --output "${SPARK_HOME}.tgz" && tar -xvzf "${SPARK_HOME}.tgz"
             tar -xvzf "${SPARK_HOME}.tgz"
@@ -36,7 +36,7 @@ jobs:
           command: |
             python3 -m venv venv
             . venv/bin/activate
-            pip install -e '.[test]'            
+            pip install -e '.[test]'
             pip install pytest-cov
             pip install tox-travis
             sudo pip install codecov
@@ -45,7 +45,6 @@ jobs:
           paths:
             - ./venv
           key: v1-dependencies-{{ checksum "setup.py" }}
-
 
       - run:
           name: run tests
@@ -69,7 +68,7 @@ jobs:
             py.test tests/test_pca.py
             py.test tests/test_stats.py
             py.test --cov=./pybda/ tests/test_pybda.py
-            
+
       - run:
           name: compute coverage
           command: |
