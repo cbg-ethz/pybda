@@ -84,7 +84,7 @@ def write_tsv(data, outfile, header=True, index=False):
 def read(spark, file_name, header=True):
     if file_name.endswith(TSV_):
         data = read_tsv(spark, file_name, header)
-    elif matches(file_name, ".*/.+\..+"):
+    elif matches(file_name, r".*/.+\..+"):
         raise ValueError("Can only parse tsv files or parquet folders.")
     elif pathlib.Path(file_name).is_dir():
         data = read_parquet(spark, file_name)

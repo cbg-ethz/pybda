@@ -77,7 +77,7 @@ class FitProfile(ABC):
 
     def _cluster_sizes(self, path):
         fls = glob.glob(path + "*/*cluster_sizes.tsv")
-        reg = re.compile(".*K(\d+)_cluster_sizes.tsv")
+        reg = re.compile(r".*K(\d+)_cluster_sizes.tsv")
         ll = self.as_pandas()
         logger.info(len(fls))
         frames = [None] * len(fls)
