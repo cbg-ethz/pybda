@@ -21,80 +21,71 @@
 
 import collections
 
-LOGLIK_ = "loglik"
-NULL_LOGLIK_ = "null_" + LOGLIK_
-WITHIN_VAR_ = "within_cluster_variance"
-TOTAL_VAR_ = "total_variance"
-EXPL_VAR_ = "explained_variance"
-N_, P_, K_ = "n", "p", "k"
 BIC_ = "BIC"
-NULL_BIC_ = "null_" + BIC_
-PATH_ = "path"
-
-PLOT_FONT_ = "Tahoma"
-PLOT_FONT_FAMILY_ = 'sans-serif'
-PLOT_STYLE_ = "seaborn-whitegrid"
-RED_ = "#990000"
-
+BINOMIAL_ = "binomial"
+CLUSTERING__ = "clustering"
+DEBUG__ = "debug"
+DIM_RED__ = "dimension_reduction"
 DOUBLE_ = "double"
+EXPL_VAR_ = "explained_variance"
+FACTOR_ANALYSIS__ = "factor_analysis"
+FAMILY__ = "family"
+FEATURES_ = "features"
+FEATURES__ = "features"
 FLOAT_ = "float"
 FLOAT32_ = "float64"
 FLOAT64_ = "float32"
-TSV_ = "tsv"
-
-FEATURES_ = "features"
+FOREST__ = "forest"
 GAUSSIAN_ = "gaussian"
-BINOMIAL_ = "binomial"
-
-DEBUG__ = "debug"
+GBM__ = "gbm"
+GLM__ = "glm"
+GMM__ = "gmm"
+ICA__ = "ica"
+INFILE__ = "infile"
+INTERCEPT__ = "intercept"
+KMEANS__ = "kmeans"
+KPCA__ = "kpca"
+LDA__ = "lda"
+LOGLIK_ = "loglik"
+MAHA__ = "mahalanobis"
+MAX_CENTERS__ = "max_centers"
+META__ = "meta"
+N_, P_, K_ = "n", "p", "k"
+N_CENTERS__ = "n_centers"
+N_COMPONENTS__ = "n_components"
+NULL_BIC_ = "null_" + BIC_
+NULL_LOGLIK_ = "null_" + LOGLIK_
+OUTLIERS__ = "outliers"
+PATH_ = "path"
+PCA__ = "pca"
+PLOT_FONT_ = "Tahoma"
+PLOT_FONT_FAMILY_ = 'sans-serif'
+PLOT_STYLE_ = "seaborn-whitegrid"
+PREDICT__ = "predict"
+PREDICTION__ = "prediction"
+PROBABILITY__ = "probability"
+PVAL__ = "pvalue"
+RAW_PREDICTION__ = "rawPrediction"
+RED_ = "#990000"
+REGRESSION__ = "regression"
+RESPONSE__ = "response"
+RESPONSIBILITIES__ = "responsibilities"
 SPARK__ = "spark"
 SPARKIP__ = SPARK__ + "ip"
 SPARKPARAMS__ = SPARK__ + "params"
-INFILE__ = "infile"
 OUTFOLDER__ = "outfolder"
+TOTAL_VAR_ = "total_variance"
+TSV_ = "tsv"
+WITHIN_VAR_ = "within_cluster_variance"
 
-PVAL__ = "pvalue"
-META__ = "meta"
-FEATURES__ = "features"
-RESPONSE__ = "response"
-
-CLUSTERING__ = "clustering"
 CLUSTERING_INFILE__ = CLUSTERING__ + "_" + INFILE__
-DIM_RED__ = "dimension_reduction"
 DIM_RED_INFILE__ = DIM_RED__ + "_" + INFILE__
-FACTOR_ANALYSIS__ = "factor_analysis"
-ICA__ = "ica"
-GMM__ = "gmm"
-LDA__ = "lda"
-KPCA__ = "kpca"
-PCA__ = "pca"
-MAHA__ = "mahalanobis"
-N_COMPONENTS__ = "n_components"
-OUTLIERS__ = "outliers"
 OUTLIERS_INFILE__ = OUTLIERS__ + "_" + INFILE__
-PREDICT__ = "predict"
-KMEANS__ = "kmeans"
-MAX_CENTERS__ = "max_centers"
-N_CENTERS__ = "n_centers"
-RESPONSIBILITIES__ = "responsibilities"
-RAW_PREDICTION__ = "rawPrediction"
-PROBABILITY__ = "probability"
-PREDICTION__ = "prediction"
-INTERCEPT__ = "intercept"
-
-REGRESSION__ = "regression"
+PREPROCESSING_METHODS__ = [DIM_RED__, OUTLIERS__]
 REGRESSION_INFILE__ = REGRESSION__ + "_" + INFILE__
-GLM__ = "glm"
-GBM__ = "gbm"
-FOREST__ = "forest"
-FAMILY__ = "family"
-
+REQUIRED_ARGS__ = [SPARK__, INFILE__, OUTFOLDER__]
 RULE_INFILE__ = "rule" + "_" + INFILE__
 
-REQUIRED_ARGS__ = [SPARK__, INFILE__, OUTFOLDER__]
-
-PREPROCESSING_METHODS__ = [DIM_RED__, OUTLIERS__]
 METHODS__ = PREPROCESSING_METHODS__ + [CLUSTERING__, REGRESSION__]
-PARENT_METHODS__ = collections.OrderedDict([(CLUSTERING__,
-                                             PREPROCESSING_METHODS__),
-                                            (REGRESSION__, None)])
+PARENT_METHODS__ = collections.OrderedDict(
+  [(CLUSTERING__, PREPROCESSING_METHODS__), (REGRESSION__, None)])

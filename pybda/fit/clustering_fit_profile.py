@@ -119,6 +119,5 @@ class FitProfile(ABC):
             for i in idx:
                 labels[i].set_text(None)
             plt.xticks(locs, labels)
-
         plt.savefig(file_name, dpi=720)
         plt.close("all")

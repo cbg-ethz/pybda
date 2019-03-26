@@ -27,6 +27,8 @@ import click
 import snakemake
 import yaml
 
+from pybda.config.config_checks import check_args
+from pybda.globals import DIM_RED__, CLUSTERING__, REGRESSION__
 from pybda.logger import logger_format
 
 
@@ -63,7 +65,8 @@ def dimension_reduction(config, spark):
     Computes a dimension reduction from a CONFIG in a SPARK session.
     """
 
-    dr = _get_from_config(config, "dimension_reduction")
+    dr = _get_from_config(config, DIM_RED__)
+    check_args(config, DIM_RED__)
     run(config, spark, dr)
 
 
@@ -75,7 +78,8 @@ def clustering(config, spark):
     Do a clustering fit of a data set.
     """
 
-    cl = _get_from_config(config, "clustering")
+    cl = _get_from_config(config, CLUSTERING__)
+    check_args(config, CLUSTERING__)
     run(config, spark, cl)
 
 
@@ -87,7 +91,8 @@ def regression(config, spark):
     Fit a regression model to a data set
     """
 
-    cl = _get_from_config(config, "regression")
+    cl = _get_from_config(config, REGRESSION__)
+    check_args(config, REGRESSION__)
     run(config, spark, cl)
 
 
