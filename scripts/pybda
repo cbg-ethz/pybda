@@ -47,8 +47,7 @@ def run(config, spark, cmd):
 def _get_from_config(config, key):
     with open(config, 'r') as fh:
         conf_ = yaml.load(fh)
-    if key not in conf_.keys():
-        raise ValueError("'{}' argument not found in config file".format(key))
+    check_args(conf_, key)
     return conf_[key]
 
 
@@ -65,9 +64,8 @@ def dimension_reduction(config, spark):
     Computes a dimension reduction from a CONFIG in a SPARK session.
     """
 
-    dr = _get_from_config(config, DIM_RED__)
-    check_args(config, DIM_RED__)
-    run(config, spark, dr)
+    cl = _get_from_config(config, DIM_RED__)
+    run(config, spark, cl)
 
 
 @cli.command()
@@ -79,7 +77,6 @@ def clustering(config, spark):
     """
 
     cl = _get_from_config(config, CLUSTERING__)
-    check_args(config, CLUSTERING__)
     run(config, spark, cl)
 
 
@@ -92,7 +89,6 @@ def regression(config, spark):
     """
 
     cl = _get_from_config(config, REGRESSION__)
-    check_args(config, REGRESSION__)
     run(config, spark, cl)
 
 
