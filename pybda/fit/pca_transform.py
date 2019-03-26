@@ -23,7 +23,7 @@ import logging
 import os
 
 from pybda.fit.dimension_reduction_transform import DimensionReductionTransform
-from pybda.globals import FEATURES_
+from pybda.globals import FEATURES__
 from pybda.io.io import mkdir
 from pybda.plot.descriptive import scatter, histogram
 from pybda.sampler import sample
@@ -58,7 +58,7 @@ class PCATransform(DimensionReductionTransform):
 
     def _plot(self, outfile):
         logger.info("Plotting")
-        subsamp = as_pandas(split_vector(sample(self.data, 10000), FEATURES_))
+        subsamp = as_pandas(split_vector(sample(self.data, 10000), FEATURES__))
         for suf in ["png", "pdf", "svg", "eps"]:
             scatter(outfile + "-scatter_plot." + suf, subsamp,
                     "f_0", "f_1", "PC 1", "PC 2")

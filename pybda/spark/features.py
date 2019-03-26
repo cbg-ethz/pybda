@@ -26,7 +26,7 @@ from pyspark.ml.feature import VectorAssembler
 from pyspark.rdd import reduce
 from pyspark.sql.functions import col
 
-from pybda.globals import FLOAT_, FLOAT64_, FEATURES_
+from pybda.globals import FLOAT_, FLOAT64_, FEATURES__
 from pybda.util.cast_as import as_array
 
 logger = logging.getLogger(__name__)
@@ -60,8 +60,8 @@ def to_double(data, feature_cols, response=None):
     cols = data.columns
     column_types = {x: y for (x, y) in data.dtypes}
 
-    if FEATURES_ in column_types.keys():
-        feature_vec = scipy.array(data.select(FEATURES_).take(1)[0][0])
+    if FEATURES__ in column_types.keys():
+        feature_vec = scipy.array(data.select(FEATURES__).take(1)[0][0])
         if len(feature_vec) != len(feature_cols):
             raise ValueError("Size of DataFrame 'feature' vector != "
                              "Size feature provided file")
@@ -107,7 +107,7 @@ def assemble(data, feature_cols, drop=True):
     """
 
     cols = data.columns
-    if FEATURES_ not in cols:
+    if FEATURES__ not in cols:
         logger.info("Assembling column to feature vector")
         f_cols = list(filter(lambda x: x.startswith("f_"), cols))
         if len(f_cols):
@@ -116,7 +116,8 @@ def assemble(data, feature_cols, drop=True):
                 "Preferring these columns as features"
                 "".format("\t".join(f_cols)))
             feature_cols = f_cols
-        assembler = VectorAssembler(inputCols=feature_cols, outputCol=FEATURES_)
+        assembler = VectorAssembler(inputCols=feature_cols,
+                                    outputCol=FEATURES__)
         data = assembler.transform(data)
     else:
         logger.info("Features already assembled")
