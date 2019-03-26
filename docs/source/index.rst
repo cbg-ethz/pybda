@@ -48,17 +48,16 @@ In order to make PyBDA scale to big data sets, we use Apache [Spark]_'s DataFram
 data to the nodes of a high-performance cluster and does the computation of expensive machine learning tasks in parallel.
 For scheduling, PyBDA uses [Snakemake]_ to automatically execute pipelines of jobs. In particular, PyBDA will first build a DAG of methods/jobs
 you want to execute in succession (e.g. dimensionality reduction into clustering) and then compute every method by traversing the DAG.
-In the case of a successful computation of a job, PyBDA will write results and plots, and create statistics. If one of the jobs fails PyBDA will report where and which method failed
+In the case of a successful computation of a job, PyBDA will write results and plots, and create some statistics. If one of the jobs fails PyBDA will report where and which method failed
 (owing to Snakemake's scheduling) such that the same pipeline can effortlessly be continued from where it failed the last time.
 
-PyBDA supports multiple machine learning methods that scale to big data scenarios.
-We either entirely implemented these from scratch or interface the methodology from [MLLib]_:
+PyBDA supports multiple machine learning methods that scale to big data sets which we either implemented from scratch entirely or interface the methodology from [MLLib]_:
 
 * dimensionality reduction using PCA, factor analysis, kPCA, linear discriminant analysis and ICA,
 * clustering using k-means and Gaussian mixture models,
 * supervised learning using generalized linear regression models, random forests and gradient boosting.
 
-The package is actively developed and will add new features in a timely fashion. If you want to you can also contribute:
+The package is actively developed. If you want to you can also contribute, for instance by adding new features or methods:
 `fork us on GitHub <https://github.com/cbg-ethz/pybda>`__.
 
 Dependencies
@@ -74,11 +73,11 @@ To run PyBDA you only need to provide a config-file and, if possible, the IP of 
 The config file for a simple clustering task might look like this:
 
 .. literalinclude:: _static/clustering-example.config
-  :caption: Example clustering configuration file.
+  :caption: Example clustering configuration file called ``clustering-example.config``
   :name: clustering-example.config
 
-The above configuration would tell PyBDA to first use factor analysis to embed the data into a ``5``-dimensional
-latent space and then fit several ``k``-means clusterings with different numbers of clusters on that space.
+The above configuration would tell PyBDA to first use factor analysis to embed the data into a 5-dimensional
+latent space and then fit several k-means clusterings with different numbers of clusters on that space.
 You call PyBDA like that:
 
 .. code-block:: bash
