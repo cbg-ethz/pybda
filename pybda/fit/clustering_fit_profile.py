@@ -26,6 +26,7 @@ from collections import OrderedDict
 
 import pandas
 import joypy
+import numpy
 import matplotlib.pyplot as plt
 
 from pybda.globals import K_
@@ -112,5 +113,12 @@ class FitProfile(ABC):
         for x in axes:
             x.spines['bottom'].set_color('grey')
             x.grid(color="grey", axis="y")
+        locs, labels = plt.xticks()
+        if any(locs < 0):
+            idx = numpy.where(locs < 0)[0]
+            for i in idx:
+                labels[i].set_text(None)
+            plt.xticks(locs, labels)
+
         plt.savefig(file_name, dpi=720)
         plt.close("all")
