@@ -60,8 +60,7 @@ class PyBDAConfig:
         for el in REQUIRED_ARGS__:
             if not hasattr(self, el):
                 raise ValueError(
-                    "'{}' needs to be a key-value pair in the config".format(
-                        el))
+                  "'{}' needs to be a key-value pair in the config".format(el))
 
     def __check_available_method(self):
         if not any(hasattr(self, x) for x in METHODS__):
