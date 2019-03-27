@@ -45,21 +45,28 @@ class TestFA(TestDimredAPI):
         df = pandas.DataFrame(data=cls.X_lo, columns=cls.features())
         cls._spark_lo = TestDimredAPI.spark().createDataFrame(df)
 
-        cls.sk_fa = sklearn.decomposition.FactorAnalysis(
-          n_components=2, max_iter=5, random_state=23)
-        cls.sk_fit = cls.sk_fa.fit(cls.X_lo)
-
         cls.fa = FactorAnalysis(cls.spark(), 2, cls.features(), max_iter=5)
         cls.trans = cls.fa.fit_transform(cls._spark_lo)
+        cls.trans = split_vector(cls.trans.data.select(FEATURES__),
+                          FEATURES__).toPandas().values
         model = cls.fa.model
         cls.W = model.loadings
         cls.ll = model.loglikelihood
         cls.psi = model.error_vcov
 
+        cls.fa.fit(cls._spark_lo)
+        cls.fittransform_data = cls.fa.transform(cls._spark_lo)
+        cls.fittransform_data = split_vector(cls.fittransform_data.data.select(FEATURES__),
+                            FEATURES__).toPandas().values
+
+        cls.sk_fa = sklearn.decomposition.FactorAnalysis(
+          n_components=2, max_iter=5, random_state=23)
+        cls.sk_fit = cls.sk_fa.fit(cls.X_lo)
         # we need to set the means to zero here since sklearn slighly computes
         # FA differently
-        cls.sk_fit.mean_ = numpy.zeros(4)
+        #cls.sk_fit.mean_ = numpy.zeros(4)
         cls.sk_trans = cls.sk_fit.transform(cls.X_lo)
+        k = 2
 
     @classmethod
     def tearDownClass(cls):
@@ -73,12 +80,8 @@ class TestFA(TestDimredAPI):
           atol=1e-01)
 
     def test_fa_transform(self):
-        ta = split_vector(self.trans.data.select(FEATURES__),
-                          FEATURES__).toPandas().values
-        print(self.sk_trans)
-        print(ta)
         for i in range(2):
-            ax1 = sorted(numpy.absolute(ta[:, i]))
+            ax1 = sorted(numpy.absolute(self.trans[:, i]))
             ax2 = sorted(numpy.absolute(self.sk_trans[:, i]))
             assert numpy.allclose(
               ax1, ax2,
@@ -95,3 +98,11 @@ class TestFA(TestDimredAPI):
           numpy.absolute(self.psi),
           numpy.absolute(self.sk_fit.noise_variance_),
           atol=1e-01)
+
+    def test_fa_fit_transform_is_same_as_fittransform(self):
+        for i in range(2):
+            ax1 = sorted(numpy.absolute(self.trans[:, i]))
+            ax2 = sorted(numpy.absolute(self.fittransform_data[:, i]))
+            assert numpy.allclose(
+              ax1, ax2,
+              atol=1e-01)

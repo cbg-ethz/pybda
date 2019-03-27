@@ -55,17 +55,18 @@ class FactorAnalysis(DimensionReduction):
         logger.info("Fitting factor analysis..")
         X, _, var = self._preprocess_data(data)
         loadings, ll, psi = self._estimate(X, var, self.n_factors)
-        self.model = FactorAnalysisFit(self.n_factors, loadings, psi,
-                                       ll, self.features)
+        self.model = FactorAnalysisFit(self.n_factors, loadings, psi, ll,
+                                       self.features)
         return X, self.model
 
     def _preprocess_data(self, data):
         X = self._feature_matrix(data)
         n = X.count()
-        means, var = column_statistics(X)
+        self.__means, var = column_statistics(X)
+
         var = var * (n - 1) / n
-        X = RowMatrix(center(X, means=means))
-        return X, means, var
+        X = RowMatrix(center(X, means=self.__means))
+        return X, self.__means, var
 
     def _estimate(self, X, var, n_factors):
         n, p = X.numRows(), X.numCols()
@@ -80,12 +81,9 @@ class FactorAnalysis(DimensionReduction):
             sqrt_psi = numpy.sqrt(psi) + self.__eps
             s, V, unexp_var = svd(self._tilde(X, sqrt_psi, nsqrt), n_factors)
             s = s ** 2
-            # factor updated
             W = self._update_factors(s, V, sqrt_psi)
-            # loglik update
             ll = self._loglik(llconst, unexp_var, s, psi, n)
             logliks.append(ll)
-            # variance update
             psi = self._update_variance(var, W)
             if abs(ll - old_ll) < self.threshold:
                 break
@@ -117,7 +115,8 @@ class FactorAnalysis(DimensionReduction):
         return psi
 
     def transform(self, data):
-        X = self._preprocess_data(data)
+        X = self._feature_matrix(data)
+        X = RowMatrix(center(X, self.__means))
         return FactorAnalysisTransform(self._transform(data, X), self.model)
 
     def _transform(self, data, X):
