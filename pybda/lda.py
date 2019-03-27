@@ -56,6 +56,7 @@ class LDA(DimensionReduction):
         return self
 
     def _fit(self, data):
+        logger.info("Running LDA ...")
         targets = distinct(data, self.__response)
         SW = within_group_scatter(data, self.features, self.response, targets)
         SB = covariance_matrix(self._row_matrix(data)) * (data.count() - 1) - SW
@@ -90,7 +91,6 @@ class LDA(DimensionReduction):
         return data
 
     def fit_transform(self, data):
-        logger.info("Running LDA ...")
         self._fit(data)
         return LDATransform(self._transform(data), self.model)
 
