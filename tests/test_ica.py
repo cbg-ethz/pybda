@@ -47,19 +47,26 @@ class TestICA(TestDimredAPI):
         df = pandas.DataFrame(data=cls.X_lo, columns=cls.features())
         cls._spark_lo = TestDimredAPI.spark().createDataFrame(df)
 
-        cls.sk_ica = sklearn.decomposition.FastICA(
-          n_components=2, algorithm="deflation", fun="exp",
-          max_iter=5, random_state=23)
-        cls.sk_fit = cls.sk_ica.fit(cls.X_lo)
-        cls.sk_fit.whiten = False
-
         cls.ica = ICA(cls.spark(), 2, cls.features())
         cls.trans = cls.ica.fit_transform(cls._spark_lo)
+        cls.trans = split_vector(cls.trans.data.select(FEATURES__), FEATURES__) \
+            .toPandas().values
         model = cls.ica.model
         cls.compo = model.loadings
         cls.W = model.unmixing
         cls.K = model.whitening
 
+        cls.ica.fit(cls._spark_lo)
+        cls.fittransform_data = cls.ica.transform(cls._spark_lo)
+        cls.fittransform_data = split_vector(
+            cls.fittransform_data.data.select(FEATURES__),
+            FEATURES__).toPandas().values
+
+        cls.sk_ica = sklearn.decomposition.FastICA(
+          n_components=2, algorithm="deflation", fun="exp",
+          max_iter=5, random_state=23)
+        cls.sk_fit = cls.sk_ica.fit(cls.X_lo)
+        cls.sk_fit.whiten = False
         cls.sk_trans = cls.sk_fit.transform(cls.X_lo)
 
     @classmethod
@@ -68,12 +75,8 @@ class TestICA(TestDimredAPI):
         super().tearDownClass()
 
     def test_ica_transform(self):
-        mk = split_vector(self.trans.data.select(FEATURES__), FEATURES__) \
-            .toPandas().values
-        print(mk)
-        print(self.sk_trans)
         for i in range(2):
-            ax1 = sorted(numpy.absolute(mk[:, i]))
+            ax1 = sorted(numpy.absolute(self.trans[:, i]))
             ax2 = sorted(numpy.absolute(self.sk_trans[:, i]))
             assert numpy.allclose(ax1, ax2, atol=1e-02)
 
@@ -95,3 +98,11 @@ class TestICA(TestDimredAPI):
           numpy.absolute(self.W),
           numpy.absolute(sk_w),
           atol=1e-03)
+
+    def test_ica_fit_transform_is_same_as_fittransform(self):
+        for i in range(2):
+            ax1 = sorted(numpy.absolute(self.trans[:, i]))
+            ax2 = sorted(numpy.absolute(self.fittransform_data[:, i]))
+            assert numpy.allclose(
+              ax1, ax2,
+              atol=1e-01)

@@ -31,7 +31,7 @@ from pybda.fit.ica_transform import ICATransform
 from pybda.spark.dataframe import join
 from pybda.stats.linalg import svd, elementwise_product
 from pybda.stats.random import mtrand
-from pybda.stats.stats import center, gs_decorrelate, column_mean
+from pybda.stats.stats import center, gs_decorrelate, column_means
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -53,48 +53,41 @@ class ICA(DimensionReduction):
         return self.__n_components
 
     def fit(self, data):
-        X, _ = self._fit(data)
-        del X
+        self._fit(data)
         return self
 
     def _fit(self, data):
-        logger.info("Fitting ICA")
+        logger.info("Fitting ICA..")
         X = self._preprocess_data(data)
         W, K = self._estimate(X)
-        self.model = ICAFit(self.n_components, K.dot(W), self.features, W, K)
+        self.model = ICAFit(self.n_components, K.dot(W),
+                            self.features, W, K)
         return X, self.model
 
+    def _preprocess_data(self, data):
+        X = self._feature_matrix(data)
+        self.__means = column_means(X)
+        return RowMatrix(center(X, means=self.__means))
+
     def _estimate(self, X):
-        Xw, K = self._whiten(X)
+        X_white, K = self._whiten(X)
         W = scipy.zeros(shape=(self.n_components, self.n_components))
         w_init = mtrand(self.n_components, self.n_components, seed=self.__seed)
 
-        for c in range(self.n_components):
-            w = w_init[c, :].copy()
+        logger.info("Computing independent component analysis")
+        for i in range(self.n_components):
+            w = w_init[i, :].copy()
             w /= scipy.sqrt((w**2).sum())
             for _ in range(self.max_iter):
-                g, gd = self._exp(Xw.multiply(DenseMatrix(len(w), 1, w)))
-                w1 = column_mean(elementwise_product(Xw, g, self.spark))
-                del g
-                w1 = w1 - gd * w
-                w1 = gs_decorrelate(w1, W, c)
-                w1 /= scipy.sqrt((w1**2).sum())
-                lim = scipy.absolute(scipy.absolute((w1 * w).sum()) - 1)
-                w = w1
+                w_new = self._compute_w_row(X_white, w, W, i)
+                lim = scipy.absolute(scipy.absolute((w_new * w).sum()) - 1)
+                w = w_new
                 if lim < self.threshold:
                     break
-            W[c, :] = w
-        del Xw
+            W[i, :] = w
+        del X_white
 
         return W.T, K
-
-    @staticmethod
-    def _exp(X):
-        g = X.rows.map(lambda x: x * scipy.exp(-(scipy.power(x, 2.0)) / 2.0))
-        g_ = X.rows.map(lambda x: (1 - scipy.power(x, 2.0)) * scipy.exp(-(
-            scipy.power(x, 2.0)) / 2.0))
-        gm = column_mean(g_).mean()
-        return RowMatrix(g), gm
 
     def _whiten(self, X):
         s, v, _ = svd(X, X.numCols())
@@ -103,12 +96,26 @@ class ICA(DimensionReduction):
         S = DenseMatrix(S.shape[0], S.shape[1], S.flatten(), True)
         return X.multiply(S), K
 
-    def _preprocess_data(self, data):
-        X = self._feature_matrix(data)
-        return RowMatrix(center(X))
+    def _compute_w_row(self, Xw, w, W, idx):
+        g, gd = self._exp(Xw.multiply(DenseMatrix(len(w), 1, w)))
+        w_new = column_means(elementwise_product(Xw, g, self.spark))
+        del g
+        w_new = w_new - gd * w
+        w_new = gs_decorrelate(w_new, W, idx)
+        w_new /= scipy.sqrt((w_new ** 2).sum())
+        return w_new
+
+    @staticmethod
+    def _exp(X):
+        g = X.rows.map(lambda x: x * scipy.exp(-(scipy.power(x, 2.0)) / 2.0))
+        g_ = X.rows.map(lambda x: (1 - scipy.power(x, 2.0)) *
+                    scipy.exp(-(scipy.power(x, 2.0)) / 2.0))
+        gm = column_means(g_).mean()
+        return RowMatrix(g), gm
 
     def transform(self, data):
-        X = self._preprocess_data(data)
+        X = self._feature_matrix(data)
+        X = RowMatrix(center(X, self.__means))
         return ICATransform(self._transform(data, X), self.model)
 
     def _transform(self, data, X):
