@@ -41,7 +41,6 @@ class TestFA(TestDimredAPI):
         cls.log("FA")
 
         cls.X_lo = cls.X()[:10, :]
-        cls.X_lo = scale(cls.X_lo)
         df = pandas.DataFrame(data=cls.X_lo, columns=cls.features())
         cls._spark_lo = TestDimredAPI.spark().createDataFrame(df)
 
@@ -62,11 +61,7 @@ class TestFA(TestDimredAPI):
         cls.sk_fa = sklearn.decomposition.FactorAnalysis(
           n_components=2, max_iter=5, random_state=23)
         cls.sk_fit = cls.sk_fa.fit(cls.X_lo)
-        # we need to set the means to zero here since sklearn slighly computes
-        # FA differently
-        #cls.sk_fit.mean_ = numpy.zeros(4)
         cls.sk_trans = cls.sk_fit.transform(cls.X_lo)
-        k = 2
 
     @classmethod
     def tearDownClass(cls):
