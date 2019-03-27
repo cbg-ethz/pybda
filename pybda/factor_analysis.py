@@ -63,7 +63,6 @@ class FactorAnalysis(DimensionReduction):
         X = self._feature_matrix(data)
         n = X.count()
         self.__means, var = column_statistics(X)
-
         var = var * (n - 1) / n
         X = RowMatrix(center(X, means=self.__means))
         return X, self.__means, var

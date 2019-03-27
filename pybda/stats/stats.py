@@ -41,11 +41,11 @@ def group_mean(data: pyspark.sql.DataFrame, groups, response, features):
     for i, target in enumerate(groups):
         df_t = data.filter("{} == {}".format(response, target))
         X_t = df_t.select(features).rdd.map(numpy.array)
-        means[i, :] = column_mean(X_t)
+        means[i, :] = column_means(X_t)
     return means
 
 
-def column_mean(data: pyspark.rdd.RDD):
+def column_means(data: pyspark.rdd.RDD):
     """
     Compute vectors of column means.
 `
@@ -53,6 +53,7 @@ def column_mean(data: pyspark.rdd.RDD):
     :return: returns column means as vector
     """
 
+    logger.info("Computing data means")
     summary = Statistics.colStats(data)
     return summary.mean()
 
@@ -150,7 +151,7 @@ def chisquare(data, pval):
 def sum_of_squared_errors(data: pyspark.sql.DataFrame):
     logger.info("Computing SSE")
     rdd = as_rdd_of_array(data)
-    means = column_mean(rdd)
+    means = column_means(rdd)
     sse = (rdd
            .map(lambda x: (x - means).T.dot(x - means))
            .reduce(lambda x, y: x + y))
@@ -167,7 +168,7 @@ def loglik(data: pyspark.sql.DataFrame):
     mvn = scipy.stats.multivariate_normal.pdf
     logger.info("Computing loglik")
     rdd = as_rdd_of_array(data)
-    means = column_mean(rdd)
+    means = column_means(rdd)
     cov = correlation_matrix(rdd)
     loglik = (rdd
               # compute the loglik per observation
