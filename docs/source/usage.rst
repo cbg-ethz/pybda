@@ -10,8 +10,15 @@ Installation
 Installing PyBDA is easy.
 
 1) Make sure to have ``python3`` installed. PyBDA does not support
-   previous versions. The best way to do that is to download `anaconda <https://www.continuum.io/downloads>`_ and create a
-   virtual `environment <https://conda.io/docs/using/envs.html>`_.
+   previous versions. The best way to do that is to download and install `anaconda <https://www.continuum.io/downloads>`_ and create a
+   virtual `environment <https://conda.io/docs/using/envs.html>`_ like this:
+
+   .. code-block:: bash
+
+      conda create -y -n pybda python=3.6
+      source activate pybda
+
+.. note:: Make sure to use Python version 3.6 since some dependencies PyBDA uses so far don't work with versions 3.7 or 3.8.
 
 2) Either install PyBDA from PyPI
    using
@@ -20,7 +27,7 @@ Installing PyBDA is easy.
 
      pip install pybda
 
-  or by downloading the latest `release <https://github.com/cbg-ethz/pybda/releases>`_
+  or by downloading the _latest_ `release <https://github.com/cbg-ethz/pybda/releases>`_
 
   .. code-block:: bash
 
