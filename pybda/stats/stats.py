@@ -134,7 +134,7 @@ def scale(data: pyspark.rdd.RDD, means=None, variance=None):
         variance = variance * (n - 1) / n
     sd = numpy.sqrt(variance)
     data = data.map(lambda x: (x - means) / sd)
-    return data
+    return data, means, variance
 
 
 def chisquare(data, pval):

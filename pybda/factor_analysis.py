@@ -136,7 +136,6 @@ class FactorAnalysis(DimensionReduction):
         return data
 
     def fit_transform(self, data):
-        logger.info("Running factor analysis ...")
         X, _ = self._fit(data)
         return FactorAnalysisTransform(self._transform(data, X), self.model)
 
