@@ -98,6 +98,4 @@ class TestFA(TestDimredAPI):
         for i in range(2):
             ax1 = sorted(numpy.absolute(self.trans[:, i]))
             ax2 = sorted(numpy.absolute(self.fittransform_data[:, i]))
-            assert numpy.allclose(
-              ax1, ax2,
-              atol=1e-01)
+            assert numpy.allclose(ax1, ax2, atol=1e-01)

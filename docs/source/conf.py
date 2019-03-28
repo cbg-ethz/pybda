@@ -25,7 +25,6 @@ import sphinx_fontawesome
 
 sys.path.insert(0, os.path.abspath('../../'))
 
-
 extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.mathjax',
               'sphinx.ext.viewcode',
@@ -67,3 +66,7 @@ html_sidebars = {
 html_title = ""
 html_static_path = ['_static']
 htmlhelp_basename = 'pybdadoc'
+
+
+def setup(app):
+    app.add_stylesheet('css/custom.css')

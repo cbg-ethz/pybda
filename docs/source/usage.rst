@@ -2,7 +2,7 @@ Getting started
 ===============
 
 *Getting started* walks you through the installation of koios and to submit your first program.
-See the *examples* to get a better overview that koios has to offer.
+See the :doc:`examples <examples>` to get a better overview that koios has to offer.
 
 Installation
 ------------
