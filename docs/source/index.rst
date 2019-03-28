@@ -33,9 +33,8 @@ A commandline tool for analysis of big biological data sets using Snakemake and 
 
    Home <self>
    usage
-   usecase_dimred
-   usecase_clustering
-   usecase_regression
+   examples
+   faq
 
 About
 -----
