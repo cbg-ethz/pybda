@@ -73,11 +73,11 @@ class Clustering(SparkModel):
 
     @abstractmethod
     def fit(self, data, outpath=None):
-        ...
+        pass
 
     @abstractmethod
     def write(self, data, outpath=None):
-        ...
+        pass
 
     @staticmethod
     def _check_transform(models, fit_folder):
