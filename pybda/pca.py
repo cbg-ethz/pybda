@@ -32,7 +32,7 @@ from pybda.fit.pca_fit import PCAFit
 from pybda.fit.pca_transform import PCATransform
 from pybda.spark.dataframe import join
 from pybda.stats.linalg import svd
-from pybda.stats.stats import scale
+from pybda.stats.stats import scale, column_statistics
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -63,7 +63,8 @@ class PCA(DimensionReduction):
             X = self._feature_matrix(data)
         else:
             X = data.rows
-        return RowMatrix(scale(X))
+        X, self.__means, self.__vars = scale(X)
+        return RowMatrix(X)
 
     @staticmethod
     def _compute_pcs(X):
@@ -72,7 +73,8 @@ class PCA(DimensionReduction):
         return loadings, sds
 
     def transform(self, data):
-        X = self._preprocess_data(data)
+        X, _, _ = scale(self._feature_matrix(data), self.__means, self.__vars)
+        X = RowMatrix(X)
         return PCATransform(self._transform(data, X), self.model)
 
     def _transform(self, data, X):
@@ -87,7 +89,6 @@ class PCA(DimensionReduction):
         return data
 
     def fit_transform(self, data):
-        logger.info("Running principal component analysis ...")
         X, _ = self._fit(data)
         return PCATransform(self._transform(data, X), self.model)
 

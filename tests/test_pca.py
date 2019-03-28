@@ -41,19 +41,30 @@ class TestPCA(TestDimredAPI):
         cls.log("PCA")
 
         cls.X_lo = cls.X()[:10, :]
+        # we need to scale this here, because sklearn does not do
+        # the scaling for transformations
         cls.X_lo = scale(cls.X_lo)
         df = pandas.DataFrame(data=cls.X_lo, columns=cls.features())
         cls._spark_lo = TestDimredAPI.spark().createDataFrame(df)
 
-        cls.sk_pca = sklearn.decomposition.PCA(n_components=2)
-
         cls.pca = PCA(cls.spark(), 2, cls.features())
         cls.trans = cls.pca.fit_transform(cls._spark_lo)
+        cls.trans_panda = split_vector(cls.trans.data.select(FEATURES__),
+                                       FEATURES__).toPandas()
+        cls.trans = cls.trans_panda.values
         model = cls.pca.model
         cls.loadings = model.loadings
         cls.sds = model.sds
 
+        cls.pca.fit(cls._spark_lo)
+        cls.fittransform_trans = cls.pca.transform(cls._spark_lo)
+        cls.fittransform_trans = split_vector(
+            cls.fittransform_trans.data.select(FEATURES__),
+            FEATURES__).toPandas().values
+
+        cls.sk_pca = sklearn.decomposition.PCA(n_components=2)
         cls.sk_pca_trans = cls.sk_pca.fit(cls.X_lo).transform(cls.X_lo)
+        k = 2
 
     @classmethod
     def tearDownClass(cls):
@@ -61,10 +72,9 @@ class TestPCA(TestDimredAPI):
         super().tearDownClass()
 
     def test_pca_cols(self):
-        df = split_vector(self.trans.data, FEATURES__).toPandas()
-        assert "f_0" in df.columns
-        assert "f_1" in df.columns
-        assert "f_2" not in df.columns
+        assert "f_0" in self.trans_panda.columns
+        assert "f_1" in self.trans_panda.columns
+        assert "f_2" not in self.trans_panda.columns
 
     def test_pca_loadings(self):
         assert numpy.allclose(
@@ -73,11 +83,14 @@ class TestPCA(TestDimredAPI):
           atol=1e-01)
 
     def test_pca_scores(self):
-        sk_ax1 = sorted(numpy.absolute(self.sk_pca_trans[:, 0]))
-        sk_ax2 = sorted(numpy.absolute(self.sk_pca_trans[:, 1]))
-        m = split_vector(self.trans.data.select(FEATURES__),
-                         FEATURES__).toPandas().values
-        ax1 = sorted(numpy.absolute(m[:, 0]))
-        ax2 = sorted(numpy.absolute(m[:, 1]))
-        assert numpy.allclose(ax1, sk_ax1, atol=1e-01)
-        assert numpy.allclose(ax2, sk_ax2, atol=1e-01)
+        for i in range(2):
+            ax1 = sorted(numpy.absolute(self.sk_pca_trans[:, i]))
+            ax2 = sorted(numpy.absolute(self.trans[:, i]))
+            assert numpy.allclose(ax1, ax2, atol=1e-01)
+
+    def test_pca_fit_transform_is_same_as_fittransform(self):
+        for i in range(2):
+            ax1 = sorted(numpy.absolute(self.trans[:, i]))
+            ax2 = sorted(numpy.absolute(self.fittransform_trans[:, i]))
+            assert numpy.allclose(ax1, ax2, atol=1e-01)
+

@@ -127,7 +127,6 @@ class ICA(DimensionReduction):
         return data
 
     def fit_transform(self, data):
-        logger.info("Running ICA ...")
         X, _ = self._fit(data)
         return ICATransform(self._transform(data, X), self.model)
 
