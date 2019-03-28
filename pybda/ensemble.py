@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class Ensemble(Regression):
+class  Ensemble(Regression):
     def __init__(self, spark, family, response, features, max_depth,
                  subsampling_rate):
         super().__init__(spark, family, response, features)

@@ -32,7 +32,7 @@ from pybda.fit.pca_fit import PCAFit
 from pybda.fit.pca_transform import PCATransform
 from pybda.spark.dataframe import join
 from pybda.stats.linalg import svd
-from pybda.stats.stats import scale, column_statistics
+from pybda.stats.stats import scale
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
