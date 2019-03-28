@@ -54,11 +54,19 @@ class TestKPCA(TestDimredAPI):
 
         cls.kpca = KPCA(cls.spark(), 2, cls.features(), 5, 1.)
         cls.trans = cls.kpca.fit_transform(cls._spark_lo)
+        cls.trans = split_vector(cls.trans.data.select(FEATURES__),
+                                 FEATURES__).toPandas().values
         model = cls.kpca.model
         cls.evals = model.loadings
         cls.sds = model.sds
         cls.w = model.fourier_coefficients
         cls.b = model.fourier_offset
+
+        cls.kpca.fit(cls._spark_lo)
+        cls.fittransform_trans = cls.kpca.transform(cls._spark_lo)
+        cls.fittransform_trans = split_vector(
+          cls.fittransform_trans.data.select(FEATURES__),
+          FEATURES__).toPandas().values
 
         # The sklearn PCA would substract the mean here
         # We don't want that to happen, but work and the Fourier matrix directly
@@ -66,7 +74,6 @@ class TestKPCA(TestDimredAPI):
         cls.sk_pca.mean_ = None
         cls.sk_pca.components_ = cls.evals
         cls.sk_pca_trans = cls.sk_pca.transform(cls._X_transformed)
-
 
     @classmethod
     def tearDownClass(cls):
@@ -86,13 +93,17 @@ class TestKPCA(TestDimredAPI):
             assert numpy.allclose(
               numpy.absolute(ax1),
               numpy.absolute(ax2),
-              atol=1e-01
-            )
+              atol=1e-01)
 
     def test_kpca_transform(self):
-        df = split_vector(self.trans.data.select(FEATURES__),
-                          FEATURES__).toPandas().values
         for i in range(2):
-            ax1 = sorted(numpy.absolute(df[:, i]))
+            ax1 = sorted(numpy.absolute(self.trans[:, i]))
             ax2 = sorted(numpy.absolute(self.sk_pca_trans[:, i]))
             assert numpy.allclose(ax1, ax2, atol=1e-01)
+
+    def test_kpca_fit_transform_is_same_as_fittransform(self):
+        for i in range(2):
+            ax1 = sorted(numpy.absolute(self.trans[:, i]))
+            ax2 = sorted(numpy.absolute(self.fittransform_trans[:, i]))
+            assert numpy.allclose(ax1, ax2, atol=1e-01)
+

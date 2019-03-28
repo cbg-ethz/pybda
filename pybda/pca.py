@@ -72,9 +72,13 @@ class PCA(DimensionReduction):
         sds = sds / scipy.sqrt(max(1, X.numRows() - 1))
         return loadings, sds
 
-    def transform(self, data):
+    def _setup_matrix_for_transform(self, data):
         X, _, _ = scale(self._feature_matrix(data), self.__means, self.__vars)
         X = RowMatrix(X)
+        return X
+
+    def transform(self, data):
+        X = self._setup_matrix_for_transform(data)
         return PCATransform(self._transform(data, X), self.model)
 
     def _transform(self, data, X):
