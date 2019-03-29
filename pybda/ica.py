@@ -60,8 +60,7 @@ class ICA(DimensionReduction):
         logger.info("Fitting ICA..")
         X = self._preprocess_data(data)
         W, K = self._estimate(X)
-        self.model = ICAFit(self.n_components, K.dot(W),
-                            self.features, W, K)
+        self.model = ICAFit(self.n_components, K.dot(W), self.features, W, K)
         return X, self.model
 
     def _preprocess_data(self, data):
@@ -102,14 +101,14 @@ class ICA(DimensionReduction):
         del g
         w_new = w_new - gd * w
         w_new = gs_decorrelate(w_new, W, idx)
-        w_new /= scipy.sqrt((w_new ** 2).sum())
+        w_new /= scipy.sqrt((w_new**2).sum())
         return w_new
 
     @staticmethod
     def _exp(X):
         g = X.rows.map(lambda x: x * scipy.exp(-(scipy.power(x, 2.0)) / 2.0))
-        g_ = X.rows.map(lambda x: (1 - scipy.power(x, 2.0)) *
-                    scipy.exp(-(scipy.power(x, 2.0)) / 2.0))
+        g_ = X.rows.map(lambda x: (1 - scipy.power(x, 2.0)) * scipy.exp(-(
+            scipy.power(x, 2.0)) / 2.0))
         gm = column_means(g_).mean()
         return RowMatrix(g), gm
 

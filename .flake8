@@ -8,3 +8,4 @@ exclude =
     docs/,
     examples/,
     tests/
+    pybda/__init__.py
