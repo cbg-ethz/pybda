@@ -81,7 +81,7 @@ You call PyBDA like that:
 
 .. code-block:: bash
 
-   pybda clustering clustering-example.config local
+   pybda clustering example.config local
 
 where ``local`` tells PyBDA to just use your desktop as Spark cluster.
 The result of any PyBDA call creates several files and figures.
