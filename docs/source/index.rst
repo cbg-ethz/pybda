@@ -72,7 +72,7 @@ To run PyBDA you only need to provide a config-file and, if possible, the IP of 
 The config file for a simple clustering task might look like this:
 
 .. literalinclude:: _static/clustering-example.config
-  :caption: Example clustering configuration file called ``clustering-example.config``
+  :caption: Example of a configuration file.
   :name: clustering-example.config
 
 The above configuration would tell PyBDA to first use factor analysis to embed the data into a 5-dimensional

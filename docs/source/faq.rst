@@ -11,7 +11,8 @@ What's the best way to start using Spark?
 .........................................
 
 Apache Spark has a steep learning curve. If you want to use
-one of the methods it's recommended, to start with a small data size such that
+one of the methods it's recommended to first go through the documentation `here <https://spark.apache.org/docs/latest/>`__.
+Then test some applications with small data sizes such that
 you can figure out memory requirements or how many compute nodes you will need
 to run an algorithm in a specified amount of time. If everything works out, try
 increasing the data size until you either encounter errors or everything works
@@ -47,7 +48,7 @@ is listening to:
   > Spark UI: http://lo-a2-029.leonhard.ethz.ch:8080
   > Spark URL: spark://10.204.3.29:7077
 
-In this case it's `http://lo-a2-029.leonhard.ethz.ch:8080`. The Spark UI can
+In this case it's ``http://lo-a2-029.leonhard.ethz.ch:8080``. The Spark UI can
 then be accessed from your desktop computer (by ssh port forwarding):
 
 .. figure:: _static/spark_ui_pre.jpg
@@ -71,39 +72,39 @@ How can I debug my config file?
 
 If PyBDA exits for unkown reasons, it is often due to misspecified file paths,
 wrong parameterization, etc. To see how PyBDA starts applications you can add
-`debug: true` to your config file. This will print the Spark commands to stdout.
+``debug: true`` to your config file. This will print the Spark commands to stdout.
 For instance, we use the following config file:
 
 .. literalinclude:: _static/clustering-example.config
-  :caption: Example clustering configuration file called ``clustering-example.config``
-  :name: clustering-example.config
+  :caption: Example of a configuration file.
 
-We then call PyBDA using the `clustering` subcommand and pipe the output
+We then call PyBDA using the ``clustering`` subcommand and pipe the output to a
+file. Grepping ``spark-submit`` gives us the calls Spark does.
 
 .. code-block:: bash
 
   pybda clustering clustering-example.config local > job
   grep -i spark-submit job
 
-  Submitting job spark-submit --master local --driver-memory=3G --executor-memory=6G
-                              pybda/factor_analysis.py 5
-                              single_cell_imaging_data.tsv feature_columns.tsv
-                              results/factor_analysis
-  Submitting job spark-submit --master local --driver-memory=3G --executor-memory=6G
-                              pybda/kmeans.py 50,100,110,120,130,140,150,160,170,180,190,200
-                              results/factor_analysis.tsv feature_columns.tsv results/kmeans
+  > Submitting job spark-submit --master local --driver-memory=3G --executor-memory=6G
+  >                             pybda/factor_analysis.py 5
+  >                             single_cell_imaging_data.tsv feature_columns.tsv
+  >                             results/factor_analysis
+  > Submitting job spark-submit --master local --driver-memory=3G --executor-memory=6G
+  >                             pybda/kmeans.py 50,100,110,120,130,140,150,160,170,180,190,200
+  >                             results/factor_analysis.tsv feature_columns.tsv results/kmeans
 
-The output shows that our application consists of two calsl. One being the dimension reduction,
+The output shows that our application consists of two calls. One being the dimension reduction,
 the other being the clustering.
 
 How can I find out what went wrong with the algorithm?
 ......................................................
 
-Every method or algorithm creates a log file suffixed with `*.log`. Having a look
+Every method or algorithm creates a log file suffixed with ``*.log``. Having a look
 at the log should make clear if errors and what kind of errors happened.
 
-How can I find out if snakemake run properly?
-...........................
+How can I find out if snakemake ran properly?
+.............................................
 
-Snakemake produces a hidden folder called `.snakemake/log` within the directory from
+Snakemake produces a hidden folder called ``.snakemake/log`` within the directory from
 which you call an application. The log files keep track what Snakemake is executing.
