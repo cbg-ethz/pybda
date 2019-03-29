@@ -17,8 +17,8 @@ to run an algorithm in a specified amount of time. If everything works out, try
 increasing the data size until you either encounter errors or everything works
 fine.
 
-How can I debug Apache Spark?
-.............................
+How can I check Apache Spark is executing correctly?
+....................................................
 
 Sometimes jobs might fail, because you launched Spark's compute nodes with too
 little memory, or a node lost its connection to the main worker, etc. When
@@ -52,7 +52,7 @@ then be accessed from your desktop computer (by ssh port forwarding):
 
 .. figure:: _static/spark_ui_pre.jpg
    :align: center
-   :height: 400px
+   :width: 800px
 
 We then start a PyBDA application and can monitor what Spark is doing:
 
@@ -64,9 +64,46 @@ We see that Spark started the application and runs it on 5 cores with 29Gb of me
 
 .. figure:: _static/spark_ui_post.jpg
    :align: center
-   :height: 400px
+   :width: 800px
 
-How can I debug my config?
-..........................
+How can I debug my config file?
+...............................
 
-spark-submit on command line with debugs
+If PyBDA exits for unkown reasons, it is often due to misspecified file paths,
+wrong parameterization, etc. To see how PyBDA starts applications you can add
+`debug: true` to your config file. This will print the Spark commands to stdout.
+For instance, we use the following config file:
+
+.. literalinclude:: _static/clustering-example.config
+  :caption: Example clustering configuration file called ``clustering-example.config``
+  :name: clustering-example.config
+
+We then call PyBDA using the `clustering` subcommand and pipe the output
+
+.. code-block:: bash
+
+  pybda clustering clustering-example.config local > job
+  grep -i spark-submit job
+
+  Submitting job spark-submit --master local --driver-memory=3G --executor-memory=6G
+                              pybda/factor_analysis.py 5
+                              single_cell_imaging_data.tsv feature_columns.tsv
+                              results/factor_analysis
+  Submitting job spark-submit --master local --driver-memory=3G --executor-memory=6G
+                              pybda/kmeans.py 50,100,110,120,130,140,150,160,170,180,190,200
+                              results/factor_analysis.tsv feature_columns.tsv results/kmeans
+
+The output shows that our application consists of two calsl. One being the dimension reduction,
+the other being the clustering.
+
+How can I find out what went wrong with the algorithm?
+......................................................
+
+Every method or algorithm creates a log file suffixed with `*.log`. Having a look
+at the log should make clear if errors and what kind of errors happened.
+
+How can I find out if snakemake run properly?
+...........................
+
+Snakemake produces a hidden folder called `.snakemake/log` within the directory from
+which you call an application. The log files keep track what Snakemake is executing.
