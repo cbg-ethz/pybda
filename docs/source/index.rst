@@ -35,6 +35,7 @@ A commandline tool for analysis of big biological data sets using Snakemake and 
    usage
    examples
    faq
+   contributing
 
 About
 -----

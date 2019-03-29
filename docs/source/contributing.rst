@@ -9,27 +9,29 @@ You can contribute in the following ways:
 * improve the documentation,
 * add custom methods or algorithms,
 * report bugs,
-* improve general usability or speed up code.
+* improve general usability or speed up code,
+* write unit tests.
 
 How to contribute
 -----------------
 
 In order to make a contribution best follow these steps:
 
-* Create a fork the repository on `GitHub <https://github.com/cbg-ethz/pybda>`__.
-* Checkout the ``develop`` branch and create your own branch, for instance using
+* Create a fork of the repository on `GitHub <https://github.com/cbg-ethz/pybda>`__.
+* Checkout the ``develop`` branch and create your own branch using
 
   .. code-block:: bash
 
-    git checkout -b develop-myfeature
+    git checkout develop
+    git checkout -b myfeature
 
-* Install the dependencies using ``pip install '.[dev]'``
-* Add your feature and submit a pull request,
+* Install all dependencies using ``pip install '.[dev]'``.
+* Add your feature and submit a pull request.
 
 Coding standards
 ----------------
 
-Please format your code using ``yapf`` and ``flake8``
+Please format your code using ``yapf`` and ``flake8``:
 
 .. code-block:: bash
 
