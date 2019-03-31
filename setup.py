@@ -31,7 +31,7 @@ doc_deps = [
 setup(
   name='pybda',
   version='0.0.6',
-  description='Big Data analytics powered by Apache Spark',
+  description='Big biological data analysis with Snakemake and Apache Spark',
   long_description=readme(),
   url='https://github.com/cbg-ethz/pybda',
   author='Simon Dirmeier',
@@ -52,8 +52,7 @@ setup(
       'scipy>=1.0.0',
       'seaborn>=0.9.0',
       'snakemake>=5.2.2',
-      'sparkhpc>=0.3.post4',
-      'uuid>=1.3.0'
+      'sparkhpc>=0.3.post4'
   ],
   test_requires=test_deps,
   extras_require={
