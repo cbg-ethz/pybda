@@ -19,10 +19,12 @@ PyBDA
 .. image:: https://readthedocs.org/projects/pybda/badge/?version=latest
    :target: https://pybda.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation
+.. image:: https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat
+   :target: http://bioconda.github.io/recipes/pybda/README.html
+   :alt: Bioconda
 .. image:: https://img.shields.io/pypi/v/pybda.svg?colorB=black&style=flat
    :target: https://pypi.org/project/pybda/
    :alt: PyPi
-
 
 A commandline tool for analysis of big biological data sets using Snakemake and Apache Spark.
 
@@ -63,7 +65,7 @@ The package is actively developed. If you want to you can also contribute, for i
 Dependencies
 ------------
 
-* Apache Spark >= 2.3.0
+* Apache Spark == 2.4.0
 * Python == 3.6
 
 Example
