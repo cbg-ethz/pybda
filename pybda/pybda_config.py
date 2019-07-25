@@ -17,13 +17,14 @@
 #
 # @author = 'Simon Dirmeier'
 # @email = 'simon.dirmeier@bsse.ethz.ch'
-
-
+import datetime
+import os
 import sys
 
 from pybda.config.rule_tree import RuleTree
-from pybda.globals import REQUIRED_ARGS__, INFILE__, OUTFOLDER__, METHODS__, \
-    DEBUG__
+from pybda.globals import (
+    REQUIRED_ARGS__, INFILE__, OUTFOLDER__, METHODS__, DEBUG__
+)
 
 sys.excepthook = lambda ex, msg, _: print("{}: {}".format(ex.__name__, msg))
 
@@ -37,10 +38,19 @@ class PyBDAConfig:
     """
 
     def __init__(self, config):
+        date = datetime.datetime.now().strftime("%Y_%m_%d")
+
         for key, value in config.items():
+            if key == OUTFOLDER__:
+                value = os.path.join(value, date)
+                if not os.path.exists(value):
+                    os.makedirs(value)
             setattr(self, key, value)
+
         self.__tree = RuleTree(
-            getattr(self, INFILE__), getattr(self, OUTFOLDER__))
+          getattr(self, INFILE__),
+          getattr(self, OUTFOLDER__))
+
         self.__check_required_args()
         self.__check_available_method()
         self.__set_filenames()
