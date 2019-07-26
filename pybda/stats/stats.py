@@ -30,6 +30,7 @@ from pyspark.mllib.linalg import DenseMatrix
 from pyspark.mllib.linalg.distributed import RowMatrix
 from pyspark.mllib.stat import Statistics
 
+from pybda.decorators import timing
 from pybda.util.cast_as import as_rdd_of_array
 
 logger = logging.getLogger(__name__)
@@ -196,6 +197,7 @@ def fourier_transform(X, w, b):
     return RowMatrix(Y)
 
 
+@timing
 def fourier(X: RowMatrix, n_features, seed=23, gamma=1):
     p = X.numCols()
     random_state = numpy.random.RandomState(seed)

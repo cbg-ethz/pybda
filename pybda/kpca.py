@@ -24,6 +24,7 @@ import logging
 import click
 from pyspark.sql import DataFrame
 
+from pybda.decorators import timing
 from pybda.fit.kpca_fit import KPCAFit
 from pybda.fit.kpca_transform import KPCATransform
 from pybda.pca import PCA
@@ -49,6 +50,7 @@ class KPCA(PCA):
     def n_fourier_features(self):
         return self.__n_fourier_features
 
+    @timing
     def _fit(self, data):
         logger.info("Fitting KPCA")
         X = self._preprocess_data(data)

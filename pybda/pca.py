@@ -27,6 +27,7 @@ import scipy
 from pyspark.mllib.linalg import DenseMatrix
 from pyspark.mllib.linalg.distributed import RowMatrix
 
+from pybda.decorators import timing
 from pybda.dimension_reduction import DimensionReduction
 from pybda.fit.pca_fit import PCAFit
 from pybda.fit.pca_transform import PCATransform
@@ -51,6 +52,7 @@ class PCA(DimensionReduction):
         self._fit(data)
         return self
 
+    @timing
     def _fit(self, data):
         logger.info("Fitting PCA")
         X = self._preprocess_data(data)
@@ -58,6 +60,7 @@ class PCA(DimensionReduction):
         self.model = PCAFit(self.n_components, loadings, sds, self.features)
         return X, self.model
 
+    @timing
     def _preprocess_data(self, data):
         if isinstance(data, pyspark.sql.DataFrame):
             X = self._feature_matrix(data)
@@ -67,6 +70,7 @@ class PCA(DimensionReduction):
         return RowMatrix(X)
 
     @staticmethod
+    @timing
     def _compute_pcs(X):
         sds, loadings, _ = svd(X)
         sds = sds / scipy.sqrt(max(1, X.numRows() - 1))

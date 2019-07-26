@@ -20,40 +20,52 @@
 
 
 import logging
+import numpy
 
 import click
 
+from pybda.decorators import timing
 from pybda.io.as_filename import as_logfile
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-def sample(data, n):
+@timing
+def sample(data, n, variable):
     data_row_cnt = data.count()
-    sample_ratio = float(min(n / data_row_cnt, 1))
-    return data.sample(withReplacement=False, fraction=sample_ratio, seed=23)
+
+    if variable:
+        mcnt = data.groupby(variable).count().toPandas()
+        print(mcnt)
+        cnts = mcnt["count"].values
+        min_cnt = numpy.min(cnts)
+    #sample_ratio = float(min(n / data_row_cnt, 1))
+    #return data.sample(withReplacement=False, fraction=sample_ratio, seed=23)
 
 
 @click.command()
 @click.argument("file", type=str)
-@click.argument("output", type=str)
 @click.argument("n", type=int)
-def run(file, output, n):
+@click.argument("outpath", type=str)
+@click.option("-v", "--variable", default="None")
+def run(file, n, outpath, variable):
     from pybda.logger import set_logger
     from pybda.spark_session import SparkSession
     from pybda.util.string import drop_suffix
     from pybda.io.io import write_tsv
 
-    output = drop_suffix(output, "/")
+    output = drop_suffix(outpath, "/")
     set_logger(as_logfile(output))
 
     with SparkSession() as spark:
         try:
             from pybda.io.io import read
             data = read(spark, file)
-            subsamp = sample(data, n)
-            write_tsv(subsamp, output)
+            subsamp = sample(data, n, "simon")
+            import os
+            write_tsv(subsamp,
+                      os.path.join(output, "sample_of_{}".format(n)))
         except Exception as e:
             logger.error("Some error: {}".format(str(e)))
 

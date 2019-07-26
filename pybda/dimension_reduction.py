@@ -21,6 +21,7 @@
 
 from abc import abstractmethod
 
+from pybda.decorators import timing
 from pybda.spark_model import SparkModel
 from pybda.util.cast_as import as_rdd_of_array
 
@@ -68,5 +69,6 @@ class DimensionReduction(SparkModel):
     def transform(self, data):
         pass
 
+    @timing
     def _feature_matrix(self, data):
         return as_rdd_of_array(data.select(self.features))

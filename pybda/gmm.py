@@ -27,6 +27,7 @@ import pyspark.ml.clustering
 import scipy
 
 from pybda.clustering import Clustering
+from pybda.decorators import timing
 from pybda.fit.gmm_fit import GMMFit
 from pybda.fit.gmm_fit_profile import GMMFitProfile
 from pybda.fit.gmm_transformed import GMMTransformed
@@ -41,6 +42,7 @@ class GMM(Clustering):
     def __init__(self, spark, clusters, threshold=scipy.inf, max_iter=25):
         super().__init__(spark, clusters, threshold, max_iter, GMM__)
 
+    @timing
     def fit(self, data, outpath=None):
         n, p = dimension(data)
         data = data.select(FEATURES__)
@@ -48,6 +50,7 @@ class GMM(Clustering):
         return self
 
     @staticmethod
+    @timing
     def _fit_one(k, data, n, p, stat):
         logger.info("Clustering with K: {}".format(k))
         gmm = pyspark.ml.clustering.GaussianMixture(

@@ -21,6 +21,7 @@
 import logging
 from abc import abstractmethod
 
+from pybda.decorators import timing
 from pybda.globals import BINOMIAL_
 from pybda.spark_model import SparkModel
 
@@ -63,10 +64,12 @@ class Regression(SparkModel):
     def fit(self, data):
         pass
 
+    @timing
     def predict(self, data):
         return self.model.predict(data)
 
-    def _fit(self, data):
+    @timing
+    def _balance(self, data):
         data = data.coalesce(300)
         if self.family == BINOMIAL_:
             mcnt = data.groupby(self.response).count().toPandas()
@@ -82,6 +85,10 @@ class Regression(SparkModel):
                 logger.info("#group 1: {}".format(df_1.count()))
                 data = df_0.union(df_1)
                 logger.info("Size of data set after subsampling: {}".format(
-                    data.count()))
+                  data.count()))
         data = data.coalesce(300)
+
+    @timing
+    def _fit(self, data):
+        data = self._balance(data)
         return self._model().fit(data)

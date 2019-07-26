@@ -26,6 +26,7 @@ import pyspark
 import pyspark.ml.clustering
 
 from pybda.clustering import Clustering
+from pybda.decorators import timing
 from pybda.fit.kmeans_fit import KMeansFit
 from pybda.fit.kmeans_fit_profile import KMeansFitProfile
 from pybda.fit.kmeans_transformed import KMeansTransformed
@@ -41,6 +42,7 @@ class KMeans(Clustering):
     def __init__(self, spark, clusters, threshold=.01, max_iter=25):
         super().__init__(spark, clusters, threshold, max_iter, KMEANS__)
 
+    @timing
     def fit(self, data, outpath=None):
         n, p = dimension(data)
         data = data.select(FEATURES__)
@@ -49,6 +51,7 @@ class KMeans(Clustering):
         return self
 
     @staticmethod
+    @timing
     def _fit_one(k, data, n, p, tot_var):
         logger.info("Clustering with K: {}".format(k))
         km = pyspark.ml.clustering.KMeans(k=k, seed=23)
