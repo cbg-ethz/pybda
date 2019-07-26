@@ -193,21 +193,28 @@ rule sample:
     input:
         expand("{infile}", infile=pybda_config[INFILE__])
     output:
-        out = directory(expand("{outfolder}/sample_of_{n}.tsv",
-                        outfolder=pybda_config[OUTFOLDER__],
-                        n=pybda_config["sample"]))
+        out = expand("{outfolder}/sample_of_{n}.tsv",
+                     outfolder=pybda_config[OUTFOLDER__],
+                     n=pybda_config["sample"])
     params:
         params = " ".join([x for x in config[SPARKPARAMS__]]),
-        sam = os.path.join(dirname(), "sampler.py")
+        sam = os.path.join(dirname(), "sampler.py"),
+        out = expand("{outfolder}/sample_of_{n}",
+                        outfolder=pybda_config[OUTFOLDER__],
+                        n=pybda_config["sample"])
     run:
-        cmd = """{} --master {} {} {} {} {} {}""".format(
+        var = None
+        if RESPONSE__ in pybda_config:
+            var = "--variable " + str(pybda_config[RESPONSE__])
+        cmd = """{} --master {} {} {} {} {} {} {}""".format(
             pybda_config[SPARK__],
             pybda_config[SPARKIP__],
             params.params,
             params.sam,
             input,
             pybda_config["sample"],
-            output.out)
+            params.out[0],
+            var)
         _run(cmd)
 
 

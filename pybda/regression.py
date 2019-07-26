@@ -87,6 +87,7 @@ class Regression(SparkModel):
                 logger.info("Size of data set after subsampling: {}".format(
                   data.count()))
         data = data.coalesce(300)
+        return data
 
     @timing
     def _fit(self, data):
