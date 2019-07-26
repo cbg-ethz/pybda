@@ -21,6 +21,8 @@ import datetime
 import os
 import sys
 
+import yaml
+
 from pybda.config.rule_tree import RuleTree
 from pybda.globals import (
     REQUIRED_ARGS__, INFILE__, OUTFOLDER__, METHODS__, DEBUG__
@@ -47,6 +49,8 @@ class PyBDAConfig:
                     os.makedirs(value)
             setattr(self, key, value)
 
+
+
         self.__tree = RuleTree(
           getattr(self, INFILE__),
           getattr(self, OUTFOLDER__))
@@ -54,6 +58,7 @@ class PyBDAConfig:
         self.__check_required_args()
         self.__check_available_method()
         self.__set_filenames()
+        print(self.__tree)
 
     def __getitem__(self, item):
         if hasattr(self, item):
@@ -80,7 +85,10 @@ class PyBDAConfig:
     def __set_filenames(self):
         for m in METHODS__:
             if hasattr(self, m):
-                self.__tree.add(m, getattr(self, m))
+                attr = getattr(self, m)
+                attr = attr.replace(" " ,"").split(",")
+                for el in attr:
+                    self.__tree.add(m, el)
         for node in self.__tree.nodes.values():
             setattr(self, self.__infile_key(node.method), node.infile)
         if hasattr(self, DEBUG__):
@@ -90,3 +98,10 @@ class PyBDAConfig:
     @staticmethod
     def __infile_key(method):
         return method + "_" + INFILE__
+
+
+if __name__ == "__main__":
+    file = "/home/simon/PROJECTS/pybda/analysis/test/test-forest.config"
+    with open(file, 'r') as fh:
+        conf_ = yaml.load(fh)
+    PyBDAConfig(conf_)

@@ -69,9 +69,6 @@ def write_tsv(data, outfile, header=True, index=False):
     :param index: also write index of each row (in case of pandas.DataFrame)
     """
 
-    #if outfile.endswith(".tsv"):
-    #    outfile = drop_suffix(outfile, ".tsv")
-
     logger.info("Writing tsv: {}".format(outfile))
     if isinstance(data, pandas.DataFrame):
         data.to_csv(outfile + ".tsv", sep="\t", header=header, index=index)
@@ -80,7 +77,6 @@ def write_tsv(data, outfile, header=True, index=False):
           outfile, mode="overwrite", sep="\t", header=header)
         # puh, that is risky
         fl = glob.glob(outfile + "/part*")
-        print(outfile)
         os.rename(fl[0], outfile + ".tsv")
         shutil.rmtree(outfile)
 

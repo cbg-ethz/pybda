@@ -268,13 +268,11 @@ rule glm:
     input:
         expand("{infile}", infile=pybda_config[REGRESSION_INFILE__])
     output:
-        expand("{outfolder}/{regression}{out}",
+        expand("{outfolder}/glm{out}",
                outfolder=pybda_config[OUTFOLDER__],
-               regression=pybda_config[REGRESSION__],
                out=["-table.tsv", "-statistics.tsv"])
     params:
-        out = os.path.join(
-            pybda_config[OUTFOLDER__], pybda_config[REGRESSION__]),
+        out = os.path.join(pybda_config[OUTFOLDER__], "glm"),
         reg = os.path.join(dirname(), "glm.py"),
         params = " ".join([x for x in pybda_config[SPARKPARAMS__]]),
     run:
@@ -285,13 +283,11 @@ rule forest:
     input:
         expand("{infile}", infile=pybda_config[REGRESSION_INFILE__])
     output:
-        expand("{outfolder}/{regression}{out}",
+        expand("{outfolder}/forest{out}",
                outfolder=pybda_config[OUTFOLDER__],
-               regression=pybda_config[REGRESSION__],
                out=["-statistics.tsv"])
     params:
-        out = os.path.join(
-            pybda_config[OUTFOLDER__], pybda_config[REGRESSION__]),
+        out = os.path.join(pybda_config[OUTFOLDER__], "forest"),
         reg = os.path.join(dirname(), "forest.py"),
         params = " ".join([x for x in pybda_config[SPARKPARAMS__]]),
     run:
@@ -302,13 +298,11 @@ rule gbm:
     input:
         expand("{infile}", infile=pybda_config[REGRESSION_INFILE__])
     output:
-        expand("{outfolder}/{regression}{out}",
+        expand("{outfolder}/gbm{out}",
                outfolder=pybda_config[OUTFOLDER__],
-               regression=pybda_config[REGRESSION__],
                out=["-statistics.tsv"])
     params:
-        out = os.path.join(
-            pybda_config[OUTFOLDER__], pybda_config[REGRESSION__]),
+        out = os.path.join(pybda_config[OUTFOLDER__], "gbm"),
         reg = os.path.join(dirname(), "gbm.py"),
         params = " ".join([x for x in pybda_config[SPARKPARAMS__]]),
     run:
