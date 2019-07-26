@@ -190,22 +190,25 @@ rule lda:
 
 
 rule sample:
+    input:
+        expand("{infile}", infile=pybda_config[INFILE__])
+    output:
+        out = directory(expand("{outfolder}/sample_of_{n}.tsv",
+                        outfolder=pybda_config[OUTFOLDER__],
+                        n=pybda_config["sample"]))
     params:
         params = " ".join([x for x in config[SPARKPARAMS__]]),
         sam = os.path.join(dirname(), "sampler.py")
     run:
-        cmd = """{} --master {} {} {} {} {} {} {}""".format(
+        cmd = """{} --master {} {} {} {} {} {}""".format(
             pybda_config[SPARK__],
             pybda_config[SPARKIP__],
             params.params,
             params.sam,
-            pybda_config["input"],
-            pybda_config["output"],
-            pybda_config["n"],
-            pybda_config["split"])
-        if DEBUG__ in pybda_config:
-            shell("echo -e '\033[1;33m Submitting job {cmd} \033[0m'")
-        shell("{cmd}")
+            input,
+            pybda_config["sample"],
+            output.out)
+        _run(cmd)
 
 
 rule outliers:

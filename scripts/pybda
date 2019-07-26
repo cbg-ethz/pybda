@@ -59,6 +59,17 @@ def cli():
 @cli.command()
 @click.argument("config", type=str)
 @click.argument("spark", type=str)
+def sample(config, spark):
+    """
+    Subsample a data set down to a specified fraction.
+    """
+
+    run(config, spark, "sample")
+
+
+@cli.command()
+@click.argument("config", type=str)
+@click.argument("spark", type=str)
 def dimension_reduction(config, spark):
     """
     Computes a dimension reduction from a CONFIG in a SPARK session.
@@ -90,34 +101,6 @@ def regression(config, spark):
 
     cl = _get_from_config(config, REGRESSION__)
     run(config, spark, cl)
-
-
-@cli.command()
-@click.argument("config", type=str)
-@click.argument("spark", type=str)
-@click.argument("input", type=str)
-@click.argument("output", type=str)
-@click.argument("n", type=int)
-@click.option("--split", type=bool, default=True)
-def sample(config, spark, input, output, n, split):
-    """
-    Take a sample from a data set from a CONFIG in a SPARK session. In addition
-    an INPUT and OUTPUT as well as the number of samples N and if features
-    should be SPLIT must be provided.
-    """
-
-    from pybda import snake_file
-    snakemake.snakemake(
-      lock=False,
-      unlock=False,
-      snakefile=snake_file(),
-      targets=["sample"],
-      configfile=config,
-      config={"sparkip": spark,
-              "input": input,
-              "output": output,
-              "n": str(n),
-              "split": str(split)})
 
 
 if __name__ == "__main__":

@@ -26,6 +26,7 @@ import scipy
 from pyspark.mllib.linalg import DenseMatrix
 from pyspark.mllib.linalg.distributed import RowMatrix
 
+from pybda.decorators import timing
 from pybda.dimension_reduction import DimensionReduction
 from pybda.fit.lda_fit import LDAFit
 from pybda.fit.lda_transform import LDATransform
@@ -55,6 +56,7 @@ class LDA(DimensionReduction):
         self._fit(data)
         return self
 
+    @timing
     def _fit(self, data):
         logger.info("Running LDA ...")
         targets = distinct(data, self.__response)

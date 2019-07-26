@@ -25,6 +25,7 @@ import scipy
 from pyspark.mllib.linalg import DenseMatrix
 from pyspark.mllib.linalg.distributed import RowMatrix
 
+from pybda.decorators import timing
 from pybda.dimension_reduction import DimensionReduction
 from pybda.fit.ica_fit import ICAFit
 from pybda.fit.ica_transform import ICATransform
@@ -56,6 +57,7 @@ class ICA(DimensionReduction):
         self._fit(data)
         return self
 
+    @timing
     def _fit(self, data):
         logger.info("Fitting ICA..")
         X = self._preprocess_data(data)
@@ -68,6 +70,7 @@ class ICA(DimensionReduction):
         self.__means = column_means(X)
         return RowMatrix(center(X, means=self.__means))
 
+    @timing
     def _estimate(self, X):
         X_white, K = self._whiten(X)
         W = scipy.zeros(shape=(self.n_components, self.n_components))

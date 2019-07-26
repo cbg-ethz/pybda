@@ -26,6 +26,7 @@ import numpy
 import pyspark.sql.functions as func
 from pyspark.mllib.linalg.distributed import RowMatrix, DenseMatrix
 
+from pybda.decorators import timing
 from pybda.dimension_reduction import DimensionReduction
 from pybda.fit.factor_analysis_fit import FactorAnalysisFit
 from pybda.fit.factor_analysis_transform import FactorAnalysisTransform
@@ -51,6 +52,7 @@ class FactorAnalysis(DimensionReduction):
         self._fit(data)
         return self
 
+    @timing
     def _fit(self, data):
         logger.info("Fitting factor analysis..")
         X, _, var = self._preprocess_data(data)
@@ -59,6 +61,7 @@ class FactorAnalysis(DimensionReduction):
                                        self.features)
         return X, self.model
 
+    @timing
     def _preprocess_data(self, data):
         X = self._feature_matrix(data)
         n = X.count()
@@ -67,6 +70,7 @@ class FactorAnalysis(DimensionReduction):
         X = RowMatrix(center(X, means=self.__means))
         return X, self.__means, var
 
+    @timing
     def _estimate(self, X, var, n_factors):
         n, p = X.numRows(), X.numCols()
         old_ll = -numpy.inf
