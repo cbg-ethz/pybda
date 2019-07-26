@@ -83,12 +83,17 @@ class PyBDAConfig:
                              "'{}'".format("/".join(METHODS__)))
 
     def __set_filenames(self):
+        print("asdsad")
         for m in METHODS__:
             if hasattr(self, m):
                 attr = getattr(self, m)
-                attr = attr.replace(" " ,"").split(",")
+                attr = attr.replace(" ", "").split(",")
                 for el in attr:
+                    print("asd", m, el)
                     self.__tree.add(m, el)
+                    print(self.__tree)
+        print("asdsad2")
+        print(self.__tree)
         for node in self.__tree.nodes.values():
             setattr(self, self.__infile_key(node.method), node.infile)
         if hasattr(self, DEBUG__):
