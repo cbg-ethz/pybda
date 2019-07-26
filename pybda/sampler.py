@@ -31,24 +31,35 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
+def _sample(data, variable, el, min_cnt, sample_ratio):
+    df = data.filter("{} == '{}'".format(variable, el)).limit(min_cnt)
+    df = df.sample(withReplacement=False, fraction=sample_ratio, seed=23)
+    return df
+
+
 @timing
-def sample(data, n, variable):
-    data_row_cnt = data.count()
+def sample(data, n, variable=None):
 
     if variable:
         mcnt = data.groupby(variable).count().toPandas()
-        print(mcnt)
-        cnts = mcnt["count"].values
-        min_cnt = numpy.min(cnts)
-    #sample_ratio = float(min(n / data_row_cnt, 1))
-    #return data.sample(withReplacement=False, fraction=sample_ratio, seed=23)
+        els, cnts = mcnt[variable].values, mcnt["count"].values
+        min_cnt = int(cnts.min())
+        sample_ratio = float(min(n / min_cnt, 1)) / len(els)
+        df = _sample(data, variable, els[0], min_cnt, sample_ratio)
+        for i in range(1, len(els)):
+            df_0 = _sample(data, variable, els[i], min_cnt, sample_ratio)
+            df = df.union(df_0)
+        return df
+
+    sample_ratio = float(min(n / data.count(), 1))
+    return data.sample(withReplacement=False, fraction=sample_ratio, seed=23)
 
 
 @click.command()
 @click.argument("file", type=str)
 @click.argument("n", type=int)
 @click.argument("outpath", type=str)
-@click.option("-v", "--variable", default="None")
+@click.option("-v", "--variable", default=None)
 def run(file, n, outpath, variable):
     from pybda.logger import set_logger
     from pybda.spark_session import SparkSession
@@ -62,10 +73,9 @@ def run(file, n, outpath, variable):
         try:
             from pybda.io.io import read
             data = read(spark, file)
-            subsamp = sample(data, n, "simon")
+            subsamp = sample(data, n, variable)
             import os
-            write_tsv(subsamp,
-                      os.path.join(output, "sample_of_{}".format(n)))
+            write_tsv(subsamp, output)
         except Exception as e:
             logger.error("Some error: {}".format(str(e)))
 

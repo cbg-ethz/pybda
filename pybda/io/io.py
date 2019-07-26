@@ -28,7 +28,7 @@ import pandas
 
 from pybda.globals import TSV_
 from pybda.spark.features import to_double, fill_na, assemble
-from pybda.util.string import matches
+from pybda.util.string import matches, drop_suffix
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -69,14 +69,18 @@ def write_tsv(data, outfile, header=True, index=False):
     :param index: also write index of each row (in case of pandas.DataFrame)
     """
 
+    #if outfile.endswith(".tsv"):
+    #    outfile = drop_suffix(outfile, ".tsv")
+
     logger.info("Writing tsv: {}".format(outfile))
     if isinstance(data, pandas.DataFrame):
-        data.to_csv(outfile, sep="\t", header=header, index=index)
+        data.to_csv(outfile + ".tsv", sep="\t", header=header, index=index)
     else:
         data.coalesce(1).write.csv(
           outfile, mode="overwrite", sep="\t", header=header)
         # puh, that is risky
         fl = glob.glob(outfile + "/part*")
+        print(outfile)
         os.rename(fl[0], outfile + ".tsv")
         shutil.rmtree(outfile)
 
