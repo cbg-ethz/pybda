@@ -52,22 +52,35 @@ class RuleTree:
         return self.__nodes
 
     def add(self, method, algorithm):
-        par = self.__get_proper_parent(method)
-        n = RuleNode(method, algorithm, par, self.__infile, self.__outfolder)
-        self.__nodes[method] = n
-        par.add(n)
-        self.__curr = n
+        print("s4")
+        par = self.__get_proper_parents(method)
+        print("s1")
+        print(method, algorithm, par)
+        print("s2")
+        for el in par:
+            print("s3")
+            n = RuleNode(method, algorithm, el, self.__infile, self.__outfolder)
+            self.__nodes[method] = n
+            el.add(n)
+            self.__curr = n
 
-    def __get_proper_parent(self, method):
+    def __get_proper_parents(self, method):
         if self.__curr is self.__root:
-            return self.__root
+            return [self.__root]
+
         if method not in PARENT_METHODS__:
             itr = PREPROCESSING_METHODS__
         else:
             itr = PARENT_METHODS__[method]
         if itr is None:
-            return self.__root
-        n = self.__curr
-        while n.method not in itr:
-            n = n.parent
-        return n
+            return [self.__root]
+
+        st = [self.__root]
+        parents = []
+        while len(st):
+            n = st.pop()
+            for el in n.children():
+                st.append(el)
+            if n.method in itr:
+                parents.append(n)
+        return parents

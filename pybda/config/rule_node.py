@@ -20,6 +20,7 @@
 
 
 import os
+import re
 
 
 class RuleNode:
@@ -31,8 +32,10 @@ class RuleNode:
         self.__infile = infile if parent is None else parent.outfile
         self.__level = 0 if parent is None else parent.level + 1
         try:
-            self.__outfile = os.path.join(outfolder, algorithm) + ".tsv"
-        except TypeError:
+            infl_suffix = re.match(".+/(.+).tsv", self.__infile).group(1)
+            self.__outfile = os.path.join(
+              outfolder, algorithm + "_from_{}".format(infl_suffix)) + ".tsv"
+        except AttributeError or TypeError:
             self.__outfile = outfolder
 
     def __str__(self):
