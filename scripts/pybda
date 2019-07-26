@@ -38,7 +38,7 @@ def run(config, spark, cmd):
       lock=False,
       unlock=False,
       snakefile=snake_file(),
-      targets=[cmd],
+      targets=cmd,
       configfile=config,
       config={"sparkip": spark}
     )
@@ -48,7 +48,7 @@ def _get_from_config(config, key):
     with open(config, 'r') as fh:
         conf_ = yaml.load(fh)
     check_args(conf_, key)
-    return conf_[key]
+    return conf_[key].replace(" ", "").split(",")
 
 
 @click.group()
