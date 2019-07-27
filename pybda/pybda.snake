@@ -35,6 +35,7 @@ from pybda.globals import (
     FOREST__,
     GBM__,
     GLM__,
+    GLM_OUTFILE__
     INFILE__,
     ICA__,
     KPCA__,
@@ -269,13 +270,14 @@ def _run_regression(params, reg, input, out):
 
 rule glm:
     input:
-        expand("{infile}", infile=pybda_config[REGRESSION_INFILE__])
+        expand("{infile}", infile=pybda_config.infiles(GLM__)])
     output:
-        expand("{outfolder}/glm{out}",
+        expand("{outfolder}/{glm}{out}",
+               glm=pybda_config.outfiles_no_suffix(GLM_),
                outfolder=pybda_config[OUTFOLDER__],
                out=["-table.tsv", "-statistics.tsv"])
     params:
-        out = os.path.join(pybda_config[OUTFOLDER__], "glm"),
+        out = os.path.join(pybda_config[OUTFOLDER__], GLM__),
         reg = os.path.join(dirname(), "glm.py"),
         params = " ".join([x for x in pybda_config[SPARKPARAMS__]]),
     run:
