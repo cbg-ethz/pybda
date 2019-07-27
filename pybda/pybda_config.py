@@ -19,6 +19,7 @@
 # @email = 'simon.dirmeier@bsse.ethz.ch'
 import datetime
 import os
+import re
 import sys
 
 import yaml
@@ -78,7 +79,16 @@ class PyBDAConfig:
 
     def outfiles_no_suffix(self, algorithm):
         outfiles = self.__tree.outfiles(algorithm)
-        return [drop_suffix(out, ".tsv") for out in outfiles]
+        outfiles = [drop_suffix(out, '.tsv') for out in outfiles]
+        return outfiles
+
+    def outfiles_basename(self, algorithm):
+        outfiles = self.__tree.outfiles(algorithm)
+        reg = re.compile(r".*/(.*)\.tsv")
+        outfiles = [reg.match(out).group(1) for out in outfiles]
+        if len(outfiles) == 1:
+            return outfiles[0]
+        return outfiles
 
     def __check_required_args(self):
         for el in REQUIRED_ARGS__:
@@ -110,7 +120,7 @@ class PyBDAConfig:
 
 
 if __name__ == "__main__":
-    file = "/home/simon/PROJECTS/pybda/analysis/test/test-forest.config"
+    file = "/home/simon/PROJECTS/pybda/analysis/test/test.config"
     with open(file, 'r') as fh:
         conf_ = yaml.load(fh)
-    PyBDAConfig(conf_)
+    PyBDAConfig(conf_).outfiles_no_suffix("glm")

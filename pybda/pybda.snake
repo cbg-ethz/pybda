@@ -35,7 +35,6 @@ from pybda.globals import (
     FOREST__,
     GBM__,
     GLM__,
-    GLM_OUTFILE__
     INFILE__,
     ICA__,
     KPCA__,
@@ -270,14 +269,15 @@ def _run_regression(params, reg, input, out):
 
 rule glm:
     input:
-        expand("{infile}", infile=pybda_config.infiles(GLM__)])
+        expand("{infile}", infile=pybda_config.infiles(GLM__))
     output:
         expand("{outfolder}/{glm}{out}",
-               glm=pybda_config.outfiles_no_suffix(GLM_),
+               glm=pybda_config.outfiles_basename(GLM__),
                outfolder=pybda_config[OUTFOLDER__],
                out=["-table.tsv", "-statistics.tsv"])
     params:
-        out = os.path.join(pybda_config[OUTFOLDER__], GLM__),
+        out = os.path.join(pybda_config[OUTFOLDER__],
+                           pybda_config.outfiles_basename(GLM__)),
         reg = os.path.join(dirname(), "glm.py"),
         params = " ".join([x for x in pybda_config[SPARKPARAMS__]]),
     run:
@@ -286,13 +286,15 @@ rule glm:
 
 rule forest:
     input:
-        expand("{infile}", infile=pybda_config[REGRESSION_INFILE__])
+        expand("{infile}", infile=pybda_config.infiles(FOREST__))
     output:
-        expand("{outfolder}/forest{out}",
+        expand("{outfolder}/{forest}{out}",
+               forest=pybda_config.outfiles_basename(FOREST__),
                outfolder=pybda_config[OUTFOLDER__],
                out=["-statistics.tsv"])
     params:
-        out = os.path.join(pybda_config[OUTFOLDER__], "forest"),
+        out = os.path.join(pybda_config[OUTFOLDER__],
+                           pybda_config.outfiles_basename(FOREST__)),
         reg = os.path.join(dirname(), "forest.py"),
         params = " ".join([x for x in pybda_config[SPARKPARAMS__]]),
     run:
@@ -301,13 +303,15 @@ rule forest:
 
 rule gbm:
     input:
-        expand("{infile}", infile=pybda_config[REGRESSION_INFILE__])
+        expand("{infile}", infile=pybda_config.infiles(GBM__))
     output:
-        expand("{outfolder}/gbm{out}",
+        expand("{outfolder}/{gbm}{out}",
+               gbm=pybda_config.outfiles_basename(GBM__),
                outfolder=pybda_config[OUTFOLDER__],
                out=["-statistics.tsv"])
     params:
-        out = os.path.join(pybda_config[OUTFOLDER__], "gbm"),
+        out = os.path.join(pybda_config[OUTFOLDER__],
+                           pybda_config.outfiles_basename(GBM__)),
         reg = os.path.join(dirname(), "gbm.py"),
         params = " ".join([x for x in pybda_config[SPARKPARAMS__]]),
     run:
@@ -315,7 +319,7 @@ rule gbm:
 
 
 def _run_clustering(params, kme, input, out):
-    clust = str(pybda_config[N_CENTERS__]).replace(" ", "")
+    clust = str(pybda_config[N_CENTERS__]).replace(" ", ""),
     cmd = """{} --master {} {} {} {} {} {} {}""".format(
           pybda_config[SPARK__],
           pybda_config[SPARKIP__],

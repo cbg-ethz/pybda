@@ -88,8 +88,8 @@ def run(file, meta, features, response, family, outpath, predict):
             fl = fl.fit(data)
             fl.write(outpath)
             if pathlib.Path(predict).exists():
-                pre_data = read_and_transmute(spark, predict, features,
-                                              drop=False)
+                pre_data = read_and_transmute(
+                  spark, predict, features, drop=False)
                 pre_data = fl.predict(pre_data)
                 pre_data.write(outpath)
         except Exception as e:
