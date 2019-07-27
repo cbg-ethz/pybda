@@ -27,6 +27,7 @@ from pybda.config.rule_tree import RuleTree
 from pybda.globals import (
     REQUIRED_ARGS__, INFILE__, OUTFOLDER__, METHODS__, DEBUG__
 )
+from pybda.util.string import drop_suffix
 
 sys.excepthook = lambda ex, msg, _: print("{}: {}".format(ex.__name__, msg))
 
@@ -49,8 +50,6 @@ class PyBDAConfig:
                     os.makedirs(value)
             setattr(self, key, value)
 
-
-
         self.__tree = RuleTree(
           getattr(self, INFILE__),
           getattr(self, OUTFOLDER__))
@@ -58,11 +57,11 @@ class PyBDAConfig:
         self.__check_required_args()
         self.__check_available_method()
         self.__set_filenames()
-        print(self.__tree)
 
     def __getitem__(self, item):
-        if hasattr(self, item):
-            return getattr(self, item)
+        if isinstance(item, str):
+            if hasattr(self, item):
+                return getattr(self, item)
         # TODO: this needs to be solved better
         # e.g. when dimred is called, we need to check arguments here
         # otherwise we can just return ""
@@ -70,6 +69,16 @@ class PyBDAConfig:
 
     def __contains__(self, item):
         return hasattr(self, item)
+
+    def infiles(self, algorithm):
+        return self.__tree.infiles(algorithm)
+
+    def outfiles(self, algorithm):
+        return self.__tree.outfiles(algorithm)
+
+    def outfiles_no_suffix(self, algorithm):
+        outfiles = self.__tree.outfiles(algorithm)
+        return [drop_suffix(out, ".tsv") for out in outfiles]
 
     def __check_required_args(self):
         for el in REQUIRED_ARGS__:
@@ -83,17 +92,12 @@ class PyBDAConfig:
                              "'{}'".format("/".join(METHODS__)))
 
     def __set_filenames(self):
-        print("asdsad")
         for m in METHODS__:
             if hasattr(self, m):
                 attr = getattr(self, m)
                 attr = attr.replace(" ", "").split(",")
                 for el in attr:
-                    print("asd", m, el)
                     self.__tree.add(m, el)
-                    print(self.__tree)
-        print("asdsad2")
-        print(self.__tree)
         for node in self.__tree.nodes.values():
             setattr(self, self.__infile_key(node.method), node.infile)
         if hasattr(self, DEBUG__):

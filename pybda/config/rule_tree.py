@@ -41,6 +41,14 @@ class RuleTree:
                 stack.append(c)
         return tree
 
+    def __iter__(self):
+        st = [self.__root]
+        while len(st):
+            n = st.pop()
+            for el in n.children:
+                st.append(el)
+            yield n
+
     @staticmethod
     def __tree(node, stri):
         stri += "\t" * node.level + " -> " + node.method + \
@@ -51,14 +59,17 @@ class RuleTree:
     def nodes(self):
         return self.__nodes
 
+    def infiles(self, algorithm):
+        infiles = [n.infile for n in self if n.algorithm == algorithm]
+        return infiles
+
+    def outfiles(self, algorithm):
+        outfiles = [n.outfile for n in self if n.algorithm == algorithm]
+        return outfiles
+
     def add(self, method, algorithm):
-        print("s4")
         par = self.__get_proper_parents(method)
-        print("s1")
-        print(method, algorithm, par)
-        print("s2")
         for el in par:
-            print("s3")
             n = RuleNode(method, algorithm, el, self.__infile, self.__outfolder)
             self.__nodes[method] = n
             el.add(n)
@@ -75,12 +86,8 @@ class RuleTree:
         if itr is None:
             return [self.__root]
 
-        st = [self.__root]
         parents = []
-        while len(st):
-            n = st.pop()
-            for el in n.children():
-                st.append(el)
+        for n in self:
             if n.method in itr:
                 parents.append(n)
         return parents
