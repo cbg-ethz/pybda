@@ -35,6 +35,7 @@ from pybda.globals import (
     FOREST__,
     GBM__,
     GLM__,
+    GMM__,
     INFILE__,
     ICA__,
     KPCA__,
@@ -355,27 +356,31 @@ rule kmeans:
         params = " ".join([x for x in pybda_config[SPARKPARAMS__]]),
         kme = os.path.join(dirname(), "kmeans.py")
     run:
-         for i, o, in zip(input, params.out):
-             _run_clustering(params.params, params.kme, i, o)
+        for i, o, in zip(input, params.out):
+            _run_clustering(params.params, params.kme, i, o)
 
 
 rule gmm:
     input:
-        expand("{infile}", infile=pybda_config[CLUSTERING_INFILE__])
+        expand("{infile}", infile=pybda_config.infiles(GMM__))
     output:
         directory(expand("{outfolder}/{clust}",
-                         clust=pybda_config[CLUSTERING__],
+                         clust=pybda_config.outfiles_basename(GMM__),
                          outfolder=pybda_config[OUTFOLDER__])),
         expand("{outfolder}/{clust}-profile.{out}",
-               clust=pybda_config[CLUSTERING__],
-               outfolder=pybda_config[OUTFOLDER__], out=["png", "pdf", "eps", "svg", "tsv"]),
+               clust=pybda_config.outfiles_basename(GMM__),
+               outfolder=pybda_config[OUTFOLDER__],
+               out=["png", "pdf", "eps", "svg", "tsv"]),
         directory(expand("{outfolder}/{clust}-transformed-K{k}-components",
-                         clust=pybda_config[CLUSTERING__],
+                         clust=pybda_config.outfiles_basename(GMM__),
                          outfolder=pybda_config[OUTFOLDER__],
                          k=str(pybda_config[N_CENTERS__]).replace(" ", "").split(",")))
     params:
-        out = pybda_config[OUTFOLDER__] + "/gmm",
+        out = expand("{fold}/{out}",
+                     fold=pybda_config[OUTFOLDER__],
+                     out=pybda_config.outfiles_basename(GMM__)),
         params = " ".join([x for x in pybda_config[SPARKPARAMS__]]),
         kme = os.path.join(dirname(), "gmm.py")
     run:
-        _run_clustering(params.params, params.kme, input, params.out)
+        for i, o, in zip(input, params.out):
+            _run_clustering(params.params, params.kme, i, o)
