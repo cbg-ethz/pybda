@@ -38,6 +38,7 @@ from pybda.globals import (
     INFILE__,
     ICA__,
     KPCA__,
+    KMEANS__,
     LDA__,
     MAHA__,
     MAX_CENTERS__,
@@ -84,82 +85,82 @@ def _submit_dim_red(method, inpt, out, params):
 
 rule factor_analysis:
     input:
-        expand("{infile}", infile=pybda_config[INFILE__])
+        expand("{infile}", infile=pybda_config.infiles(FACTOR_ANALYSIS__))
     output:
         expand("{outfolder}/{dimred}{fls}",
                outfolder=pybda_config[OUTFOLDER__],
-               dimred=FACTOR_ANALYSIS__, fls=[".tsv", "-loadings.tsv", "-loglik.tsv"]),
+               dimred=pybda_config.outfiles_basename(FACTOR_ANALYSIS__),
+               fls=[".tsv", "-loadings.tsv", "-loglik.tsv"]),
         directory(expand("{outfolder}/{dimred}-plot",
                          outfolder=pybda_config[OUTFOLDER__],
-                         dimred=FACTOR_ANALYSIS__))
+                         dimred=pybda_config.outfiles_basename(FACTOR_ANALYSIS__)))
     params:
-        out = expand("{outfolder}/{dimred}",
-                     outfolder=pybda_config[OUTFOLDER__],
-                     dimred=FACTOR_ANALYSIS__),
+        out = os.path.join(pybda_config[OUTFOLDER__],
+                           pybda_config.outfiles_basename(FACTOR_ANALYSIS__)),
         fa = os.path.join(dirname(), "factor_analysis.py"),
         params = " ".join([x for x in pybda_config[SPARKPARAMS__]])
     run:
-        _submit_dim_red(params.fa, input, params.out[0], params.params)
+        _submit_dim_red(params.fa, input, params.out, params.params)
 
 
 rule pca:
     input:
-        expand("{infile}", infile=pybda_config[INFILE__])
+        expand("{infile}", infile=pybda_config.infiles(PCA__))
     output:
         expand("{outfolder}/{dimred}{fls}",
                outfolder=pybda_config[OUTFOLDER__],
-               dimred=PCA__, fls=[".tsv", "-loadings.tsv"]),
+               dimred=pybda_config.outfiles_basename(PCA__),
+               fls=[".tsv", "-loadings.tsv"]),
         directory(expand("{outfolder}/{dimred}-plot",
                          outfolder=pybda_config[OUTFOLDER__],
-                         dimred=PCA__))
+                         dimred=pybda_config.outfiles_basename(PCA__)))
     params:
-        out = expand("{outfolder}/{dimred}",
-                     outfolder=pybda_config[OUTFOLDER__],
-                     dimred=PCA__),
+        out = os.path.join(pybda_config[OUTFOLDER__],
+                           pybda_config.outfiles_basename(PCA__)),
         pca = os.path.join(dirname(), "pca.py"),
         params = " ".join([x for x in pybda_config[SPARKPARAMS__]])
     run:
-        _submit_dim_red(params.pca, input, params.out[0], params.params)
+        _submit_dim_red(params.pca, input, params.out, params.params)
 
 
 rule kpca:
     input:
-        expand("{infile}", infile=pybda_config[INFILE__])
+        expand("{infile}", infile=pybda_config.infiles(KPCA__))
     output:
         expand("{outfolder}/{dimred}{fls}",
                outfolder=pybda_config[OUTFOLDER__],
-               dimred=KPCA__, fls=[".tsv", "-loadings.tsv"]),
+               dimred=pybda_config.outfiles_basename(KPCA__),
+               fls=[".tsv", "-loadings.tsv"]),
         directory(expand("{outfolder}/{dimred}-plot",
                          outfolder=pybda_config[OUTFOLDER__],
-                         dimred=KPCA__))
+                         dimred=pybda_config.outfiles_basename(KPCA__)))
     params:
-        out = expand("{outfolder}/{dimred}",
-                     outfolder=pybda_config[OUTFOLDER__],
-                     dimred=KPCA__),
+        out = os.path.join(pybda_config[OUTFOLDER__],
+                           pybda_config.outfiles_basename(KPCA__)),
         pca = os.path.join(dirname(), "kpca.py"),
         params = " ".join([x for x in pybda_config[SPARKPARAMS__]])
     run:
-        _submit_dim_red(params.pca, input, params.out[0], params.params)
+        _submit_dim_red(params.pca, input, params.out, params.params)
 
 
 rule ica:
     input:
-        expand("{infile}", infile=pybda_config[INFILE__])
+        expand("{infile}", infile=pybda_config.infiles(ICA__))
     output:
         expand("{outfolder}/{dimred}{fls}",
                outfolder=pybda_config[OUTFOLDER__],
-               dimred=ICA__, fls=[".tsv", "-loadings.tsv"]),
+               dimred=pybda_config.outfiles_basename(ICA__),
+               fls=[".tsv", "-loadings.tsv"]),
         directory(expand("{outfolder}/{dimred}-plot",
                          outfolder=pybda_config[OUTFOLDER__],
-                         dimred=ICA__))
+                         dimred=pybda_config.outfiles_basename(ICA__)))
     params:
-        out = expand("{outfolder}/{dimred}",
-                     outfolder=pybda_config[OUTFOLDER__],
-                     dimred=ICA__),
-        pca = os.path.join(dirname(), "ica.py"),
+        out = os.path.join(pybda_config[OUTFOLDER__],
+                           pybda_config.outfiles_basename(ICA__)),
+        ica = os.path.join(dirname(), "ica.py"),
         params = " ".join([x for x in pybda_config[SPARKPARAMS__]])
     run:
-        _submit_dim_red(params.pca, input, params.out[0], params.params)
+        _submit_dim_red(params.ica, input, params.out, params.params)
 
 
 rule lda:
@@ -319,7 +320,7 @@ rule gbm:
 
 
 def _run_clustering(params, kme, input, out):
-    clust = str(pybda_config[N_CENTERS__]).replace(" ", ""),
+    clust = pybda_config[N_CENTERS__].replace(" ", "")
     cmd = """{} --master {} {} {} {} {} {} {}""".format(
           pybda_config[SPARK__],
           pybda_config[SPARKIP__],
@@ -334,24 +335,28 @@ def _run_clustering(params, kme, input, out):
 
 rule kmeans:
     input:
-        expand("{infile}", infile=pybda_config[CLUSTERING_INFILE__])
+        expand("{infile}", infile=pybda_config.infiles(KMEANS__))
     output:
         directory(expand("{outfolder}/{clust}",
-                         clust=pybda_config[CLUSTERING__],
+                         clust=pybda_config.outfiles_basename(KMEANS__),
                          outfolder=pybda_config[OUTFOLDER__])),
         expand("{outfolder}/{clust}-profile.{out}",
-               clust=pybda_config[CLUSTERING__],
-               outfolder=pybda_config[OUTFOLDER__], out=["png", "pdf", "eps", "svg", "tsv"]),
+               clust=pybda_config.outfiles_basename(KMEANS__),
+               outfolder=pybda_config[OUTFOLDER__],
+               out=["png", "pdf", "eps", "svg", "tsv"]),
         directory(expand("{outfolder}/{clust}-transformed-K{k}-clusters",
-                         clust=pybda_config[CLUSTERING__],
+                         clust=pybda_config.outfiles_basename(KMEANS__),
                          outfolder=pybda_config[OUTFOLDER__],
                          k=str(pybda_config[N_CENTERS__]).replace(" ", "").split(",")))
     params:
-        out = pybda_config[OUTFOLDER__] + "/kmeans",
+        out = expand("{fold}/{out}",
+                     fold=pybda_config[OUTFOLDER__],
+                     out=pybda_config.outfiles_basename(KMEANS__)),
         params = " ".join([x for x in pybda_config[SPARKPARAMS__]]),
         kme = os.path.join(dirname(), "kmeans.py")
     run:
-        _run_clustering(params.params, params.kme, input, params.out)
+         for i, o, in zip(input, params.out):
+             _run_clustering(params.params, params.kme, i, o)
 
 
 rule gmm:

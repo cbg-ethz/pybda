@@ -62,7 +62,8 @@ class PyBDAConfig:
     def __getitem__(self, item):
         if isinstance(item, str):
             if hasattr(self, item):
-                return getattr(self, item)
+                attr = getattr(self, item)
+                return attr
         # TODO: this needs to be solved better
         # e.g. when dimred is called, we need to check arguments here
         # otherwise we can just return ""
