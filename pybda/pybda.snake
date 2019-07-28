@@ -20,6 +20,7 @@
 
 
 import typing
+import re
 
 from pybda import dirname
 from pybda import PyBDAConfig
@@ -321,6 +322,13 @@ rule gbm:
 
 
 def _run_clustering(params, kme, input, out):
+    inreg = re.compile(".+/(.+)\.tsv")
+    inmatch = inreg.match(input).group(1)
+
+    if not re.match(".*{}.*".format(inmatch), out):
+        print("input/output file mismatch:\n\t{} ->{}".format(input, out))
+        return
+
     clust = pybda_config[N_CENTERS__].replace(" ", "")
     cmd = """{} --master {} {} {} {} {} {} {}""".format(
           pybda_config[SPARK__],
