@@ -25,17 +25,21 @@ In the case of a successful computation of a job, PyBDA will write results and p
 For instance, if you want to first reduce your data set into a lower dimensional space and then cluster it using several cluster centers, you would first specify a config file similar to this:
 
 ```bash
-$ cat config.yml
+$ cd data && cat pybda-usecase.config
 
 spark: spark-submit
-infile: data/single_cell_imaging_data.tsv
-outfolder: data
-meta: data/meta_columns.tsv
-features: data/feature_columns.tsv
-dimension_reduction: factor_analysis
+infile: single_cell_imaging_data.tsv
+predict: single_cell_imaging_data.tsv
+outfolder: results
+meta: meta_columns.tsv
+features: feature_columns.tsv
+dimension_reduction: pca
 n_components: 5
 clustering: kmeans
-n_centers: 50, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200
+n_centers: 3
+regression: glm
+family: binomial
+response: is_infected
 sparkparams:
   - "--driver-memory=3G"
   - "--executor-memory=6G"
@@ -45,7 +49,7 @@ debug: true
 Executing PyBDA, and calling the methods above, is then as easy as this:
 
 ```bash
-$ pybda clustering config.yml local
+$ pybda run pybda-usecase.config local
 ```
 
 ## Installation
