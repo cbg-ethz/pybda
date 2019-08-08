@@ -78,7 +78,6 @@ class RuleTree:
     def __get_proper_parents(self, method):
         if self.__curr is self.__root:
             return [self.__root]
-
         if method not in PARENT_METHODS__:
             itr = PREPROCESSING_METHODS__
         else:
@@ -90,4 +89,6 @@ class RuleTree:
         for n in self:
             if n.method in itr:
                 parents.append(n)
+        if not parents:
+            return [self.__root]
         return parents

@@ -46,7 +46,7 @@ def run(config, spark, cmd):
 
 def _get_from_config(config, key):
     with open(config, 'r') as fh:
-        conf_ = yaml.load(fh)
+        conf_ = yaml.load(fh, Loader=yaml.FullLoader)
     check_args(conf_, key)
     return conf_[key].replace(" ", "").split(",")
 

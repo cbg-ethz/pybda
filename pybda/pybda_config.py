@@ -73,7 +73,8 @@ class PyBDAConfig:
         return hasattr(self, item)
 
     def infiles(self, algorithm):
-        return self.__tree.infiles(algorithm)
+        infiles = self.__tree.infiles(algorithm)
+        return infiles
 
     def outfiles(self, algorithm):
         return self.__tree.outfiles(algorithm)
@@ -120,10 +121,3 @@ class PyBDAConfig:
     @staticmethod
     def __infile_key(method):
         return method + "_" + INFILE__
-
-
-if __name__ == "__main__":
-    file = "/home/simon/PROJECTS/pybda/analysis/test/test.config"
-    with open(file, 'r') as fh:
-        conf_ = yaml.load(fh)
-    PyBDAConfig(conf_).outfiles_no_suffix("glm")
