@@ -43,7 +43,7 @@ Installing PyBDA is easy.
   I obviously recommend installation using the first option.
 
 3) Download Spark from `Apache Spark <https://spark.apache.org/downloads.html>`_ (use the *prebuilt for Apache Hadoop* package type)
-   and install the unpacked folder into a custom path like ```opt/local/spark```. Put an alias into your ```.bashrc``` (or whatever shell you are using)
+   and install the unpacked folder into a custom path like ```/opt/local/spark```. Put an alias into your ```.bashrc``` (or whatever shell you are using)
 
    .. code-block:: bash
 
@@ -140,13 +140,12 @@ For instance, consider the config file below:
 
 .. literalinclude:: ../../data/pybda-usecase.config
   :caption: Contents of ``data/pybda-usecase.config`` file
-  :name: pybda-usecase.config
 
 It would execute the following jobs:
 
 1) dimension reduction (PCA) on the input file with 5 components,
-2) clustering on the result of the dimensionality reduction with 3 cluster centers (``k``-means),
-3) binomial-family generalized regression model (i.e. logistic) on the input file with response *is_infected* and features from ``data/feature_columns.tsv``
+2) clustering on the result of the dimensionality reduction with multiple cluster centers (``k``-means),
+3) binomial-family random forest (i.e. logistic) on the input file with response *is_infected* and features from ``data/feature_columns.tsv``
 
 In addition we would allow Spark to use `3G` driver memory, `6G` executor memory and set the configuration variable ``spark.driver.maxResultSize``
 to `3G` (all configurations can be found `here <https://spark.apache.org/docs/latest/configuration.html#available-properties>`__).

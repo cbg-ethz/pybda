@@ -3,6 +3,7 @@ div.topic {
     border: 0px;
 }
 
-.wy-nav-content {
-    max-width: 1000px !important;
+div.body h1 {
+    margin-top: 10%;
+    max-width: 1000px;
 }
