@@ -2,3 +2,7 @@ div.topic {
     background-color: inherit;
     border: 0px;
 }
+
+.wy-nav-content {
+    max-width: 1000px !important;
+}
