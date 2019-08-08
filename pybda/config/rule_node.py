@@ -38,7 +38,6 @@ class RuleNode:
         except AttributeError or TypeError:
             self.__outfile = outfolder
 
-
     def __str__(self):
         return "'{}'".format(self.__method)
 

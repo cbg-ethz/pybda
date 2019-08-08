@@ -67,6 +67,7 @@ Dependencies
 
 * Apache Spark == 2.4.0
 * Python == 3.6
+* Linux or Mac OS
 
 Example
 -------
