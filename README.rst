@@ -2,7 +2,7 @@
 PyBDA
 *****
 
-A commandline tool for analysis of big biological data sets using Snakemake and Apache Spark.
+A commandline tool for analysis of big biological data sets for distributed HPC clusters.
 
 About
 =====

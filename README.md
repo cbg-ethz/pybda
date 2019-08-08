@@ -9,7 +9,7 @@
 [![bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/pybda/README.html)
 [![version](https://img.shields.io/pypi/v/pybda.svg?colorB=black&style=flat)](https://pypi.org/project/pybda/)
 
-A commandline tool for analysis of big biological data sets using Snakemake and Apache Spark.
+A commandline tool for analysis of big biological data sets for distributed HPC clusters.
 
 ## About
 
@@ -22,22 +22,22 @@ you want to execute in succession (e.g. dimensionality reduction into clustering
 In the case of a successful computation of a job, PyBDA will write results and plots, and create statistics. If one of the jobs fails PyBDA will report where and which method failed
 (owing to Snakemake's scheduling) such that the same pipeline can effortlessly be continued from where it failed the last time.
 
-For instance, if you want to first reduce your data set into a lower dimensional space and then cluster it using several cluster centers, you would first specify a config file similar to this:
+For instance, if you want to first reduce your data set into a lower dimensional space, cluster it using several cluster centers, and fit a random forest you would first specify a config file similar to this:
 
 ```bash
-$ cd data && cat pybda-usecase.config
+$ cat data/pybda-usecase.config
 
 spark: spark-submit
-infile: single_cell_imaging_data.tsv
-predict: single_cell_imaging_data.tsv
-outfolder: results
-meta: meta_columns.tsv
-features: feature_columns.tsv
+infile: data/single_cell_imaging_data.tsv
+predict: data/single_cell_imaging_data.tsv
+outfolder: data/results
+meta: data/meta_columns.tsv
+features: data/feature_columns.tsv
 dimension_reduction: pca
 n_components: 5
 clustering: kmeans
-n_centers: 3
-regression: glm
+n_centers: 50, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200
+regression: forest
 family: binomial
 response: is_infected
 sparkparams:
@@ -49,7 +49,7 @@ debug: true
 Executing PyBDA, and calling the methods above, is then as easy as this:
 
 ```bash
-$ pybda run pybda-usecase.config local
+$ pybda run data/pybda-usecase.config local
 ```
 
 ## Installation

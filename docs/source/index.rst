@@ -26,7 +26,7 @@ PyBDA
    :target: https://pypi.org/project/pybda/
    :alt: PyPi
 
-A commandline tool for analysis of big biological data sets using Snakemake and Apache Spark.
+A commandline tool for analysis of big biological data sets for distributed HPC clusters.
 
 .. toctree::
    :hidden:
@@ -67,29 +67,51 @@ Dependencies
 
 * Apache Spark == 2.4.0
 * Python == 3.6
-* Linux or Mac OS
+* Linux or MacOS
 
 Example
 -------
 
 To run PyBDA you only need to provide a config-file and, if possible, the IP of a spark-cluster (otherwise you can just call PyBDA locally using ``local``).
-The config file for a simple clustering task might look like this:
+The config file for several machine learning tasks might look like this:
 
-.. literalinclude:: _static/clustering-example.config
+.. literalinclude:: _static/pybda-usecase.config
   :caption: Example of a configuration file.
-  :name: clustering-example.config
+  :name: pybda-usecase.config
 
-The above configuration would tell PyBDA to first use factor analysis to embed the data into a 5-dimensional
-latent space and then fit several k-means clusterings with different numbers of clusters on that space.
+The above configuration would tell PyBDA to execute multiple things:
+
+* first use an PCA to embed the data into a 5-dimensional latent space,
+* do a ``k``-means clustering with different numbers of clusters centers on that space,
+* fit a random forest to the response called ``is_infected`` and use a ``binomial`` family,
+* give the Spark driver 3Gb of memory and the executor 6Gb,
+* print debug information.
+
+
 You call PyBDA like that:
 
 .. code-block:: bash
 
-   pybda clustering example.config local
+   pybda run data/pybda-usecase.config local
 
 where ``local`` tells PyBDA to just use your desktop as Spark cluster.
-The result of any PyBDA call creates several files and figures.
-For the example above, two of the plots generated are shown below:
+
+The result of any PyBDA call creates several files and figures. For instance, we
+should check the performance of the forest:
+
+.. literalinclude:: _static/forest-statistics.tsv
+   :caption: Performance statistics of the random forest.
+   :name: rf.tsv
+
+For the PCA, we for instance create a biplot. It's always informative to look at these:
+
+.. figure:: _static/pca-biplot.svg
+   :align: center
+   :height: 425px
+
+   PCA biplot of the single-cell imaging data.
+
+And for the consecutive clustering, two of the plots generated from the clustering are shown below:
 
 .. figure:: _static/kmeans-profile.svg
    :align: center
@@ -101,7 +123,7 @@ For the example above, two of the plots generated are shown below:
    :align: center
    :height: 325px
 
-   Each row shows the distribution of the number of cells per cluster (component).
+   Distribution of the number of cells per cluster (component).
 
 
 References

@@ -32,7 +32,7 @@ from pybda.globals import DIM_RED__, CLUSTERING__, REGRESSION__
 from pybda.logger import logger_format
 
 
-def run(config, spark, cmd):
+def _run(config, spark, cmd):
     from pybda import snake_file
     snakemake.snakemake(
       lock=False,
@@ -44,11 +44,23 @@ def run(config, spark, cmd):
     )
 
 
+def _methods(conf, str):
+    check_args(conf, str)
+    return conf[str].replace(" ", "").split(",")
+
+
 def _get_from_config(config, key):
     with open(config, 'r') as fh:
         conf_ = yaml.load(fh, Loader=yaml.FullLoader)
-    check_args(conf_, key)
-    return conf_[key].replace(" ", "").split(",")
+    if not isinstance(key, list):
+        key = [key]
+
+    methods = []
+    for method in key:
+        if method in conf_:
+            methods += _methods(conf_, method)
+
+    return methods
 
 
 @click.group()
@@ -61,10 +73,11 @@ def cli():
 @click.argument("spark", type=str)
 def sample(config, spark):
     """
-    Subsample a data set down to a specified fraction.
+    Subsample a data set down to a specified fraction
+     from a CONFIG in a SPARK session.
     """
 
-    run(config, spark, "sample")
+    _run(config, spark, "sample")
 
 
 @cli.command()
@@ -76,7 +89,7 @@ def dimension_reduction(config, spark):
     """
 
     cl = _get_from_config(config, DIM_RED__)
-    run(config, spark, cl)
+    _run(config, spark, cl)
 
 
 @cli.command()
@@ -84,11 +97,11 @@ def dimension_reduction(config, spark):
 @click.argument("spark", type=str)
 def clustering(config, spark):
     """
-    Do a clustering fit of a data set.
+    Do a clustering fit from a CONFIG in a SPARK session.
     """
 
     cl = _get_from_config(config, CLUSTERING__)
-    run(config, spark, cl)
+    _run(config, spark, cl)
 
 
 @cli.command()
@@ -96,11 +109,24 @@ def clustering(config, spark):
 @click.argument("spark", type=str)
 def regression(config, spark):
     """
-    Fit a regression model to a data set
+    Fit a regression model from a CONFIG in a SPARK session.
     """
 
     cl = _get_from_config(config, REGRESSION__)
-    run(config, spark, cl)
+    _run(config, spark, cl)
+
+
+@cli.command()
+@click.argument("config", type=str)
+@click.argument("spark", type=str)
+def run(config, spark):
+    """
+    Execute all tasks defined in a CONFIG in a SPARK session.
+    """
+
+    methods = [REGRESSION__, DIM_RED__, CLUSTERING__]
+    cl = _get_from_config(config, methods)
+    _run(config, spark, cl)
 
 
 if __name__ == "__main__":

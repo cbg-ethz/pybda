@@ -75,7 +75,7 @@ wrong parameterization, etc. To see how PyBDA starts applications you can add
 ``debug: true`` to your config file. This will print the Spark commands to stdout.
 For instance, we use the following config file:
 
-.. literalinclude:: _static/clustering-example.config
+.. literalinclude:: _static/pybda-usecase.config
   :caption: Example of a configuration file.
 
 We then call PyBDA using the ``clustering`` subcommand and pipe the output to a
@@ -83,14 +83,14 @@ file. Grepping ``spark-submit`` gives us the calls Spark does.
 
 .. code-block:: bash
 
-  pybda clustering clustering-example.config local > job
+  pybda clustering data/pybda-config.config local > job
   grep -i spark-submit job
 
-  > Submitting job spark-submit --master local --driver-memory=3G --executor-memory=6G
+  > Submitting job spark-submit --master local --driver-memory=3G --executor-memory=5G
   >                             pybda/factor_analysis.py 5
   >                             single_cell_imaging_data.tsv feature_columns.tsv
   >                             results/factor_analysis
-  > Submitting job spark-submit --master local --driver-memory=3G --executor-memory=6G
+  > Submitting job spark-submit --master local --driver-memory=3G --executor-memory=5G
   >                             pybda/kmeans.py 50,100,110,120,130,140,150,160,170,180,190,200
   >                             results/factor_analysis.tsv feature_columns.tsv results/kmeans
 
