@@ -183,7 +183,7 @@ rule lda:
         pca = os.path.join(dirname(), "lda.py"),
         params = " ".join([x for x in pybda_config[SPARKPARAMS__]])
     run:
-        cmd = """{} --master {} {} {} {} {} {} {} {}""".format(
+        cmd = """{} --master {} {} {} {} {} {} {} {} > {}""".format(
             pybda_config[SPARK__],
             pybda_config[SPARKIP__],
             params.params,
@@ -192,7 +192,8 @@ rule lda:
             input,
             pybda_config[FEATURES__],
             pybda_config[RESPONSE__],
-            params.out[0])
+            params.out[0],
+            params.out[0] + "-spark.log")
         _run(cmd)
 
 
