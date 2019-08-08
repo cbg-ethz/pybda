@@ -30,7 +30,7 @@ A commandline tool for analysis of big biological data sets using Snakemake and 
 
 .. toctree::
    :hidden:
-   :maxdepth: 2
+   :maxdepth: 1
    :titlesonly:
 
    Home <self>

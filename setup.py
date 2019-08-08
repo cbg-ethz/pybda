@@ -30,12 +30,12 @@ doc_deps = [
 
 setup(
   name='pybda',
-  version='0.0.6',
-  description='Big biological data analysis with Snakemake and Apache Spark',
+  version='0.1.0',
+  description='Analysis of big biological data sets for distributed HPC clusters.',
   long_description=readme(),
   url='https://github.com/cbg-ethz/pybda',
   author='Simon Dirmeier',
-  author_email='simon.dirmeier@bsse.ethz.de',
+  author_email='simon.dirmeier@web.de',
   license='GPLv3',
   keywords='bigdata analysis pipeline workflow spark pyspark machinelearning',
   packages=find_packages(),

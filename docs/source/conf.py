@@ -29,7 +29,8 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.mathjax',
               'sphinx.ext.viewcode',
               'sphinxcontrib.fulltoc',
-              'sphinx_fontawesome']
+              'sphinx_fontawesome',
+              'nbsphinx']
 templates_path = ['_templates']
 suppress_warnings = ['image.nonlocal_uri']
 
@@ -39,7 +40,6 @@ master_doc = 'index'
 project = 'pybda'
 copyright = '2018-2019, Simon Dirmeier'
 author = 'Simon Dirmeier'
-
 
 language = None
 

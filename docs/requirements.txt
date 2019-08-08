@@ -1,3 +1,4 @@
 sphinx
 sphinx_fontawesome
 sphinxcontrib-fulltoc
+nbsphinx
