@@ -85,8 +85,10 @@ class PyBDAConfig:
 
     def outfiles_basename(self, algorithm):
         outfiles = self.__tree.outfiles(algorithm)
-        reg = re.compile(r".*/(.*)\.tsv")
+        reg = re.compile(r"(?:.*/)?(.*)\.tsv")
         outfiles = [reg.match(out).group(1) for out in outfiles]
+        if len(outfiles) == 0:
+            return '<none>'
         if len(outfiles) == 1:
             return outfiles[0]
         return outfiles
