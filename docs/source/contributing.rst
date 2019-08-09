@@ -39,5 +39,5 @@ Please format your code using ``yapf`` and ``flake8``:
     yapf --style ../.styles.yapf -i my_file.py
     tox -e lint
 
-Fruthermore, please don't duplicate code and try to use type annotations where you
+Furthermore, please don't duplicate code and try to use type annotations where you
 find them necessary or useful.
