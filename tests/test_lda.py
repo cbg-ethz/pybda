@@ -22,7 +22,9 @@
 import numpy
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
+from pybda.globals import FEATURES__
 from pybda.lda import LDA
+from pybda.spark.features import split_vector
 from tests.test_dimred_api import TestDimredAPI
 
 
@@ -44,17 +46,13 @@ class TestLDA(TestDimredAPI):
         cls.evec = model.projection
 
         cls.fit_tran = cls.lda.fit_transform(cls.spark_df())
+        cls.fittransform_data = split_vector(
+            cls.fit_tran.data.select(FEATURES__), FEATURES__).toPandas().values
 
     @classmethod
     def tearDownClass(cls):
         cls.log("LDA")
         super().tearDownClass()
-
-    def test_lda_loadings(self):
-        assert numpy.allclose(
-          numpy.absolute(self.sk_lda.scalings_[:,:2]),
-          numpy.absolute(self.evec[:,:2]),
-          atol=1e-01)
 
     def test_lda_response(self):
         assert self.fit_tran.response == self.response()
@@ -67,6 +65,4 @@ class TestLDA(TestDimredAPI):
 
     def test_lda_correct_loadings_were_chosen(self):
         arr = self.fit_tran.variances
-        print(arr)
         assert numpy.all(arr[:-1] >= arr[1:])
-

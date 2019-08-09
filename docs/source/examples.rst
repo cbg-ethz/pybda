@@ -13,17 +13,3 @@ On models
 - Examples for :doc:`clustering and mixture models <example_clustering>`.
 
 - Fitting :doc:`regression models <example_regression>`.
-
-- :doc:`Combining multiple machine learning tasks <>` in one config file.
-
-
-On programming and Spark
-------------------------
-
-
-- Handling :doc:`Spark standalone clusters <>` with ``sparkhpc``.
-
-- Optimizing the :doc:`Spark configuration parameters <>` on standalone clusters.
-
-- :doc:`Extending the PyBDA API <>` with custom algorithms.
-
