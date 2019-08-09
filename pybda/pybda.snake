@@ -168,18 +168,18 @@ rule ica:
 
 rule lda:
     input:
-        expand("{infile}", infile=pybda_config[INFILE__])
+        expand("{infile}", infile=pybda_config.infiles(LDA__))
     output:
         expand("{outfolder}/{dimred}{fls}",
                outfolder=pybda_config[OUTFOLDER__],
-               dimred=LDA__, fls=[".tsv",  "-projection.tsv"]),
+               dimred=pybda_config.outfiles_basename(LDA__),
+               fls=[".tsv",  "-projection.tsv"]),
         directory(expand("{outfolder}/{dimred}-plot",
                          outfolder=pybda_config[OUTFOLDER__],
-                         dimred=LDA__))
+                         dimred=pybda_config.outfiles_basename(LDA__)))
     params:
-        out = expand("{outfolder}/{dimred}",
-                     outfolder=pybda_config[OUTFOLDER__],
-                     dimred=LDA__),
+        out = os.path.join(pybda_config[OUTFOLDER__],
+                           pybda_config.outfiles_basename(LDA__)),
         pca = os.path.join(dirname(), "lda.py"),
         params = " ".join([x for x in pybda_config[SPARKPARAMS__]])
     run:
@@ -192,8 +192,8 @@ rule lda:
             input,
             pybda_config[FEATURES__],
             pybda_config[RESPONSE__],
-            params.out[0],
-            params.out[0] + "-spark.log")
+            params.out,
+            params.out + "-spark.log")
         _run(cmd)
 
 

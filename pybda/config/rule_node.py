@@ -32,7 +32,7 @@ class RuleNode:
         self.__infile = infile if parent is None else parent.outfile
         self.__level = 0 if parent is None else parent.level + 1
         try:
-            infl_suffix = re.match("(?:.+/)?(.+)\.tsv", self.__infile).group(1)
+            infl_suffix = re.match(r"(?:.+/)?(.+)\.tsv", self.__infile).group(1)
             self.__outfile = os.path.join(
               outfolder, algorithm + "_from_{}".format(infl_suffix)) + ".tsv"
         except AttributeError or TypeError:
