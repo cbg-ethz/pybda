@@ -1,4 +1,4 @@
- @import url('https://fonts.googleapis.com/css?family=Lora|Raleway&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Lora&display=swap');
 
 body {
     font-family: "Lora", "Georgia", "serif";
@@ -10,7 +10,7 @@ div.body h1 {
 }
 
 div.body h1, div.body h2, div.body h3 {
-    font-family: "Raleway", "sans-serif";
+    font-family: "Lora", "Georgia", "serif";
     font-style: italic;
     color: #222;
 }
@@ -39,5 +39,5 @@ div.sphinxsidebar a, div.sphinxsidebar li,  div.sphinxsidebar ul, div.sphinxside
 }
 
 div.sphinxsidebar a:hover, div.sphinxsidebar li:hover {
-    font-size: 1.1rem;
+    color: darkslategray;
 }
