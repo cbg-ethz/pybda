@@ -60,8 +60,8 @@ html_theme_options = {
     'sidebarwidth': 5
 }
 html_sidebars = {
-    'index':    ['logo.html', 'sidebarintro.html'],
-    '**':       ['logo.html', 'localtoc.html']
+    'index': ['logo.html', 'sidebarintro.html'],
+    '**':    ['logo.html', 'localtoc.html']
 }
 html_title = ""
 html_static_path = ['_static']
