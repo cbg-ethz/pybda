@@ -13,7 +13,7 @@ A commandline tool for analysis of big biological data sets for distributed HPC 
 
 ## About
 
-PyBDA is a Python library and command line tool for big data analytics and machine learning scaling to tera byte sized data sets.
+PyBDA is a Python library and command line tool for big data analytics and machine learning scaling to big, high-dimensional data sets.
 
 In order to make PyBDA scale to big data sets, we use [Apache Spark](https://spark.apache.org/)'s DataFrame API which, if developed against, automatically distributes
 data to the nodes of a high-performance cluster and does the computation of expensive machine learning tasks in parallel.
@@ -71,7 +71,7 @@ Otherwise you could download the latest [release](https://github.com/cbg-ethz/py
 ## Documentation
 
 Check out the documentation [here](https://pybda.readthedocs.io/en/latest/).
-The documentation will walk you though
+The documentation will walk you through
 
 * the installation process,
 * setting up Apache Spark,

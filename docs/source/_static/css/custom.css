@@ -1,9 +1,43 @@
-div.topic {
-    background-color: inherit;
-    border: 0px;
+ @import url('https://fonts.googleapis.com/css?family=Lora|Raleway&display=swap');
+
+body {
+    font-family: "Lora", "Georgia", "serif";
 }
 
 div.body h1 {
     margin-top: 10%;
     max-width: 1000px;
+}
+
+div.body h1, div.body h2, div.body h3 {
+    font-family: "Raleway", "sans-serif";
+    font-style: italic;
+    color: #222;
+}
+
+div.body p, li {
+    color: #222;
+    line-height: 1.5;
+    font-weight: 400;
+    text-align: justify;
+    text-justify: inter-word;
+}
+
+div.topic {
+    background-color: inherit;
+    border: 0px;
+}
+
+div.sphinxsidebar h3, div.sphinxsidebar h4 {
+    font-family: "Lora", "Georgia", "serif";
+    color: #222;
+}
+
+div.sphinxsidebar a, div.sphinxsidebar li,  div.sphinxsidebar ul, div.sphinxsidebar a:link, div.sphinxsidebar li:link, div.sphinxsidebar ul:link, div.sphinxsidebar a:hover, div.sphinxsidebar li:hover, div.sphinxsidebar ul:hover {
+    text-decoration: none;
+    border-bottom: none;
+}
+
+div.sphinxsidebar a:hover, div.sphinxsidebar li:hover {
+    font-size: 1.1rem;
 }
