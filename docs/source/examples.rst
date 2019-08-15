@@ -8,8 +8,10 @@ provide some examples to help getting started.
 On models
 ---------
 
-- Learn how to apply :doc:`dimension-reduction <example_dimension_reduction>` on massive data sets.
+- Applying :doc:`dimension-reduction <example_dimension_reduction>` on massive data sets.
 
 - Examples for :doc:`clustering and mixture models <example_clustering>`.
 
-- Fitting :doc:`regression models <example_regression>`.
+- Fitting :doc:`regression models <example_regression>` to data.
+
+- How to :doc:`combine multiple algorithms <example_multiple_combinations>` with each others in one config file.
