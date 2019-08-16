@@ -117,7 +117,7 @@ clustering and regression.
 +------------------------+------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
 | ``response``                                                                  | Name of column in ``infile`` that is the response                                                                           |
 +------------------------+------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
-| ``family``             | ``gaussian``/``binomial``/``categorical``            | Distribution family of the response variable                                                                                |
+| ``family``             | ``gaussian``/``binomial``                            | Distribution family of the response variable                                                                                |
 +------------------------+------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+
 
 The abbreveations of the methods are explained in the following list.
@@ -255,19 +255,25 @@ For dimension reduction:
 
 .. code-block:: bash
 
-  pybda dimension-reduction pybda-usecase.config IP
+  pybda dimension-reduction data/pybda-usecase.config IP
 
 For clustering:
 
 .. code-block:: bash
 
-   pybda clustering pybda-usecase.config IP
+   pybda clustering data/pybda-usecase.config IP
 
 For regression:
 
 .. code-block:: bash
 
-   pybda regression pybda-usecase.config IP
+   pybda regression data/pybda-usecase.config IP
+
+And, finally, if you want to execute all methods (i.e., regression/clustering/dimension reduction/...) you would call PyBDA with a ``run`` argument:
+
+.. code-block:: bash
+
+  pybda run data/pybda-usecase.config IP
 
 In all cases, the methods create ``tsv`` files, plots and statistics.
 
