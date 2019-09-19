@@ -25,7 +25,7 @@ jobs:
       - run:
           name: install spark
           command: |
-            export SPARK_VERSION='2.4.3'
+            export SPARK_VERSION='2.4.4'
             export HADOOP_VERSION='2.7'
             export SPARK_PATH="spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}"
             export SPARK_HOME="/tmp/${SPARK_PATH}"
@@ -51,7 +51,7 @@ jobs:
       - run:
           name: run tests
           command: |
-            export SPARK_VERSION='2.4.3'
+            export SPARK_VERSION='2.4.4'
             export HADOOP_VERSION='2.7'
             export SPARK_PATH="spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}"
             export SPARK_HOME="/tmp/${SPARK_PATH}"

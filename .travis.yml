@@ -11,7 +11,7 @@ matrix:
 
 env:
   global:
-    - SPARK_VERSION="2.4.3"
+    - SPARK_VERSION="2.4.4"
     - HADOOP_VERSION="2.7"
     - SPARK_PATH="spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}"
     - SPARK_HOME="/tmp/${SPARK_PATH}"
