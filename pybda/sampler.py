@@ -32,6 +32,7 @@ logger.setLevel(logging.INFO)
 
 
 def _sample(data, variable, el, min_cnt, sample_ratio):
+    logger.info("\tsampling from: {}".format(el))
     df = data.filter("{} == '{}'".format(variable, el)).limit(min_cnt)
     df = df.sample(withReplacement=False, fraction=sample_ratio, seed=23)
     return df
@@ -41,9 +42,11 @@ def _sample(data, variable, el, min_cnt, sample_ratio):
 def sample(data, n, variable=None):
 
     if variable:
+        logger.info("Grouping by: {}".format(variable))
         mcnt = data.groupby(variable).count().toPandas()
         els, cnts = mcnt[variable].values, mcnt["count"].values
         min_cnt = int(cnts.min())
+        logger.info("Min count: {}".format(min_cnt))
         sample_ratio = float(min(n / min_cnt, 1)) / len(els)
         df = _sample(data, variable, els[0], min_cnt, sample_ratio)
         for i in range(1, len(els)):
