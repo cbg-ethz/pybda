@@ -30,7 +30,7 @@ doc_deps = [
 
 setup(
   name='pybda',
-  version='0.1.0',
+  version='0.1.1',
   description='Analysis of big biological data sets for distributed HPC clusters.',
   long_description=readme(),
   url='https://github.com/cbg-ethz/pybda',
@@ -51,7 +51,7 @@ setup(
       'pyspark==2.4.0',
       'scipy>=1.0.0',
       'seaborn>=0.9.0',
-      'snakemake>=5.2.2',
+      'snakemake>=5.7.1',
       'sparkhpc>=0.3.post4'
   ],
   test_requires=test_deps,

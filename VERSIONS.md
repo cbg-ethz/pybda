@@ -1,5 +1,16 @@
 ## Versions
 
+### 0.1.1
+
+* Fixes bugs due to new snakemake release
+
+### 0.1.0
+
+* First major alpha release
+* Updates docu
+* Some minor revisions
+* Allos building combinations of methods
+
 ### 0.0.7
 
 * Allow for multiple algorithms of the same class

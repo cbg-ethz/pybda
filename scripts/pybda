@@ -39,7 +39,7 @@ def _run(config, spark, cmd):
       unlock=False,
       snakefile=snake_file(),
       targets=cmd,
-      configfile=config,
+      configfiles=config,
       config={"sparkip": spark}
     )
 
