@@ -34,12 +34,13 @@ from pybda.logger import logger_format
 
 def _run(config, spark, cmd):
     from pybda import snake_file
+
     snakemake.snakemake(
       lock=False,
       unlock=False,
       snakefile=snake_file(),
       targets=cmd,
-      configfiles=config,
+      configfiles=[config],
       config={"sparkip": spark}
     )
 
@@ -59,7 +60,6 @@ def _get_from_config(config, key):
     for method in key:
         if method in conf_:
             methods += _methods(conf_, method)
-
     return methods
 
 
